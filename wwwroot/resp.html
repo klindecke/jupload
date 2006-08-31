@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+<title>Coppermine - XP Web Publishing Wizard</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+<!--
+body {
+        font-family : Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        background : #FFFFFF ;
+        color : Black;
+        margin: 20px;
+        border: 1px solid #000000;
+}
+
+td {
+        font-size: 12px;
+        padding-top: 5px;
+        padding-bottom: 0px;
+}
+
+h1{
+        font-weight: bold;
+        font-size: 22px;
+        font-family: Arial, Helvetica, sans-serif;
+        text-decoration: none;
+        line-height : 120%;
+        color : #0E72A4;
+}
+
+h2 {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 18px;
+        color: #0E72A4;
+        text-decoration: underline;
+}
+
+h3 {
+        font-weight: bold;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        text-decoration: underline;
+}
+
+p {
+        font-family : Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        margin: 10px 10px 0px 0px;
+}
+
+ul {
+        margin-left: 5px;
+        margin-right: 0px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 0px;
+}
+
+li {
+        margin-left: 10px;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        padding: 0px;
+        list-style-position: outside;
+        list-style-type: disc;
+}
+
+form {
+        display: inline;
+}
+
+input {
+        width: 200px;
+}
+
+-->
+</style>
+</head>
+
+<body>
+<h1>Coppermine - XP Web Publishing Wizard</h1>
+<p></p>
+        <p><b>Enter your username and password to login</b></p>
+        <form method="post" id="login" action="http://etiennegauthier.hd.free.fr/coppermine/xp_publish.php?cmd=publish">
+            <table border="0" cellpadding="0" cellspasing="0">
+                <tr>
+                        <td>Username:&nbsp;</td>
+                        <td><input type="text" name="username" value="" maxlength="25" /></td>
+                </tr>
+                <tr>
+                        <td>Password:&nbsp;</td>
+                        <td><input type="password" name="password" value="" maxlength="25" /></td>
+            </tr>
+            </table>
+        </form>
+<div id="content"></div>
+
+<script language="javascript" type="text/javascript">
+function create_alb() {
+        if (createAlb.newAlbName.value == ''){
+                return false;
+        } else {
+                createAlb.submit();
+        }
+}
+
+function create_alb_or_use_existing() {
+        if (createAlb.newAlbName.value == ''){
+                startUpload();
+        } else {
+                createAlb.submit();
+        }
+}
+
+function startUpload() {
+        var xml = window.external.Property('TransferManifest');
+        var files = xml.selectNodes('transfermanifest/filelist/file');
+
+        for (i = 0; i < files.length; i++) {
+                var postTag = xml.createNode(1, 'post', '');
+                postTag.setAttribute('href', 'http://etiennegauthier.hd.free.fr/coppermine/xp_publish.php?cmd=add_picture&album=' + selform.album.value);
+                postTag.setAttribute('name', 'userpicture');
+
+                var dataTag = xml.createNode(1, 'formdata', '');
+                dataTag.setAttribute('name', 'MAX_FILE_SIZE');
+                dataTag.text = '10000000';
+                postTag.appendChild(dataTag);
+
+                files.item(i).appendChild(postTag);
+        }
+
+        var uploadTag = xml.createNode(1, 'uploadinfo', '');
+        uploadTag.setAttribute('friendlyname', 'Galeries des Gauthier');
+        var htmluiTag = xml.createNode(1, 'htmlui', '');
+        htmluiTag.text = 'http://etiennegauthier.hd.free.fr/coppermine/';
+        uploadTag.appendChild(htmluiTag);
+
+        xml.documentElement.appendChild(uploadTag);
+
+        window.external.Property('TransferManifest')=xml;
+        window.external.SetWizardButtons(true,true,true);
+        content.innerHtml=xml;
+        window.external.FinalNext();
+}
+
+function OnBack() {
+        window.external.FinalBack();        window.external.SetWizardButtons(false,true,false);
+}
+
+function OnNext() {
+        login.submit();}
+
+function OnCancel() {
+}
+
+function window.onload() {
+        window.external.SetHeaderText('Galeries des Gauthier','Les photos partagées de la famille Gauthier');
+        window.external.SetWizardButtons(true,true,false);
+}
+</script>
+</body>
+</html>
+

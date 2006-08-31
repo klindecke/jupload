@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc destdir="doc" access="private" use="true" notree="false" nonavbar="false" noindex="false" splitindex="true" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" packagenames="wjhk.jupload2.upload,wjhk.jupload2,wjhk.jupload2.filedata,wjhk.jupload2.exception,wjhk.jupload2.policies,wjhk.jupload2.gui" sourcepath="src" classpath="bin;C:\j2sdk1.4.2_08\jre\lib\plugin.jar" doctitle="JUpload 2"/>
+    </target>
+</project>
