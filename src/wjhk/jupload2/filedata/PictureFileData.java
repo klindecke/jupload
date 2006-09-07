@@ -5,9 +5,11 @@ package wjhk.jupload2.filedata;
 
 import java.awt.Canvas;
 import java.awt.Image;
+import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -133,15 +135,19 @@ public class PictureFileData extends FileData  {
 	void freeMemory(String caller) {
 		Runtime rt = Runtime.getRuntime();
 
+		/*
 		uploadPolicy.displayDebug("freeMemory : " + caller, 80);
 		uploadPolicy.displayDebug("freeMemory (before " + caller + ") : " + rt.freeMemory(), 80);
 		uploadPolicy.displayDebug("maxMemory  (before " + caller + ") : " + rt.maxMemory(), 80);
+		*/
 
 		rt.runFinalization();
 		rt.gc();
 		
+		/*
 		uploadPolicy.displayDebug("freeMemory (after " + caller + ") : " + rt.freeMemory(), 80);
 		uploadPolicy.displayDebug("maxMemory  (after " + caller + ") : " + rt.maxMemory(), 80);
+		*/
 	}
 	/**
 	 * Creation of a temporary file, that contains the transformed picture. For instance, it can be resized, rotated... 
@@ -159,10 +165,15 @@ public class PictureFileData extends FileData  {
 				if (iter.hasNext()) {					
 		            ImageWriter writer = (ImageWriter) iter.next();
 		            ImageWriteParam iwp = writer.getDefaultWriteParam();
+
 		            iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		            float values[] = iwp.getCompressionQualityValues();
 		            //Let's select the best available quality.
 		            iwp.setCompressionQuality(values[values.length-1]);
+		            
+		            //
+		            uploadPolicy.displayDebug("ImageWriter1 (used), CompressionQuality=" + iwp.getCompressionQuality(), 95);
+		            
 					//Let's create the picture file.
 	                FileImageOutputStream output = new FileImageOutputStream(transformedPictureFile);
 	                writer.setOutput(output);
@@ -170,6 +181,23 @@ public class PictureFileData extends FileData  {
 	                writer.write(null, image, iwp);
 	                writer.dispose();
 	                output.close();
+	                
+	                //For debug : let's display some parameters for the current image.
+	                ColorModel cm = bufferedImage.getColorModel();
+	                ColorSpace cs = cm.getColorSpace();
+                	uploadPolicy.displayDebug("  colorSpace: isCS_RGB=" + (cs.isCS_sRGB() ? "true" : "false"), 90);
+	                int nbComponents = cs.getNumComponents();
+	                for (int i=0; i<nbComponents; i+=1) {
+	                	uploadPolicy.displayDebug("  colorSpace: component " + cs.getName(i) + "=" 
+	                			+ cs.getMinValue(i) + "-" + cs.getMaxValue(i), 90);
+	                }
+	                
+	                
+	                //For debug: test if any other driver exists.
+	                int i=2;
+	                while (iter.hasNext()) {
+	                	uploadPolicy.displayDebug("ImageWriter" + i + " (not used)", 60);
+	                }//while
 				} else {
 					//Too bad: no writer for the selected picture format
 					throw new JUploadException ("No writer for the '" + localPictureFormat + "'picture format.");
@@ -317,11 +345,10 @@ public class PictureFileData extends FileData  {
 					}
 				}
 				
-
-				//These variables contain the actual width and height before rotation.
+				//These variables contain the actual width and height after recaling, and before rotation.
 				int scaledWidth  = (int) (nonScaledRotatedWidth * scale);
 				int scaledHeight = (int) (nonScaledRotatedHeight* scale);
-
+				
 				if (quarterRotation != 0) {
 					double theta = Math.toRadians(90 * quarterRotation);
 					double translationX=0, translationY=0;
@@ -355,14 +382,48 @@ public class PictureFileData extends FileData  {
 				if (scale < 1) {
 					//The scale method adds scaling before current transformation.
 		    		transform.scale(scale, scale);
-				}				
+				}	
 				
 				if (transform.isIdentity()) {
 					//No transformation
 					bufferedImage = localBufferedImage;
 				} else {
-					AffineTransformOp affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR );
-					bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, null);
+					AffineTransformOp affineTransformOp = null;
+					/*
+					//This switch is temporary : it allows easy comparison between different methods.
+					// The pictures seems Ok, but if anyone has a better solution : I take it!
+					// 
+					switch (0) {
+					case 0:
+					*/
+						//Pictures are Ok.
+						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, null);
+					/*
+						break;
+					case 1:
+						//This options create black pictures !
+						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
+						break;
+					case 2:
+						//This options create also black pictures !
+						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
+						break;
+					case 3:
+						//Pictures are Ok.
+						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, null);
+						break;
+					case 100:
+						//This options create black pictures !
+						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+						//bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
+						bufferedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
+						break;
+					}
+					*/
 					affineTransformOp.filter(localBufferedImage, bufferedImage);
 					affineTransformOp = null;
 				}
