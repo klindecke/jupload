@@ -103,38 +103,10 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	 * @param postURL
 	 */
 	protected CoppermineUploadPolicy(String postURL, int albumId, Applet theApplet, int debugLevel, JTextArea status) {
+		//Let's call our mother !          :-)
 		super(postURL, 1, theApplet, debugLevel, status);
 
 		this.albumId = albumId;
-
-		//cookie is the value of the javascript <I>document.cookie</I> property.
-		String cookie;
-		//userAgent is the value of the javascript <I>navigator.userAgent</I> property.
-		String userAgent;
-
-		try {
-			JSObject applet = JSObject.getWindow(getApplet());
-		    JSObject doc = (JSObject) applet.getMember("document");
-		    cookie = (String) doc.getMember("cookie");
-	
-		    JSObject nav = (JSObject) applet.getMember("navigator");
-		    userAgent = (String) nav.getMember("userAgent");
-		    
-		    displayDebug("cookie: " + cookie, 10);
-		    displayDebug("userAgent: " + userAgent, 10);
-		} catch (JSException e) {
-			displayWarn("JSException (" + e.getMessage()+ ") in CoppermineUploadPolicy, trying default values.");
-			//If we can't have access to the JS objects, we're in development :
-			// - No translation.
-			// - Use of hard coded values.
-			cookie = "cpg146_data=YTozOntzOjI6IklEIjtzOjMyOiJkOTk0NzRhMzlkZjBjZDAxM2EwYTc2ZGMwZjNhNDI4NCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO30%3D; b5de201130bd138db614bab4c3a1c4a3=f46dcd4f6a8c025614325024311a2fd0";
-			userAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.0; fr-FR; rv:1.7.12) Gecko/20050915";
-		}
-	    addHeader("Cookie: " + cookie);
-	    addHeader("User-Agent: " + userAgent);
-	    
-	    boolean createBufferedImage = DEFAULT_CREATE_BUFFERED_IMAGE;
-		String targetPictureFormat = DEFAULT_TARGET_PICTURE_FORMAT;
 	}
 	
 	/**
