@@ -16,6 +16,9 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import netscape.javascript.JSException;
+import netscape.javascript.JSObject;
+
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.FilePanel;
@@ -113,9 +116,46 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		
 		displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
 		
-		//get the server protocol. 
+
+		///////////////////////////////////////////////////////////////////////////////
+		//Load session data read from the navigator: 
+		// - cookies. 
+		// - User-Agent : re
+		//
+		//cookie is the value of the javascript <I>document.cookie</I> property.
+		String cookie;
+		//userAgent is the value of the javascript <I>navigator.userAgent</I> property.
+		String userAgent;
+
+		try {
+			JSObject applet = JSObject.getWindow(getApplet());
+		    JSObject doc = (JSObject) applet.getMember("document");
+		    cookie = (String) doc.getMember("cookie");
+	
+		    JSObject nav = (JSObject) applet.getMember("navigator");
+		    userAgent = (String) nav.getMember("userAgent");
+		    
+		    displayDebug("cookie: " + cookie, 10);
+		    displayDebug("userAgent: " + userAgent, 10);
+		} catch (JSException e) {
+			displayWarn("JSException (" + e.getMessage()+ ") in CoppermineUploadPolicy, trying default values.");
+			//If we can't have access to the JS objects, we're in development :
+			//Let's put some 'hard value', to test the applet from the development tool (mine is eclipse).
+			cookie = "cpg146_data=YTozOntzOjI6IklEIjtzOjMyOiJkOTk0NzRhMzlkZjBjZDAxM2EwYTc2ZGMwZjNhNDI4NCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO30%3D; b5de201130bd138db614bab4c3a1c4a3=f46dcd4f6a8c025614325024311a2fd0";
+			userAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.0; fr-FR; rv:1.7.12) Gecko/20050915";
+		}
+		//The cookies and user-agent will be added to the header sent by the applet:
+	    addHeader("Cookie: " + cookie);
+	    addHeader("User-Agent: " + userAgent);
+
+		///////////////////////////////////////////////////////////////////////////////
+	    //get the server protocol. 
+		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
+	    // sending the cookie uses the same http protocol that the original connexion.
+	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
 		serverProtocol = UploadPolicyFactory.getParameter(theApplet, PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL);
 
+		///////////////////////////////////////////////////////////////////////////////
 		//Get resource file.
 		String lang = UploadPolicyFactory.getParameter(theApplet,PROP_LANG, DEFAULT_LANG);
 		Locale locale;
@@ -125,6 +165,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		} else {
 			locale = new Locale(lang);
 		}
+		
+		///////////////////////////////////////////////////////////////////////////////
+		// Let's display some information to the user.
 		displayDebug("debug : " + debugLevel, 1); 
 		displayDebug("serverProtocole : " + serverProtocol, 20); 
 		displayDebug("Java version  : " + System.getProperty("java.version"), 1); 
