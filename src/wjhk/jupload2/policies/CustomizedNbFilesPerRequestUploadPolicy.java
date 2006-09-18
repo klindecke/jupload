@@ -10,10 +10,13 @@ import javax.swing.JTextArea;
 
 /**
  * These is a simple specialization of {@link wjhk.jupload2.policies.DefaultUploadPolicy}:
- * the constructor allows to set a maximum number of file per upload. 
+ * the constructor allows to set a maximum number of file per upload.
+ * <BR> 
  * 
  * @author Etienne Gauthier
  * @see #CustomizedNbFilesPerRequestUploadPolicy(String, int, Applet, int, JTextArea)
+ * @deprecated This class is actually of no use, as it will behave the same way as the
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
  */
 public class CustomizedNbFilesPerRequestUploadPolicy extends DefaultUploadPolicy {
 
@@ -27,7 +30,10 @@ public class CustomizedNbFilesPerRequestUploadPolicy extends DefaultUploadPolicy
 	 * @see UploadPolicy
 	 */
 	protected CustomizedNbFilesPerRequestUploadPolicy(String postURL, int maxFilesPerUpload, Applet theApplet, int debugLevel, JTextArea status) {
-		super(postURL, maxFilesPerUpload, theApplet, debugLevel, status);
+		super(postURL, theApplet, debugLevel, status);
+		
+		//The given maxFilesPerUpload must superseed the default value.
+		this.maxFilesPerUpload = maxFilesPerUpload;
 	}
 
 

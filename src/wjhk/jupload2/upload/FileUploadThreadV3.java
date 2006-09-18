@@ -38,6 +38,7 @@ import java.net.URL;
 import javax.swing.JProgressBar;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -159,7 +160,7 @@ public class FileUploadThreadV3 extends Thread {
 		}
 	}
 	
-	private StringBuffer[] setAllHead(FileData[] fileA, StringBuffer bound){
+	private StringBuffer[] setAllHead(FileData[] fileA, StringBuffer bound) throws JUploadException {
 		StringBuffer[] sbArray = new StringBuffer[fileA.length];
 		FileData fileData;
 		StringBuffer sb;
@@ -180,8 +181,11 @@ public class FileUploadThreadV3 extends Thread {
 			.append("\"")
 			.append("\r\n");
 			// Line 3 & Empty Line 4.
-			sb.append("Content-Type: ");sb.append(fileData.getMimeType());
-			sb.append("\r\n");sb.append("\r\n");
+			sb	.append("Content-Type: ")
+			.append(fileData.getMimeType())
+			.append("\r\n");
+			sb.append("\r\n");
+			uploadPolicy.displayDebug("head : '" +  sb.toString() + "'", 70);
 		}
 		return sbArray;
 	}
@@ -290,6 +294,11 @@ public class FileUploadThreadV3 extends Thread {
 			}
 		}
 		
+		//If the upload was unsuccessful, we try to alert the webmaster.
+		if (!bUploadOk) {
+			uploadPolicy.sendDebugInformation("Error in Upload");
+		}
+		
 	}//run
 	
 	/**
@@ -301,12 +310,13 @@ public class FileUploadThreadV3 extends Thread {
 	 * @param iTotalFileCount The total number of files that are to upload. It is used to generate the "file 1 out of 4 " message, on the progress bar. 
 	 *
 	 */
-	boolean doUpload (FileData[] filesA, int nbFilesToUpload, int iTotalFileCount) {
+	private boolean doUpload (FileData[] filesA, int nbFilesToUpload, int iTotalFileCount) {
 		boolean bReturn = true;
 		Socket sock = null;
 		DataOutputStream dataout = null;
 		BufferedReader datain = null;
 		String msg;
+		String action = "init";
 		StringBuffer header = new StringBuffer();
 		
 		clearServerOutPut();
@@ -321,6 +331,7 @@ public class FileUploadThreadV3 extends Thread {
 			progress.setString(uploadPolicy.getString("infoUploading", msg));
 		
 		try{
+			action = "get URL";
 			URL url = new URL(uploadPolicy.getPostURL());
 			
 			StringBuffer boundary = new StringBuffer();
@@ -338,6 +349,7 @@ public class FileUploadThreadV3 extends Thread {
 			}
 			
 			// Header: Request line
+			action = "append headers";
 			header.append("POST ");header.append(url.getPath());
 			if(null != url.getQuery() && !"".equals(url.getQuery())){
 				header.append("?");header.append(url.getQuery());
@@ -349,8 +361,10 @@ public class FileUploadThreadV3 extends Thread {
 			header.append("Accept: */*\r\n");
 			header.append("Content-type: multipart/form-data; boundary=");
 			header.append(boundary.substring(2, boundary.length()) +"\r\n");
-			header.append("Content-length: ");
-			header.append(contentLength);header.append("\r\n");
+			header.append("Connection: close\r\n");
+			header.append("Content-length: ")
+				  .append(contentLength-2)
+				  .append("\r\n");
 			
 			//Get specific headers for this upload.
 			uploadPolicy.onAppendHeader(header);
@@ -365,25 +379,109 @@ public class FileUploadThreadV3 extends Thread {
 			//DataInputStream datain  = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
 			
 			// Send http request to server
+			action = "send bytes (1)";
 			dataout.writeBytes(header.toString());
 			for(int i=0; i < nbFilesToUpload && !stop; i++){
 				// Write to Server the head(4 Lines), a File and the tail.
+				action = "send bytes (20)" + i;
 				dataout.writeBytes(head[i].toString());
+				action = "send bytes (30)" + i;
 				uploadFileStream(filesA[i].getInputStream(),dataout);
+				action = "send bytes (40)" + i;
 				dataout.writeBytes(tail[i].toString());
 			}
+			action = "flush";
 			dataout.flush ();
 			if(!stop && (null != progress))
 				progress.setString(uploadPolicy.getString("infoUploaded", msg));
 			
+			
+			action = "wait for server answer";
+			String strUploadSuccess = uploadPolicy.getStringUploadSuccess();
+			boolean uploadSuccess = false;
+			boolean readingHttpBody = false;
+			StringBuffer sbHttpResponseBody = new StringBuffer(); 
 			String line;
-			while ((line = datain.readLine()) != null) {
-				this.addServerOutPut(line + "\n");
+			/*
+			 * Below is a trace of my tests to correct upload: upload under HTTP 1.1 generates a quite long wait time
+			 * after each HTTP upload request. It has actually be corrected by the '-2' in the content-length.
+			 * See above.
+			 * I keep this part of code, to make it easier to do new tests, if necessary.
+			 *  
+			switch (1)
+			{
+			case 1:
+			*/
+				//Now, we wait for the full answer (which should mean that the uploaded files
+				//has been treated on the server)
+				while ((line = datain.readLine()) != null) {
+					this.addServerOutPut(line);
+					this.addServerOutPut("\n");
+					
+					//Is this upload a success ?
+					action ="test success";
+					if (line.matches(strUploadSuccess)) {
+						uploadSuccess = true;
+					}
+					
+					//Store the http body 
+					if (readingHttpBody) {
+						action = "sbHttpResponseBody";
+						sbHttpResponseBody.append(line).append("\n");
+					}
+					if (line.length() == 0) {
+						//Next lines will be the http body (or perhaps we already are in the body, but it's Ok anyway) 
+						action = "readingHttpBody";
+						readingHttpBody = true;
+					}
+				}
+			/*
+				break;
+			case 2:
+				//We first close the connexion, to make http 1.1 answer quicker.
+				dataout.close();
+				break;
+			case 3:
+				//We first close the connexion, to make http 1.1 answer quicker.
+				dataout.close();
+				//Now, we wait for the full answer (which should mean that the uploaded files
+				//has been treated on the server)
+				while ((line = datain.readLine()) != null) {
+					this.addServerOutPut(line + "\n");
+				}
+				break;
+			case 4: //KO
+				//Let's write some blank lines, to indicate that our request is finished.
+				dataout.writeChars("\n");
+				dataout.writeChars("\n");
+				//Now, we wait for the full answer (which should mean that the uploaded files
+				//has been treated on the server)
+				while ((line = datain.readLine()) != null) {
+					this.addServerOutPut(line + "\n");
+				}
+				break;
+			case 5:
+				//Let's write some blank lines, to indicate that our request is finished.
+				dataout.write(0);
+				dataout.write(0);
+				//Now, we wait for the full answer (which should mean that the uploaded files
+				//has been treated on the server)
+				while ((line = datain.readLine()) != null) {
+					this.addServerOutPut(line + "\n");
+				}
+				break;
 			}
+			*/
+				
+			//Is our upload a success ?
+			if (! uploadSuccess) {
+				throw new JUploadExceptionUploadFailed(uploadPolicy.getString("errHttpResponse"));
+			}
+
 		}catch(Exception e){
 			this.e = e;
 			bReturn = false;
-			uploadPolicy.displayErr(uploadPolicy.getString("errDuringUpload") + " (main) (" + e.getClass() + ") : " + e.getMessage());
+			uploadPolicy.displayErr(uploadPolicy.getString("errDuringUpload") + " (main | " + action + ") (" + e.getClass() + ") : " + e.getMessage());
 		}finally{
 			try{
 				// Throws java.io.IOException
