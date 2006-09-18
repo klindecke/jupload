@@ -87,8 +87,10 @@ public interface UploadPolicy {
 	final static String PROP_NB_FILES_PER_REQUEST 	= "nbFilesPerRequest";
 	final static String PROP_POST_URL 				= "postURL";
 	final static String PROP_SERVER_PROTOCOL		= "serverProtocol";
+	final static String PROP_STRING_UPLOAD_SUCCESS	= "stringUploadSuccess";
 	final static String PROP_TARGET_PICTURE_FORMAT	= "targetPictureFormat";
 	final static String PROP_UPLOAD_POLICY 			= "uploadPolicy";
+	final static String PROP_WEBMASTER_MAIL			= "webmasterMail";
 	
 	final static String DEFAULT_POST_URL = 
 		//"http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value";
@@ -101,8 +103,10 @@ public interface UploadPolicy {
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
 	final static int     DEFAULT_NB_FILES_PER_REQUEST	= 1;
 	final static String  DEFAULT_SERVER_PROTOCOL		= "HTTP/1.1";
+	final static String  DEFAULT_STRING_UPLOAD_SUCCESS	= ".* 200 OK$";
 	final static String  DEFAULT_TARGET_PICTURE_FORMAT	= null;
 	final static String  DEFAULT_UPLOAD_POLICY			= "DefaultUploadPolicy";
+	final static String  DEFAULT_WEBMASTER_MAIL			= "";
 
 	/**
 	 * This method is called to create the top panel. The default implementation is defined
@@ -163,7 +167,16 @@ public interface UploadPolicy {
 	 * @return Returns the maximum number of files, to download in one HTTP request.
 	 */
 	public int getMaxFilesPerUpload();
-		
+
+	
+	/**
+	 * This method allows the applet to send debug information to the webmaster.
+	 * 
+	 * @param reason A string describing briefly the problem. The mail subject will be somethin like: Jupload Error (reason)
+	 * @see DefaultUploadPolicy#sendDebugInformation()  
+	 */
+	public void sendDebugInformation(String reason);
+	
 	/**
 	 * log an error message, based on an exception. Will be logged in the status bar, if defined.
 	 * 
@@ -302,6 +315,23 @@ public interface UploadPolicy {
 	public String getString(String key, int value1);
 
 
+	/**
+	 * Get the regular expression that will be tested against each line of the server answer. If one line matches this
+	 * expression, that upload is marked as successful. 
+	 * <BR>
+	 * The upload works this way:
+	 * <OL>
+	 * <LI>Upload the selected file(s) to the server
+	 * <LI>Get all the server HTTP response. 
+	 * <LI>The stringUploadSuccess regular expression is tested against each line from the server.
+	 * <LI>If the above test gives a match, the upload is marked as successful. Else, the upload is marked
+	 *     as unsuccessful, and a JUploadExceptionUploadFailure is thrown. 
+	 * </OL>
+	 * 
+	 * @return The regular expression that must be run again each line of the http answer.
+	 */
+	public String getStringUploadSuccess();
+	
 	/**
 	 * This method indicate whether or not the debug messages must be displayed. Default is no debug (0).
 	 * <BR>

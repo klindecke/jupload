@@ -3,10 +3,13 @@
  */
 package wjhk.jupload2.policies;
 
-
+	
+	
 import java.applet.Applet;
 import java.awt.GridLayout;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -63,6 +66,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	String serverProtocol;
 	
 	/**
+	 * @see UploadPolicy#getStringUploadSuccess()
+	 */
+	String stringUploadSuccess;
+	
+	/**
+	 * @see UploadPolicy#sendDebugInformation(String)
+	 */
+	String webmasterMail;
+	
+	/**
 	 * This Vector contains headers that will be added for each upload. It may contains
 	 * cookies, for instance.
 	 * 
@@ -87,6 +100,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 */
 	private int debugLevel = 0;
 
+	/**
+	 * This StringBuffer is used to store all information that could be useful, in case a problem occurs.
+	 * Is content can then be sent to the webmaster. 
+	 */
+	private StringBuffer debugBufferString = new StringBuffer(); 
 	//////////////   Constructors
 	
 	
@@ -96,20 +114,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * @param postURL The URL where files should be uploaded. 
 	 */
 	protected DefaultUploadPolicy(String postURL, Applet theApplet, int debugLevel, JTextArea status) {
-		this(postURL, -1, theApplet, debugLevel, status);
-	}
-	
-	/**
-	 * This constructor allows the caller to control the number of files for each 
-	 * HTTP request toward the server.
-	 * 
-	 * @param postURL The URL where files should be uploaded.
-	 * @param maxFilesPerUpload Number maximum of files for each HTTP Request. 
-	 */
-	DefaultUploadPolicy(String postURL, int maxFilesPerUpload, Applet theApplet, int debugLevel, JTextArea status) {
 		//Call default constructor for all default initialization;.
 		this.postURL = postURL;
-		this.maxFilesPerUpload = maxFilesPerUpload;
 		this.theApplet = theApplet;
 		this.debugLevel = debugLevel;
 		this.status = status;
@@ -149,12 +155,28 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    addHeader("User-Agent: " + userAgent);
 
 		///////////////////////////////////////////////////////////////////////////////
+	    //get the maximum number of files to upload in one HTTP request. 
+		maxFilesPerUpload = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST);
+
+		///////////////////////////////////////////////////////////////////////////////
+	    //get the mail of the webmaster. It can be used to send debug information, if
+		//problems occurs. 
+		webmasterMail = UploadPolicyFactory.getParameter(theApplet, PROP_WEBMASTER_MAIL, DEFAULT_WEBMASTER_MAIL);
+
+		///////////////////////////////////////////////////////////////////////////////
 	    //get the server protocol. 
 		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
 	    // sending the cookie uses the same http protocol that the original connexion.
 	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
 		serverProtocol = UploadPolicyFactory.getParameter(theApplet, PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL);
 
+		///////////////////////////////////////////////////////////////////////////////
+	    //get the upload String Success. See Uploadolicy#getStringUploadSuccess 
+		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
+	    // sending the cookie uses the same http protocol that the original connexion.
+	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
+		stringUploadSuccess = UploadPolicyFactory.getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS, DEFAULT_STRING_UPLOAD_SUCCESS);		
+		
 		///////////////////////////////////////////////////////////////////////////////
 		//Get resource file.
 		String lang = UploadPolicyFactory.getParameter(theApplet,PROP_LANG, DEFAULT_LANG);
@@ -165,15 +187,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		} else {
 			locale = new Locale(lang);
 		}
-		
-		///////////////////////////////////////////////////////////////////////////////
-		// Let's display some information to the user.
-		displayDebug("debug : " + debugLevel, 1); 
-		displayDebug("serverProtocole : " + serverProtocol, 20); 
-		displayDebug("Java version  : " + System.getProperty("java.version"), 1); 
-		displayDebug("lang (parameter) : " + lang, 20);
-		displayDebug("language : " + locale.getLanguage(), 20);
-		displayDebug("country : " + locale.getCountry(), 20);
+
+		//Let's handle the language:
+	    displayDebug("lang (parameter) : " + lang, 20);
+	    displayDebug("language : " + locale.getLanguage(), 20);
+	    displayDebug("country : " + locale.getCountry(), 20);
 		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
 	}
 		
@@ -215,6 +233,42 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		return jPanel;
 	}
 
+	/**
+	 * This method allows the applet to send debug information to the webmaster. The default implementation is
+	 * to open the user's mailer, by using a mailto link.  
+	 * 
+	 * @param reason A string describing briefly the problem. The mail subject will be somethin like: Jupload Error (reason)
+	 * @see UploadPolicy#sendDebugInformation()  
+	 *
+	 */
+	public void sendDebugInformation(String reason) {
+		StringBuffer href = new StringBuffer();
+		
+		href.append("mailto:");
+		if (webmasterMail.length() > 0) {
+			href.append(webmasterMail);
+		}
+		//TODO finish the 'building' of this mail.
+		try {
+			URL url = new URL(href.toString());
+			theApplet.getAppletContext().showDocument(url);
+		}  catch (MalformedURLException e) {
+		   System.err.println("Invalid URL");
+		}
+			     
+	}//sendDebugInformation
+
+	/**
+	 * This methods allows the applet to store all messages (debug, warning, info, errors...) into a StringBuffer.
+	 * If any problem occurs, the whole output (displayed or not by the displayDebug, for instance) can be stored
+	 * in a file, or sent to the webmaster. This can help to identify and correct problems that can occurs on the
+	 * various computer configurations. 
+	 * 
+	 * @param msg
+	 */	
+	private void addMsgToDebugBufferString (String msg) {
+		debugBufferString.append(msg);
+	}
 
 	/**
 	 * Displays a message. If the status panel is set, the message is displayed on it.
@@ -229,6 +283,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 			status.append(msg);
 			status.append("\n");
 		}
+		//Let's store all text in the debug BufferString
+		addMsgToDebugBufferString(msg);
 	}
 	public void displayErr (Exception e) {
 		displayErr (e.getClass().getName() + ": " + e.getLocalizedMessage());
@@ -243,8 +299,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		displayMsg ("-WARNING- " + warn);
 	}
 	public void displayDebug (String debug, int minDebugLevel){
+		String msg = "-DEBUG- " + debug;
 		if (debugLevel >= minDebugLevel) {
-			displayMsg ("-DEBUG- " + debug);
+			//displayMsg will add the message to the debugStrignBuffer.
+			displayMsg (msg);
+		} else {
+			//Let's store all text in the debug BufferString
+			addMsgToDebugBufferString(msg);
 		}
 	}
 
@@ -382,6 +443,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 */
 	public String getServerProtocol() {
 		return serverProtocol;
+	}
+
+	/**
+	 * @see wjhk.jupload2.policies.UploadPolicy#getStringUploadSuccess()
+	 */
+	public String getStringUploadSuccess() {
+		return stringUploadSuccess;
 	}
 
 }

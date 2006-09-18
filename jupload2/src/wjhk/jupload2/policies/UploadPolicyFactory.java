@@ -71,12 +71,15 @@ public class UploadPolicyFactory {
 	    		UploadPolicy.DEFAULT_DEBUG_LEVEL);
 
 	    if (uploadPolicyStr.equals("FileByFileUploadPolicy")) {
-	    	currentUploadPolicy = new FileByFileUploadPolicy(postURL, theApplet, debugLevel, status);	    	
+	    	currentUploadPolicy = new FileByFileUploadPolicy(postURL, theApplet, debugLevel, status);
+	    /*
+	     * deprecated:  CustomizedNbFilesPerRequestUploadPolicy behaves exactly as DefaultUploadPolicy.
 	    } else if (uploadPolicyStr.equals("CustomizedNbFilesPerRequestUploadPolicy")) {
 		    int nbFilesPerRequest = getParameter(theApplet, 
 		    		UploadPolicy.PROP_NB_FILES_PER_REQUEST, 
 		    		UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST);
-		    currentUploadPolicy = new CustomizedNbFilesPerRequestUploadPolicy(postURL, nbFilesPerRequest, theApplet, debugLevel, status);	    	
+		    currentUploadPolicy = new CustomizedNbFilesPerRequestUploadPolicy(postURL, nbFilesPerRequest, theApplet, debugLevel, status);
+		*/	    	
 	    } else if (uploadPolicyStr.equals("PictureUploadPolicy")) {
 		    int nbFilesPerRequest = getParameter(theApplet, 
 		    		UploadPolicy.PROP_NB_FILES_PER_REQUEST, 
@@ -95,8 +98,13 @@ public class UploadPolicyFactory {
 	    currentUploadPolicy.displayDebug("uploadPolicy parameter = " + uploadPolicyStr, 1);
 	    currentUploadPolicy.displayInfo("postURL = " + currentUploadPolicy.getPostURL());
 	    currentUploadPolicy.displayInfo("uploadPolicy = " + currentUploadPolicy.getClass().getName());
-	    currentUploadPolicy.displayDebug("debugLevel : " + debugLevel + "\n", 1);
-	    
+		///////////////////////////////////////////////////////////////////////////////
+		// Let's display some information to the user.
+	    currentUploadPolicy.displayDebug("debug : " + debugLevel, 1); 
+	    currentUploadPolicy.displayDebug("stringUploadSuccess : <" + currentUploadPolicy.getStringUploadSuccess() + ">", 20); 
+	    currentUploadPolicy.displayDebug("serverProtocole : " + currentUploadPolicy.getServerProtocol(), 20); 
+	    currentUploadPolicy.displayDebug("Java version  : " + System.getProperty("java.version"), 1); 
+	    		
 		return currentUploadPolicy ;
 	}
 	

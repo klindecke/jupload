@@ -122,10 +122,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	 * @param postURL
 	 */
 	protected PictureUploadPolicy(String postURL, int maxFilesPerUpload, Applet theApplet, int debugLevel, JTextArea status) {
-		super(postURL, maxFilesPerUpload, theApplet, debugLevel, status);
+		super(postURL, theApplet, debugLevel, status);
 	    
 	    //Creation of the PictureFileDataPolicy, from parameters given to
 		//the applet, or from default values.
+		this.maxFilesPerUpload = maxFilesPerUpload;
 	    createBufferedImage = UploadPolicyFactory.getParameter(theApplet, PROP_CREATE_BUFFERED_IMAGE, DEFAULT_CREATE_BUFFERED_IMAGE);
 		targetPictureFormat = UploadPolicyFactory.getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT);
 		maxWidth = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH, DEFAULT_MAX_WIDTH);

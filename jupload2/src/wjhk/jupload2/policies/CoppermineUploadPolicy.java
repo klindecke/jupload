@@ -106,7 +106,9 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 		//Let's call our mother !          :-)
 		super(postURL, 1, theApplet, debugLevel, status);
 
+		//Now we explain her what we really want :
 		this.albumId = albumId;
+		stringUploadSuccess = "^SUCCESS$";
 	}
 	
 	/**
@@ -156,8 +158,6 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	 */
 	public void afterUpload(FilePanel filePanel, Exception e, String serverOutput) {
         if(e != null){
-        	afterUpload(filePanel, e, serverOutput);          
-        } else {
         	try {
 	        	//First : construction of the editpic URL :
 	        	String editpicURL = postURL.substring(0,postURL.lastIndexOf('/')) 
@@ -183,7 +183,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 				    loc.call("replace", argsReplace);
 			    }
         	} catch (JSException ee) {
-        		//Oups, we must be in debug mode : no navigator ?
+        		//Oups, we must be in debug mode, within eclipse for instance : no navigator ?
         		displayErr(ee);
         	}
         }
