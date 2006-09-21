@@ -10,7 +10,7 @@ import javax.swing.JTextArea;
 
 /**
  * These is a simple specialization of {@link wjhk.jupload2.policies.DefaultUploadPolicy}:
- * the constructor allows to set a maximum number of file per upload.
+ * the constructor allows to set a maximum number of files per upload.
  * <BR> 
  * 
  * @author Etienne Gauthier

@@ -24,6 +24,7 @@ import javax.imageio.stream.FileImageOutputStream;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.PictureUploadPolicy;
+import wjhk.jupload2.policies.UploadPolicy;
 
 
 /**
@@ -57,10 +58,21 @@ public class PictureFileData extends FileData  {
 	private boolean isPicture = false;
 
 	/**
-	 * bufferedImage contains a preloaded picture. This buffer is used according to 
-	 * PictureFileDataPolicy.createBufferedImage.
+	 * If set to true, the PictureFileData will keep the BufferedImage in memory. That is: it won't
+	 * load it again from the hard drive, and resize and/or rotate it (if necessary) when the user select this
+	 * picture. When picture are big this is nice. 
+	 * <BR><B>Caution:</B> the navigator applet runs quickly out of memory (after
+	 * three or four picture for my Canon EOS 20D, 8,5 Mega pixels). 
 	 * 
-	 * @see PictureUploadPolicy#createBufferedImage
+	 * @see UploadPolicy
+	 */
+	boolean storeBufferedImage = UploadPolicy.DEFAULT_STORE_BUFFERED_IMAGE;//Will be erased while in the constructor.
+	
+	/**
+	 * bufferedImage contains a preloaded picture. This buffer is used according to 
+	 * PictureFileDataPolicy.storeBufferedImage.
+	 * 
+	 * @see PictureUploadPolicy#storeBufferedImage
 	 * 
 	 */
 	private BufferedImage bufferedImage = null;
@@ -125,6 +137,7 @@ public class PictureFileData extends FileData  {
 	public PictureFileData(File file) {
 		super(file);
 		uploadPolicy = (PictureUploadPolicy)super.uploadPolicy;
+		storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
 	}
 	
 	/**
@@ -205,8 +218,10 @@ public class PictureFileData extends FileData  {
 				
 
                 //Within the navigator, we have to free memory ASAP
-				bufferedImage = null;
-				freeMemory("getTransformedPictureFile");
+				if (!storeBufferedImage) {
+					bufferedImage = null;
+					freeMemory("getTransformedPictureFile");
+				}
 				uploadPolicy.displayDebug("transformedPictureFile : " + transformedPictureFile.getName(), 30);
 			} catch (IOException e) {
 				transformedPictureFile = null;
@@ -507,8 +522,10 @@ public class PictureFileData extends FileData  {
 			}
 			
 			//Within the navigator, we have to free memory ASAP
-			bufferedImage = null;
-			freeMemory("end of getOffscreenImage");
+			if (!storeBufferedImage) {
+				bufferedImage = null;
+				freeMemory("end of getOffscreenImage");
+			}
 		}
 
 		if (image != null) {

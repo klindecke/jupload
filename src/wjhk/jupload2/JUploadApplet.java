@@ -8,7 +8,15 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
 
 /**
  * The applet. It contains quite only the call to creation of the {@link wjhk.jupload2.gui.JUploadPanel},
- * which contains the real code. 
+ * which contains the real code.
+ * <BR><BR>
+ * The behaviour of the applet can easily be adapted, by :
+ * <DIR>
+ *   <LI> Using an existing {@link wjhk.jupload2.policies.UploadPolicy}, and specifying parameters.
+ * 	 <LI> Creating a new upload policy, based on the {@link wjhk.jupload2.policies.DefaultUploadPolicy}, or created from scratch.
+ * </DIR>
+ * 
+ * @author William JinHua Kwong (updated by Etienne Gauthier)
  */
 public class JUploadApplet extends Applet{
 
