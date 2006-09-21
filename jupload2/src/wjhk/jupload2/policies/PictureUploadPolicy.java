@@ -47,21 +47,19 @@ import wjhk.jupload2.gui.PicturePanel;
  */
 
 public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionListener {
-
 	
-
 	/**
-	 * createBufferedImage indicates if a BufferedImage is to be created when
+	 * storeBufferedImage indicates that ta BufferedImage is to be created when
 	 * the user selects the file.
-	 * If True : the Image is loaded once. This consumns memory, but is interessant 
+	 * If True : the Image is loaded once from the hard drive. This consumns memory, but is interessant 
 	 * for big pictures, when they are resized (see {#maxWidth} and {#maxHeight}).
-	 * If False : it is loaded for each display on the applet, and once for the upload.
+	 * If False : it is loaded for each display on the applet, then once for the upload.
+	 * <BR><BR>
+	 * Default : false, because the applet, while in the navigator runs too quickly out of memory. 
 	 * 
-	 * Default : true. 
-	 * 
-	 * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_CREATE_BUFFERED_IMAGE
+	 * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_STORE_BUFFERED_IMAGE
 	 */
-	private boolean createBufferedImage;
+	private boolean storeBufferedImage;
 	
 	/**
 	 * targetPictureFormat is the image type that should be uploaded (JPG, GIF...). 
@@ -127,7 +125,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	    //Creation of the PictureFileDataPolicy, from parameters given to
 		//the applet, or from default values.
 		this.maxFilesPerUpload = maxFilesPerUpload;
-	    createBufferedImage = UploadPolicyFactory.getParameter(theApplet, PROP_CREATE_BUFFERED_IMAGE, DEFAULT_CREATE_BUFFERED_IMAGE);
+	    storeBufferedImage = UploadPolicyFactory.getParameter(theApplet, PROP_STORE_BUFFERED_IMAGE, DEFAULT_STORE_BUFFERED_IMAGE);
 		targetPictureFormat = UploadPolicyFactory.getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT);
 		maxWidth = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH, DEFAULT_MAX_WIDTH);
 		maxHeight = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT);
@@ -228,8 +226,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	/**
 	 * @return Returns the createBufferedImage.
 	 */
-	public boolean hasToCreateBufferedImage() {
-		return createBufferedImage;
+	public boolean hasToStoreBufferedImage() {
+		return storeBufferedImage;
 	}
 	
 	/**

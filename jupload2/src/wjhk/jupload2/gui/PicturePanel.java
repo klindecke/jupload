@@ -112,7 +112,7 @@ public class PicturePanel extends Canvas implements MouseListener {
     	//First : reset current picture configuration.
     	this.pictureFileData = null;
 		offscreenImage = null; //Useful, if a repaint event occurs while we calculate the offscreenImage
-		//Ask for an immediate repaint : it should clear the panel, as offscreenImage is null. 
+		//Ask for an immediate repaint, to clear the panel (as offscreenImage is null). 
 		repaint(0);
 
     	//Then, we store the new picture data, get the offscreen picture and ask for a repaint.

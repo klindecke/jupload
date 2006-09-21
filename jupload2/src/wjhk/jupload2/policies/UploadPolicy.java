@@ -32,10 +32,11 @@ import wjhk.jupload2.gui.FilePanel;
  * <DIR>
  * <LI> {@link wjhk.jupload2.policies.DefaultUploadPolicy}. It's a 'simple' instanciation of each UploadPolicy methods. 
  * It makes JUpload work the same way as the original JUpload (v1).
- * <LI> {@link wjhk.jupload2.policies.CustomizedNbFilesPerRequestUploadPolicy} is a DefaultUploadPolicy, which allows 
- * to control how many files are to be uploaded for each HTTP request.
+ * <LI> <B><I>(deprecated)</I></B>{@link wjhk.jupload2.policies.CustomizedNbFilesPerRequestUploadPolicy} is a DefaultUploadPolicy, which allows 
+ * to control how many files are to be uploaded for each HTTP request. 
  * <LI> {@link wjhk.jupload2.policies.FileByFileUploadPolicy} is CustomizedNbFilesPerRequestUploadPolicy, where the
- * number of files to upload for each HTTP request is ... guess ?!?    ;-)
+ * number of files to upload for each HTTP request is ... one! This policy behaves as the DefaultUploadPolicy, when
+ * nbFilesPerRequest parameter (see below) is 1.
  * <LI>{@link wjhk.jupload2.policies.PictureUploadPolicy} adds picture handling the the applet. The main 
  * functionnalities are :
  * 		<DIR>
@@ -67,6 +68,165 @@ import wjhk.jupload2.gui.FilePanel;
  * To allow the easiest possible change of upload, all default upload code is embbeded into the 
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy} class. 
  * 
+ * <BR><BR>
+ * 
+ * <B>Parameters</B>
+ * <BR>
+ * Here is the list of all parameters available in the current package :
+ * <TABLE>
+* <TR>
+ *   <TH>Parameter name</TH>
+ *   <TH>Default value</TH>
+ *   <TH>Implemented in</TH>
+ *   <TH>Description</TH>
+ * </TR>
+ * <TR>
+ *   <TD>uploadPolicy</TD>
+ *   <TD>DefaultUploadPolicy</TD>
+ *   <TD>see {@link wjhk.jupload2.policies.UploadPolicyFactory}</TD>
+ *   <TD>This parameter contains the class name for the UploadPolicy that should be used. If it is not 
+ *       set, or if its value is incorrect (unknown from {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(Applet, JTextArea, String))
+ *       the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used.
+ *   </TD>
+ * </TR>
+ * <TR>
+ *   <TD>postURL</TD>
+ *   <TD><I>Mandatory</I></TD>
+ *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>
+ * 		It contains the target URL toward which the files should be upload. This parameter is mandatory for existing class. It may
+ *      become optional in new UploadPolicy, that would create this URL from other data.
+ * 		If the this URL may change during the applet execution time, you can create a new UploadPolicy class, 
+ * 		and either :
+ * 		<DIR>
+ * 			<LI>Override the {@link UploadPolicy#getPostURL()} method, to make the postURL totaly dynamic.  
+ * 			<LI>Override the {@link UploadPolicy#setPostURL()} method, to modify the postURL on the fly, when it is changed. 
+ * 			<LI>Override the {@link UploadPolicy#setProperty(String, String)} method. The 
+ * 				{@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the postURL when the albumID property changes.  
+ * 			<LI>Find another solution ... 
+ * 	    </DIR> 
+ * 	 </TD>
+ * </TR>
+ * <TR>
+ *   <TD>debugLevel</TD>
+ *   <TD>0</TD>
+ *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD></TD>
+ * </TR>
+ * <TR>
+ *   <TD>lang</TD>
+ *   <TD>Navigator language</TD>
+ *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD></TD>
+ * </TR>
+ * <TR>
+ *   <TD>webmasterMail</TD>
+ *   <TD><I>Empty String</I></TD>
+ *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>If this mail is given, and an upload error occurs, the applet opens a mailto windows. This mail contains
+ *     the detailled description of the error (with full debug output). This mail is targeted toward the webmasterMail. 
+ *   </TD>
+ * </TR>
+ * <TR>
+ *   <TD>nbFilesPerRequest</TD>
+ *   <TD>-1</TD>
+ *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>This allows the control of the maximal number of files that are uploaded in one HTTP upload to the server.
+ *        <BR>
+ *        If set to -1, there is no maximum. This means that all files are uploaded in the same HTTP request.
+ *        <BR>
+ *        If set to 5, for instance, and there are 6 files to upload, there will be two HTTP upload request to the 
+ *        server : 5 files in the first one, and that last file in a second HTTP request.   
+ *   </TD>
+ * </TR>
+ * <TR>
+ *   <TD>serverProtocol</TD>
+ *   <TD>HTTP/1.1</TD>
+ *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>This parameter allows the control of the protocol toward the server. Currently, only HTTP is supported, so 
+ * 		valid values are HTTP/0.9 (not tested), HTTP/1.0 and HTTP/1.1.
+ *      <BR>This parameter is really useful only in {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, 
+ * 		as the coppermine application also controls that the requests send within an HTTP session uses the same 
+ *      HTTP protocol (as a protection to limit the 'steal' of session cookies).  
+ * 	 </TD>
+ * </TR>
+ * <TR>
+ *   <TD>stringUploadSuccess</TD>
+ *   <TD>.* 200 OK$</TD>
+ *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>This string is a regular expression. The upload thread will try to match this regular epression to each 
+ *      lines returned from the server.
+ * 		If the match is successfull, the upload is considered to be a success. If not, a 
+ *      {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
+ *     <BR>
+ *     The default test expression testes that the web server returns no HTTP error: 200 is the return code for a 
+ *     successfull HTTP request. It actually means that postURL is a valid URL, and that the applet was able to send 
+ *     a request to this URL: there should be no problem with the network configuration, like proxy, password proxy...). 
+ *     <BR>
+ *     <B>But</B> it doesn't mean that the uploaded files have correctly be managed by the server. For instance, the
+ *     URL can be http://sourceforge.net, which, of course, would not take your files into account.
+ *     <BR>
+ *     So, as soon as you know a regular expression that test the return from the target application (and not just
+ *     a techical HTTP response code), change the stringUploadSuccess to this value. For instance, the 
+ *     {@link wjhk.jupload2.policies.CoppermineUploadPolicy}
+ *     changes this value to "^SUCCESS$", as the HTTP body content of the server's answer contain just this exact 
+ *     line. This 'success' means that the pictures have correctly be added to the album, that vignettes have been 
+ *     generated (this I suppose), etc...
+ *   </TD>
+ * </TR>
+ * <TR>
+ *   <TD>maxPicHeight</TD>
+ *   <TD>-1</TD>
+ *   <TD>{@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
+ *   <TD>This parameters allows the PHP script to control the maximum width for pictures. If a picture is to be 
+ *      download, and its height is bigger, the picture will be resized. The proportion between width and height
+ *      of the resized picture are the same as those of the original picture. If both maxPicHeight and maxPicWidth
+ *      are given, it can happen that the resized picture has a height lesser than maxPicHeight, so that width 
+ *      is no more than maxPicWidth.
+ *      <BR>
+ *      If the picture is resized, its other characteristics are kept (number of colors, ColorModel...). The picture 
+ *      format is ketp, if targetPictureFormat is empty. If the picture format is a destructive (like jpeg), the 
+ *      maximum available quality is choosed.
+ *   </TD>
+ * </TR>
+ * <TR>
+ *   <TD>maxPicWidth</TD>
+ *   <TD>-1</TD>
+ *   <TD>{@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
+ *   <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.</TD>
+ * </TR>
+ * <TR>
+ *   <TD>targetPictureFormat</TD>
+ *   <TD><I>Empty String</I></TD>
+ *   <TD> (<B>to be</B> implemented in {@link wjhk.jupload2.policies.PictureUploadPolicy})</TD>
+ *   <TD>This parameter can contain any picture writer known by the JVM. For instance: jpeg, png, gif.</TD>
+ * </TR>
+ * <TR>
+ *   <TD>albumId</TD>
+ *   <TD>-1</TD>
+ *   <TD>{@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
+ *   <TD>This parameter is only used by CoppermineUploadPolicy. So it is to be used to upload into a 
+ *       <a href="http://coppermine.sourceforge.net/">coppermine picture gallery</a>. This parameter 
+ *       contains the identifier of the album, where pictures should be used. See CoppermineUploadPolicy 
+ *       for an example.
+ *       <BR>
+ *       Before upload, CoppermineUploadPolicy.{@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()}
+ *       checks that the albumId is correct, that is: >=1.		
+ *   </TD>
+ * </TR>
+ * <TR>
+ *   <TD>storeBufferedImage</TD>
+ *   <TD>false</TD>
+ *   <TD>{@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
+ *   <TD>This parameter indicates that the preview image on the applet is kept in memory. It works really
+ *       nice under eclise.  But, once in the navigator, the applet runs very quickly out of memory. So I add a lot
+ *       of calls to {@link wjhk.jupload2.filedata.PictureFileData#freeMemory(String)}, but it doesn't change 
+ *       anything. Be careful to this parameter, and let it to the default value, unless you've well tested it
+ *       under all your target client configurations. 
+ *    </TD>
+ * </TR>
+ * </TABLE>
+ * 
  * @author Etienne Gauthier
  * 
  * @see wjhk.jupload2.policies.DefaultUploadPolicy
@@ -79,7 +239,7 @@ public interface UploadPolicy {
 	 * be added here, in alphabetic order. These ensure that all tags are unique
 	 */
 	final static String PROP_ALBUM_ID 				= "albumId";
-	final static String PROP_CREATE_BUFFERED_IMAGE	= "createBufferedImage";
+	final static String PROP_STORE_BUFFERED_IMAGE	= "storeBufferedImage";   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static String PROP_DEBUG_LEVEL			= "debugLevel";
 	final static String PROP_LANG	 				= "lang";
 	final static String PROP_MAX_HEIGHT				= "maxPicHeight";
@@ -96,12 +256,12 @@ public interface UploadPolicy {
 		//"http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value";
 		"http://localhost/coppermine/xp_publish.php";
 	final static int     DEFAULT_ALBUM_ID				= 0;
-	final static boolean DEFAULT_CREATE_BUFFERED_IMAGE	= false;
+	final static boolean DEFAULT_STORE_BUFFERED_IMAGE	= false;   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static int     DEFAULT_DEBUG_LEVEL			= 0;
 	final static String  DEFAULT_LANG	 				= null;
 	final static int     DEFAULT_MAX_WIDTH				= -1;
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
-	final static int     DEFAULT_NB_FILES_PER_REQUEST	= 1;
+	final static int     DEFAULT_NB_FILES_PER_REQUEST	= -1;
 	final static String  DEFAULT_SERVER_PROTOCOL		= "HTTP/1.1";
 	final static String  DEFAULT_STRING_UPLOAD_SUCCESS	= ".* 200 OK$";
 	final static String  DEFAULT_TARGET_PICTURE_FORMAT	= null;

@@ -27,7 +27,6 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 	 */
 	public JUploadExceptionUploadFailed(Throwable arg0, String functionName) {
 		super(arg0, functionName);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -38,7 +37,6 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 	public JUploadExceptionUploadFailed(String arg0, Throwable arg1,
 			String functionName) {
 		super(arg0, arg1, functionName);
-		// TODO Auto-generated constructor stub
 	}
 
 }
