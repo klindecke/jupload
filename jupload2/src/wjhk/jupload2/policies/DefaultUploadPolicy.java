@@ -238,7 +238,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * to open the user's mailer, by using a mailto link.  
 	 * 
 	 * @param reason A string describing briefly the problem. The mail subject will be somethin like: Jupload Error (reason)
-	 * @see UploadPolicy#sendDebugInformation()  
+	 * @see UploadPolicy#sendDebugInformation(String)  
 	 *
 	 */
 	public void sendDebugInformation(String reason) {

@@ -13,70 +13,58 @@ import wjhk.jupload2.gui.FilePanel;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
+//TODO cookies handling: desc to be mve to UploadPolicy presentation.
 /**
- * Specific UploadPolicy for the coppermine picture gallery.
+ * Specific UploadPolicy for the coppermine picture gallery. It is based on the PictureUploadPolicy, and some
+ * specific part to add the uploaded pictures to a coppermine existing album.
  * <BR>
- * Wecific features for this policy are:
+ * Specific features for this policy are:
  * <UL>
- * <LI> Cookies handling: the current cookies are read from the navigator, and sent in the
+ * <LI> <B> Now Done by DefaultUploadPolicy</B>Cookies handling: the current cookies are read from the navigator, and sent in the
  * upload HTTP request. The upload is done within the current coppermine session.
  * <LI> Album handling : the setProperty("albumId", n) can be called from javascript, when the user 
  * selects another album (with n is the numeric id for the selected album). This needs that the MAYSCRIPT HTML 
  * parameter is set, in the APPLET tag (see the example below). The upload can not start if the user didn't first 
  * select an album.
- * <LI> File by file upload (one file by HTTP Request). Uploaded files are sent to the coppermine's xp_publish.php script.
- * <BR><BR>
- * <B>Example 1: Call of the applet from a php script in coppermine.</B> 
+ * <LI> File by file upload (one file by HTTP Request). Uploaded files are sent to the coppermine's 
+ * xp_publish.php script. If give, the nbFilesPerRequest parameter is ignored. Files are uploaded one by one.
+ * 
+ * <A NAME="example1"><H3>Call of the applet from a php script in coppermine</H3></A>
+ * You'll find below an example of how to put the applet into a PHP page:
+ * <BR>
  * <XMP>
- * <?php
- 	  $URL = $CONFIG['site_url'] . 'xp_publish.php';
- 	  $lang = $lang_translation_info['lang_country_code'];
- 	  $max_upl_width_height = $CONFIG['max_upl_width_height'];
- 	  $uploadPolicy = "CoppermineUploadPolicy";
-  ?>
-      <SCRIPT LANGUAGE="JavaScript"><!--
-          if (_ie == true) document.writeln('<OBJECT classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" NAME="JUpload" WIDTH = "640" HEIGHT = "300"  codebase="http://java.sun.com/update/1.4.2/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"><NOEMBED><XMP>');
-          else if (_ns == true && _ns6 == false) document.writeln('<EMBED \
-      	    type="application/x-java-applet;version=1.4" \
-                  CODE = "wjhk.jupload.JUploadApplet" \
-                  ARCHIVE = "wjhk.jupload.jar" \
-                  WIDTH = "640" \
-                  HEIGHT = "300" \
-                  postURL = "$URL" \
-                  uploadPolicy = "$uploadPolicy" \
-                  albumId = "$album_id" \
-      	    scriptable=false \
-      	    pluginspage="http://java.sun.com/products/plugin/index.html#download"><NOEMBED><XMP>');
-      //--></SCRIPT>
-        <APPLET  
-          CODE="wjhk.jupload.JUploadApplet" 
+	   <?php
+	 	  $URL = $CONFIG['site_url'] . 'xp_publish.php';
+	 	  $lang = $lang_translation_info['lang_country_code'];
+	 	  $max_upl_width_height = $CONFIG['max_upl_width_height'];
+	 	  $uploadPolicy = "CoppermineUploadPolicy";
+	  ?>
+      <APPLET  
           NAME="JUpload"
-          ARCHIVE="wjhk.jupload.jar" 
-          WIDTH="640" 
-          HEIGHT="300"
-          MAYSCRIPT>&lt;/XMP&gt;
-          <PARAM NAME="CODE"       VALUE="wjhk.jupload.JUploadApplet" >
-          <PARAM NAME="ARCHIVE"    VALUE="wjhk.jupload.jar" >
-          <PARAM NAME="type"       VALUE="application/x-java-applet;version=1.4">
-          <PARAM NAME="scriptable" VALUE="false">
-                      
-          <PARAM NAME="uploadPolicy" VALUE="$uploadPolicy">
-          <PARAM NAME="albumId"      VALUE="$album_id">
+          CODE="wjhk.jupload2.JUploadApplet" 
+          ARCHIVE="plugins/jupload/wjhk.jupload.jar" 
+          <!-- Applet display size, on the navigator page -->
+          WIDTH="500" 
+          HEIGHT="700"
+          <!-- The applet call some javascript function, so we must allow it : -->
+          MAYSCRIPT
+          >
+          <!-- First, mandatory parameters -->
           <PARAM NAME="postURL"      VALUE="$URL">
+          <PARAM NAME="uploadPolicy" VALUE="PictureUploadPolicy">
+          <!-- Then, optional parameters -->
           <PARAM NAME="lang"         VALUE="$lang">
           <PARAM NAME="maxPicHeight" VALUE="$max_upl_width_height">
           <PARAM NAME="maxPicWidth"  VALUE="$max_upl_width_height">
           <PARAM NAME="debugLevel"   VALUE="0">
-      
+                
       Java 1.4 or higher plugin required.
       </APPLET>
-      </NOEMBED>
-      </EMBED>
-      </OBJECT>
-      <!--"END_CONVERTED_APPLET"-->
-  </XMP>
- * <BR><BR>
- * <B>Example 2: albumId set by a javascript call.</B>
+
+ * </XMP>
+ * 
+ * 
+ * <A NAME="example1"><H3>Example 2: albumId set by a javascript call.</H3></A>
  * <XMP>
  *  <script language="javascript" type="text/javascript">
  *  function onAlbumChange() {

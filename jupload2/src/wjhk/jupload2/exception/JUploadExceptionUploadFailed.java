@@ -15,7 +15,7 @@ package wjhk.jupload2.exception;
 public class JUploadExceptionUploadFailed extends JUploadException {
 
 	/**
-	 * @param msg the Error message
+	 * @param arg0 the Error message
 	 */
 	public JUploadExceptionUploadFailed(String arg0) {
 		super(arg0);
