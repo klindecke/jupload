@@ -22,25 +22,57 @@ import wjhk.jupload2.gui.PicturePanel;
 /**
  * This class add handling of pictures to upload.
  * <BR><BR>
- * <B>Functionnalities:</B>
+ * <H3>Functionalities:</H3>
  * <UL>
- * <LI> Ability to set maximum width or height to a picture.
+ * <LI> The top panel is modified, by using the UploadPolicy.{@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}. 
+ *      It a <B>preview</B> picture panel, and two additional buttons to rotate the select picture in one direction or the other. 
+ * <LI> Ability to set maximum width or height to a picture (from applet parameters, see the global explanation on
+ *      the <a href="UploadPolicy.html#parameters">parameters</a> section.
  * <LI> Rotation of pictures, by quarter of turn.
- * <LI> The top panel contains two additional buttons to rotate picture in one direction or the other. 
- * <LI> A target picture format can be used, to force all pictures to be in one picture format, jpeg for instance. The available formats
- * are the format given by the navigator JVM. All standard format should be available. More information on 
- * <A href='http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html'>java.sun.com</A>.
+ * <LI> A target picture format can be used, to force all uploaded pictures to be in one picture format, jpeg for instance. 
+ *      All details are in the UploadPolicy <a href="UploadPolicy.html#parameters">parameters</a> section.
  * </UL> 
  * <BR><BR>
  * The {@link wjhk.jupload2.policies.CoppermineUploadPolicy} description contains an example
  * of an applet HTML tag.
- * <BR>
- * Here are the available parameters that can be used to control the way files are uploaded:
+ * <H3>Parameters</H3>
+ * The description for all parameters of all polices has been grouped in the UploadPolicy 
+ * <a href="UploadPolicy.html#parameters">parameters</a> section.
+ * <BR>The parameters implemented in this class are:
  * <UL>
- * <LI> maxPicWidth: Maximum width for the uploaded picture. If negative, there is no maximum. Default: -1.
- * <LI> maxPicHeight: Maximum height for the uploaded picture. If negative, there is no maximum. Default: -1.
- * <LI> targetPictureFormat : Define the target picture format (see {@link #getTargetPictureFormat()}. Eg: jpeg, png, gif...
+ * <LI> maxPicWidth: Maximum width for the uploaded picture.
+ * <LI> maxPicHeight: Maximum height for the uploaded picture.
+ * <LI> targetPictureFormat : Define the target picture format. Eg: jpeg, png, gif...
  * </UL>
+ * 
+ * <A NAME="example"><H3>HTML call example</H3></A>
+ * You'll find below an example of how to put the applet into a PHP page:
+ * <BR>
+ * <XMP>
+      <APPLET  
+          NAME="JUpload"
+          CODE="wjhk.jupload2.JUploadApplet" 
+          ARCHIVE="plugins/jupload/wjhk.jupload.jar" 
+          <!-- Applet display size, on the navigator page -->
+          WIDTH="500" 
+          HEIGHT="700"
+          <!-- The applet call some javascript function, so we must allow it : -->
+          MAYSCRIPT
+          >
+          <!-- First, mandatory parameters -->
+          <PARAM NAME="postURL"      VALUE="http://some.host.com/youruploadpage.php">
+          <PARAM NAME="uploadPolicy" VALUE="PictureUploadPolicy">
+          <!-- Then, optional parameters -->
+          <PARAM NAME="lang"         VALUE="fr">
+          <PARAM NAME="maxPicHeight" VALUE="768">
+          <PARAM NAME="maxPicWidth"  VALUE="1024">
+          <PARAM NAME="debugLevel"   VALUE="0">
+                
+      Java 1.4 or higher plugin required.
+      </APPLET>
+
+ * </XMP>
+ * 
  * 
  * @author Etienne Gauthier
  *
@@ -141,6 +173,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	}
 
 	/**
+	 * This methods actually returns a {@link PictureFileData} instance.
+	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#createFileData(File)
 	 */
 	public FileData createFileData(File file) {

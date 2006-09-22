@@ -28,7 +28,7 @@ import wjhk.jupload2.gui.FilePanel;
  *    </DIR>
  * </DIR>
  * 
- * The current implemented upload policies are :
+ * <A NAME="policies">The current implemented upload policies are :</A>
  * <DIR>
  * <LI> {@link wjhk.jupload2.policies.DefaultUploadPolicy}. It's a 'simple' instanciation of each UploadPolicy methods. 
  * It makes JUpload work the same way as the original JUpload (v1).
@@ -70,29 +70,27 @@ import wjhk.jupload2.gui.FilePanel;
  * 
  * <BR><BR>
  * 
- * <B>Parameters</B>
- * <BR>
- * Here is the list of all parameters available in the current package :
- * <TABLE>
-* <TR>
+ * <A NAME="parameters"><H3>Parameters</H3></A>
+ * Here is the list of all parameters available in the current package. These are applet parameters that should be 
+ * 'given' to the applet, with <PARAM> tags, as precised below in the <A href="#example">example</A>.
+ * 
+ * <TABLE border=1>
+ * <TR>
  *   <TH>Parameter name</TH>
- *   <TH>Default value</TH>
- *   <TH>Implemented in</TH>
+ *   <TH>Default value / <BR> Implemented in</TH>
  *   <TH>Description</TH>
  * </TR>
  * <TR>
  *   <TD>uploadPolicy</TD>
- *   <TD>DefaultUploadPolicy</TD>
- *   <TD>see {@link wjhk.jupload2.policies.UploadPolicyFactory}</TD>
+ *   <TD>DefaultUploadPolicy <BR><BR> see {@link wjhk.jupload2.policies.UploadPolicyFactory}</TD>
  *   <TD>This parameter contains the class name for the UploadPolicy that should be used. If it is not 
- *       set, or if its value is incorrect (unknown from {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(Applet, JTextArea, String))
+ *       set, or if its value is unknown from {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(Applet, JTextArea, String)},
  *       the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used.
  *   </TD>
  * </TR>
  * <TR>
  *   <TD>postURL</TD>
- *   <TD><I>Mandatory</I></TD>
- *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD><I>Mandatory</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
  *   <TD>
  * 		It contains the target URL toward which the files should be upload. This parameter is mandatory for existing class. It may
  *      become optional in new UploadPolicy, that would create this URL from other data.
@@ -100,7 +98,7 @@ import wjhk.jupload2.gui.FilePanel;
  * 		and either :
  * 		<DIR>
  * 			<LI>Override the {@link UploadPolicy#getPostURL()} method, to make the postURL totaly dynamic.  
- * 			<LI>Override the {@link UploadPolicy#setPostURL()} method, to modify the postURL on the fly, when it is changed. 
+ * 			<LI>Override the {@link UploadPolicy#setPostURL(String)} method, to modify the postURL on the fly, when it is changed. 
  * 			<LI>Override the {@link UploadPolicy#setProperty(String, String)} method. The 
  * 				{@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the postURL when the albumID property changes.  
  * 			<LI>Find another solution ... 
@@ -109,28 +107,31 @@ import wjhk.jupload2.gui.FilePanel;
  * </TR>
  * <TR>
  *   <TD>debugLevel</TD>
- *   <TD>0</TD>
- *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- *   <TD></TD>
+ *   <TD>0 <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>With 0, you get the normal production output. The higher the number is, the more information is displayed
+ *       in the status bar.
+ * 	     <BR>Note: the whole debug messages is stored in the {@link wjhk.jupload2.policies.DefaultUploadPolicy#debugBufferString}.
+ *       It can be used to display more information, if needed. See also the 'webmasterMail' parameter.
+ *   </TD>
  * </TR>
  * <TR>
  *   <TD>lang</TD>
- *   <TD>Navigator language</TD>
- *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- *   <TD></TD>
+ *   <TD>Navigator language <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>Should be something like <I>en</I>, <I>fr</I>... Currently only french and english are known 
+ *       from the applet. If anyone want to add another language ... Please translate the
+ *       wjhk.jupload2.lang.lang_en, and send it back to <mailto:etienne_sf@sourceforge.net>.
+ *   </TD>
  * </TR>
  * <TR>
  *   <TD>webmasterMail</TD>
- *   <TD><I>Empty String</I></TD>
- *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD><I>Empty String</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
  *   <TD>If this mail is given, and an upload error occurs, the applet opens a mailto windows. This mail contains
  *     the detailled description of the error (with full debug output). This mail is targeted toward the webmasterMail. 
  *   </TD>
  * </TR>
  * <TR>
  *   <TD>nbFilesPerRequest</TD>
- *   <TD>-1</TD>
- *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
  *   <TD>This allows the control of the maximal number of files that are uploaded in one HTTP upload to the server.
  *        <BR>
  *        If set to -1, there is no maximum. This means that all files are uploaded in the same HTTP request.
@@ -141,8 +142,7 @@ import wjhk.jupload2.gui.FilePanel;
  * </TR>
  * <TR>
  *   <TD>serverProtocol</TD>
- *   <TD>HTTP/1.1</TD>
- *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>HTTP/1.1 <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
  *   <TD>This parameter allows the control of the protocol toward the server. Currently, only HTTP is supported, so 
  * 		valid values are HTTP/0.9 (not tested), HTTP/1.0 and HTTP/1.1.
  *      <BR>This parameter is really useful only in {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, 
@@ -152,8 +152,7 @@ import wjhk.jupload2.gui.FilePanel;
  * </TR>
  * <TR>
  *   <TD>stringUploadSuccess</TD>
- *   <TD>.* 200 OK$</TD>
- *   <TD>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+ *   <TD>.* 200 OK$ <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
  *   <TD>This string is a regular expression. The upload thread will try to match this regular epression to each 
  *      lines returned from the server.
  * 		If the match is successfull, the upload is considered to be a success. If not, a 
@@ -176,13 +175,18 @@ import wjhk.jupload2.gui.FilePanel;
  * </TR>
  * <TR>
  *   <TD>maxPicHeight</TD>
- *   <TD>-1</TD>
- *   <TD>{@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
+ *   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
  *   <TD>This parameters allows the PHP script to control the maximum width for pictures. If a picture is to be 
  *      download, and its height is bigger, the picture will be resized. The proportion between width and height
  *      of the resized picture are the same as those of the original picture. If both maxPicHeight and maxPicWidth
  *      are given, it can happen that the resized picture has a height lesser than maxPicHeight, so that width 
  *      is no more than maxPicWidth.
+ *      <BR>
+ *      <B>Precisions:</B>
+ *      <BR>
+ *      If this parameter value is negative, then no control is done on the picture height.
+ *      <BR>
+ *      If the original picture is smaller than the maximum size, the picture is not enlarged.
  *      <BR>
  *      If the picture is resized, its other characteristics are kept (number of colors, ColorModel...). The picture 
  *      format is ketp, if targetPictureFormat is empty. If the picture format is a destructive (like jpeg), the 
@@ -191,20 +195,20 @@ import wjhk.jupload2.gui.FilePanel;
  * </TR>
  * <TR>
  *   <TD>maxPicWidth</TD>
- *   <TD>-1</TD>
- *   <TD>{@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
+ *   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
  *   <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.</TD>
  * </TR>
  * <TR>
  *   <TD>targetPictureFormat</TD>
- *   <TD><I>Empty String</I></TD>
- *   <TD> (<B>to be</B> implemented in {@link wjhk.jupload2.policies.PictureUploadPolicy})</TD>
- *   <TD>This parameter can contain any picture writer known by the JVM. For instance: jpeg, png, gif.</TD>
+ *   <TD><I>Empty String</I> <BR><BR>  (<B>to be</B> implemented in {@link wjhk.jupload2.policies.PictureUploadPolicy})</TD>
+ *   <TD>This parameter can contain any picture writer known by the JVM. For instance: jpeg, png, gif. All standard 
+ *       formats should be available. More information can be found on the  
+ *       <A href='http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html'>java.sun.com</A> web site.
+ *   </TD>
  * </TR>
  * <TR>
  *   <TD>albumId</TD>
- *   <TD>-1</TD>
- *   <TD>{@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
+ *   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
  *   <TD>This parameter is only used by CoppermineUploadPolicy. So it is to be used to upload into a 
  *       <a href="http://coppermine.sourceforge.net/">coppermine picture gallery</a>. This parameter 
  *       contains the identifier of the album, where pictures should be used. See CoppermineUploadPolicy 
@@ -216,8 +220,7 @@ import wjhk.jupload2.gui.FilePanel;
  * </TR>
  * <TR>
  *   <TD>storeBufferedImage</TD>
- *   <TD>false</TD>
- *   <TD>{@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
+ *   <TD>false <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
  *   <TD>This parameter indicates that the preview image on the applet is kept in memory. It works really
  *       nice under eclise.  But, once in the navigator, the applet runs very quickly out of memory. So I add a lot
  *       of calls to {@link wjhk.jupload2.filedata.PictureFileData#freeMemory(String)}, but it doesn't change 
@@ -226,6 +229,32 @@ import wjhk.jupload2.gui.FilePanel;
  *    </TD>
  * </TR>
  * </TABLE>
+ * 
+ * <A NAME="example"><H3>HTML call example</H3></A>
+ * You'll find below an example of how to put the applet into a PHP page:
+ * <BR>
+ * <XMP>
+      <APPLET  
+          NAME="JUpload"
+          CODE="wjhk.jupload2.JUploadApplet" 
+          ARCHIVE="plugins/jupload/wjhk.jupload.jar" 
+          <!-- Applet display size, on the navigator page -->
+          WIDTH="500" 
+          HEIGHT="700"
+          <!-- The applet call some javascript function, so we must allow it : -->
+          MAYSCRIPT
+          >
+          <!-- 
+          		Only one parameter is mandatory. We don't precise the UploadPolicy, so DefaultUploadPolicy is used.
+          		The applet behaves like the original JUpload. (jupload v1) 
+          -->
+          <PARAM NAME="postURL"      VALUE="http://some.host.com/youruploadpage.php">
+                
+      Java 1.4 or higher plugin required.
+      </APPLET>
+
+ * </XMP>
+ * 
  * 
  * @author Etienne Gauthier
  * 
@@ -270,7 +299,7 @@ public interface UploadPolicy {
 
 	/**
 	 * This method is called to create the top panel. The default implementation is defined
-	 * in {@link DefaultUploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}.
+	 * in {@link wjhk.jupload2.policies.DefaultUploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}.
 	 * 
 	 * @param browse The default browse button. 
 	 * @param remove The default removeSelected button. 
@@ -333,7 +362,7 @@ public interface UploadPolicy {
 	 * This method allows the applet to send debug information to the webmaster.
 	 * 
 	 * @param reason A string describing briefly the problem. The mail subject will be somethin like: Jupload Error (reason)
-	 * @see DefaultUploadPolicy#sendDebugInformation()  
+	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#sendDebugInformation(String)
 	 */
 	public void sendDebugInformation(String reason);
 	
@@ -377,7 +406,7 @@ public interface UploadPolicy {
 	/**
 	 * Add an header to the list of headers that will be added to ech HTTP upload request.
 	 * This method is called from specific uploadPolicies, which would need headers to be
-	 * added to all uploads. These headers are used in {@link DefaultUploadPolicy}.
+	 * added to all uploads. These headers are used in {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
 	 * 
 	 * @param header
 	 * @see #onAppendHeader(StringBuffer)
@@ -391,13 +420,13 @@ public interface UploadPolicy {
 	 * @param sb The header StringBuffer where spécific headers should be appended.
 	 * @return The StringBuffer given in parameters. This is conform to the StringBuffer.append method.
 	 * @see #addHeader(String)
-	 * @see wjhk.jupload2.upload.FileUploadThreadV3#doUpload(FileData[], int, int)
+	 * @see wjhk.jupload2.upload.FileUploadThreadV3#doUpload(FileData[],int,int)
 	 */
 	public StringBuffer onAppendHeader(StringBuffer sb);
 	
 	/**
 	 * This method is called each time a file is selected in the panel files. It allows, for instance, to preview
-	 * a picture {@link PictureUploadPolicy}.
+	 * a picture {@link wjhk.jupload2.policies.PictureUploadPolicy}.
 	 * 
 	 * @param fileData
 	 */
@@ -429,7 +458,7 @@ public interface UploadPolicy {
 	/**
 	 * 
 	 * HTTP protocol that should be used to send the HTTP request. Currently, this is mainly used by
-	 * {@link CoppermineUploadPolicy}, as the coppermine control that the protocol used for each HTTP request 
+	 * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine control that the protocol used for each HTTP request 
 	 * is the same as the one used during the session creation. It is used in the default policy, as it could 
 	 * be used elsewhere.
 	 * <BR>
@@ -445,7 +474,7 @@ public interface UploadPolicy {
 	 * 
 	 * @param key The key, whose associated text is to retrieve.
 	 * @return The associated text.
-	 * @see DefaultUploadPolicy#DefaultUploadPolicy(String, Applet, int, JTextArea)
+	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(String, Applet, int, JTextArea)
 	 */
 	public String getString(String key);
 
@@ -462,7 +491,7 @@ public interface UploadPolicy {
 	 * @param key The key, whose associated text is to retrieve.
 	 * @param value1 The value, which will replace all occurence of {1}
 	 * @return The associated text.
-	 * @see DefaultUploadPolicy#DefaultUploadPolicy(String, int, Applet, int, JTextArea)
+	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(String, Applet, int, JTextArea)
 	 */
 	public String getString(String key, String value1);
 	
