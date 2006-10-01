@@ -1,0 +1,31 @@
+
+V 2.2.0
+
+  This version is a major release of jupload. It is based on the 'juploadV20040415R2' package. It adds the following functionnalities:
+  
+- Picture management. The applet is now able to:
+  - Preview pictures,
+  - Resize picture, to a maximum width and/or height before upload (this lower the network traffic, and can prevent the server to transform picture after upload)
+  - Display a full screen picture (by clicking on the previewed picture),
+  - Rotate the picture right or left,
+  - Download pictures and select the upload album on the same web page (with the jupload.php script),
+  - Upload all pictures/files in one click,
+- UploadPolicy allows easy configuration of the the applet behaves (see below for the current list of parameters), 
+- Multi-language.
+
+Here are the current parameters allows that the upload policies allows to control. All details are given in the javadoc:
+- uploadPolicy
+- postURL
+- debugLevel
+- lang
+- urlToSendErrorTo
+- nbFilesPerRequest
+- serverProtocol
+- stringUploadSuccess
+- maxPicHeight
+- PictureUploadPolicy
+- maxPicWidth
+- maxPicHeight
+- targetPictureFormat
+- albumId
+- storeBufferedImage
