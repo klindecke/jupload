@@ -17,6 +17,10 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
 public class DialogPicturePanel extends PicturePanel {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1333603128496671158L;
+	/**
 	 * The JDialog containing this panel.
 	 */
 	PictureDialog pictureDialog;

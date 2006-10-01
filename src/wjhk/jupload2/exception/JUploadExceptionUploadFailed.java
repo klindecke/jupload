@@ -15,6 +15,11 @@ package wjhk.jupload2.exception;
 public class JUploadExceptionUploadFailed extends JUploadException {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9031106357048838553L;
+
+	/**
 	 * @param arg0 the Error message
 	 */
 	public JUploadExceptionUploadFailed(String arg0) {

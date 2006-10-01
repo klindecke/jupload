@@ -18,7 +18,11 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class FilePanelTableImp extends Panel implements FilePanel{
 
-  //------------- INFORMATION --------------------------------------------
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8273990467324350526L;
+//------------- INFORMATION --------------------------------------------
   public static final String TITLE = "JUpload FilePanelTableImp";
   public static final String DESCRIPTION = "FilePanel Table Implementation.";
   public static final String AUTHOR = "William JinHua Kwong";

@@ -202,8 +202,10 @@ public class FileUploadThreadV3 extends Thread {
 	}
 	//------------- THE HEART OF THE PROGRAM ------------------------------
 	
+	/*
 	private void setHeader(){
 	}
+	*/
 	
 	
 	public void run() {

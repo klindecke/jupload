@@ -123,10 +123,11 @@ import wjhk.jupload2.gui.FilePanel;
  *   </TD>
  * </TR>
  * <TR>
- *   <TD>webmasterMail</TD>
+ *   <TD>urlToSendErrorTo</TD>
  *   <TD><I>Empty String</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- *   <TD>If this mail is given, and an upload error occurs, the applet opens a mailto windows. This mail contains
- *     the detailled description of the error (with full debug output). This mail is targeted toward the webmasterMail. 
+ *   <TD>If this url is given, and an upload error occurs, the applet post the all the debug output to this
+ *     address. It's up to this URL to handle this mail. It is possible to just store the file, or to log the 
+ *     error in a database, or to send a mail (like the mail.php script given with the coppermine pack).
  *   </TD>
  * </TR>
  * <TR>
@@ -279,7 +280,7 @@ public interface UploadPolicy {
 	final static String PROP_STRING_UPLOAD_SUCCESS	= "stringUploadSuccess";
 	final static String PROP_TARGET_PICTURE_FORMAT	= "targetPictureFormat";
 	final static String PROP_UPLOAD_POLICY 			= "uploadPolicy";
-	final static String PROP_WEBMASTER_MAIL			= "webmasterMail";
+	final static String PROP_URL_TO_SEND_ERROR_TO	= "urlToSendErrorTo";
 	
 	final static String DEFAULT_POST_URL = 
 		//"http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value";
@@ -295,7 +296,7 @@ public interface UploadPolicy {
 	final static String  DEFAULT_STRING_UPLOAD_SUCCESS	= ".* 200 OK$";
 	final static String  DEFAULT_TARGET_PICTURE_FORMAT	= null;
 	final static String  DEFAULT_UPLOAD_POLICY			= "DefaultUploadPolicy";
-	final static String  DEFAULT_WEBMASTER_MAIL			= "";
+	final static String  DEFAULT_URL_TO_SEND_ERROR_TO	= "";
 
 	/**
 	 * This method is called to create the top panel. The default implementation is defined

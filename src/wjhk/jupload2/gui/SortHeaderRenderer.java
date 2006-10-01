@@ -11,7 +11,11 @@ import javax.swing.table.JTableHeader;
  * Techical class, to display the column headers, for column that may be sorted.
  */
 public class SortHeaderRenderer extends DefaultTableCellRenderer {
-  public Icon NONSORTED =
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4104776293873798189L;
+public Icon NONSORTED =
       new SortArrowIcon(SortArrowIcon.NONE);
   public Icon ASCENDING =
       new SortArrowIcon(SortArrowIcon.ASCENDING);

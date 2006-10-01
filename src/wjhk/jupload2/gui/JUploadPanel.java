@@ -29,7 +29,11 @@ import wjhk.jupload2.upload.FileUploadThreadV3;
  */
 public class JUploadPanel extends JPanel implements ActionListener{
 
-  //------------- INFORMATION --------------------------------------------
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1212601012568225757L;
+//------------- INFORMATION --------------------------------------------
   public static final String TITLE = "JUpload JUploadPanel";
   public static final String DESCRIPTION =
       "Main Panel for JUpload Application/Applet.";
@@ -43,7 +47,6 @@ public class JUploadPanel extends JPanel implements ActionListener{
   
   //------------- VARIABLES ----------------------------------------------
   private JPanel topPanel;
-  private JPanel buttonPanel;
   private JButton browse, remove, removeAll;
   private JFileChooser fileChooser = null;
 
@@ -259,7 +262,7 @@ public class JUploadPanel extends JPanel implements ActionListener{
 	      public void actionPerformed(ActionEvent evt) {
 	        if(!pictureFileUploadThread.isAlive()){
 	          timer.stop();
-	          boolean isSuccess = false;
+	          //boolean isSuccess = false;
 	          StringBuffer svrRet=pictureFileUploadThread.getServerOutput();
 	          Exception e = pictureFileUploadThread.getException();
 	          /*EGR

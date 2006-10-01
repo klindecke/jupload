@@ -34,6 +34,11 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
 	
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1473262424494858913L;
+
+	/**
 	 * The uploadPolicy contains all current parameter, including the FileDataParam
 	 */
 	private UploadPolicy uploadPolicy = UploadPolicyFactory.getCurrentUploadPolicy();
