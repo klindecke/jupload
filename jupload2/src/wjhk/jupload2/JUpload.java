@@ -47,7 +47,8 @@ public class JUpload extends JFrame{
     JUploadPanel jp = new JUploadPanel(this, uploadPolicy);
 
     c.add(jp, BorderLayout.CENTER);
-    this.show();
+    //this.show();
+    this.setVisible(true);
   }
 
   //Main method
