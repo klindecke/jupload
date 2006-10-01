@@ -322,6 +322,8 @@ public class PictureFileData extends FileData  {
 			
 			try {
 				localBufferedImage = ImageIO.read(getFile());
+				//If we get here, we have a picture.
+				isPicture = true;
 
 				AffineTransform transform = new AffineTransform ();
 
@@ -579,9 +581,11 @@ public class PictureFileData extends FileData  {
 		//Did we already estimate if transformation is needed ?
 		if (hasToTransformPicture == null) {
 			//We only tranform pictures.
+			/*
 			if (!isPicture) {
 				hasToTransformPicture = Boolean.FALSE;
 			}
+			*/
 			//First : the easiest test. A rotation is needed ?
 			if (hasToTransformPicture == null && quarterRotation != 0) {
 				uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true", 20);

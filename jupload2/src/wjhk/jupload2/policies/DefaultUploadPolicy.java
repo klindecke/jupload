@@ -468,7 +468,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 			status.append("\r\n");
 		}
 		//Let's store all text in the debug BufferString
-		addMsgToDebugBufferString(msg + "\n");
+		addMsgToDebugBufferString(msg + "\r\n");
 	}
 	public void displayErr (Exception e) {
 		displayErr (e.getClass().getName() + ": " + e.getLocalizedMessage());

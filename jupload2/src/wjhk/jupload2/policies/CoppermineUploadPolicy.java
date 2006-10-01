@@ -145,7 +145,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(FilePanel, Exception, String)
 	 */
 	public void afterUpload(FilePanel filePanel, Exception e, String serverOutput) {
-        if(e != null){
+        if(e == null){
         	try {
 	        	//First : construction of the editpic URL :
 	        	String editpicURL = postURL.substring(0,postURL.lastIndexOf('/')) 
