@@ -4,7 +4,7 @@
 
 
 WEB SITE: http://jupload.sourceforge.net/
-Version : 2.1.2
+Version : 2.2.0
 
 This applet comes with source code. I take no responsibility for any damages caused by the usage of this applet. Use it at your own risk!
 
