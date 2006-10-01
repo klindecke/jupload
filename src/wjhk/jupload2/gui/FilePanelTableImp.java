@@ -50,7 +50,7 @@ public class FilePanelTableImp extends Panel implements FilePanel{
     JScrollPane scrollPane = new JScrollPane(jtable);
     add( scrollPane, BorderLayout.CENTER );
 
-    DropTarget dropTarget = new DropTarget(scrollPane, new DnDListener(jup));
+    new DropTarget(scrollPane, new DnDListener(jup));
   }
 
   public void addFiles(File[] f){

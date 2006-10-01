@@ -55,7 +55,8 @@ public class PictureDialog extends JDialog implements ActionListener {
 		setSize(getMaximumSize());
 
 		picturePanel.setPictureFile(pictureFileData);
-		show();
+		//show();
+		setVisible(true);
 	}
 	
     /**
