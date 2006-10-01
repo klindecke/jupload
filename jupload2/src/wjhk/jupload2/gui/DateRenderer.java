@@ -12,7 +12,12 @@ import javax.swing.table.DefaultTableCellRenderer;
  * Used in {@link wjhk.jupload2.gui.FilePanelJTable}.
  */
 public class DateRenderer extends DefaultTableCellRenderer {
-  public Component getTableCellRendererComponent(JTable table, Object value,
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7171473761133675782L;
+
+public Component getTableCellRendererComponent(JTable table, Object value,
       boolean isSelected, boolean hasFocus, int row, int column) {
     Component cell = super.getTableCellRendererComponent(table, value,
         isSelected, hasFocus, row, column);

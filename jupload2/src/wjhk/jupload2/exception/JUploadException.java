@@ -9,6 +9,10 @@ package wjhk.jupload2.exception;
  * @author Etienne Gauthier
  */
 public class JUploadException extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6386378085666411905L;
 	String functionName = null;
 
 	/**

@@ -20,7 +20,11 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  * 
  */
 public class FilePanelJTable extends JTable implements MouseListener {
-  protected int sortedColumnIndex = -1;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5422667664740339798L;
+protected int sortedColumnIndex = -1;
   protected boolean sortedColumnAscending = true;
   
   //The current UploadPolicy

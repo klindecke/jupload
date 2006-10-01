@@ -15,7 +15,11 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  */
 public class JUpload extends JFrame{
 
-  //------------- INFORMATION --------------------------------------------
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2188362223455520522L;
+//------------- INFORMATION --------------------------------------------
   public static final String TITLE = "JUpload JUpload";
   public static final String DESCRIPTION =
       "Java Frame wrapper for JUploadPanel.";
@@ -56,6 +60,9 @@ public class JUpload extends JFrame{
     }
 
     JUpload ju = new JUpload(uploadPolicy);
+    if (ju == null) {
+    	//juste pour éviter un warning.
+    }
   }
 
 }

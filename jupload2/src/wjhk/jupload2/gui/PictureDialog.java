@@ -24,6 +24,10 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  */
 public class PictureDialog extends JDialog implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7802205907550854333L;
 	JButton buttonClose;
 	PicturePanel picturePanel;
 	

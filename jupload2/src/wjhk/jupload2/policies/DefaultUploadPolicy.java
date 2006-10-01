@@ -7,9 +7,15 @@ package wjhk.jupload2.policies;
 	
 import java.applet.Applet;
 import java.awt.GridLayout;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -23,6 +29,7 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.FilePanel;
 
@@ -71,9 +78,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	String stringUploadSuccess;
 	
 	/**
-	 * @see UploadPolicy#sendDebugInformation(String)
+	 * @see UploadPolicy#manageError(String)
 	 */
-	String webmasterMail;
+	String urlToSendErrorTo;
 	
 	/**
 	 * This Vector contains headers that will be added for each upload. It may contains
@@ -161,7 +168,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		///////////////////////////////////////////////////////////////////////////////
 	    //get the mail of the webmaster. It can be used to send debug information, if
 		//problems occurs. 
-		webmasterMail = UploadPolicyFactory.getParameter(theApplet, PROP_WEBMASTER_MAIL, DEFAULT_WEBMASTER_MAIL);
+		urlToSendErrorTo = UploadPolicyFactory.getParameter(theApplet, PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO);
 
 		///////////////////////////////////////////////////////////////////////////////
 	    //get the server protocol. 
@@ -192,6 +199,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    displayDebug("lang (parameter) : " + lang, 20);
 	    displayDebug("language : " + locale.getLanguage(), 20);
 	    displayDebug("country : " + locale.getCountry(), 20);
+	    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
 		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
 	}
 		
@@ -241,21 +249,197 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * @see UploadPolicy#sendDebugInformation(String)  
 	 *
 	 */
-	public void sendDebugInformation(String reason) {
-		StringBuffer href = new StringBuffer();
+	public void sendDebugInformation(String description) {
 		
-		href.append("mailto:");
-		if (webmasterMail.length() > 0) {
-			href.append(webmasterMail);
+		if (urlToSendErrorTo.length() > 0) {
+			Object response = null;
+			//TODO Put a java MessageBox instead of a javascript one.
+			try {
+				//This works Ok within an applet, but won't work within a java application.
+				JSObject applet = JSObject.getWindow(getApplet());
+			    JSObject win = (JSObject) applet.getMember("window");
+			    Object[] args = {getString("questionSendMailOnError")};
+			    response = win.call("confirm", args);
+			} catch (Exception e) {
+				//We're probably not in a navigator. Let's send the mail.
+				response = "true";
+			}
+		    
+	    	displayDebug("Answer to " + getString("questionSendMailOnError") + ": " + response, 60);
+		    if (response.toString().equals("true")) {
+		    	displayDebug("Within response == true", 60);
+				StringBuffer href = new StringBuffer();
+				
+				//The message is written in english, as it is not sure that the webmaster speaks the same
+				//language as the current user.
+			
+				
+				switch (3) {
+				case 1:
+					//TODO finish the 'building' of this mail.
+					try {
+						href
+						.append("mailto:etiennegauthier@free.fr")
+						.append("?subject=[JUpload] ")
+						.append(description)
+						.append("&body=salut")
+						//.append("\n\nAn error occured during upload, in JUpload\nAll debuginformation is available below\n\n\n\n")
+						//.append(debugBufferString)
+						//.append("&attachment=e:/temp2/t.log")    //KO
+						.append("&filename=e:/temp2/t.log")
+						.append("&filename1=e:/temp2/t.log")
+						.append("&file=e:/temp2/t.log")  //KO
+						.append("&file1=e:/temp2/t.log") //KO
+						;
+						URL url = new URL(href.toString());
+						theApplet.getAppletContext().showDocument(url);
+					}  catch (MalformedURLException e) {
+						   UploadPolicyFactory.getCurrentUploadPolicy().displayErr(e);
+					}
+					break;
+					/*
+				case 2:
+					try {
+						displayDebug("Within PostMethod", 60);
+						HttpClient client = new HttpClient();
+						PostMethod post = new PostMethod(urlToSendErrorTo);
+						
+						//FIXME Headers needs to be added, so that Coppermine recognize the session !
+						
+						//FIXME Put constants here, instead of hard coded strings.
+						post.addParameter("description", description);
+						post.addParameter("log", debugBufferString.toString());
+						int statusCode = client.executeMethod (post);
+						if( statusCode == -1 ) {
+							displayWarn("Error during log management (statusCode=" + statusCode + ")");
+						} else {
+							String body = post.getResponseBodyAsString();
+							post.releaseConnection();
+							displayDebug("body returned from urlToSendErrorTo : \n" + body, 100);
+							if (! body.equals("SUCCESS")) {
+								//Dommage 
+								displayWarn("Error during log management: \n" + body);
+							}
+						}
+					}  catch (Exception e) {
+					   UploadPolicyFactory.getCurrentUploadPolicy().displayErr(e);
+					}
+					break;
+					*/
+				case 3:
+					String query = null;
+					String action = null;
+					Socket sock = null;
+					DataOutputStream dataout = null;
+					BufferedReader datain  = null;
+					StringBuffer sbHttpResponseBody = null;
+					StringBuffer request = null;
+					
+					try {
+						query = "description=" + URLEncoder.encode(description, "UTF-8")
+								+ "&log="  + URLEncoder.encode(
+									"\n\nAn error occured during upload, in JUpload\n"
+									+ "All debug information is available below\n\n\n\n" 
+									+ debugBufferString.toString()
+									, "UTF-8");
+						request = new StringBuffer();
+						URL url = new URL(urlToSendErrorTo);
+						request
+							.append("POST ")
+								.append(url)
+								.append(" ")
+								.append(getServerProtocol())
+								.append("\r\n")
+							.append("Host: ")
+								.append(url.getHost())
+								.append("\r\n")
+							.append("Accept: */*\r\n")
+							.append("Content-type: application/x-www-form-urlencoded\r\n")
+							.append("Connection: close\r\n")
+							.append("Content-length: ")
+							  .append(query.length())
+							  .append("\r\n");						
+						//Get specific headers for this upload.
+						onAppendHeader(request);						
+						// Blank line (end of header)
+						request
+							.append("\r\n")
+							.append(query)
+							;
+						
+						// If port not specified then use default http port 80.
+						sock = new Socket(url.getHost(), (-1 == url.getPort())?80:url.getPort());
+						dataout = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
+						datain  = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+						//DataInputStream datain  = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
+						
+						// Send http request to server
+						action = "send bytes (1)";
+						dataout.writeBytes(request.toString());
+						dataout.writeBytes(query);
+						action = "flush";
+						dataout.flush ();
+						action = "wait for server answer";
+						String strUploadSuccess = getStringUploadSuccess();
+						boolean uploadSuccess = false;
+						boolean readingHttpBody = false;
+						sbHttpResponseBody = new StringBuffer(); 
+						String line;
+						//Now, we wait for the full answer (which should mean that the uploaded files
+						//has been treated on the server)
+						while ((line = datain.readLine()) != null) {
+							
+							//Is this upload a success ?
+							action ="test success";
+							if (line.matches(strUploadSuccess)) {
+								uploadSuccess = true;
+							}
+							
+							//Store the http body 
+							if (readingHttpBody) {
+								action = "sbHttpResponseBody";
+								sbHttpResponseBody.append(line).append("\n");
+							}
+							if (line.length() == 0) {
+								//Next lines will be the http body (or perhaps we already are in the body, but it's Ok anyway) 
+								action = "readingHttpBody";
+								readingHttpBody = true;
+							}
+						}
+						//Is our upload a success ?
+						if (! uploadSuccess) {
+							throw new JUploadExceptionUploadFailed(getString("errHttpResponse"));
+						}
+	
+					}catch(Exception e){
+						displayErr(getString("errDuringLogManagement") + " (" + action + ") (" + e.getClass() + ") : " + e.getMessage());
+					}finally{
+						try{
+							dataout.close();
+						} catch(Exception e) {
+							displayErr(getString("errDuringLogManagement") + " (dataout.close) (" + e.getClass() + ") : " + e.getMessage());
+						}
+						dataout = null;
+						try{
+							// Throws java.io.IOException
+							datain.close();
+						} catch(Exception e){}
+						datain = null;
+						try{
+							// Throws java.io.IOException
+							sock.close();
+						} catch(Exception e) {
+							displayErr(getString("errDuringLogManagement") + " (sock.close)(" + e.getClass() + ") : " + e.getMessage());
+						}
+						sock = null;
+						displayDebug ("Sent to server: " + request.toString(), 100);
+						displayDebug ("Body received: " + sbHttpResponseBody.toString(), 100);
+						
+					}
+					break;
+				} //switch
+		    }
 		}
-		//TODO finish the 'building' of this mail.
-		try {
-			URL url = new URL(href.toString());
-			theApplet.getAppletContext().showDocument(url);
-		}  catch (MalformedURLException e) {
-		   System.err.println("Invalid URL");
-		}
-			     
 	}//sendDebugInformation
 
 	/**
@@ -281,10 +465,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 			System.out.println(msg);
 		} else {
 			status.append(msg);
-			status.append("\n");
+			status.append("\r\n");
 		}
 		//Let's store all text in the debug BufferString
-		addMsgToDebugBufferString(msg);
+		addMsgToDebugBufferString(msg + "\n");
 	}
 	public void displayErr (Exception e) {
 		displayErr (e.getClass().getName() + ": " + e.getLocalizedMessage());

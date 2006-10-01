@@ -165,8 +165,11 @@ public class FileUploadThreadV2 extends Thread {
   }
   //------------- THE HEART OF THE PROGRAME ------------------------------
 
+  /*
   private void setHeader(){
   }
+  */
+  
   public void run() {
     Socket sock = null;
     DataOutputStream dataout = null;

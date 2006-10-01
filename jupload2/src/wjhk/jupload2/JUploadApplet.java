@@ -20,7 +20,11 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  */
 public class JUploadApplet extends Applet{
 
-  //------------- INFORMATION --------------------------------------------
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3207851532114846776L;
+//------------- INFORMATION --------------------------------------------
   public static final String TITLE = "JUpload JUploadApplet";
   public static final String DESCRIPTION =
       "Java Applet wrapper for JUploadPanel.";
