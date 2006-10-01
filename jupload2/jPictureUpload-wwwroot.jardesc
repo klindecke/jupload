@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
     <jar path="E:/Donnees/gauthier-ete/MES DOCUMENTS/php/coppermine-1.4.8/plugins/jupload/wjhk.jupload.jar"/>
-    <options overwrite="true" compress="false" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/jupload/jPictureUpload-wwwroot.jardesc" useSourceFolders="false" buildIfNeeded="true"/>
+    <options overwrite="true" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/jupload/jPictureUpload-wwwroot.jardesc" useSourceFolders="false" buildIfNeeded="true"/>
     <manifest manifestVersion="1.0" usesManifest="true" reuseManifest="true" saveManifest="true" generateManifest="false" manifestLocation="/Etienne/com/gazdefrance/ecx/manifest">
         <sealing sealJar="false">
             <packagesToSeal/>
