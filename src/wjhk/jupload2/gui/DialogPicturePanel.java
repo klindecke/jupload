@@ -5,7 +5,8 @@ package wjhk.jupload2.gui;
 
 import java.awt.event.MouseEvent;
 
-import wjhk.jupload2.policies.UploadPolicyFactory;
+import wjhk.jupload2.policies.UploadPolicy;
+
 
 /**
  * 
@@ -28,8 +29,8 @@ public class DialogPicturePanel extends PicturePanel {
 	/**
 	 * 
 	 */
-	public DialogPicturePanel(PictureDialog pictureDialog) {
-		super(pictureDialog.getContentPane(), false);
+	public DialogPicturePanel(PictureDialog pictureDialog, UploadPolicy uploadPolicy) {
+		super(pictureDialog.getContentPane(), false, uploadPolicy);
 		
 		this.pictureDialog = pictureDialog;
 	}
@@ -40,6 +41,5 @@ public class DialogPicturePanel extends PicturePanel {
 	public void mouseClicked(MouseEvent arg0) {
 		//Let's display the big picture.
 		pictureDialog.dispose();
-		UploadPolicyFactory.getCurrentUploadPolicy().displayDebug("DialogPicturePanel : mouseClicked()", 50);
 	}
 }

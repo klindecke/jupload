@@ -35,6 +35,8 @@ public class UploadPolicyFactory {
 	
 	/** 
 	 * @return The current UploadPolicy. Null if no UploadPolicy was created.
+	 * @deprecated This method is static, which means that if the applet is opened two times (for instance 
+	 * into two different pages), you don't can't control which uploadPolicy is returned.  
 	 */
 	public static UploadPolicy getCurrentUploadPolicy() {
 		return currentUploadPolicy;

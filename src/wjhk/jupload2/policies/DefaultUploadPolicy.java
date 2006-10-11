@@ -300,7 +300,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 						URL url = new URL(href.toString());
 						theApplet.getAppletContext().showDocument(url);
 					}  catch (MalformedURLException e) {
-						   UploadPolicyFactory.getCurrentUploadPolicy().displayErr(e);
+						   displayErr(e);
 					}
 					break;
 					/*
@@ -535,7 +535,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * @see UploadPolicy#createFileData(File)
 	 */
 	public FileData createFileData(File file) {
-		return new FileData(file);
+		return new FileData(file, this);
 	}
 
 	/**

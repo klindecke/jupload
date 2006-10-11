@@ -12,7 +12,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.policies.UploadPolicyFactory;
 
 /**
  * This class is the JTable that display file information to the users. Data is handled
@@ -33,8 +32,8 @@ protected int sortedColumnIndex = -1;
   //The current DataModel
   FilePanelDataModel2 filePanelDataModel;
 
-  public FilePanelJTable(){
-  	uploadPolicy = UploadPolicyFactory.getCurrentUploadPolicy();
+  public FilePanelJTable(UploadPolicy uploadPolicy){
+  	this.uploadPolicy = uploadPolicy;
 	
     setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     setDefaultRenderer(Date.class, new DateRenderer());
