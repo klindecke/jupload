@@ -173,12 +173,20 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	}
 
 	/**
-	 * This methods actually returns a {@link PictureFileData} instance.
+	 * This methods actually returns a {@link PictureFileData} instance. It allows only pictures: if the file is not
+	 * a picture, this method returns null.
 	 * 
+	 * @param file An instance of {@link PictureFileData} or null if file is not a picture.
 	 * @see wjhk.jupload2.policies.UploadPolicy#createFileData(File)
 	 */
 	public FileData createFileData(File file) {
-		return new PictureFileData(file);
+		PictureFileData pfd = new PictureFileData(file);
+		if (pfd.isPicture()) {
+			return pfd;
+		} else {
+			alert("notAPicture", file.getName());
+			return null;
+		}
 	}
 
 	/**

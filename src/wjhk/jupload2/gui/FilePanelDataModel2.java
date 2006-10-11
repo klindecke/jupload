@@ -101,8 +101,16 @@ class FilePanelDataModel2 extends AbstractTableModel {
 	 * @param file
 	 */
 	public void addFile (File file) {
-		rows.add(uploadPolicy.createFileData(file));
-		fireTableDataChanged();
+		//We first call the upload policy, to get : 
+		// - The correct fileData instance (for instance the PictureUploadPolicy returns a PictureFileData)
+		// - The reference to this newly FileData, or null if an error occurs (for instance: invalid file content, 
+		//   according to the current upload policy).
+		FileData df = uploadPolicy.createFileData(file);
+		if (df != null) {
+			//The file is Ok, let's add it.
+			rows.add(df);
+			fireTableDataChanged();
+		}
 	}
 	
 	/**

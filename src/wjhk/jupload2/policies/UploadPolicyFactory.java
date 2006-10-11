@@ -32,6 +32,7 @@ public class UploadPolicyFactory {
 	 */
 	private static UploadPolicy currentUploadPolicy = null;
 	
+	
 	/** 
 	 * @return The current UploadPolicy. Null if no UploadPolicy was created.
 	 */
@@ -103,7 +104,6 @@ public class UploadPolicyFactory {
 	    currentUploadPolicy.displayDebug("debug : " + debugLevel, 1); 
 	    currentUploadPolicy.displayDebug("stringUploadSuccess : <" + currentUploadPolicy.getStringUploadSuccess() + ">", 20); 
 	    currentUploadPolicy.displayDebug("serverProtocole : " + currentUploadPolicy.getServerProtocol(), 20); 
-	    currentUploadPolicy.displayDebug("Java version  : " + System.getProperty("java.version"), 1); 
 	    		
 		return currentUploadPolicy ;
 	}

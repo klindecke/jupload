@@ -138,6 +138,14 @@ public class PictureFileData extends FileData  {
 		super(file);
 		uploadPolicy = (PictureUploadPolicy)super.uploadPolicy;
 		storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
+		
+		//Is it a picture?
+		Iterator iter = ImageIO.
+			getImageReadersByFormatName(getFileExtension())
+			//getImageReaders(getFileExtension())
+			;
+		isPicture = iter.hasNext();
+		uploadPolicy.displayDebug("isPicture=" + isPicture + " (" + file.getName()+ "), extension=" + getFileExtension(), 75);
 	}
 	
 	/**
@@ -283,8 +291,8 @@ public class PictureFileData extends FileData  {
 		if (transformedPictureFile != null) {
 			return new FileInputStream(transformedPictureFile);
 		} else { 
-			//Otherwise : we read the file.
-			return new FileInputStream(getFile());
+			//Otherwise : we read the file, in the standard way.
+			return super.getInputStream();
 		}
 	}
 	
@@ -322,140 +330,145 @@ public class PictureFileData extends FileData  {
 			
 			try {
 				localBufferedImage = ImageIO.read(getFile());
-				//If we get here, we have a picture.
-				isPicture = true;
-
-				AffineTransform transform = new AffineTransform ();
-
-				//Let's store the original image width and height. It can be used elsewhere.
-				//(see hasToTransformPicture, below).
-				originalWidth  = localBufferedImage.getWidth();
-				originalHeight = localBufferedImage.getHeight();
-	    		
 				
-				//////////////////////////////////////////////////////////////
-				// Let's calculate by how much we should reduce the picture : scale
-				/////////////////////////////////////////////////////////////				
-								
-				//The width and height depend on the current rotation : calculation of the width and height
-				//of picture after rotation.
-				int nonScaledRotatedWidth  = originalWidth ;
-				int nonScaledRotatedHeight = originalHeight;
-				if (quarterRotation%2 != 0) {
-					//90° or 270° rotation: width and height are switched.
-					nonScaledRotatedWidth  = originalHeight;
-					nonScaledRotatedHeight = originalWidth ;
-				}
-				//Now, we can compare these width and height to the maximum width and height
-				int maxWidth = uploadPolicy.getMaxWidth();
-				int maxHeight = uploadPolicy.getMaxHeight();
-				float scaleWidth  = ((maxWidth <0) ? 1 : ((float) maxWidth ) / nonScaledRotatedWidth );    
-				float scaleHeight = ((maxHeight<0) ? 1 : ((float) maxHeight) / nonScaledRotatedHeight);
-				float scale = Math.min(scaleWidth, scaleHeight);
-				if (scale < 1) {
-					//With number rouding, it can happen that width or size became one pixel too big. Let's correct it.
-					if (   (maxWidth >0  &&  maxWidth <(int)(scale*nonScaledRotatedWidth ))  
-						|| (maxHeight>0  &&  maxHeight<(int)(scale*nonScaledRotatedHeight))  ) {
-						scaleWidth  = ((maxWidth <0) ? 1 : ((float) maxWidth ) / (nonScaledRotatedWidth -1) );    
-						scaleHeight = ((maxHeight<0) ? 1 : ((float) maxHeight) / (nonScaledRotatedHeight-1) );
-						scale = Math.min(scaleWidth, scaleHeight);
-					}
-				}
-				
-				//These variables contain the actual width and height after recaling, and before rotation.
-				int scaledWidth  = (int) (nonScaledRotatedWidth * scale);
-				int scaledHeight = (int) (nonScaledRotatedHeight* scale);
-				
-				if (quarterRotation != 0) {
-					double theta = Math.toRadians(90 * quarterRotation);
-					double translationX=0, translationY=0;
-					uploadPolicy.displayDebug("quarter: " + quarterRotation, 30);
-					
-					//quarterRotation is one of 0, 1, 2, 3 : see addRotation.
-					//If we're here : it's not 0, so it's one of 1, 2 or 3.
-					switch (quarterRotation) {
-					case 1:
-						translationX  = 0;
-						translationY  = -scaledWidth;
-						break;
-					case 2:
-						translationX = -scaledWidth;
-						translationY = -scaledHeight;
-						break;
-					case 3:
-						translationX = -scaledHeight;
-						translationY = 0;
-						break;						
-					default:
-						uploadPolicy.displayWarn("Invalid quarterRotation : " + quarterRotation);
-						quarterRotation = 0;
-						theta = 0;
-					}
-					transform.rotate(theta);
-					transform.translate(translationX, translationY);
-				}
-								
-				//If we have to rescale the picture, we first do it:
-				if (scale < 1) {
-					//The scale method adds scaling before current transformation.
-		    		transform.scale(scale, scale);
-				}	
-				
-				if (transform.isIdentity()) {
-					//No transformation
-					bufferedImage = localBufferedImage;
+				if (! isPicture) {
+					bufferedImage = null;
 				} else {
-					AffineTransformOp affineTransformOp = null;
-					/*
-					//This switch is temporary : it allows easy comparison between different methods.
-					// The pictures seems Ok, but if anyone has a better solution : I take it!
-					// 
-					switch (0) {
-					case 0:
-					*/
-						//Pictures are Ok.
-						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, null);
-					/*
-						break;
-					case 1:
-						//This options create black pictures !
-						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
-						break;
-					case 2:
-						//This options create also black pictures !
-						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
-						break;
-					case 3:
-						//Pictures are Ok.
-						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-						bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, null);
-						break;
-					case 100:
-						//This options create black pictures !
-						affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-						//bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
-						bufferedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
-						break;
+					AffineTransform transform = new AffineTransform ();
+	
+					//Let's store the original image width and height. It can be used elsewhere.
+					//(see hasToTransformPicture, below).
+					originalWidth  = localBufferedImage.getWidth();
+					originalHeight = localBufferedImage.getHeight();
+		    		
+					
+					//////////////////////////////////////////////////////////////
+					// Let's calculate by how much we should reduce the picture : scale
+					/////////////////////////////////////////////////////////////				
+									
+					//The width and height depend on the current rotation : calculation of the width and height
+					//of picture after rotation.
+					int nonScaledRotatedWidth  = originalWidth ;
+					int nonScaledRotatedHeight = originalHeight;
+					if (quarterRotation%2 != 0) {
+						//90° or 270° rotation: width and height are switched.
+						nonScaledRotatedWidth  = originalHeight;
+						nonScaledRotatedHeight = originalWidth ;
 					}
-					*/
-					affineTransformOp.filter(localBufferedImage, bufferedImage);
-					affineTransformOp = null;
-				}
-
-				//Let's free some memory : useful when running as an applet
-				localBufferedImage = null;
-				transform = null;
-				freeMemory("end of getBufferedImage");
+					//Now, we can compare these width and height to the maximum width and height
+					int maxWidth = uploadPolicy.getMaxWidth();
+					int maxHeight = uploadPolicy.getMaxHeight();
+					float scaleWidth  = ((maxWidth <0) ? 1 : ((float) maxWidth ) / nonScaledRotatedWidth );    
+					float scaleHeight = ((maxHeight<0) ? 1 : ((float) maxHeight) / nonScaledRotatedHeight);
+					float scale = Math.min(scaleWidth, scaleHeight);
+					if (scale < 1) {
+						//With number rouding, it can happen that width or size became one pixel too big. Let's correct it.
+						if (   (maxWidth >0  &&  maxWidth <(int)(scale*nonScaledRotatedWidth ))  
+							|| (maxHeight>0  &&  maxHeight<(int)(scale*nonScaledRotatedHeight))  ) {
+							scaleWidth  = ((maxWidth <0) ? 1 : ((float) maxWidth ) / (nonScaledRotatedWidth -1) );    
+							scaleHeight = ((maxHeight<0) ? 1 : ((float) maxHeight) / (nonScaledRotatedHeight-1) );
+							scale = Math.min(scaleWidth, scaleHeight);
+						}
+					}
+					
+					//These variables contain the actual width and height after recaling, and before rotation.
+					int scaledWidth  = (int) (nonScaledRotatedWidth * scale);
+					int scaledHeight = (int) (nonScaledRotatedHeight* scale);
+					
+					if (quarterRotation != 0) {
+						double theta = Math.toRadians(90 * quarterRotation);
+						double translationX=0, translationY=0;
+						uploadPolicy.displayDebug("quarter: " + quarterRotation, 30);
+						
+						//quarterRotation is one of 0, 1, 2, 3 : see addRotation.
+						//If we're here : it's not 0, so it's one of 1, 2 or 3.
+						switch (quarterRotation) {
+						case 1:
+							translationX  = 0;
+							translationY  = -scaledWidth;
+							break;
+						case 2:
+							translationX = -scaledWidth;
+							translationY = -scaledHeight;
+							break;
+						case 3:
+							translationX = -scaledHeight;
+							translationY = 0;
+							break;						
+						default:
+							uploadPolicy.displayWarn("Invalid quarterRotation : " + quarterRotation);
+							quarterRotation = 0;
+							theta = 0;
+						}
+						transform.rotate(theta);
+						transform.translate(translationX, translationY);
+					}
+									
+					//If we have to rescale the picture, we first do it:
+					if (scale < 1) {
+						//The scale method adds scaling before current transformation.
+			    		transform.scale(scale, scale);
+					}	
+					
+					if (transform.isIdentity()) {
+						//No transformation
+						bufferedImage = localBufferedImage;
+					} else {
+						AffineTransformOp affineTransformOp = null;
+						/*
+						//This switch is temporary : it allows easy comparison between different methods.
+						// The pictures seems Ok, but if anyone has a better solution : I take it!
+						// 
+						switch (0) {
+						case 0:
+						*/
+							//Pictures are Ok.
+							affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+							bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, null);
+						/*
+							break;
+						case 1:
+							//This options create black pictures !
+							affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+							bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
+							break;
+						case 2:
+							//This options create also black pictures !
+							affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+							bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
+							break;
+						case 3:
+							//Pictures are Ok.
+							affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+							bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, null);
+							break;
+						case 100:
+							//This options create black pictures !
+							affineTransformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+							//bufferedImage = affineTransformOp.createCompatibleDestImage(localBufferedImage, ColorModel.getRGBdefault());
+							bufferedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
+							break;
+						}
+						*/
+						affineTransformOp.filter(localBufferedImage, bufferedImage);
+						affineTransformOp = null;
+					}
+	
+					//Let's free some memory : useful when running as an applet
+					localBufferedImage = null;
+					transform = null;
+					freeMemory("end of getBufferedImage");
+				}//if isPicture
 			} catch (IOException e) {
 				throw new JUploadException("IOException (createBufferedImage) : " + e.getMessage());
 			}
-			uploadPolicy.displayDebug("bufferedImage MinX: " + bufferedImage.getMinX(), 60);
-			uploadPolicy.displayDebug("bufferedImage MinY: " + bufferedImage.getMinY(), 60);
-			uploadPolicy.displayDebug("bufferedImage Width: " + bufferedImage.getWidth(), 60);
-			uploadPolicy.displayDebug("bufferedImage Height: " + bufferedImage.getHeight(), 60);
+			
+			if (bufferedImage != null) {
+				uploadPolicy.displayDebug("bufferedImage MinX: " + bufferedImage.getMinX(), 60);
+				uploadPolicy.displayDebug("bufferedImage MinY: " + bufferedImage.getMinY(), 60);
+				uploadPolicy.displayDebug("bufferedImage Width: " + bufferedImage.getWidth(), 60);
+				uploadPolicy.displayDebug("bufferedImage Height: " + bufferedImage.getHeight(), 60);
+			}
 		}
 		return bufferedImage;
 	}
@@ -495,28 +508,30 @@ public class PictureFileData extends FileData  {
 		if ( ! hasToCalculateImage) {
 			image = offscreenImage;
 		} else {
-			try {
-		        getBufferedImage();
-				int originalWidth  = bufferedImage.getWidth ();
-				int originalHeight = bufferedImage.getHeight();
-				float scaleWidth = (float) maxWidth / originalWidth;
-				float scaleHeight = (float) maxHeight / originalHeight;
-				float scale = Math.min(scaleWidth, scaleHeight);
-				//Should we resize this picture ?
-				if (scale < 1) {
-					int width  = (int) (scale * originalWidth);
-					int height = (int) (scale * originalHeight);
-					image = bufferedImage.getScaledInstance(width, height, Image.SCALE_DEFAULT);
-					//Diminuer le  nombre de couleurs ?
-				} else {
-					image = bufferedImage;
+	        if (isPicture) {
+				try {
+			        getBufferedImage();
+					int originalWidth  = bufferedImage.getWidth ();
+					int originalHeight = bufferedImage.getHeight();
+					float scaleWidth = (float) maxWidth / originalWidth;
+					float scaleHeight = (float) maxHeight / originalHeight;
+					float scale = Math.min(scaleWidth, scaleHeight);
+					//Should we resize this picture ?
+					if (scale < 1) {
+						int width  = (int) (scale * originalWidth);
+						int height = (int) (scale * originalHeight);
+						image = bufferedImage.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+						//Diminuer le  nombre de couleurs ?
+					} else {
+						image = bufferedImage;
+					}
+				} catch (OutOfMemoryError e) {
+					//Too bad
+					bufferedImage = null;
+					image = null;
+					tooBigPicture();
 				}
-			} catch (OutOfMemoryError e) {
-				//Too bad
-				bufferedImage = null;
-				image = null;
-				tooBigPicture();
-			}
+	        } //If isPicture
 			
 			//We store it, if asked to.
 			if (shadow) {
@@ -581,11 +596,10 @@ public class PictureFileData extends FileData  {
 		//Did we already estimate if transformation is needed ?
 		if (hasToTransformPicture == null) {
 			//We only tranform pictures.
-			/*
 			if (!isPicture) {
 				hasToTransformPicture = Boolean.FALSE;
 			}
-			*/
+			
 			//First : the easiest test. A rotation is needed ?
 			if (hasToTransformPicture == null && quarterRotation != 0) {
 				uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true", 20);
@@ -663,6 +677,13 @@ public class PictureFileData extends FileData  {
 	private void tooBigPicture() {
 		//TODO Put a messageBox here.
 		uploadPolicy.displayInfo(uploadPolicy.getString("tooBigPicture", getFileName()));
+	}
+
+	/**
+	 * @return the isPicture
+	 */
+	public boolean isPicture() {
+		return isPicture;
 	}
 	
 }

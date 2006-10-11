@@ -12,11 +12,11 @@
     }
 
     // Directory to store all the uploaded files
-    String directory = "C:/WINDOWS/Temp/";
+    String directory = "C:/Temp/";
 
     DiskFileUpload fu = new DiskFileUpload();
     // maximum size before a FileUploadException will be thrown
-    fu.setSizeMax(1000000);
+    fu.setSizeMax(10000000);
     // maximum size that will be stored in memory
     fu.setSizeThreshold(4096);
     // the location for saving data that is larger than getSizeThreshold()

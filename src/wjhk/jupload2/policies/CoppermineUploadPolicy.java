@@ -130,12 +130,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	 */
 	public boolean isUploadReady() {
 		if (albumId <= 0) {
-			//TODO Put a java MessageBox instead of a javascript one. 
-			//This works Ok within an applet, but won't work within a java application.
-			JSObject applet = JSObject.getWindow(getApplet());
-		    JSObject win = (JSObject) applet.getMember("window");
-		    Object[] args = {getString("chooseAlbumFirst")};
-		    win.call("alert", args);
+			alert("chooseAlbumFirst");
 			return false;
 		}
 		// Default :  Let's ask the mother.
@@ -150,28 +145,25 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	        	//First : construction of the editpic URL :
 	        	String editpicURL = postURL.substring(0,postURL.lastIndexOf('/')) 
 						+ "/editpics.php?album=" + albumId;
-	        	//Ok, let's go and add names and comments to the newly updated pictures.
-				JSObject applet = JSObject.getWindow(getApplet());
-			    JSObject win = (JSObject) applet.getMember("window");
-			    JSObject doc = (JSObject) applet.getMember("document");
-			    JSObject loc = (JSObject) doc.getMember("location");
 			    
 			    if (getDebugLevel() >= 100) {
-				    Object[] argsAlert = {"No switch to property page, because debug level is " + getDebugLevel() + " (>=100)"};
-				    win.call("alert", argsAlert);
+				    alertStr ("No switch to property page, because debug level is " + getDebugLevel() + " (>=100)");
 			    } else {
 				    //Let's display an alert box, to explain what to do to the user: he will
 				    //be redirected to the coppermine page that allow him to associate names
 				    // and comments to the uploaded pictures.
-				    Object[] argsAlert = {getString("coppermineUploadOk")};
-				    win.call("alert", argsAlert);
+				    alert ("coppermineUploadOk");
 				    
 				    //Let's change the current URL to edit names and comments, for the selected album. 
+		        	//Ok, let's go and add names and comments to the newly updated pictures.
+					JSObject applet = JSObject.getWindow(getApplet());
+				    JSObject doc = (JSObject) applet.getMember("document");
+				    JSObject loc = (JSObject) doc.getMember("location");
 				    Object[] argsReplace = {editpicURL};
 				    loc.call("replace", argsReplace);
 			    }
         	} catch (JSException ee) {
-        		//Oups, we must be in debug mode, within eclipse for instance : no navigator ?
+        		//Oups, no navigator. We are probably in debug mode, within eclipse for instance.
         		displayErr(ee);
         	}
         }

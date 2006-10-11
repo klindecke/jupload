@@ -25,8 +25,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+//import sun.plugin.javascript.JSObject;
+
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
+
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
@@ -78,7 +81,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	String stringUploadSuccess;
 	
 	/**
-	 * @see UploadPolicy#manageError(String)
+	 * @see UploadPolicy#sendDebugInformation(String)
 	 */
 	String urlToSendErrorTo;
 	
@@ -128,6 +131,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		this.status = status;
 		
 		displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
+	    displayInfo("Java version  : " + System.getProperty("java.version")); 
 		
 
 		///////////////////////////////////////////////////////////////////////////////
@@ -141,7 +145,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		String userAgent;
 
 		try {
-			JSObject applet = JSObject.getWindow(getApplet());
+			//Test, to avoid a crash under linux
+			JSObject applet = (JSObject) JSObject.getWindow(getApplet());
 		    JSObject doc = (JSObject) applet.getMember("document");
 		    cookie = (String) doc.getMember("cookie");
 	
@@ -151,7 +156,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		    displayDebug("cookie: " + cookie, 10);
 		    displayDebug("userAgent: " + userAgent, 10);
 		} catch (JSException e) {
-			displayWarn("JSException (" + e.getMessage()+ ") in CoppermineUploadPolicy, trying default values.");
+			displayWarn("JSException (" + e.getClass() + ": " + e.getMessage()+ ") in DefaultUploadPolicy, trying default values.");
+			
 			//If we can't have access to the JS objects, we're in development :
 			//Let's put some 'hard value', to test the applet from the development tool (mine is eclipse).
 			cookie = "cpg146_data=YTozOntzOjI6IklEIjtzOjMyOiJkOTk0NzRhMzlkZjBjZDAxM2EwYTc2ZGMwZjNhNDI4NCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO30%3D; b5de201130bd138db614bab4c3a1c4a3=f46dcd4f6a8c025614325024311a2fd0";
@@ -245,7 +251,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * This method allows the applet to send debug information to the webmaster. The default implementation is
 	 * to open the user's mailer, by using a mailto link.  
 	 * 
-	 * @param reason A string describing briefly the problem. The mail subject will be somethin like: Jupload Error (reason)
+	 * @param description A string describing briefly the problem. The mail subject will be somethin like: Jupload Error (reason)
 	 * @see UploadPolicy#sendDebugInformation(String)  
 	 *
 	 */
@@ -256,8 +262,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 			//TODO Put a java MessageBox instead of a javascript one.
 			try {
 				//This works Ok within an applet, but won't work within a java application.
-				JSObject applet = JSObject.getWindow(getApplet());
-			    JSObject win = (JSObject) applet.getMember("window");
+				JSObject applet = (JSObject) JSObject.getWindow(getApplet());
+			    JSObject win =  (JSObject) applet.getMember("window");
 			    Object[] args = {getString("questionSendMailOnError")};
 			    response = win.call("confirm", args);
 			} catch (Exception e) {
@@ -524,6 +530,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	}//appendHeader
 
 	/**
+	 * The DefaultUpload accepts all file: we just return an instance of FileData, without any test.
+	 * 
 	 * @see UploadPolicy#createFileData(File)
 	 */
 	public FileData createFileData(File file) {
@@ -574,7 +582,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @return Reference to the applet.
 	 */
-	Applet getApplet() {
+	public Applet getApplet() {
 		return theApplet;
 	}
 	/**
@@ -620,6 +628,39 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 */
 	public int getDebugLevel() {
 		return debugLevel;
+	}
+	
+	/**
+	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
+	 * 
+	 * @param str The full String that must be displayed to the user.
+	 * @see #alert(String)
+	 */
+	void alertStr(String str) {
+		JSObject applet = (JSObject) JSObject.getWindow(getApplet());
+	    JSObject win    = (JSObject) applet.getMember("window");
+	    Object[] args   = {str};
+	    win.call("alert", args);
+	}
+
+	/**
+	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
+	 * 
+	 * @param property_str The string identifying the text to display, depending on the current language.
+	 */
+	public void alert(String property_str) {
+		alertStr(getString(property_str));
+	}
+
+	/**
+	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
+	 * 
+	 * @param property_str The string identifying the text to display, depending on the current language.
+	 * @param arg1 A string that will replace all {1} in the text corresponding to property_str. This allows 
+	 *             to have dynamic localized text.
+	 */
+	public void alert(String property_str, String arg1) {
+		alertStr(getString(property_str, arg1));
 	}
 
 	/**
