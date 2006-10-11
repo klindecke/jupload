@@ -1,4 +1,16 @@
 
+V 2.2.3
+
+Bugs corrected:
+- Samples were bugguy: wrong URL, missing 'MAYSCRIPT' in the applet tags, which causes JSException
+- minor bug: UploadPolicyFactory contains erroneous static getCurrentUploadPolicy, which would cause unpredictale result when several instances of the applet exist in memory
+
+Enhancement:
+- Upload policies can now 'refuse' a file added by the user. For instance, PictureUploadPolicy accepts only picture files (see createFileData).
+- Sample now separate all uploaded files. This was lready coded by William (creator of jupload), but not used by the sample.
+- (minor) PictureFileData now correctly handles the isPicture internal variable.
+
+
 V 2.2.0
 
   This version is a major release of jupload. It is based on the 'juploadV20040415R2' package. It adds the following functionnalities:
