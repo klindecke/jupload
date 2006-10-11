@@ -134,8 +134,8 @@ public class PictureFileData extends FileData  {
 	 * 
 	 * @param file The files which data are to be handled by this instance.
 	 */
-	public PictureFileData(File file) {
-		super(file);
+	public PictureFileData(File file, PictureUploadPolicy uploadPolicy) {
+		super(file, uploadPolicy);
 		uploadPolicy = (PictureUploadPolicy)super.uploadPolicy;
 		storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
 		

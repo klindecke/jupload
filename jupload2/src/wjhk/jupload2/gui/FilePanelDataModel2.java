@@ -13,7 +13,6 @@ import javax.swing.table.AbstractTableModel;
 
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.policies.UploadPolicyFactory;
 
 /**
  *
@@ -41,7 +40,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 	/**
 	 * The uploadPolicy contains all current parameter, including the FileDataParam
 	 */
-	private UploadPolicy uploadPolicy = UploadPolicyFactory.getCurrentUploadPolicy();
+	private UploadPolicy uploadPolicy = null;
 
 	/**
 	 * The column names, as displayed on the applet.

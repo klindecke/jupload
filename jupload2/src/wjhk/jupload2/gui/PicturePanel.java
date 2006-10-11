@@ -16,7 +16,7 @@ import java.awt.event.MouseListener;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.PictureFileData;
-import wjhk.jupload2.policies.UploadPolicyFactory;
+import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * 
@@ -89,15 +89,21 @@ public class PicturePanel extends Canvas implements MouseListener {
 	private Cursor picturePanelCursor = new Cursor(Cursor.HAND_CURSOR);
 	
 	/**
+	 * The current upload policy.
+	 */
+	private UploadPolicy uploadPolicy;
+	
+	/**
 	 * Standard constructor.
 	 *
 	 * @param mainContainer The main panel of the current window. It can be used to change the displayed cursor (to a WAIT_CURSOR for instance)
 	 */
-    public PicturePanel (Container mainContainer, boolean hasToStoreOffscreenPicture) {
+    public PicturePanel (Container mainContainer, boolean hasToStoreOffscreenPicture, UploadPolicy uploadPolicy) {
     	super();
     	
     	this.mainContainer = mainContainer;
     	this.hasToStoreOffscreenPicture = hasToStoreOffscreenPicture;
+    	this.uploadPolicy = uploadPolicy;
     	
     	//We want to trap the mouse actions on this picture. 
 	  	addMouseListener(this);
@@ -134,7 +140,7 @@ public class PicturePanel extends Canvas implements MouseListener {
 			//Check current calculated image size :
 			if (offscreenImage != null) {
 				if (offscreenImage.getWidth(this) != getWidth()  &&  offscreenImage.getHeight(this)!=getHeight()) {
-					UploadPolicyFactory.getCurrentUploadPolicy().displayDebug("Wrong width or height : recalculating offscreenImage (image : w=" 
+					uploadPolicy.displayDebug("Wrong width or height : recalculating offscreenImage (image : w=" 
 							+ offscreenImage.getWidth(this)
 							+ ", h="
 							+ offscreenImage.getHeight(this)
@@ -160,7 +166,7 @@ public class PicturePanel extends Canvas implements MouseListener {
 			long before = (new java.util.Date()).getTime();
 			g.drawImage(offscreenImage, hMargin, vMargin, this);
 			long after = (new java.util.Date()).getTime();
-			UploadPolicyFactory.getCurrentUploadPolicy().displayDebug("PicturePanel: After g.drawImage (time for display : " + (after-before) + " ms)", 80);
+			uploadPolicy.displayDebug("PicturePanel: After g.drawImage (time for display : " + (after-before) + " ms)", 80);
     	}
 	}
 		
@@ -194,8 +200,8 @@ public class PicturePanel extends Canvas implements MouseListener {
 			pictureDialog.setPictureFile(pictureFileData);
 		}
 		*/
-		UploadPolicyFactory.getCurrentUploadPolicy().displayDebug("Opening PictureDialog", 60);
-		pictureDialog = new PictureDialog(null, pictureFileData);
+		uploadPolicy.displayDebug("Opening PictureDialog", 60);
+		pictureDialog = new PictureDialog(null, pictureFileData, uploadPolicy);
 	}
 
 
@@ -243,14 +249,14 @@ public class PicturePanel extends Canvas implements MouseListener {
     	}
     	if (pictureFileData == null) {
     		offscreenImage = null;
-    		UploadPolicyFactory.getCurrentUploadPolicy().displayDebug("calculateOffscreenImage: offscreenImage set to null", 25);
+    		uploadPolicy.displayDebug("calculateOffscreenImage: offscreenImage set to null", 25);
     	} else {
     		try {
-        		UploadPolicyFactory.getCurrentUploadPolicy().displayDebug("calculateOffscreenImage: creation of offscreenImage", 25);
+    			uploadPolicy.displayDebug("calculateOffscreenImage: creation of offscreenImage", 25);
     			offscreenImage = pictureFileData.getImage(this, hasToStoreOffscreenPicture);
-        		UploadPolicyFactory.getCurrentUploadPolicy().displayDebug("calculateOffscreenImage: offscreenImage created", 90);
+    			uploadPolicy.displayDebug("calculateOffscreenImage: offscreenImage created", 90);
 	    	} catch (JUploadException e) {
-	    		UploadPolicyFactory.getCurrentUploadPolicy().displayErr(e);
+	    		uploadPolicy.displayErr(e);
 	    		//We won't try to display the picture for this file.
 	    		this.pictureFileData = null;
 	    		offscreenImage = null;

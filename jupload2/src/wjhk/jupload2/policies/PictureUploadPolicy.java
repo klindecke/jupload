@@ -180,7 +180,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	 * @see wjhk.jupload2.policies.UploadPolicy#createFileData(File)
 	 */
 	public FileData createFileData(File file) {
-		PictureFileData pfd = new PictureFileData(file);
+		PictureFileData pfd = new PictureFileData(file, this);
 		if (pfd.isPicture()) {
 			return pfd;
 		} else {
@@ -224,7 +224,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		//The preview PicturePanel
 		JPanel pPanel = new JPanel();
 	  	pPanel.setLayout(new GridLayout(1,1));	  	
-	  	picturePanel = new PicturePanel(mainPanel, false);
+	  	picturePanel = new PicturePanel(mainPanel, false, this);
 	  	pPanel.add(picturePanel);
 	  	
 	  	//And last but not least ... creation of the top panel:

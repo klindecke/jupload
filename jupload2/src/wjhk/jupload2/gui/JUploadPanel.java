@@ -317,6 +317,13 @@ public class JUploadPanel extends JPanel implements ActionListener{
     }
   }//actionPerformed
 
+	/**
+	 * @return the uploadPolicy
+	 */
+	public UploadPolicy getUploadPolicy() {
+		return uploadPolicy;
+	}
+
   
 }
 

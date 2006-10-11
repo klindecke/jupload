@@ -14,7 +14,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import wjhk.jupload2.filedata.PictureFileData;
-import wjhk.jupload2.policies.UploadPolicyFactory;
+import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * 
@@ -31,16 +31,16 @@ public class PictureDialog extends JDialog implements ActionListener {
 	JButton buttonClose;
 	PicturePanel picturePanel;
 	
-	public PictureDialog (Frame owner, PictureFileData pictureFileData /*String title*/) {
+	public PictureDialog (Frame owner, PictureFileData pictureFileData, UploadPolicy uploadPolicy) {
 		super(owner, pictureFileData.getFileName(), true);
 
 		
 		JPanel panel = new JPanel();
 	  	panel.setLayout(new BorderLayout());	  	
 		//Creation of the image area
-	  	picturePanel = new DialogPicturePanel(this);
+	  	picturePanel = new DialogPicturePanel(this, uploadPolicy);
 	  	//Creation of the buttonClose button.
-	  	buttonClose = new JButton(UploadPolicyFactory.getCurrentUploadPolicy().getString("buttonClose"));
+	  	buttonClose = new JButton(uploadPolicy.getString("buttonClose"));
 		buttonClose.setMaximumSize(new Dimension(100, 100));
 	    buttonClose.addActionListener(this);
 	    //Creation of the panel, that'll contains both objects.

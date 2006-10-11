@@ -4,7 +4,6 @@ import java.applet.*;
 import java.awt.*;
 
 import wjhk.jupload2.gui.JUploadPanel;
-import wjhk.jupload2.policies.UploadPolicyFactory;
 
 /**
  * The applet. It contains quite only the call to creation of the {@link wjhk.jupload2.gui.JUploadPanel},
@@ -30,12 +29,14 @@ public class JUploadApplet extends Applet{
       "Java Applet wrapper for JUploadPanel.";
   public static final String AUTHOR = "William JinHua Kwong (updated by Etienne Gauthier)";
 
-  public static final String VERSION = "2.2.2.2";
+  public static final String VERSION = "2.2.2.3";
   public static final String LAST_MODIFIED = "10 oct 2006";
 
   //----------------------------------------------------------------------
 
   //private boolean isStandalone = false;
+  
+  JUploadPanel jUploadPanel;
 
   //----------------------------------------------------------------------
 
@@ -45,9 +46,9 @@ public class JUploadApplet extends Applet{
     this.setLayout(new BorderLayout());    
 
     //Creation of the Panel, containing all GUI objects for upload.
-    JUploadPanel jp = new JUploadPanel(this);
+    jUploadPanel = new JUploadPanel(this);
 
-    this.add(jp, BorderLayout.CENTER);
+    this.add(jUploadPanel, BorderLayout.CENTER);
 
   }
   
@@ -60,9 +61,9 @@ public class JUploadApplet extends Applet{
 	 */
 	public void setProperty (String prop, String value) {
 		try {
-			UploadPolicyFactory.getCurrentUploadPolicy().setProperty(prop, value);
+			jUploadPanel.getUploadPolicy().setProperty(prop, value);
 		} catch (Exception e) {
-			UploadPolicyFactory.getCurrentUploadPolicy().displayErr("setProperty (exception " + e.getClass().getName() + ") : " + e.getMessage());
+			jUploadPanel.getUploadPolicy().displayErr("setProperty (exception " + e.getClass().getName() + ") : " + e.getMessage());
 		}
 	}
  }

@@ -37,7 +37,7 @@ public class FilePanelTableImp extends Panel implements FilePanel{
   public FilePanelTableImp(JUploadPanel jup, UploadPolicy uploadPolicy){
     setLayout(new BorderLayout());
 
-    jtable = new FilePanelJTable();
+    jtable = new FilePanelJTable(uploadPolicy);
 
     model = new FilePanelDataModel2(uploadPolicy);
     jtable.setModel(model);

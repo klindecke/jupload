@@ -12,7 +12,6 @@ import java.util.Date;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.policies.UploadPolicyFactory;
 
 
 
@@ -42,10 +41,10 @@ public class FileData  {
 	 * 
 	 * @param file The file whose data this instance will give.
 	 */
-	public FileData(File file) {
+	public FileData(File file, UploadPolicy uploadPolicy) {
 		this.file = file;
 		lastModified = new Date(file.lastModified());
-		uploadPolicy = UploadPolicyFactory.getCurrentUploadPolicy();
+		this.uploadPolicy = uploadPolicy;
 	}
 
 	/**
