@@ -11,61 +11,21 @@
    	<table width=100% cellpadding=0 cellspacing=0 border=0 bgcolor=cccccc><tr><td height=1></td></tr></table>
    	<table width=100% cellpadding=3 cellspacing=0 border=0 bgcolor=FF0000>
        <tr><td align=center>
-
-<!--"CONVERTED_APPLET"-->
-<!-- HTML CONVERTER -->
-<SCRIPT LANGUAGE="JavaScript"><!--
-    var _info = navigator.userAgent; 
-    var _ns = false; 
-    var _ns6 = false;
-    var _ie = (_info.indexOf("MSIE") > 0 && _info.indexOf("Win") > 0 && _info.indexOf("Windows 3.1") < 0);
-//--></SCRIPT>
-    <COMMENT>
-        <SCRIPT LANGUAGE="JavaScript1.1"><!--
-        var _ns = (navigator.appName.indexOf("Netscape") >= 0 && ((_info.indexOf("Win") > 0 && _info.indexOf("Win16") < 0 && java.lang.System.getProperty("os.version").indexOf("3.5") < 0) || (_info.indexOf("Sun") > 0) || (_info.indexOf("Linux") > 0) || (_info.indexOf("AIX") > 0) || (_info.indexOf("OS/2") > 0) || (_info.indexOf("IRIX") > 0)));
-        var _ns6 = ((_ns == true) && (_info.indexOf("Mozilla/5") >= 0));
-//--></SCRIPT>
-    </COMMENT>
-
-<SCRIPT LANGUAGE="JavaScript"><!--
-    if (_ie == true) document.writeln('<OBJECT classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" WIDTH = "640" HEIGHT = "300"  codebase="http://java.sun.com/update/1.4.2/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"><NOEMBED><XMP>');
-    else if (_ns == true && _ns6 == false) document.writeln('<EMBED \
-	    type="application/x-java-applet;version=1.4" \
-            CODE = "wjhk.jupload.JUploadApplet" \
-            ARCHIVE = "wjhk.jupload.jar" \
-            WIDTH = "640" \
-            HEIGHT = "300" \
-            postURL ="http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value" \
-	    scriptable=false \
-	    pluginspage="http://java.sun.com/products/plugin/index.html#download"><NOEMBED><XMP>');
-//--></SCRIPT>
-<APPLET  CODE = "wjhk.jupload.JUploadApplet" ARCHIVE = "wjhk.jupload.jar" WIDTH = "640" HEIGHT = "300"></XMP>
-    <PARAM NAME = CODE VALUE = "wjhk.jupload.JUploadApplet" >
-    <PARAM NAME = ARCHIVE VALUE = "wjhk.jupload.jar" >
-    <PARAM NAME="type" VALUE="application/x-java-applet;version=1.4">
-    <PARAM NAME="scriptable" VALUE="false">
-    
-    <PARAM NAME = "postURL"           VALUE ="http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value">
+<APPLET 
+		CODE    = "wjhk.jupload2.JUploadApplet" 
+		ARCHIVE = "wjhk.jupload.jar" 
+		WIDTH   = "640" 
+		HEIGHT  = "300"
+		MAYSCRIPT
+		>
+    <PARAM NAME = "postURL"           VALUE ="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value">
     <PARAM NAME = "uploadPolicy"      VALUE ="PictureUploadPolicy">
     <PARAM NAME = "nbFilesPerRequest" VALUE ="1">     <!-- Optionnal, see code comments -->
     <PARAM NAME = "maxPicHeight"      VALUE ="900">   <!-- Optionnal, see code comments -->
     <PARAM NAME = "maxPicWidth"       VALUE ="700">   <!-- Optionnal, see code comments -->
     <PARAM NAME = "debugLevel"        VALUE ="0">     <!-- Optionnal, see code comments -->
-
 Java 1.4 or higher plugin required.
 </APPLET>
-</NOEMBED>
-</EMBED>
-</OBJECT>
-
-<!--
-<APPLET CODE = "wjhk.jupload.JUploadApplet" ARCHIVE = "wjhk.jupload.jar" WIDTH = "640" HEIGHT = "300">
-<PARAM NAME = "postURL" VALUE ="http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value">
-Java 1.4 or higher plugin required.
-
-</APPLET>
--->
-<!--"END_CONVERTED_APPLET"-->
 
        </td></tr>
    	</table>
@@ -78,7 +38,7 @@ Java 1.4 or higher plugin required.
        <tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr>
        <tr>
         <td>Post URL: </td>
-        <td BGCOLOR=FFFFFF>http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value</td>
+        <td BGCOLOR=FFFFFF>http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value</td>
        </tr>
        <tr>
         <td>uploadPolicy: </td>

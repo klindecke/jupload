@@ -4,7 +4,7 @@
 
 
 WEB SITE: http://jupload.sourceforge.net/
-Version : 2.2.0
+Version : 2.2.3
 
 This applet comes with source code. I take no responsibility for any damages caused by the usage of this applet. Use it at your own risk!
 
@@ -18,7 +18,7 @@ Java Multiple File Upload Applet (JUpload) takes care of this limited by allowin
 Main evolution since V2 :
 - Add of UploadPolicy. This allows developpers to easily configure the way files are uploaded (see below for details)
 - Add of picture management functions. This can easily be done by using the PictureUploadPolicy, or one of its inherited classes, like CoppermineUploadPolicy (which is dedicated to the coppermine online picture gallery.
-- Cookies session are kept: Upload are now done within the current navigator session. 
+- Cookies session are kept: Upload are now done within the current navigator session. Thus, the upload is done within the same user session, if any.
 
 UploadPolicies makes it easy to configure these parameters:
 - Target upload URL
