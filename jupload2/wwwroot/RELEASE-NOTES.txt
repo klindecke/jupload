@@ -1,6 +1,6 @@
 
 
-V 2.3.2
+V 2.2.4
 
 Bugs corrected:
 - NullPointerException (in FilePanelDataModel2 and in PictureFileData) because of the suppression of static methods in UploadPolicyFactory.
