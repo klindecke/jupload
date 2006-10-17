@@ -386,7 +386,7 @@ public interface UploadPolicy {
 	 * @param err The erreur text to be displayed.
 	 */
 	public void displayErr (String err);
-
+//TODO commentaire à compléter : STring = lang.properties
 	/**
 	 * log an info message. Will be logged in the status bar, if defined.
 	 * 

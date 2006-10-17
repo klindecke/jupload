@@ -15,7 +15,7 @@ import javax.swing.JTextArea;
  * 
  * @author Etienne Gauthier
  * @see #CustomizedNbFilesPerRequestUploadPolicy(String, int, Applet, int, JTextArea)
- * @deprecated This class is actually of no use, as it will behave the same way as the
+ * @deprecated This class is of no use, as it actually behaves exactly as the
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
  */
 public class CustomizedNbFilesPerRequestUploadPolicy extends DefaultUploadPolicy {

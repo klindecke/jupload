@@ -4,7 +4,7 @@
 
 
 WEB SITE: http://jupload.sourceforge.net/
-Version : 2.2.3
+Version : 2.3.2
 
 This applet comes with source code. I take no responsibility for any damages caused by the usage of this applet. Use it at your own risk!
 
@@ -54,39 +54,83 @@ UploadPolicies makes it easy to configure these parameters:
 ~~~~~~~~~~~~~~~~~~~~~~
 The applet upload files to the server. Then, the server must handle the uploaded file. Here is an example, in java, of the way to handle the incoming file.
 
-Here's a simple JSP script to log the input into file (./pages/writeOut.jsp)
+Here's a simple JSP script to store each uploaded file in the 'c:\temp' directory (./pages/parseRequest.jsp)
 ---------------------------------------------------------------------
 <%@ page language="java" import="java.io.*, java.sql.*, java.util.*" %>
+<%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.disk.*, org.apache.commons.fileupload.servlet.*" %>
 <%
-   // This JSP will save the request Input Steam into a file.
-   String fileOut = "c:/temp/writeOut.bin";
-    try{
-      ServletInputStream in = request.getInputStream();
-      byte[] line = new byte[1024];
-      int bytes = 0;
-
-      FileOutputStream fileOutS = new  FileOutputStream(fileOut);
-
-      while(0 <(bytes = in.read(line))){
-        fileOutS.write(line,0, bytes);
-      }
-
-      fileOutS.close();
-      fileOutS = null;
-      out.println("SUCCESSFUL : Upload Stream Saved to \"" + fileOut + "\".");
-    }catch(Exception e){
-      out.println("ERROR : Exception \"" + e.getMessage() + "\" Occured.");
+  response.setContentType("text/plain");
+  try{
+    // Get URL Parameters.
+    Enumeration paraNames = request.getParameterNames();
+    while (paraNames.hasMoreElements()) {
+      String pname = (String)paraNames.nextElement();
+      out.println(" ------------------------------ ");
+      out.println(pname + " = " + request.getParameter(pname));
     }
+
+    // Directory to store all the uploaded files
+    String ourTempDirectory = "C:/Temp/";
+    int ourMaxMemorySize  = 10000000;
+    int ourMaxRequestSize = 2000000000;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////
+	//The code below is directly taken from the jakarta fileupload common classes
+	//All informations, and download, available here : http://jakarta.apache.org/commons/fileupload/
+	///////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	// Create a factory for disk-based file items
+	DiskFileItemFactory factory = new DiskFileItemFactory();
+	
+	// Set factory constraints
+	factory.setSizeThreshold(ourMaxMemorySize);
+	factory.setRepository(new File(ourTempDirectory));
+	
+	// Create a new file upload handler
+	ServletFileUpload upload = new ServletFileUpload(factory);
+	
+	// Set overall request size constraint
+	upload.setSizeMax(ourMaxRequestSize);
+	
+	// Parse the request
+	List /* FileItem */ items = upload.parseRequest(request);
+	// Process the uploaded items
+	Iterator iter = items.iterator();
+	FileItem fileItem;
+    File fout;
+	while (iter.hasNext()) {
+	    fileItem = (FileItem) iter.next();
+	
+	    if (fileItem.isFormField()) {
+	        //This should not occur, here.
+	        out.println(" ------------------------------ ");
+	        out.println(fileItem.getFieldName() + " = " + fileItem.getString());
+	    } else {
+	        //Ok, we've got a file. Let's process it.
+	        //Again, for all informations of what is exactly a FileItem, please
+	        //have a look to http://jakarta.apache.org/commons/fileupload/
+	        //
+	        out.println(" ------------------------------ ");
+	        out.println("FieldName: " + fileItem.getFieldName());
+	        out.println("File Name: " + fileItem.getName());
+	        out.println("ContentType: " + fileItem.getContentType());
+	        out.println("Size (Bytes): " + fileItem.getSize());
+	        fout = new File(ourTempDirectory + (new File(fileItem.getName())).getName());
+	        out.println("File Out: " + fout.toString());
+	        // write the file
+	        fileItem.write(fout);	        
+	    }
+	}
+  }catch(Exception e){
+    out.println("Exception e = " + e.toString());
+  }
 %>
 
----------------------------------------------------------------------
-A more sophisticated server FileUpload (Jakarta Commons FileUpload) package 
-can be obtained from apache.org. How it works? Look at the parseRequest.jsp 
-(./pages/parseRequest.jsp).
 
 ---------------------------------------------------------------------
 You can also read the file in php, using the $_FILES array. The uploaded filename is controled in the applet by the UploadPolicy.getUploadFilename method. The default behaviour is to return 'FileN' where N is the number of the uploaded file (for instance 0 to 4 when 5 files are uploaded). The CoppermineUploadPolicy changes that: here, files are uploaded one by one, and the uploaded file name is userpicture. The file is then managed in php by using the $_FILES['userpicture'] array.
 See php doc for all details.
+
 
 ~~~~~~~~~~~~
 4.0	FAQ:
