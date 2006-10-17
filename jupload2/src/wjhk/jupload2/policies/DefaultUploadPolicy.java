@@ -40,11 +40,19 @@ import wjhk.jupload2.gui.FilePanel;
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy} methods. Its
  * way of working is he same as the JUpload version 1.
  * <BR>
- * Functionnalities:
+ * The simplest way to use this policy is given in the presentation of {@link UploadPolicy}. The DefaultUploadPolicy 
+ * is used when no <I>uploadPolicy</I> parameter is given to the applet, or this parameter has 'DefaultUploadPolicy' 
+ * as a value. 
+ * <BR>
+ * The default behavior is representated below. It can be overrided by adding parameters to the applet. All available
+ * parameters are shown in the presentation of {@link UploadPolicy}.
  * <UL>
  * <LI>Default implementation for all {@link wjhk.jupload2.policies.UploadPolicy} methods.
- * <LI> Files are uploaded all in one HTTP request.
- * <LI> No handling for particular kind of files: files are transmitted without any transformation.
+ * <LI>Files are uploaded all in one HTTP request.
+ * <LI>No handling for particular kind of files: files are transmitted without any transformation.
+ * <LI>The file are transmitted to the server with the navigator cookies, userAgent and Protocol. This 
+ * make upload occurs within the current user session on the server. So, it allows right management and context
+ * during the management of uploaded files, on the server. 
  * </UL>
  * 
  * @author Etienne Gauthier
@@ -54,11 +62,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
 	/**
 	 * theApplet contains the reference of the Applet. It's useful to interact with it.
+	 * <BR>
+	 * It also allows acccess to the navigator properties, if the html tag MAYSCRIPT is put in the APPLET tag. This
+	 * allows this class to get the cookie, userAgent and protocol, to upload files in the current user session on 
+	 * the server.   
+	 * <BR>
+	 * Default : no default value 
 	 */
 	Applet theApplet = null;
 	
 	/**
-	 * The URL where files should be posted : no default value.
+	 * The URL where files should be posted.
+	 * <BR>
+	 * Default : no default value. (mandatory) 
 	 */
 	String postURL = null;	
 	
@@ -81,13 +97,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	String stringUploadSuccess;
 	
 	/**
+	 * If an error occurs during upload, and this attribute is not null, the applet asks the user if wants to send 
+	 * the debug ouput to the administrator. If yes, the full debug information is POSTed to this URL. It's a little
+	 * development on the server side to send a mail to the webmaster, or just log this error into a log file.  
+	 * 
 	 * @see UploadPolicy#sendDebugInformation(String)
 	 */
 	String urlToSendErrorTo;
 	
 	/**
 	 * This Vector contains headers that will be added for each upload. It may contains
-	 * cookies, for instance.
+	 * specific cookies, for instance.
 	 * 
 	 * @see #onAppendHeader(StringBuffer)
 	 */

@@ -136,7 +136,7 @@ public class PictureFileData extends FileData  {
 	 */
 	public PictureFileData(File file, PictureUploadPolicy uploadPolicy) {
 		super(file, uploadPolicy);
-		uploadPolicy = (PictureUploadPolicy)super.uploadPolicy;
+		this.uploadPolicy = (PictureUploadPolicy)super.uploadPolicy;
 		storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
 		
 		//Is it a picture?
@@ -177,7 +177,7 @@ public class PictureFileData extends FileData  {
 		//Do we already created the transformed file ?
 		if (transformedPictureFile == null) {
 			transformedPictureFile = new File(getFile().getPath() + ".upload.tmp");
-			String localPictureFormat = (((PictureUploadPolicy)uploadPolicy).getTargetPictureFormat() == null) ? getFileExtension() : ((PictureUploadPolicy)uploadPolicy).getTargetPictureFormat();
+			String localPictureFormat = (uploadPolicy.getTargetPictureFormat() == null) ? getFileExtension() : uploadPolicy.getTargetPictureFormat();
 			try {
 				//Prepare (if not already done) the bufferedImage.
 				getBufferedImage();

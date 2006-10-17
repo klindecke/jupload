@@ -1,4 +1,14 @@
 
+
+V 2.3.2
+
+Bugs corrected:
+- NullPointerException (in FilePanelDataModel2 and in PictureFileData) because of the suppression of static methods in UploadPolicyFactory.
+
+Changes:
+- Java samples updated. They should be clean now. They use the last jakarta commons fileupload package.
+
+
 V 2.2.3
 
 Bugs corrected:
@@ -7,7 +17,7 @@ Bugs corrected:
 
 Enhancement:
 - Upload policies can now 'refuse' a file added by the user. For instance, PictureUploadPolicy accepts only picture files (see createFileData).
-- Sample now separate all uploaded files. This was lready coded by William (creator of jupload), but not used by the sample.
+- Sample now separate all uploaded files. This was already coded by William (creator of jupload), but not used by the sample.
 - (minor) PictureFileData now correctly handles the isPicture internal variable.
 
 

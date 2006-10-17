@@ -20,14 +20,16 @@ import netscape.javascript.JSObject;
  * <BR>
  * Specific features for this policy are:
  * <UL>
- * <LI> <B> Now Done by DefaultUploadPolicy</B>Cookies handling: the current cookies are read from the navigator, and sent in the
- * upload HTTP request. The upload is done within the current coppermine session.
- * <LI> Album handling : the setProperty("albumId", n) can be called from javascript, when the user 
+ * <LI>Album handling : the setProperty("albumId", n) can be called from javascript, when the user 
  * selects another album (with n is the numeric id for the selected album). This needs that the MAYSCRIPT HTML 
  * parameter is set, in the APPLET tag (see the example below). The upload can not start if the user didn't first 
  * select an album.
- * <LI> File by file upload (one file by HTTP Request). Uploaded files are sent to the coppermine's 
- * xp_publish.php script. If give, the nbFilesPerRequest parameter is ignored. Files are uploaded one by one.
+ * <LI>File by file upload (one file by HTTP Request). Uploaded files are sent to the coppermine's 
+ * xp_publish.php script. If given, the nbFilesPerRequest parameter is ignored. Files are always uploaded one by one.
+ * <LI>If an orror occurs, the applet asks the user if he wants to send a mail to the webmaster. If he answered yes,
+ * the full debug output is submitted to the URL pointed by urlToSendErrorTo. This URL should send a mail to the 
+ * manager of the Coppermine galery. 
+ * </UL>
  * 
  * <A NAME="example1"><H3>Call of the applet from a php script in coppermine</H3></A>
  * You'll find below an example of how to put the applet into a PHP page:
@@ -37,7 +39,6 @@ import netscape.javascript.JSObject;
 	 	  $URL = $CONFIG['site_url'] . 'xp_publish.php';
 	 	  $lang = $lang_translation_info['lang_country_code'];
 	 	  $max_upl_width_height = $CONFIG['max_upl_width_height'];
-	 	  $uploadPolicy = "CoppermineUploadPolicy";
 	  ?>
       <APPLET  
           NAME="JUpload"
@@ -51,7 +52,7 @@ import netscape.javascript.JSObject;
           >
           <!-- First, mandatory parameters -->
           <PARAM NAME="postURL"      VALUE="$URL">
-          <PARAM NAME="uploadPolicy" VALUE="PictureUploadPolicy">
+          <PARAM NAME="uploadPolicy" VALUE="CoppermineUploadPolicy">
           <!-- Then, optional parameters -->
           <PARAM NAME="lang"         VALUE="$lang">
           <PARAM NAME="maxPicHeight" VALUE="$max_upl_width_height">
@@ -88,11 +89,22 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	private int albumId;
 
 	/**
-	 * @param postURL
+	 * @param postURL The URL where files should be posted to are read by the {@link UploadPolicyFactory}.
+	 * @param albumId The identifier for the album, where pictures should be uploaded. This 
+	 * identifier can be updated by calling <I>applet.setProperty("albumId", n)</I> (see an example on the 
+	 * top of this page)
+	 * @param theApplet Identifier for the current applet. It's necessary, to read information from the navigator.
+	 * @param debugLevel See {@link UploadPolicy}
 	 */
 	protected CoppermineUploadPolicy(String postURL, int albumId, Applet theApplet, int debugLevel, JTextArea status) {
 		//Let's call our mother !          :-)
 		super(postURL, 1, theApplet, debugLevel, status);
+		
+		//The number of files per upload is always 1.
+		int paramMaxFilesPerUpload = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, -1);
+		if (paramMaxFilesPerUpload != 1) {
+			displayWarn(PROP_NB_FILES_PER_REQUEST + " is ignored in " + this.getClass().getName() + " (given value is: " + paramMaxFilesPerUpload);
+		}
 
 		//Now we explain her what we really want :
 		this.albumId = albumId;
@@ -100,15 +112,20 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	}
 	
 	/**
+	 * This method only handle the <I>albumId</I> parameter. The super.setProperty method 
+	 * is then called.
+	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#setProperty(java.lang.String, java.lang.String)
 	 */
 	public void setProperty(String prop, String value) {
+		//In every case, transmission to the mother class.
+		super.setProperty(prop, value);
+		
+		//The, we check our properties. 
 		if (prop.equals(PROP_ALBUM_ID)) {
 			albumId = UploadPolicyFactory.parseInt(value, 0);
 		    displayInfo("Post URL = " + getPostURL());
 		}
-		//In every case, transmission to the mother class.
-		super.setProperty(prop, value);
 	}
 
 	/**
