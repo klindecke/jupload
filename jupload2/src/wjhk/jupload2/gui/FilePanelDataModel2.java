@@ -43,25 +43,21 @@ class FilePanelDataModel2 extends AbstractTableModel {
 	private UploadPolicy uploadPolicy = null;
 
 	/**
-	 * The column names, as displayed on the applet.
+	 * The column names, as displayed on the applet. They are not real final values,
+	 * as they are translated: we need to have an uploadPolicy for this translation, and
+	 * the uploadPolicy is 'given' to the constructor.
 	 */
-	private String COL_NAME = uploadPolicy.getString("colName");
-	private String COL_SIZE = uploadPolicy.getString("colSize");
-	private String COL_DIRECTORY = uploadPolicy.getString("colDirectory");
-	private String COL_MODIFIED = uploadPolicy.getString("colModified");
-	private String COL_READABLE = uploadPolicy.getString("colReadable");
+	private String COL_NAME = null;
+	private String COL_SIZE = null;
+	private String COL_DIRECTORY = null;
+	private String COL_MODIFIED = null;
+	private String COL_READABLE = null;
 	
-	protected String[] columnNames = new String[] {
-	 COL_NAME, COL_SIZE, COL_DIRECTORY, COL_MODIFIED, COL_READABLE
-	};
+	protected String[] columnNames = null;
 	
-	protected int[] columnSize = new int[] {
-	    150, 75, 199, 130, 75
-	};
+	protected int[] columnSize = null;
 	
-	protected Class[] columnClasses = new Class[] {
-	    String.class, Long.class, String.class, Date.class, Boolean.class
-	};
+	protected Class[] columnClasses = null;
 	 
 	/**
 	 * This Vector contains all FileData.
@@ -76,6 +72,25 @@ class FilePanelDataModel2 extends AbstractTableModel {
 		super();
 		//
 		this.uploadPolicy = uploadPolicy;
+		
+		//Initialization for column name, type and size.
+		COL_NAME = uploadPolicy.getString("colName");
+		COL_SIZE = uploadPolicy.getString("colSize");
+		COL_DIRECTORY = uploadPolicy.getString("colDirectory");
+		COL_MODIFIED = uploadPolicy.getString("colModified");
+		COL_READABLE = uploadPolicy.getString("colReadable");
+		
+		columnNames = new String[] {
+		 COL_NAME, COL_SIZE, COL_DIRECTORY, COL_MODIFIED, COL_READABLE
+		};
+		
+		columnSize = new int[] {
+		    150, 75, 199, 130, 75
+		};
+		
+		columnClasses = new Class[] {
+		    String.class, Long.class, String.class, Date.class, Boolean.class
+		};
 	}
 
 	/**
