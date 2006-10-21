@@ -19,7 +19,7 @@ import javax.swing.JTextArea;
  * <UL> 
  * <BR><BR>
  * The same behaviour can be obtained by specifying no UploadPolicy (or {@link FileByFileUploadPolicy}),
- * and give the nbFilesPerRequest parameter.
+ * and give the nbFilesPerRequest (with a value set to 1) parameter.
  * 
  * 
  * @author Etienne Gauthier

@@ -29,7 +29,6 @@ package wjhk.jupload2.upload;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -40,6 +39,7 @@ import javax.swing.JProgressBar;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
 
 public class FileUploadThreadV3 extends Thread {
@@ -73,18 +73,37 @@ public class FileUploadThreadV3 extends Thread {
 	 */
 	private UploadPolicy uploadPolicy;
 	
-	// Progress Bar.
+	/**
+	 * The progress bar, that will indicate to the user the upload state (0 to 100%). 
+	 */
 	private JProgressBar progress;
+	
+	/**
+	 * The total number of bytes to be sent. This allows the calculation of the progress bar
+	 */
 	private long totalFilesLength;
+	
+	/**
+	 * Current number of byts that have been uploaded.
+	 */
 	private long uploadedLength;
 	
-	// Stopping the thread.
+	/**
+	 * If set to 'true', the thread will stop the crrent upload.
+	 */ 
 	private boolean stop = false;
 	
-	// Server Output.
+	/**
+	 * Server Output. It can then be displayed in the status bar, if debug is enabled. It is stored 
+	 * by {@link DefaultUploadPolicy} in a string buffer, so that all debug output can be sent to 
+	 * the webmaster, if an error occurs.
+	 */ 
 	private StringBuffer sbServerOutput = new StringBuffer();
 	
-	// Thread Exception.
+	/**
+	 * Thread Exception, if any occured during upload.
+	 */ 
+	
 	private Exception e = null;
 	
 	//------------- CONSTRUCTOR --------------------------------------------
@@ -97,27 +116,43 @@ public class FileUploadThreadV3 extends Thread {
 	
 	//------------- Public Functions ---------------------------------------
 	
-	// Setting Progress Panel.
+	/**
+	 *  Setting Progress Panel.
+	 */
 	public void setProgressPanel(JProgressBar pgrBar){
 		progress = pgrBar;
 	}
 	
-	// Stopping the Thread
+	/**
+	 * Stopping the Thread
+	 */
 	public void stopUpload(){
 		this.stop = true;
 	}
 	
-	// Server Output.
+	/**
+	 *  Get the server Output.
+	 *  
+	 * @return The StringBuffer that contains the full server HTTP response.
+	 */
 	public StringBuffer getServerOutput(){
 		return sbServerOutput;
 	}
 	
-	// Exceptions
+	/**
+	 * Get the exception that occurs during upload.
+	 * 
+	 * @return The exception, or null if no exception were thrown.
+	 */
 	public Exception getException(){
 		return e;
 	}
 	
 	//------------- Private Functions --------------------------------------
+	
+	/**
+	 * Construction of a random string, to separate the uploaded files, in the HTTP upload request.
+	 */
 	private StringBuffer getRandomString(){
 		StringBuffer sbRan = new StringBuffer(11);
 		StringBuffer alphaNum= new StringBuffer();
@@ -130,8 +165,16 @@ public class FileUploadThreadV3 extends Thread {
 		return sbRan;
 	}
 	
-	private void uploadFileStream(InputStream is, DataOutputStream dOut)
-	throws FileNotFoundException, IOException {
+	/**
+	 * 
+	 * This methods reads an InputStream (containing the file data to upload), and write the content
+	 * to an outputStream (the output toward the HTTP server).
+	 * 
+	 * @param is
+	 * @param dOut
+	 * @throws IOException
+	 */
+	private void uploadFileStream(InputStream is, DataOutputStream dOut) throws IOException {
 		byte[] byteBuff = null;
 		try{
 			int numBytes = 0;
@@ -144,22 +187,42 @@ public class FileUploadThreadV3 extends Thread {
 		}finally{
 			try{
 				is.close();
-			}catch(Exception e){}
+			} catch (Exception e) {
+				//An error occurs during the closing of the fileinputstream. This is not 
+				//an upload error: we just log it.
+				uploadPolicy.displayErr(e);
+			}
 			byteBuff = null;
 		}
 	}
 	
+	/**
+	 * Clear the StringBuffer that contains the serverOutput. Called before each HTTP request.
+	 *
+	 */
 	private void clearServerOutPut(){
 		sbServerOutput.setLength(0);
 		sbServerOutput.append("\n");
 	}
 	
+	/**
+	 * Add a String that has been read from the server response.
+	 * @param s
+	 */
 	private void addServerOutPut(String s){
 		if(0 < sbServerOutput.length() || !s.equals("")){
 			sbServerOutput.append(s);
 		}
 	}
 	
+	/**
+	 * Construction of the head for each file.
+	 * 
+	 * @param fileA
+	 * @param bound
+	 * @return HTTP header for each file, within the multipart HTTP request.
+	 * @throws JUploadException
+	 */
 	private StringBuffer[] setAllHead(FileData[] fileA, StringBuffer bound) throws JUploadException {
 		StringBuffer[] sbArray = new StringBuffer[fileA.length];
 		FileData fileData;
@@ -190,6 +253,13 @@ public class FileUploadThreadV3 extends Thread {
 		return sbArray;
 	}
 	
+	/**
+ 	 * Construction of the tail for each file.
+ 	 * 
+	 * @param fileLength
+	 * @param bound
+	 * @return Returns an array containing the HTTP tails for al files of the current HTTP request.
+	 */
 	private StringBuffer[] setAllTail(int fileLength, StringBuffer bound){
 		StringBuffer[] sbArray = new StringBuffer[fileLength];
 		for(int i=0; i < fileLength; i++){
@@ -201,98 +271,96 @@ public class FileUploadThreadV3 extends Thread {
 		return sbArray;
 	}
 	//------------- THE HEART OF THE PROGRAM ------------------------------
-	
-	/*
-	private void setHeader(){
-	}
-	*/
-	
-	
+
+	/**
+	 * The heart of the program. This method prepare the upload, then calls doUpload for each HTTP request.
+	 */
 	public void run() {
 		boolean bUploadOk = true;
 		uploadedLength = 0;
+		totalFilesLength = 0;
 		
-		if (!prepareUpload()) {
-			e = new Exception(uploadPolicy.getString("errUploadNotReady"));
-		} else {
-			try {
+		try {
+			if(null != progress)  {
+				progress.setValue(0);
+				progress.setMaximum(this.allFiles.length);
+			}
+			for(int i=0; i < this.allFiles.length; i++){
 				if(null != progress)  {
-					progress.setValue(0);
-					progress.setMaximum(this.allFiles.length);
+					progress.setValue(i);
+					progress.setString(uploadPolicy.getString("preparingFile", (i+1) + "/" + (this.allFiles.length) ));
 				}
-				for(int i=0; i < this.allFiles.length; i++){
-					if(null != progress)  {
-						progress.setValue(i);
-						progress.setString(uploadPolicy.getString("preparingFile", (i+1) + "/" + (this.allFiles.length) ));
+				this.allFiles[i].beforeUpload();
+				//totalFilesLength is used to correctly displays the progressBar.
+				totalFilesLength += this.allFiles[i].getUploadLength();
+			}
+			
+			if(null != progress)  {
+				progress.setValue(0);
+				progress.setMaximum((int)totalFilesLength);
+				progress.setString("");
+			}
+			//Prepare upload
+			//Let's take the upload policy into accound  : how many files at a time ?
+			int nbMaxFilesPerUpload = uploadPolicy.getMaxFilesPerUpload();
+			FileData[] filesToUpload;
+			if (nbMaxFilesPerUpload <= 0) {
+				nbMaxFilesPerUpload = Integer.MAX_VALUE;
+				filesToUpload = new FileData[allFiles.length];
+			} else {
+				filesToUpload = new FileData[nbMaxFilesPerUpload];
+			}
+			
+			//We upload files, according to the current upload policy.
+			int iPerUploadCount = 0;
+			int iTotalFileCount = 0;
+			while (iTotalFileCount < allFiles.length  &&  bUploadOk) {
+				/*
+				//Wait for the current file to bee ready.
+				long wait = 100;
+				long totalWait = 0;
+				while (! allFiles[iTotalFileCount].isUploadReady()) {
+					try {
+						sleep(wait);
+					} catch (InterruptedException e) {
+						//Let's go on ...
 					}
-					totalFilesLength += this.allFiles[i].getUploadLength();
-				}
-				
-				if(null != progress)  {
-					progress.setValue(0);
-					progress.setMaximum((int)totalFilesLength);
-					progress.setString("");
-				}
-				//Prepare upload
-				//Let's take the upload policy into accound  : how many files at a time ?
-				int nbMaxFilesPerUpload = uploadPolicy.getMaxFilesPerUpload();
-				FileData[] filesToUpload;
-				if (nbMaxFilesPerUpload <= 0) {
-					nbMaxFilesPerUpload = Integer.MAX_VALUE;
-					filesToUpload = new FileData[allFiles.length];
-				} else {
-					filesToUpload = new FileData[nbMaxFilesPerUpload];
-				}
-				
-				//We upload files, according to the current upload policy.
-				int iPerUploadCount = 0;
-				int iTotalFileCount = 0;
-				while (iTotalFileCount < allFiles.length  &&  bUploadOk) {
-					//Wait for the current file to bee ready.
-					long wait = 100;
-					long totalWait = 0;
-					while (! allFiles[iTotalFileCount].isUploadReady()) {
-						try {
-							sleep(wait);
-						} catch (InterruptedException e) {
-							//Let's go on ...
-						}
-						totalWait += wait;
-						if (totalWait > MAX_WAIT) {
-							throw new JUploadException("FileUploadThreadV3.run : " + uploadPolicy.getString("errWaitTooLong"));
-						}
+					totalWait += wait;
+					if (totalWait > MAX_WAIT) {
+						throw new JUploadException("FileUploadThreadV3.run : " + uploadPolicy.getString("errWaitTooLong"));
 					}
-					filesToUpload[iPerUploadCount] = allFiles[iTotalFileCount]; 
-					iPerUploadCount += 1;
-					iTotalFileCount += 1;
-					if (iPerUploadCount == nbMaxFilesPerUpload) {
-						//Let's do an upload.
-						bUploadOk = doUpload (filesToUpload, iPerUploadCount, iTotalFileCount);
-						iPerUploadCount = 0;
-					}
-				}//while
-				
-				if (iPerUploadCount > 0  &&  bUploadOk) {
-					//Some files are still to upload. Let's finish the job.
+				}
+				*/
+				filesToUpload[iPerUploadCount] = allFiles[iTotalFileCount]; 
+				iPerUploadCount += 1;
+				iTotalFileCount += 1;
+				if (iPerUploadCount == nbMaxFilesPerUpload) {
+					//Let's do an upload.
 					bUploadOk = doUpload (filesToUpload, iPerUploadCount, iTotalFileCount);
+					iPerUploadCount = 0;
 				}
+			}//while
+			
+			if (iPerUploadCount > 0  &&  bUploadOk) {
+				//Some files are still to upload. Let's finish the job.
+				bUploadOk = doUpload (filesToUpload, iPerUploadCount, iTotalFileCount);
+			}
 
-				//Let's show everything is Ok
-				if(null != progress)  {
-					if (bUploadOk) {
-						progress.setString(uploadPolicy.getString("nbUploadedFiles", iTotalFileCount));
-					} else {
-						progress.setString("errDuringUpload");
-					}
+			//Let's show everything is Ok
+			if(null != progress)  {
+				if (bUploadOk) {
+					progress.setString(uploadPolicy.getString("nbUploadedFiles", iTotalFileCount));
+				} else {
+					progress.setString("errDuringUpload");
 				}
-			} catch (Exception e) {
-				uploadPolicy.displayErr(e);
-				progress.setString(e.getMessage());
-			} finally {
-				//In all cases, we try to free all reserved resources.
-				for(int i=0; i < allFiles.length; i++){
-					allFiles[i].afterUpload();
-				}
+			}
+		} catch (Exception e) {
+			uploadPolicy.displayErr(e);
+			progress.setString(e.getMessage());
+		} finally {
+			//In all cases, we try to free all reserved resources.
+			for(int i=0; i < allFiles.length; i++){
+				allFiles[i].afterUpload();
 			}
 		}
 		
@@ -304,7 +372,7 @@ public class FileUploadThreadV3 extends Thread {
 	}//run
 	
 	/**
-	 * Actually do file upload. It's called by the run methods, once for all files, or file by file, 
+	 * Actual execution file upload. It's called by the run methods, once for all files, or file by file, 
 	 * depending on the UploadPolicy.
 	 * 
 	 * @param filesA An array of FileData, that contains all files to upload in this HTTP request.
@@ -405,8 +473,10 @@ public class FileUploadThreadV3 extends Thread {
 			StringBuffer sbHttpResponseBody = new StringBuffer(); 
 			String line;
 			/*
-			 * Below is a trace of my tests to correct upload: upload under HTTP 1.1 generates a quite long wait time
-			 * after each HTTP upload request. It has actually be corrected by the '-2' in the content-length.
+			 * Below is a trace of my tests to correct upload: upload under HTTP 1.1 generated a quite long wait time
+			 * after each HTTP upload request, with the original code. It has actually be corrected by the '-2' in 
+			 * the content-length.
+			 * 
 			 * See above.
 			 * I keep this part of code, to make it easier to do new tests, if necessary.
 			 *  
@@ -514,26 +584,11 @@ public class FileUploadThreadV3 extends Thread {
 		return bReturn;
 	}
 	
-	/**
-	 * This method create a thread that will call FileData.beforeUpload for each fileData
-	 * to upload.
-	 */
-	private boolean prepareUpload () {
-		if (!uploadPolicy.isUploadReady()) {
-			return false;
-		}
-		new  Thread(){ 
-			public void run() {
-				int i = 0;
-				while (i < allFiles.length) {
-					allFiles[i++].beforeUpload();
-				}
-			}//run
-		}.start();
-		
-		return true;
-	}
 	//------------- CLEAN UP -----------------------------------------------
+	
+	/**
+	 * Some internal attributes are set to null.
+	 */
 	public void close(){
 		allFiles = null;
 		e = null;

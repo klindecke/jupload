@@ -22,30 +22,32 @@ import wjhk.jupload2.gui.PicturePanel;
 /**
  * This class add handling of pictures to upload.
  * <BR><BR>
- * <H3>Functionalities:</H3>
+ * <H4>Functionalities:</H4>
  * <UL>
- * <LI> The top panel is modified, by using the UploadPolicy.{@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}. 
- *      It a <B>preview</B> picture panel, and two additional buttons to rotate the select picture in one direction or the other. 
- * <LI> Ability to set maximum width or height to a picture (from applet parameters, see the global explanation on
- *      the <a href="UploadPolicy.html#parameters">parameters</a> section.
+ * <LI> The top panel (upper part of the applet display) is modified, by using  
+ * 		UploadPolicy.{@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}. 
+ *      It contains a <B>preview</B> picture panel, and two additional buttons to rotate the selected picture in one 
+ *      direction or the other. 
+ * <LI> Ability to set maximum width or height to a picture (with maxPicWidth and maxPicHeight applet parameters, see the global explanation on
+ *      the <a href="UploadPolicy.html#parameters">parameters</a> section) of the UploadPolicy API page.
  * <LI> Rotation of pictures, by quarter of turn.
- * <LI> A target picture format can be used, to force all uploaded pictures to be in one picture format, jpeg for instance. 
- *      All details are in the UploadPolicy <a href="UploadPolicy.html#parameters">parameters</a> section.
+ * <LI> <I>(To be implemented)</I> A target picture format can be used, to force all uploaded pictures to be in 
+ * 		one picture format, jpeg for instance. 
+ * 		All details are in the UploadPolicy <a href="UploadPolicy.html#parameters">parameters</a> section.
  * </UL> 
  * <BR><BR>
- * The {@link wjhk.jupload2.policies.CoppermineUploadPolicy} description contains an example
- * of an applet HTML tag.
- * <H3>Parameters</H3>
+ * See an example of HTML that calls this applet, just below.
+ * <H4>Parameters</H4>
  * The description for all parameters of all polices has been grouped in the UploadPolicy 
  * <a href="UploadPolicy.html#parameters">parameters</a> section.
  * <BR>The parameters implemented in this class are:
  * <UL>
  * <LI> maxPicWidth: Maximum width for the uploaded picture.
  * <LI> maxPicHeight: Maximum height for the uploaded picture.
- * <LI> targetPictureFormat : Define the target picture format. Eg: jpeg, png, gif...
+ * <LI> <I>(To be implemented)</I> targetPictureFormat : Define the target picture format. Eg: jpeg, png, gif...
  * </UL>
  * 
- * <A NAME="example"><H3>HTML call example</H3></A>
+ * <A NAME="example"><H4>HTML call example</H4></A>
  * You'll find below an example of how to put the applet into a PHP page:
  * <BR>
  * <XMP>
@@ -81,25 +83,26 @@ import wjhk.jupload2.gui.PicturePanel;
 public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionListener {
 	
 	/**
-	 * storeBufferedImage indicates that ta BufferedImage is to be created when
-	 * the user selects the file.
-	 * If True : the Image is loaded once from the hard drive. This consumns memory, but is interessant 
-	 * for big pictures, when they are resized (see {#maxWidth} and {#maxHeight}).
-	 * If False : it is loaded for each display on the applet, then once for the upload.
+	 * Indicates that a BufferedImage is to be created when the user selects the file.
+	 * <BR>
+	 * If true : the Image is loaded once from the hard drive. This consumns memory, but is interessant 
+	 * for big pictures, when they are resized (see {@link #maxWidth} and {@link #maxHeight}).
+	 * <BR>
+	 * If false : it is loaded for each display on the applet, then once for the upload.
 	 * <BR><BR>
-	 * Default : false, because the applet, while in the navigator runs too quickly out of memory. 
+	 * Default : false, because the applet, while in the navigator, runs too quickly out of memory. 
 	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_STORE_BUFFERED_IMAGE
 	 */
 	private boolean storeBufferedImage;
 	
 	/**
-	 * targetPictureFormat is the image type that should be uploaded (JPG, GIF...). 
+	 * Iimage type that should be uploaded (JPG, GIF...). 
 	 * It should be a standard type, as the JVM will create this file.
 	 * If null, the same format as the original file is used.
 	 * <BR>
 	 * Currently <B>this flag is ignored when createBufferedImage is false</B> .
-	 * 
+	 * <BR>
 	 * Default: null. 
 	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_TARGET_PICTURE_FORMAT
@@ -112,7 +115,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	 * is more than maxWidth, the picture is resized. The proportion between widht
 	 * and height are maintained.
 	 * Negative if no maximum width (no resizing).
-	 * 
+	 * <BR>
 	 * Default: -1. 
 	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_MAX_WIDTH
@@ -125,7 +128,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	 * is more than maxHeight, the picture is resized. The proportion between widht
 	 * and height are maintained.
 	 * Negative if no maximum height (no resizing).
-	 * 
+	 * <BR>
 	 * Default: -1. 
 	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_MAX_HEIGHT
@@ -136,20 +139,26 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	/**
 	 * Button to allow the user to rotate the picture one quarter counter-clockwise.
 	 */
-	private JButton rotateLeft;
+	private JButton rotateLeftButton;
 
 	/**
 	 * Button to allow the user to rotate the picture one quarter clockwise.
 	 */
-	private JButton rotateRight;
+	private JButton rotateRightButton;
 
 	/**
-	 * The picture panel, where picture are displayed.
+	 * The picture panel, where the selected picture is displayed.
 	 */
 	private PicturePanel picturePanel;
 
 	/**
-	 * @param postURL
+	 * The standard constructor, which transmit most informations to the super.Constructor(). 
+	 * 
+	 * @param postURL The URL where picture files are to be posted (applet parameter name: postURL).
+	 * @param maxFilesPerUpload Number of files in one HTTP request to the server (applet parameter: nbFilesPerRequest)
+	 * @param theApplet Reference to the current applet. Allows access to javasript functions.
+	 * @param debugLevel Current debugLevel (applet parameter: debugLevel).
+	 * @param status The status bar, where messages are to be displayed.
 	 */
 	protected PictureUploadPolicy(String postURL, int maxFilesPerUpload, Applet theApplet, int debugLevel, JTextArea status) {
 		super(postURL, theApplet, debugLevel, status);
@@ -174,9 +183,10 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 
 	/**
 	 * This methods actually returns a {@link PictureFileData} instance. It allows only pictures: if the file is not
-	 * a picture, this method returns null.
+	 * a picture, this method returns null, thus preventing the file to be added to the list of files to be uploaded.
 	 * 
-	 * @param file An instance of {@link PictureFileData} or null if file is not a picture.
+	 * @param file The file selected by the user (called once for each added file).  
+	 * @return An instance of {@link PictureFileData} or null if file is not a picture.
 	 * @see wjhk.jupload2.policies.UploadPolicy#createFileData(File)
 	 */
 	public FileData createFileData(File file) {
@@ -190,9 +200,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	}
 
 	/**
-	 * 
-	 * Default implementation of {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(javax.swing.JButton, javax.swing.JButton, javax.swing.JButton, javax.swing.JPanel)}. 
-	 * It creates a JPanel, containing the three given JButton.  
+	 * This method override the default topPanel, and adds:<BR>
+	 * <UL>
+	 * <LI>Two rotation buttons, to rotate the currently selected picture.
+	 * <LI>A Preview area, to view the selected picture
+	 * </UL>
 	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(javax.swing.JButton, javax.swing.JButton, javax.swing.JButton, javax.swing.JPanel)
 	 */
@@ -202,22 +214,22 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		//	 - On the right, the preview PicturePanel.
 		
 		//Creation of specific buttons
-	    rotateLeft = new JButton(getString("buttonRotateLeft"));
-	    rotateLeft.setIcon(new ImageIcon(getClass().getResource("/images/rotateLeft.gif")));
-	    rotateLeft.addActionListener(this);
-	    rotateLeft.setEnabled(false);
+	    rotateLeftButton = new JButton(getString("buttonRotateLeft"));
+	    rotateLeftButton.setIcon(new ImageIcon(getClass().getResource("/images/rotateLeftButton.gif")));
+	    rotateLeftButton.addActionListener(this);
+	    rotateLeftButton.setEnabled(false);
 
-	    rotateRight = new JButton(getString("buttonRotateRight"));
-	    rotateRight.setIcon(new ImageIcon(getClass().getResource("/images/rotateRight.gif")));
-	    rotateRight.addActionListener(this);
-	    rotateRight.setEnabled(false);
+	    rotateRightButton = new JButton(getString("buttonRotateRight"));
+	    rotateRightButton.setIcon(new ImageIcon(getClass().getResource("/images/rotateRightButton.gif")));
+	    rotateRightButton.addActionListener(this);
+	    rotateRightButton.setEnabled(false);
 
 	    //The button bar
 	    JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new GridLayout(5, 1));
 		buttonPanel.add(browse);
-		buttonPanel.add(rotateLeft);
-		buttonPanel.add(rotateRight);
+		buttonPanel.add(rotateLeftButton);
+		buttonPanel.add(rotateRightButton);
 		buttonPanel.add(removeAll);
 		buttonPanel.add(remove);
 		
@@ -236,14 +248,17 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		return topPanel;
 	}//createTopPanel
 
-	/* (non-Javadoc)
+	/**
+	 * This method handles the clicks on the rotation buttons. All other actions are managed by the 
+	 * {@link DefaultUploadPolicy}.
+	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
 		displayInfo("Action : " + e.getActionCommand());
-	    if(e.getActionCommand() == rotateLeft.getActionCommand()) {
+	    if(e.getActionCommand() == rotateLeftButton.getActionCommand()) {
 	    	picturePanel.rotate(-1);
-	    } else if(e.getActionCommand() == rotateRight.getActionCommand()){
+	    } else if(e.getActionCommand() == rotateRightButton.getActionCommand()){
 	    	picturePanel.rotate(1);
 	    }
 	}//actionPerformed
@@ -257,8 +272,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		}
 		if (picturePanel != null) {
 			picturePanel.setPictureFile((PictureFileData)fileData);
-			rotateLeft.setEnabled(fileData != null);
-		    rotateRight.setEnabled(fileData != null);
+			rotateLeftButton.setEnabled(fileData != null);
+		    rotateRightButton.setEnabled(fileData != null);
 		}
 	}
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,7 +300,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		return maxWidth;
 	}
 	/**
-	 * @return Returns the targetPictureForma.
+	 * @return Returns the targetPictureFormat.
 	 */
 	public String getTargetPictureFormat() {
 		return targetPictureFormat;

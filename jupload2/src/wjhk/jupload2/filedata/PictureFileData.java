@@ -53,7 +53,9 @@ public class PictureFileData extends FileData  {
 	//private boolean initialized = false;
 
 	/**
-	 * Indicates if this file is a picture or not.
+	 * Indicates if this file is a picture or not. This is bases on the return of 
+	 * ImageIO.getImageReadersByFormatName().
+	 * 
 	 */
 	private boolean isPicture = false;
 
@@ -61,7 +63,8 @@ public class PictureFileData extends FileData  {
 	 * If set to true, the PictureFileData will keep the BufferedImage in memory. That is: it won't
 	 * load it again from the hard drive, and resize and/or rotate it (if necessary) when the user select this
 	 * picture. When picture are big this is nice. 
-	 * <BR><B>Caution:</B> the navigator applet runs quickly out of memory (after
+	 * <BR><BR>
+	 * <B>Caution:</B> this parameter is currently unused, as the navigator applet runs quickly out of memory (after
 	 * three or four picture for my Canon EOS 20D, 8,5 Mega pixels). 
 	 * 
 	 * @see UploadPolicy
@@ -79,22 +82,30 @@ public class PictureFileData extends FileData  {
 	
 	
 	/**
-	 * This picture is precalculated, and stored to avoid to calculate it each time the user select this picture again.
+	 * This picture is precalculated, and stored to avoid to calculate it each time the user 
+	 * select this picture again, or each time the use switch from an application to another.
 	 */
 	private Image offscreenImage = null;
 		
 	/**
-	 * quarterRotation contains the current rotation that will be applied to the picture.
+	 * quarterRotation contains the current rotation that will be applied to the picture. Its value should be one
+	 * of 0, 1, 2, 3. It is controled by the {@link #addRotation(int)} method.
+	 * <UL>
+	 * <LI>0 means no rotation. 
+	 * <LI>1 means a rotation of 90° clockwise (word = Ok ??). 
+	 * <LI>2 means a rotation of 180°. 
+	 * <LI>3 means a rotation of 90° counterclockwise  (word = Ok ??).
+	 * </UL>  
 	 */
 	int quarterRotation = 0;
 	
 	/**
-	 * Width of the original picture.
+	 * Width of the original picture. Negative if unknown, for instance if the picture has not yet been opened. 
 	 */
-
 	int originalWidth = -1;
+	
 	/**
-	 * Width of the original picture.
+	 * Height of the original picture. Negative if unknown, for instance if the picture has not yet been opened.
 	 */
 	int originalHeight = -1;
 	
@@ -109,8 +120,8 @@ public class PictureFileData extends FileData  {
 	 * uploadLength contains the uploadLength, which is :
 	 * <BR> - The size of the original file, if no transformation is needed.
 	 * <BR> - The size of the transformed file, if a transformation were made.
-	 * <BR>
-	 * It is se to -1 whenever the user ask for a rotation (current only action that need to recalculate the picture.
+	 * <BR><BR>
+	 * It is set to -1 whenever the user ask for a rotation (current only action that need to recalculate the picture).
 	 */
 	private long uploadLength = -1;
 	
@@ -118,16 +129,18 @@ public class PictureFileData extends FileData  {
 	 * hasToTransformPicture indicates whether the tranform should be transformed. Null if unknown. This can happen
 	 * (for instance) if no calcul where done (during initialization), or after rotating the picture back to the 
 	 * original orientation.
+	 * <BR>
+	 * <B>Note:</B> this attribute is from the class Boolean (and not a simple boolean), to allow null value, meaning
+	 * <I>unknown</I>.
 	 */
 	private Boolean hasToTransformPicture = null;
 	
 	/**
-	 * For this class, the UploadPolicy is a PictureUploadPolicy.
+	 * For this class, the UploadPolicy is a PictureUploadPolicy, or one class that inherits from it.
 	 */
 	PictureUploadPolicy uploadPolicy;
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
-	
 	
 	/**
 	 * Standard constructor: needs a PictureFileDataPolicy.
@@ -140,16 +153,14 @@ public class PictureFileData extends FileData  {
 		storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
 		
 		//Is it a picture?
-		Iterator iter = ImageIO.
-			getImageReadersByFormatName(getFileExtension())
-			//getImageReaders(getFileExtension())
-			;
+		Iterator iter = ImageIO.getImageReadersByFormatName(getFileExtension());
 		isPicture = iter.hasNext();
 		uploadPolicy.displayDebug("isPicture=" + isPicture + " (" + file.getName()+ "), extension=" + getFileExtension(), 75);
 	}
 	
 	/**
-	 * free any available memory.
+	 * Free any available memory. This method is called very often here, to be sure that we don't use too much
+	 * memory. But we still run out of memory in some case.
 	 * 
 	 * @param caller Indicate the method or treatment from which this method is called.
 	 */
@@ -170,8 +181,10 @@ public class PictureFileData extends FileData  {
 		uploadPolicy.displayDebug("maxMemory  (after " + caller + ") : " + rt.maxMemory(), 80);
 		*/
 	}
+	
 	/**
-	 * Creation of a temporary file, that contains the transformed picture. For instance, it can be resized, rotated... 
+	 * Creation of a temporary file, that contains the transformed picture. For instance, it can be 
+	 * resized or rotated. 
 	 */
 	private File getTransformedPictureFile()  throws JUploadException {
 		//Do we already created the transformed file ?
@@ -239,16 +252,16 @@ public class PictureFileData extends FileData  {
 		
 		return transformedPictureFile;
 	}
-	
+
 	/**
-	 * 
-	 * Calculate the number of bytes, for this upload. If needed, a temporary file is created, to 
-	 * store the transformed picture.
-	 * 
-	 * @return The length of upload. In this class, this is ... the size of the file ! 
-	 * @see PictureFileData 
+	 * If this pictures needs transformation, a temporary file is created. This can occurs if the original picture
+	 * is bigger than the maxWidth or maxHeight, of if it has to be rotated. This temporary file contains the 
+	 * transformed picture. 
+	 * <BR>
+	 * The call to this method is optional, if the caller calls {@link #getUploadLength()}. This method calls
+	 * beforeUpload() if the uploadLength is unknown.
 	 */
-	public long getUploadLength()  throws JUploadException {
+	public void beforeUpload() throws JUploadException {
 		if (uploadLength < 0) {
 			try {
 				if (hasToTransformPicture()) {
@@ -274,6 +287,20 @@ public class PictureFileData extends FileData  {
 				uploadLength = getFile().length();
 			}
 		}
+	}
+
+	/**
+	 * 
+	 * Returns the number of bytes, for this upload. If needed, that is, if uploadlength is unknown, 
+	 * {@link #beforeUpload()} is called.
+	 * 
+	 * @return The length of upload. In this class, this is ... the size of the original file, or the transformed file! 
+	 */
+	public long getUploadLength() throws JUploadException {
+		if (uploadLength < 0) {
+			//Hum, beforeUpload should have been called before. Let's correct that. 
+			beforeUpload();
+		}
 		return uploadLength;
 	}
 
@@ -297,9 +324,14 @@ public class PictureFileData extends FileData  {
 	}
 	
 	/**
-	 * @see FileData#afterUpload()
+	 * Cleaning of the temporary file on the hard drive, if any. 
+	 * <BR>
+	 * <B>Note:</B> if the debugLevel is 100 (or more) this temporary file is not removed. This allow control
+	 * of this created file. 
 	 */
 	public void afterUpload () {
+		super.afterUpload();
+		
 		//Free the temporary file ... if any.
 		if (transformedPictureFile != null) {
 			//for debug : if the debugLevel is enough, we keep the temporary file (for check). 
@@ -314,11 +346,13 @@ public class PictureFileData extends FileData  {
 	}
 		
 	/**
-	 * This function resize the picture, if necessary, according to the maxWidth and
+	 * This function resizes the picture, if necessary, according to the maxWidth and
 	 * maxHeight of fileDataPolicy.
-	 * This function should only be called if isPicture is true.
+	 * This function should only be called if isPicture is true. But calling it with isPicture to false	just
+	 * won't do anything. 
 	 *  
-	 * @return A BufferedImage which contains the picture according to current parameters (resizing, rotation...).
+	 * @return A BufferedImage which contains the picture according to current parameters (resizing, rotation...), or
+	 * null if this is not a picture.
 	 */
 	private BufferedImage getBufferedImage() throws JUploadException {
 
@@ -557,6 +591,7 @@ public class PictureFileData extends FileData  {
 	 * This function is used to rotate the picture. 
 	 * 
 	 * @param quarter Number of quarters (90°) the picture should rotate. 1 means rotating of 90° clockwise (?). Can be negative.
+	 * @see #quarterRotation
 	 */
 	public void addRotation(int quarter) {
 		quarterRotation += quarter;
@@ -680,7 +715,7 @@ public class PictureFileData extends FileData  {
 	}
 
 	/**
-	 * @return the isPicture
+	 * @return the {@link #isPicture} flag.
 	 */
 	public boolean isPicture() {
 		return isPicture;

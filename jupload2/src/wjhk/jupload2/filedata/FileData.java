@@ -11,15 +11,24 @@ import java.io.InputStream;
 import java.util.Date;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.upload.FileUploadThreadV3;
 
 
 
 
 /**
  *
- * This class contains all data for a file to upload. The current {@link wjhk.jupload2.policies.UploadPolicy}
- * contains the necessary parameters to personalize the way files must be handled. 
+ * This class contains all data and methods for a file to upload. The current {@link wjhk.jupload2.policies.UploadPolicy}
+ * contains the necessary parameters to personalize the way files must be handled.
+ * <BR><BR>
+ * This class is the basic FileData. It gives the default behaviour, and is used by {@link DefaultUploadPolicy}. It
+ * provides no control on the files choosen for upload.
+ * <BR>
+ * The instance of this class is created by the {@link UploadPolicy#createFileData(File)} method. This method can be 
+ * overrided in a new upoad policy, to create an instance of another FileData. See {@link  PictureFileData} for an
+ * example of that. 
  *  
  * @author Etienne Gauthier
  */
@@ -49,14 +58,35 @@ public class FileData  {
 
 	/**
 	 * Prepare the fileData to upload. For instance, picture data can be 
-	 * resized before upload. This method is called before upload.<BR>
+	 * resized before upload (see {@link PictureFileData}. This method is called before the upload of this file.
+	 * <BR>
 	 * Default: do nothing.
 	 * 
-	 * @see #isUploadReady()
+s	 * @see FileUploadThreadV3
 	 *
 	 */
-	public void beforeUpload () {
+	public void beforeUpload () throws JUploadException {
 		//Default : nothing to do. 
+	}
+	
+	/**
+	 * @return The length of upload. In this class, this is the size of the file, as it isn't transformed for upload.
+	 * This size may change if encoding is necessary (needs a new FileData class), or if picture is to be resized or rotated.
+	 * 
+	 * @see PictureFileData 
+	 */
+	public long getUploadLength() throws JUploadException {
+		return file.length();
+	}
+
+	/**
+	 * This function is called after upload, whether it is successful or not. It allows fileData to
+	 * free any resssource created for the upload. For instance, {@link PictureFileData#afterUpload()} removes the 
+	 * temporary file, if any was created. 
+	 *
+	 */
+	public void afterUpload () {
+		//Nothing to do here
 	}
 	
 	/**
@@ -65,11 +95,11 @@ public class FileData  {
 	 * 
 	 * @return ready or not for upload.
 	 * @see #beforeUpload()
-	 */
+	 *
 	public boolean isUploadReady() {
 		//Default : nothing to do before upload, so ... we're always ready !
 		return true;
-	}
+	}*/
 
 	/**
 	 * This function create an input stream for this file. The caller is responsible
@@ -80,15 +110,6 @@ public class FileData  {
 	public InputStream getInputStream () throws IOException, JUploadException {
 		//Standard FileData : we read the file.
 		return new FileInputStream(file);
-	}
-	
-	/**
-	 * This function is called after upload, whether it is successful or not. It allows fileData to
-	 * free any resssource created for the upload. 
-	 *
-	 */
-	public void afterUpload () {
-		//Nothing to do here
 	}
 	
 	/**
@@ -114,15 +135,6 @@ public class FileData  {
 	 * @return The length of the original file. 
 	 */
 	public long getFileLength() {
-		return file.length();
-	}
-
-	/**
-	 * @return The length of upload. In this class, this is ... the size of the file !
-	 * 
-	 * @see PictureFileData 
-	 */
-	public long getUploadLength() throws JUploadException {
 		return file.length();
 	}
 

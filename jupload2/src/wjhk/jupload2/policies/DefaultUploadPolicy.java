@@ -254,7 +254,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/**
 	 * 
 	 * Default implementation of {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}. IT
-	 * creates a JPanel, containing the three given JButton.  
+	 * creates a JPanel, containing the three given JButton. It creates the same panel as the original JUpload.  
 	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)
 	 */
@@ -550,7 +550,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	}//appendHeader
 
 	/**
-	 * The DefaultUpload accepts all file: we just return an instance of FileData, without any test.
+	 * The DefaultUpload accepts all file types: we just return an instance of FileData, without any test.
 	 * 
 	 * @see UploadPolicy#createFileData(File)
 	 */
@@ -663,24 +663,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    win.call("alert", args);
 	}
 
-	/**
-	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
-	 * 
-	 * @param property_str The string identifying the text to display, depending on the current language.
-	 */
-	public void alert(String property_str) {
-		alertStr(getString(property_str));
+	public void alert(String key) {
+		alertStr(getString(key));
 	}
-
-	/**
-	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
-	 * 
-	 * @param property_str The string identifying the text to display, depending on the current language.
-	 * @param arg1 A string that will replace all {1} in the text corresponding to property_str. This allows 
-	 *             to have dynamic localized text.
-	 */
-	public void alert(String property_str, String arg1) {
-		alertStr(getString(property_str, arg1));
+	public void alert(String key, String arg1) {
+		alertStr(getString(key, arg1));
 	}
 
 	/**
