@@ -18,65 +18,16 @@ import wjhk.jupload2.gui.FilePanel;
  * 
 This package contains upload policies, which allow easy configuration of the applet behaviour.
 
-The abstract class DefaultUploadPolicy contains all default policy.
-<BR>
-It allows to specify :
-<DIR>
-<LI> The way files should be managed.
-<LI> The target URL.
-<LI> The way files are uploaded :
-   <DIR>
-	  <LI> File by file
-   <LI> All files at once
-   </DIR>
-<LI> Any specific behaviour. For instance, the {@link  wjhk.jupload2.policies.PictureUploadPolicy} allows picture management. This contains: 
-</DIR>
-
-<A NAME="policies">The current implemented upload policies are :</A>
-<DIR>
-<LI> {@link wjhk.jupload2.policies.DefaultUploadPolicy}. It's a 'simple' instanciation of each UploadPolicy methods. 
-It makes JUpload work the same way as the original JUpload (v1).
-<LI> <B><I>(deprecated)</I></B>{@link wjhk.jupload2.policies.CustomizedNbFilesPerRequestUploadPolicy} is a DefaultUploadPolicy, which allows 
-to control how many files are to be uploaded for each HTTP request. 
-<LI> {@link wjhk.jupload2.policies.FileByFileUploadPolicy} is CustomizedNbFilesPerRequestUploadPolicy, where the
-number of files to upload for each HTTP request is ... one! This policy behaves as the DefaultUploadPolicy, when
-nbFilesPerRequest parameter (see below) is 1.
-<LI>{@link wjhk.jupload2.policies.PictureUploadPolicy} adds picture handling the the applet. The main 
-functionnalities are :
-		<DIR>
-			<LI> Preview picture: The look of the applet changes, to allow display of the selected picture.
-			<LI> Rotation: you can rotate the picture by quarter of turn.
-			<LI> Resizing: the applet can resize picture before upload, to lower network (and time) transfert. Just 
-				specify a maximum width and/or height, in pixels. 
-		</DIR>
-<LI> {@link wjhk.jupload2.policies.CoppermineUploadPolicy} is a special PictureUploadPolicy: it allows upload
-to the <a href="coppermine.sourceforge.net">coppermine picture gallery</a>.
-</DIR>
-
 <BR><BR>
-From the application, the {@link wjhk.jupload2.policies.UploadPolicyFactory} allows easy instanciation of
-the needed UploadPolicy.<BR>
-All constructors for class inherited from UploadPolicy should have a <B>protected contructor</B>: all class 
-creations are controled by the UploadPolicyFactory, which is the only class that should be used to create upload
-policies. You can:
-<DIR>
-<LI>Create a new UploadPolicy, by using the getUploadPolicy methods.
-<LI>Get the previously created UploadPolicy, by using the {@link wjhk.jupload2.policies.UploadPolicyFactory#getCurrentUploadPolicy()} method.
-</DIR>
+The class {@link DefaultUploadPolicy} contains a default implementation for all UploadPolicy methods.  
+
 
 <BR><BR>
 
-The {link #progress} component is to be updated while uploading.<BR>
-The {link #status} component is to be used to display informations.<BR>
-<BR>
-To allow the easiest possible change of upload, all default upload code is embbeded into the 
-{@link wjhk.jupload2.policies.DefaultUploadPolicy} class. 
-
-<BR><BR>
-
-<A NAME="parameters"><H3>Parameters</H3></A>
-Here is the list of all parameters available in the current package. These are applet parameters that should be 
-'given' to the applet, with <PARAM> tags, as precised below in the <A href="#example">example</A>.
+<A NAME="parameters"><H4>Parameters</H4></A>
+Here is the list of all parameters available in the current package, that is: available in available upload policies. 
+These are applet parameters that should be 'given' to the applet, with <PARAM> tags, as precised below in the 
+<A href="#example">example</A>.
 
 <TABLE border=1>
 <TR>
@@ -181,7 +132,7 @@ Here is the list of all parameters available in the current package. These are a
 <TR>
   <TD>maxPicHeight</TD>
   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
-  <TD>This parameters allows the PHP script to control the maximum width for pictures. If a picture is to be 
+  <TD>This parameters allows the PHP script to control the maximum height for pictures. If a picture is to be 
      download, and its height is bigger, the picture will be resized. The proportion between width and height
      of the resized picture are the same as those of the original picture. If both maxPicHeight and maxPicWidth
      are given, it can happen that the resized picture has a height lesser than maxPicHeight, so that width 
@@ -318,11 +269,12 @@ public interface UploadPolicy {
 	 * This methods creates a new FileData instance (or one of its inherited classes), 
 	 * and return it to the caller.
 	 * 
-	 * @param file The file used to create the FileData instance. Can be null, if the policy performs checks, and the 
+	 * @param file The file used to create the FileData instance. This method is called once for each file selected
+	 * 				by the user, even if the user added several files in one 'shot'. 
+	 * @return A FileData instance. The exact class depends on the currentUploadPolicy. Can be null, if the policy performs checks, and the 
 	 *             given file is not Ok for these controls. See {@link PictureUploadPolicy#createFileData(File)}
 	 *             for an example. It's up to the upload policy to display a message to inform the user that this 
 	 *             file won't be added to the file list.
-	 * @return A FileData instance. The exact class depends on the currentUploadPolicy. 
 	 */
 	public FileData createFileData(File file);
 	
@@ -381,12 +333,12 @@ public interface UploadPolicy {
 	public void displayErr (Exception e);
 
 	/**
-	 * log an error message. Will be logged in the status bar, if defined.
+	 * log an error message. Will be logged in the status bar, if defined. 
 	 * 
-	 * @param err The erreur text to be displayed.
+	 * @param err The erreur message to be displayed.
 	 */
 	public void displayErr (String err);
-//TODO commentaire à compléter : STring = lang.properties
+
 	/**
 	 * log an info message. Will be logged in the status bar, if defined.
 	 * 
@@ -477,7 +429,8 @@ public interface UploadPolicy {
 	public String getServerProtocol();
 	
 	/**
-	 * Retrive a local property. Mainly used for localization.
+	 * Retrive a local property. This allows localization. All strings are stored in the property files in the
+	 * wjhk.jupload2.lang package. 
 	 * 
 	 * @param key The key, whose associated text is to retrieve.
 	 * @return The associated text.
@@ -486,14 +439,15 @@ public interface UploadPolicy {
 	public String getString(String key);
 
 	/**
-	 * Retrive a local property. Mainly used for localization. 
+	 * Retrive a local property. This allows localization. All strings are stored in the property files in the
+	 * wjhk.jupload2.lang package. 
 	 * <BR>
-	 * All occurences of {1} in the value (corresponding to key) are replaced by value1.
+	 * All occurences of <B>{1}</B> in the value (corresponding to key) are replaced by value1.
 	 * <BR>
 	 * Sample : <BR>
 	 * Love=Oh {1}, I love you so much ...
 	 * <BR>
-	 * Call it by getString("Love", "John Smith") ...  ;-) 
+	 * Call it by <I>getString("Love", "John Smith")</I> ... &nbsp; ;-) 
 	 * 
 	 * @param key The key, whose associated text is to retrieve.
 	 * @param value1 The value, which will replace all occurence of {1}
@@ -531,12 +485,14 @@ public interface UploadPolicy {
 	/**
 	 * This method indicate whether or not the debug messages must be displayed. Default is no debug (0).
 	 * <BR>
-	 * To activate the debug, add a 'debug' parameter to the applet (with 1 to n value), or call this method.  
+	 * To activate the debug, add a 'debugLevel' parameter to the applet (with 1 to n value), or call this method.  
 	 * Currently, level used in the code are between 0 (no debug) and 100 (max debug).
 	 * <BR>
-	 * With a 0 value, no debug messages will be displayed.
+	 * With a 0 value, no debug messages will be displayed. The {@link DefaultUploadPolicy}.addMsgToDebugBufferString
+	 * method stores all debug output in a BufferString.
 	 * 
 	 * @param debugLevel The new debugLevel.
+	 * @see DefaultUploadPolicy#sendDebugInformation(String)
 	 */
 	public void setDebugLevel(int debugLevel);
 
@@ -559,17 +515,17 @@ public interface UploadPolicy {
 	/**
 	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
 	 * 
-	 * @param property_str The string identifying the text to display, depending on the current language.
+	 * @param key The string identifying the text to display, depending on the current language.
 	 */
-	public void alert(String property_str);
+	public void alert(String key);
 
 	/**
 	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
 	 * 
-	 * @param property_str The string identifying the text to display, depending on the current language.
+	 * @param key The string identifying the text to display, depending on the current language.
 	 * @param arg1 A string that will replace all {1} in the text corresponding to property_str. This allows 
 	 *             to have dynamic localized text.
 	 */
-	public void alert(String property_str, String arg1);
+	public void alert(String key, String arg1);
 }
 

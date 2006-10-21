@@ -12,6 +12,8 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  * This class is program (contains a main class). It can be used to run the code from
  * outside any developpement tool like eclipse. <BR>
  * It's also a sample of how to use the code from a standard java aplication.
+ * <BR><BR><BR>
+ * Not really tested.
  */
 public class JUpload extends JFrame{
 

@@ -1,9 +1,14 @@
 
+V 2.2.5
+
+Changes:
+- The method isUploadReady is now removed from FileData.
 
 V 2.2.4
 
 Bugs corrected:
-- NullPointerException (in FilePanelDataModel2 and in PictureFileData) because of the suppression of static methods in UploadPolicyFactory.
+- NullPointerException (in FilePanelDataModel2 and in PictureFileData) because of the suppression of static methods 
+in UploadPolicyFactory.
 
 Changes:
 - Java samples updated. They should be clean now. They use the last jakarta commons fileupload package.
@@ -13,21 +18,26 @@ V 2.2.3
 
 Bugs corrected:
 - Samples were bugguy: wrong URL, missing 'MAYSCRIPT' in the applet tags, which causes JSException
-- minor bug: UploadPolicyFactory contains erroneous static getCurrentUploadPolicy, which would cause unpredictale result when several instances of the applet exist in memory
+- minor bug: UploadPolicyFactory contains erroneous static getCurrentUploadPolicy, which would cause unpredictale 
+result when several instances of the applet exist in memory
 
 Enhancement:
-- Upload policies can now 'refuse' a file added by the user. For instance, PictureUploadPolicy accepts only picture files (see createFileData).
-- Sample now separate all uploaded files. This was already coded by William (creator of jupload), but not used by the sample.
+- Upload policies can now 'refuse' a file added by the user. For instance, PictureUploadPolicy accepts only picture 
+files (see createFileData).
+- Sample now separate all uploaded files. This was already coded by William (creator of jupload), but not used by the 
+sample.
 - (minor) PictureFileData now correctly handles the isPicture internal variable.
 
 
 V 2.2.0
 
-  This version is a major release of jupload. It is based on the 'juploadV20040415R2' package. It adds the following functionnalities:
+  This version is a major release of jupload. It is based on the 'juploadV20040415R2' package. It adds the following 
+functionnalities:
   
 - Picture management. The applet is now able to:
   - Preview pictures,
-  - Resize picture, to a maximum width and/or height before upload (this lower the network traffic, and can prevent the server to transform picture after upload)
+  - Resize picture, to a maximum width and/or height before upload (this lower the network traffic, and can prevent 
+the server to transform picture after upload)
   - Display a full screen picture (by clicking on the previewed picture),
   - Rotate the picture right or left,
   - Download pictures and select the upload album on the same web page (with the jupload.php script),
