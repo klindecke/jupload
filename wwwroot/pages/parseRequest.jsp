@@ -12,7 +12,7 @@
     }
 
     // Directory to store all the uploaded files
-    String ourTempDirectory = "C:/Temp/";
+    String ourTempDirectory = "/tmp/";
     int ourMaxMemorySize  = 10000000;
     int ourMaxRequestSize = 2000000000;
 

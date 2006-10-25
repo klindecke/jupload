@@ -160,12 +160,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	 * @param debugLevel Current debugLevel (applet parameter: debugLevel).
 	 * @param status The status bar, where messages are to be displayed.
 	 */
-	protected PictureUploadPolicy(String postURL, int maxFilesPerUpload, Applet theApplet, int debugLevel, JTextArea status) {
-		super(postURL, theApplet, debugLevel, status);
+	protected PictureUploadPolicy(Applet theApplet, JTextArea status) {
+		super(theApplet, status);
 	    
 	    //Creation of the PictureFileDataPolicy, from parameters given to
 		//the applet, or from default values.
-		this.maxFilesPerUpload = maxFilesPerUpload;
 	    storeBufferedImage = UploadPolicyFactory.getParameter(theApplet, PROP_STORE_BUFFERED_IMAGE, DEFAULT_STORE_BUFFERED_IMAGE);
 		targetPictureFormat = UploadPolicyFactory.getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT);
 		maxWidth = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH, DEFAULT_MAX_WIDTH);
@@ -215,12 +214,12 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		
 		//Creation of specific buttons
 	    rotateLeftButton = new JButton(getString("buttonRotateLeft"));
-	    rotateLeftButton.setIcon(new ImageIcon(getClass().getResource("/images/rotateLeftButton.gif")));
+	    rotateLeftButton.setIcon(new ImageIcon(getClass().getResource("/images/rotateLeft.gif")));
 	    rotateLeftButton.addActionListener(this);
 	    rotateLeftButton.setEnabled(false);
 
 	    rotateRightButton = new JButton(getString("buttonRotateRight"));
-	    rotateRightButton.setIcon(new ImageIcon(getClass().getResource("/images/rotateRightButton.gif")));
+	    rotateRightButton.setIcon(new ImageIcon(getClass().getResource("/images/rotateRight.gif")));
 	    rotateRightButton.addActionListener(this);
 	    rotateRightButton.setEnabled(false);
 

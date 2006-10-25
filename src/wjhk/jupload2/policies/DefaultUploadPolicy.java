@@ -143,13 +143,57 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @param postURL The URL where files should be uploaded. 
 	 */
-	protected DefaultUploadPolicy(String postURL, Applet theApplet, int debugLevel, JTextArea status) {
+	protected DefaultUploadPolicy(Applet theApplet, JTextArea status) {
 		//Call default constructor for all default initialization;.
-		this.postURL = postURL;
 		this.theApplet = theApplet;
-		this.debugLevel = debugLevel;
 		this.status = status;
 		
+
+	    ///////////////////////////////////////////////////////////////////////////////
+	    //get the URL where files must be posted. 
+	    postURL = UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL, DEFAULT_POST_URL);
+
+	    //////////////////////////////////////////////////////////////////////////////
+	    //get the debug level. This control the level of debug messages that are written 
+	    //in the status area (see displayDebugMessage). In all cases, the full output 
+	    //is written in the debugBufferString (see also urlToSendErrorTo)
+	    debugLevel = UploadPolicyFactory.getParameter(theApplet, PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL);
+
+	    ///////////////////////////////////////////////////////////////////////////////
+	    //get the maximum number of files to upload in one HTTP request. 
+		maxFilesPerUpload = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST);
+
+		///////////////////////////////////////////////////////////////////////////////
+	    //get the URL where the full debug output can be sent when an error occurs. 
+		urlToSendErrorTo = UploadPolicyFactory.getParameter(theApplet, PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO);
+
+		///////////////////////////////////////////////////////////////////////////////
+	    //get the server protocol. 
+		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
+	    // sending the cookie uses the same http protocol that the original connexion.
+	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
+		serverProtocol = UploadPolicyFactory.getParameter(theApplet, PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL);
+
+		///////////////////////////////////////////////////////////////////////////////
+	    //get the upload String Success. See Uploadolicy#getStringUploadSuccess 
+		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
+	    // sending the cookie uses the same http protocol that the original connexion.
+	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
+		stringUploadSuccess = UploadPolicyFactory.getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS, DEFAULT_STRING_UPLOAD_SUCCESS);		
+		
+		///////////////////////////////////////////////////////////////////////////////
+		//Get resource file.
+		String lang = UploadPolicyFactory.getParameter(theApplet,PROP_LANG, DEFAULT_LANG);
+		Locale locale;
+		if (lang == null) {
+			displayInfo("lang = null, taking default language");
+			locale = Locale.getDefault();
+		} else {
+			locale = new Locale(lang);
+		}
+		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
+
+	    
 		displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
 	    displayInfo("Java version  : " + System.getProperty("java.version")); 
 		
@@ -187,46 +231,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    addHeader("Cookie: " + cookie);
 	    addHeader("User-Agent: " + userAgent);
 
-		///////////////////////////////////////////////////////////////////////////////
-	    //get the maximum number of files to upload in one HTTP request. 
-		maxFilesPerUpload = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST);
-
-		///////////////////////////////////////////////////////////////////////////////
-	    //get the mail of the webmaster. It can be used to send debug information, if
-		//problems occurs. 
-		urlToSendErrorTo = UploadPolicyFactory.getParameter(theApplet, PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO);
-
-		///////////////////////////////////////////////////////////////////////////////
-	    //get the server protocol. 
-		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
-	    // sending the cookie uses the same http protocol that the original connexion.
-	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
-		serverProtocol = UploadPolicyFactory.getParameter(theApplet, PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL);
-
-		///////////////////////////////////////////////////////////////////////////////
-	    //get the upload String Success. See Uploadolicy#getStringUploadSuccess 
-		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
-	    // sending the cookie uses the same http protocol that the original connexion.
-	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
-		stringUploadSuccess = UploadPolicyFactory.getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS, DEFAULT_STRING_UPLOAD_SUCCESS);		
-		
-		///////////////////////////////////////////////////////////////////////////////
-		//Get resource file.
-		String lang = UploadPolicyFactory.getParameter(theApplet,PROP_LANG, DEFAULT_LANG);
-		Locale locale;
-		if (lang == null) {
-			displayInfo("lang = null, taking default language");
-			locale = Locale.getDefault();
-		} else {
-			locale = new Locale(lang);
-		}
-
 		//Let's handle the language:
 	    displayDebug("lang (parameter) : " + lang, 20);
 	    displayDebug("language : " + locale.getLanguage(), 20);
 	    displayDebug("country : " + locale.getCountry(), 20);
-	    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
-		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
 	}
 		
 	/**
@@ -682,6 +690,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 */
 	public String getStringUploadSuccess() {
 		return stringUploadSuccess;
+	}
+
+	/**
+	 * @see wjhk.jupload2.policies.UploadPolicy#getUrlToSendErrorTo()
+	 */
+	public String getUrlToSendErrorTo() {
+		return urlToSendErrorTo;
 	}
 
 }

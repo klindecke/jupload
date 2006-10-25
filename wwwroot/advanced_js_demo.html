@@ -1,0 +1,192 @@
+<HTML>
+<head>
+	<title>JUpload - File Upload Applet (advanced js demo)</title>
+</head>
+<body>
+
+
+
+
+<SCRIPT LANGUAGE="JavaScript">
+	//All managed parameters are below, with there default value :
+	postURL = "http://localhost:8080/jupload/pages/parseRequest.jsp";
+	urlToSendErrorTo = "mailto:toto@yahoo.com"; //Careful: log info will be truncated, if sent to a mailto: link.
+	uploadPolicy = "";
+	lang = "";
+	nbFilesPerRequest = "";
+	maxPicHeight = "";
+	maxPicWidth = "";
+	debugLevel = "";
+	serverProtocol = "";
+	stringUploadSuccess = "";
+	
+	//Some parameters can only be choosen from an existing list:
+	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy"];
+	langList = ["", "de", "en", "fr", "us"];
+	serverProtocolList = ["", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1"];
+
+	function writeInputText (name, value) {
+		document.write('	<tr><td align="center">');
+		document.write(name);
+		document.write('</td><td><INPUT TYPE="TEXT" NAME="');
+		document.write(name);
+		document.write('"');
+		if (value != "") {
+			document.write(' VALUE="');
+			document.write(value);
+			document.write('" ');
+		}
+		document.writeln(	'></td></tr>');
+	}//writeInputText
+
+	function writeInputSelect (name, value, list) {
+		document.write('	<tr><td align="center">');
+		document.write(name);
+		document.write('</td><td><SELECT NAME="');
+		document.write(name);
+		document.writeln('">');
+
+		for (i=0; i<list.length; i += 1) {
+			document.write('<OPTION');
+			if (value == list[i]) {
+				document.write(' SELECTED');
+			}
+			document.write('>');
+			document.writeln(list[i]);
+		}
+		document.writeln(	'</SELECT></td></tr>');
+	}//writeInputText
+
+	function writeParam (param, value) {
+		if (value != "") {
+			document.write('<param name="');
+			document.write(param);
+			document.write('" VALUE="');
+			document.write(value);
+			document.write('" >');
+		}
+	}//writeParam
+
+	
+	//First: get possible URL parameters.
+	reQuery = new RegExp ("[\?](.*)&?");
+	reQuery.exec(location.href);
+	query = RegExp.$1;
+	
+	//Then, get each parameter
+	reParam = /([^&]*)=([^&]*)&?/g;
+	array = reParam.exec(query);
+	while (array != null) {
+		val = unescape(array[2]);
+		switch (array[1]) {
+		case "debugLevel":
+			debugLevel = val;
+			break;
+		case "lang":
+			lang = val;
+			break;
+		case "maxPicHeight":
+			maxPicHeight = val;
+			break;
+		case "maxPicWidth":
+			maxPicWidth = val;
+			break;
+		case "nbFilesPerRequest":
+			nbFilesPerRequest = val;
+			break;
+		case "postURL":
+			postURL = val;
+			break;
+		case "serverProtocol":
+			serverProtocol = val;
+			break;
+		case "stringUploadSuccess":
+			stringUploadSuccess = val;
+			break;
+		case "uploadPolicy":
+			uploadPolicy = val;
+			break;
+		case "urlToSendErrorTo":
+			urlToSendErrorTo = val;
+			break;
+		default:
+			alert("Unknown parameter: " + array[1]);
+		}
+		array = reParam.exec(query);
+	}//while
+
+
+	//First the form, with default values given by the query parameters.
+	document.writeln('Enter Jupload parameters');
+	document.writeln('<FORM>');
+	document.writeln('<TABLE>');
+	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList);
+	writeInputText("postURL", postURL);
+	writeInputText("urlToSendErrorTo", urlToSendErrorTo);
+	writeInputSelect("lang", lang, langList);
+	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList);
+	writeInputText("stringUploadSuccess", stringUploadSuccess);
+	writeInputText("debugLevel", debugLevel);
+	writeInputText("nbFilesPerRequest", nbFilesPerRequest);
+	writeInputText("maxPicHeight", maxPicHeight);
+	writeInputText("maxPicWidth", maxPicWidth);
+	document.writeln('</TABLE>');
+	document.writeln('<input type=submit>');
+	document.writeln('</FORM>');
+	document.writeln('');
+
+	//Let's write one APPLET tag for the selected language	
+	document.writeln('<APPLET ');
+	document.writeln('	CODE    = "wjhk.jupload2.JUploadApplet" ');
+	document.writeln('	ARCHIVE = "wjhk.jupload.jar" ');
+	document.writeln('	WIDTH   = "640" ');
+	document.writeln('	HEIGHT  = "300"');
+	document.writeln('	MAYSCRIPT >');
+	writeParam("postURL", postURL);
+	writeParam("uploadPolicy", uploadPolicy);
+	writeParam("lang", lang);
+	writeParam("nbFilesPerRequest", nbFilesPerRequest);
+	writeParam("maxPicHeight", maxPicHeight);
+	writeParam("maxPicWidth", maxPicWidth);
+	writeParam("debugLevel", debugLevel);
+	writeParam("urlToSendErrorTo", urlToSendErrorTo);
+	document.writeln('Java 1.4 or higher plugin required.');
+	document.writeln('</APPLET>');
+</SCRIPT>
+
+
+
+<!-- footer -->
+		<!-- tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr -->
+		<tr><td COLSPAN=2>
+			<table width=100% cellpadding=0 cellspacing=0 border=0>
+				   <tr><td colspan=2><hr size=1 noshade width=100%></td></tr>
+       <tr>
+        <td NOWRAP><A HREF="http://sourceforge.net/projects/jupload/">Project page</A>&nbsp;|&nbsp;
+            <A HREF="index.html">Home Page (Demo)</A>&nbsp;|&nbsp;
+            <A HREF="howto-customization.html">HowTo customize it</A>&nbsp;|&nbsp;
+            <A HREF="README.txt">ReadMe</A>&nbsp;|&nbsp;
+            <A HREF="RELEASE-NOTES.txt">Release Notes</A>
+        </td>
+        <td WIDTH=100%></td>
+        <td><A href="http://sourceforge.net"><IMG src="images/sourceforge_logo.gif" border="0" alt="SourceForge Logo"></A></td>
+       </tr>
+       <tr>
+        <td>
+            Demo: 
+              <A HREF="applet-basic.html">basic</A>,
+              <A HREF="applet-basic-picture.html">picture mode</A>,
+              <A HREF="advanced_js_demo.html">advanced demo</A>
+            &nbsp;&nbsp;|&nbsp;Loading locally:
+            <A HREF="webstart.jnlp">Web Start</A>
+        </td>
+       </tr>
+				<tr><td colspan=3><hr size=1 noshade width=100%></td></tr>
+			</table>
+		</td></tr>
+	</table>
+
+</center>
+
+ </body>
+</HTML>

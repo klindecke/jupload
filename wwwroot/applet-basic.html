@@ -26,18 +26,19 @@
     </COMMENT>
 
 <SCRIPT LANGUAGE="JavaScript"><!--
-    if (_ie == true) document.writeln('<OBJECT classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" WIDTH = "640" HEIGHT = "300"  codebase="http://java.sun.com/update/1.4.2/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"><NOEMBED><XMP>');
+    if (_ie == true) document.writeln('<OBJECT classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" NAME="JUpload" WIDTH="640" HEIGHT="300"  codebase="http://java.sun.com/update/1.4.2/jinstall-1_4-windows-i586.cab#Version=1,4,0,0"><NOEMBED><XMP>');
     else if (_ns == true && _ns6 == false) document.writeln('<EMBED \
 	    type="application/x-java-applet;version=1.4" \
-            CODE = "wjhk.jupload2.JUploadApplet" \
-            ARCHIVE = "wjhk.jupload.jar" \
-            WIDTH = "640" \
-            HEIGHT = "300" \
-            postURL ="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value" \
+            CODE="wjhk.jupload2.JUploadApplet" \
+            NAME="JUpload"\
+            ARCHIVE="wjhk.jupload.jar" \
+            WIDTH="640" \
+            HEIGHT="300" \
+            postURL="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value" \
 	    scriptable=true \
 	    pluginspage="http://java.sun.com/products/plugin/index.html#download"><NOEMBED><XMP>');
 //--></SCRIPT>
-<APPLET  CODE = "wjhk.jupload2.JUploadApplet" ARCHIVE = "wjhk.jupload.jar" WIDTH = "640" HEIGHT = "300" MAYSCRIPT></XMP>
+<APPLET  CODE="wjhk.jupload2.JUploadApplet" NAME="JUpload" ARCHIVE="wjhk.jupload.jar" WIDTH="640" HEIGHT="300" MAYSCRIPT></XMP>
     <PARAM NAME = CODE VALUE = "wjhk.jupload2.JUploadApplet" >
     <PARAM NAME = ARCHIVE VALUE = "wjhk.jupload.jar" >
     <PARAM NAME="type" VALUE="application/x-java-applet;version=1.4">
@@ -51,7 +52,7 @@ Java 1.4 or higher plugin required.
 </OBJECT>
 
 <!--
-<APPLET CODE = "wjhk.jupload2.JUploadApplet" ARCHIVE = "wjhk.jupload.jar" WIDTH = "640" HEIGHT = "300" MAYSCRIPT >
+<APPLET CODE="wjhk.jupload2.JUploadApplet" NAME="JUpload" ARCHIVE="wjhk.jupload.jar" WIDTH="640" HEIGHT="300" MAYSCRIPT >
 	<PARAM NAME = "postURL" VALUE ="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value">
 Java 1.4 or higher plugin required.
 
@@ -76,7 +77,7 @@ Java 1.4 or higher plugin required.
 			<table width=100% cellpadding=0 cellspacing=0 border=0>
 				   <tr><td colspan=2><hr size=1 noshade width=100%></td></tr>
        <tr>
-        <td NOWRAP><A HREF="http://sourceforge.net/projects/jupload/">Sourceforge</A>&nbsp;|&nbsp;
+        <td NOWRAP><A HREF="http://sourceforge.net/projects/jupload/">Project page</A>&nbsp;|&nbsp;
             <A HREF="index.html">Home Page (Demo)</A>&nbsp;|&nbsp;
             <A HREF="howto-customization.html">HowTo customize it</A>&nbsp;|&nbsp;
             <A HREF="README.txt">ReadMe</A>&nbsp;|&nbsp;
@@ -89,7 +90,8 @@ Java 1.4 or higher plugin required.
         <td>
             Demo: 
               <A HREF="applet-basic.html">basic</A>,
-              <A HREF="applet-basic-picture.html">picture mode</A>
+              <A HREF="applet-basic-picture.html">picture mode</A>,
+              <A HREF="advanced_js_demo.html">advanced demo</A>
             &nbsp;&nbsp;|&nbsp;Loading locally:
             <A HREF="webstart.jnlp">Web Start</A>
         </td>
@@ -100,5 +102,6 @@ Java 1.4 or higher plugin required.
 	</table>
 
 </center>
+
  </body>
 </HTML>

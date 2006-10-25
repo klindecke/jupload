@@ -83,6 +83,9 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TD>If this url is given, and an upload error occurs, the applet post the all the debug output to this
     address. It's up to this URL to handle this mail. It is possible to just store the file, or to log the 
     error in a database, or to send a mail (like the mail.php script given with the coppermine pack).
+    <BR>
+    <U>Note:</U> Don't put a mailto link here: it won't be able to manage the debug output, that is too big. The 
+    maximum length of a mailto depends on the navigator. With Firefox, it seems to be around 4kb.
   </TD>
 </TR>
 <TR>
@@ -429,7 +432,13 @@ public interface UploadPolicy {
 	public String getServerProtocol();
 	
 	/**
-	 * Retrive a local property. This allows localization. All strings are stored in the property files in the
+	 * Returns the current URL where error log must be posted. See <a href="#parameters>Parameters</a>
+	 * @return the urlToSendErrorTo
+	 */
+	public String getUrlToSendErrorTo();
+
+	/**
+	 * Retrieve a local property. This allows localization. All strings are stored in the property files in the
 	 * wjhk.jupload2.lang package. 
 	 * 
 	 * @param key The key, whose associated text is to retrieve.

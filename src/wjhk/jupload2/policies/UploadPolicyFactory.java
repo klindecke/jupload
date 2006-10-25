@@ -29,85 +29,64 @@ public class UploadPolicyFactory {
 	/**
 	 * This attribute contains the current UploadPolicy. It can be retrieved by the
 	 * {@link #getCurrentUploadPolicy()} method.
-	 */
+	 *
 	private static UploadPolicy currentUploadPolicy = null;
+	*/
 	
 	
 	/** 
 	 * @return The current UploadPolicy. Null if no UploadPolicy was created.
+	 * 
 	 * @deprecated This method is static, which means that if the applet is opened two times (for instance 
 	 * into two different pages), you don't can't control which uploadPolicy is returned.  
-	 */
+	 *
 	public static UploadPolicy getCurrentUploadPolicy() {
 		return currentUploadPolicy;
-	}
+	}*/
 	
 	/**
-	 * Use applet parameters.
+	 * Returns an upload Policy for the given applet and URL. All other parameters for the uploadPolicy are
+	 * take from avaiable applet parameters (or from system properties, if it is not run as an applet).
 	 *
 	 * @param theApplet if not null : use this Applet Parameters. If null, use System properties.  
-	 * @return The selected UploadPolicy.
+	 * @param status A JTextArea, that'll contain output to the user. It will contain the ERROR, WARN and INFO
+	 *    texts. The DEBUG ones will be displayed, according to the current debugLevel (see <a href="UploadPolicy.html#parameters">parameters</a>). 
+	 * @return The newly created UploadPolicy.
 	 */
 	public static UploadPolicy getUploadPolicy(Applet theApplet, JTextArea status) {
-	    String postURL = getParameter(theApplet, 
-	    		UploadPolicy.PROP_POST_URL, 
-	    		UploadPolicy.DEFAULT_POST_URL);
-	    return getUploadPolicy(theApplet, status, postURL);
-	}
-	
-	/**
-	 * Returns an upload Policy for the given applet and URL. This method doesn't look
-	 * at the postURL system property.
-	 * 
-	 * @param theApplet if not null : use this Applet Parameters (out of the postURL, which is given). If null, use System properties  (out of the postURL).  
-	 * @param postURL The URL where files are to be posted.
-	 * @return The selected UploadPolicy.
-	 */
-	public static UploadPolicy getUploadPolicy (Applet theApplet, JTextArea status, String postURL) {
+		UploadPolicy uploadPolicy = null;
 		//Let's create the update policy.
-	    String uploadPolicyStr;
-	    uploadPolicyStr = getParameter(theApplet, 
+	    String uploadPolicyStr = getParameter(theApplet, 
 	    		UploadPolicy.PROP_UPLOAD_POLICY, 
 				UploadPolicy.DEFAULT_UPLOAD_POLICY);
-	    int debugLevel = getParameter(theApplet, 
-	    		UploadPolicy.PROP_DEBUG_LEVEL, 
-	    		UploadPolicy.DEFAULT_DEBUG_LEVEL);
 
 	    if (uploadPolicyStr.equals("FileByFileUploadPolicy")) {
-	    	currentUploadPolicy = new FileByFileUploadPolicy(postURL, theApplet, debugLevel, status);
-	    /*
-	     * deprecated:  CustomizedNbFilesPerRequestUploadPolicy behaves exactly as DefaultUploadPolicy.
+	    	uploadPolicy = new FileByFileUploadPolicy(theApplet, status);
 	    } else if (uploadPolicyStr.equals("CustomizedNbFilesPerRequestUploadPolicy")) {
-		    int nbFilesPerRequest = getParameter(theApplet, 
-		    		UploadPolicy.PROP_NB_FILES_PER_REQUEST, 
-		    		UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST);
-		    currentUploadPolicy = new CustomizedNbFilesPerRequestUploadPolicy(postURL, nbFilesPerRequest, theApplet, debugLevel, status);
-		*/	    	
+	    	uploadPolicy = new CustomizedNbFilesPerRequestUploadPolicy(theApplet, status);
 	    } else if (uploadPolicyStr.equals("PictureUploadPolicy")) {
-		    int nbFilesPerRequest = getParameter(theApplet, 
-		    		UploadPolicy.PROP_NB_FILES_PER_REQUEST, 
-		    		UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST);
-		    currentUploadPolicy = new PictureUploadPolicy(postURL, nbFilesPerRequest, theApplet, debugLevel, status);	    	
+	    	uploadPolicy = new PictureUploadPolicy(theApplet, status);	    	
 	    } else if (uploadPolicyStr.equals("CoppermineUploadPolicy")) {
-		    int albumId = getParameter(theApplet, 
-		    		UploadPolicy.PROP_ALBUM_ID, 
-		    		UploadPolicy.DEFAULT_ALBUM_ID);
-		    currentUploadPolicy = new CoppermineUploadPolicy(postURL, albumId, theApplet, debugLevel, status);	    	
+	    	uploadPolicy = new CoppermineUploadPolicy(theApplet, status);	    	
 	    } else {
 	    	//Create default Policy
-	    	currentUploadPolicy = new DefaultUploadPolicy(postURL, theApplet, debugLevel, status);
+	    	uploadPolicy = new DefaultUploadPolicy(theApplet, status);
 	    }
 	    
-	    currentUploadPolicy.displayDebug("uploadPolicy parameter = " + uploadPolicyStr, 1);
-	    currentUploadPolicy.displayInfo("postURL = " + currentUploadPolicy.getPostURL());
-	    currentUploadPolicy.displayInfo("uploadPolicy = " + currentUploadPolicy.getClass().getName());
+	    //The current values are dispayed here, after the full initialization of all classes.
+	    //It could also be displayed in the DefaultUploadPolicy (for instance), but then, the 
+	    //display wouldn't show the modifications done by superclasses.	    
+	    uploadPolicy.displayDebug("uploadPolicy parameter = " + uploadPolicyStr, 1);
+	    uploadPolicy.displayInfo("uploadPolicy = " + uploadPolicy.getClass().getName());
+	    uploadPolicy.displayInfo("postURL = " + uploadPolicy.getPostURL());
 		///////////////////////////////////////////////////////////////////////////////
 		// Let's display some information to the user.
-	    currentUploadPolicy.displayDebug("debug : " + debugLevel, 1); 
-	    currentUploadPolicy.displayDebug("stringUploadSuccess : <" + currentUploadPolicy.getStringUploadSuccess() + ">", 20); 
-	    currentUploadPolicy.displayDebug("serverProtocole : " + currentUploadPolicy.getServerProtocol(), 20); 
+	    uploadPolicy.displayDebug("debug : " + uploadPolicy.getDebugLevel(), 1); 
+	    uploadPolicy.displayDebug("stringUploadSuccess : " + uploadPolicy.getStringUploadSuccess(), 20); 
+	    uploadPolicy.displayDebug("urlToSendErrorTo: " + uploadPolicy.getUrlToSendErrorTo(), 20);
+	    uploadPolicy.displayDebug("serverProtocol : " + uploadPolicy.getServerProtocol(), 20); 
 	    		
-		return currentUploadPolicy ;
+		return uploadPolicy ;
 	}
 	
 	/**
