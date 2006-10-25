@@ -30,8 +30,8 @@ public class FileByFileUploadPolicy extends DefaultUploadPolicy {
 	/**
 	 * @param postURL
 	 */
-	protected FileByFileUploadPolicy(String postURL, Applet theApplet, int debugLevel, JTextArea status) {
-		super(postURL, theApplet, debugLevel, status);
+	protected FileByFileUploadPolicy(Applet theApplet, JTextArea status) {
+		super(theApplet, status);
 		
 		this.maxFilesPerUpload = 1;
 	}

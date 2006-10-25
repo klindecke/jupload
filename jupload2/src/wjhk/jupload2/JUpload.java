@@ -57,10 +57,11 @@ public class JUpload extends JFrame{
   public static void main(String[] args) {
     UploadPolicy uploadPolicy;
     if(1 == args.length){
-    	uploadPolicy = UploadPolicyFactory.getUploadPolicy(null, null, args[0]);
-    } else {
-    	uploadPolicy = UploadPolicyFactory.getUploadPolicy(null, null);
+    	//We write the system property, so that the UploadPolicy will read it.
+    	System.setProperty(UploadPolicy.PROP_POST_URL, args[0]);
     }
+    	
+    uploadPolicy = UploadPolicyFactory.getUploadPolicy(null, null);
 
     JUpload ju = new JUpload(uploadPolicy);
     if (ju == null) {

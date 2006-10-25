@@ -223,12 +223,12 @@ public class FileUploadThreadV3 extends Thread {
 	 * @return HTTP header for each file, within the multipart HTTP request.
 	 * @throws JUploadException
 	 */
-	private StringBuffer[] setAllHead(FileData[] fileA, StringBuffer bound) throws JUploadException {
+	private StringBuffer[] setAllHead(FileData[] fileA, int nbFilesToUpload, StringBuffer bound) throws JUploadException {
 		StringBuffer[] sbArray = new StringBuffer[fileA.length];
 		FileData fileData;
 		StringBuffer sb;
 		String fileName;
-		for(int i=0; i < fileA.length; i++){
+		for(int i=0; i < nbFilesToUpload; i++){
 			fileData = fileA[i];
 			sbArray[i] = new StringBuffer();
 			sb = sbArray[i];
@@ -408,7 +408,7 @@ public class FileUploadThreadV3 extends Thread {
 			boundary.append("-----------------------------");
 			boundary.append(getRandomString().toString());
 			
-			StringBuffer[] head = setAllHead(filesA, boundary);
+			StringBuffer[] head = setAllHead(filesA, nbFilesToUpload, boundary);
 			StringBuffer[] tail = setAllTail(nbFilesToUpload, boundary);
 			
 			long contentLength = 0;

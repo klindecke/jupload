@@ -1,8 +1,15 @@
 
 V 2.2.5
 
+Bugs corrected:
+- The upload would fail when there are less files to upload than nbFilesPerRequest 
+(NullPointerException in  FileUploadThreadV3)
+- The stringUploadSuccess was not read from the applet parameters.
+
 Changes:
+- Add of the German language, thanks to Dr. Zoidberg.
 - The method isUploadReady is now removed from FileData.
+- A new 'advanced_jd_demo.html' page allows a newcomer to check the effect of all parameters on the applet.
 
 V 2.2.4
 

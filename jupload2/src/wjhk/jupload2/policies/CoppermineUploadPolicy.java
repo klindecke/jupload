@@ -85,7 +85,9 @@ import netscape.javascript.JSObject;
  * @author Etienne Gauthier
  */
 public class CoppermineUploadPolicy extends PictureUploadPolicy {
-		
+	
+	final static String  COPPERMINE_STRING_UPLOAD_SUCCESS	= "^SUCCESS$";
+
 	private int albumId;
 
 	/**
@@ -96,19 +98,23 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	 * @param theApplet Identifier for the current applet. It's necessary, to read information from the navigator.
 	 * @param debugLevel See {@link UploadPolicy}
 	 */
-	protected CoppermineUploadPolicy(String postURL, int albumId, Applet theApplet, int debugLevel, JTextArea status) {
+	protected CoppermineUploadPolicy(Applet theApplet, JTextArea status) {
 		//Let's call our mother !          :-)
-		super(postURL, 1, theApplet, debugLevel, status);
+		super(theApplet, status);
 		
-		//The number of files per upload is always 1.
-		int paramMaxFilesPerUpload = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, -1);
-		if (paramMaxFilesPerUpload != 1) {
-			displayWarn(PROP_NB_FILES_PER_REQUEST + " is ignored in " + this.getClass().getName() + " (given value is: " + paramMaxFilesPerUpload);
+		//Let's read the albumId from the applet parameter. It can be unset, but the user must then choose
+		//an album before upload.
+	    albumId = UploadPolicyFactory.getParameter(theApplet, PROP_ALBUM_ID, DEFAULT_ALBUM_ID);
+		if (maxFilesPerUpload != 1 && maxFilesPerUpload != UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST) {
+			displayWarn(PROP_NB_FILES_PER_REQUEST + " is forced to 1 " + this.getClass().getName() + " (given value is: " + maxFilesPerUpload);
 		}
+		maxFilesPerUpload = 1;
 
 		//Now we explain her what we really want :
-		this.albumId = albumId;
-		stringUploadSuccess = "^SUCCESS$";
+		if (!stringUploadSuccess.equals(COPPERMINE_STRING_UPLOAD_SUCCESS)) {
+			displayWarn(PROP_STRING_UPLOAD_SUCCESS + " is ignored in " + this.getClass().getName() + " (given value is: " + stringUploadSuccess);
+			stringUploadSuccess = COPPERMINE_STRING_UPLOAD_SUCCESS;
+		}
 	}
 	
 	/**

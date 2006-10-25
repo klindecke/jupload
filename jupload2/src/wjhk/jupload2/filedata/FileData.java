@@ -13,7 +13,6 @@ import java.util.Date;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.FileUploadThreadV3;
 
 
 
