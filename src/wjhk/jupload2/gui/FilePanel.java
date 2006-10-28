@@ -14,4 +14,5 @@ public interface FilePanel {
   public int getFilesLength();
   public void removeSelected();
   public void removeAll();
+  public void remove(FileData fileData);
 }

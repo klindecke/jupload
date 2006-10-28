@@ -24,11 +24,13 @@ You can customize the behavour of this applet by using one (or more) of the foll
 	by specifying a <I>uploadPolicy</I> parameter, like in the 
 	<A HREF="applet-basic-picture.html">basic picture mode</A> demo. 
 	<LI><U>Creating a new UploadPolicy, inheriting from an existing uploadpolicy</U>, like 
-	DefaultUploadPolicy or PictureUploadPolicy. Then, you get a default behaviour, and only define what is specific to you.
-	<LI><U>Creating an entirely new UploadPolicy</U>. More complex: you need to code again every method. This 
-	also won't may not compatible with future JUploac release, which could add methods to the UploadPolicy 
-	interface, that you would then have to add to your upload policy.
-	<LI><U>Change code everywhere</U> ... like I did    ;-) 
+	DefaultUploadPolicy or PictureUploadPolicy. Then, you get a default behaviour, and only define what is specific 
+	to your needs.
+	<LI><U>Creating an entirely new UploadPolicy</U>. More complex: you need to code again every method. But then, you
+	can use precisely anagewhat the kind of fils that may be upload, check them, prepare upload (for instance, compress
+	file before upload), check that specific parameters are set before upload (the existing CoppermineUploadPolicy
+	checks that an albumId is set), and much more...
+	<LI><U>And, of course, change code everywhere in the applet</U> ... like I did    ;-) 
 </UL> 
 
 
@@ -111,11 +113,11 @@ UploadPolicy interface:
 
 <H3>Note: UploadPolicyFactory</H3>
 
-<P>From the application, the UploadPolicyFactory allows easy instanciation of the needed UploadPolicy. That is </P>
+<P>The JuploadApplet asks the UploadPolicyFactory to create (instanciate) needed UploadPolicy. That is </P>
 <DIR>
 	<LI>During intialization of the applet, the UploadPolicyFactory.getUploadPolicy() method is called. This method
-	checks the <I>uploadPolicy</I> parameter. If this uploadPolicy is unknown, the DefaultUploadPolicy is used. If
-	a specific uploadPolicy is found, it can read specific parameters.
+	checks the <I>uploadPolicy</I> parameter. If this uploadPolicy is unknown or not set, the DefaultUploadPolicy is 
+	used. If a specific uploadPolicy is found, it can of course read specific parameters from the APPLET tag.
 	<LI>Then, UploadPolicyFactory.getUploadPolicy() creates the class implementing the UploadPolicy factory, and 
 	returns the reference to this class.
 	<LI>The upload policy can not be changed while the applet is running.
@@ -126,16 +128,16 @@ UploadPolicy interface:
 <DIR
 	<LI><B>Create a new class, implementing the UploadPolicy interface</B>. The easiest way is to inherit from an
 	existing UploadPolicy. This insure that your new policy will be compatible with next JUpload releases.
-	<BR><I>Note: The upload policies are created by UploadPolicyFactory. So their constructor must be available to
-	this class. All upload polices available in the JUpload package have protected constructors, to be sure that 
-	only the UploadPolicyFactory create these classes.</I> 
+	<BR><I>Note: The upload policies are created by UploadPolicyFactory. Their constructor must:
+	<DIR>
+		<LI>Be public, to be called by this class,
+		<LI>Have one parameter: the current JUploadApplet.
+	</DIR></I> 
 	<LI><B>Override some UploadPolicy methods</B>, to have your specific behaviour.
-	<LI><B>Update the UploadPolicyFactory.getUploadPolicy()</B>, to allow it to create your new UploadPolicy.
-	<BR><I>Note: I'll try to make things be more dynamic, so that updating this method is no more necessary. This could
-	be done by providing a </I>uploadPolicy<I> with the full class name with its package.</I>
 	<LI>Don't change any other java code, so that your upload policy will work with next JUpload releases.
 	<BR><I>Note: if you need another 'hook', to be able to add specific customization, please add a new Feature Request
-	in sourceforge, and/or <a href="mailto:etienne_sf@sourceforge.net">sending me a mail</a></I>
+	in sourceforge, and/or <a href="mailto:etienne_sf@sourceforge.net">send me a mail</a>, as I don't read forums
+	every day.</I>
 </DIR>
 
 

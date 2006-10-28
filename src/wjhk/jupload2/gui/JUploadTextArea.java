@@ -8,14 +8,14 @@ import javax.swing.JTextArea;
  * the text. The JFC doesn't always remember to do that. <BR>
  */
 
-public class StatusArea extends JTextArea {
+public class JUploadTextArea extends JTextArea {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6037767344615468632L;
 
-	public StatusArea(int rows, int columns) {
+	public JUploadTextArea(int rows, int columns) {
 		super(rows, columns);
 		setBackground(new Color(255, 255, 203));
 		setEditable(false);

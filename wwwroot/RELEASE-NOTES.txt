@@ -1,15 +1,32 @@
 
-V 2.2.5
+
+TODO LIST
+- Hangs when waiting for server answer.
+- Mime/Type incorrect when sending pictures.
+- Test how this applet works with a little memory size (only important for picture handling, no problem with the
+default behaviour).
+
+
+
+V 2.3.0
 
 Bugs corrected:
-- The upload would fail when there are less files to upload than nbFilesPerRequest 
-(NullPointerException in  FileUploadThreadV3)
-- The stringUploadSuccess was not read from the applet parameters.
+- The upload would fail when there are less files to upload than nbFilesPerRequest (NullPointerException 
+in FileUploadThreadV3).
+- The stringUploadSuccess was never read from the applet parameters.
 
 Changes:
 - Add of the German language, thanks to Dr. Zoidberg.
-- The method isUploadReady is now removed from FileData.
+- UPLOAD CLASS IS DYNAMIC. You can now create your own UploadPolicy, and put the full class name (with its package) 
+into the uploadPolicy parameter to the applet: the UploadPolicyFactory will create it. Ths constructor for UploadPolicy
+must have one parameter: JUploadApplet. From this applet, the UploadPolicy can get any necessary parameter, like
+the statusArea, where it can displays text to the user.
 - A new 'advanced_jd_demo.html' page allows a newcomer to check the effect of all parameters on the applet.
+- The UploadPolicy.afterUpload() parameters changed : filePanel has been removed (useless, as it can be retrieve with 
+the applet reference, already known from the UploadPolicy, see its constructor).
+- The files are now removed just after upload. This means that, for instance, when uploading file by file, the user 
+can see the already removed files disappear from the list of files to upload. If a crash occurs, he can then retry
+the upload, with the remaining files.
 
 V 2.2.4
 

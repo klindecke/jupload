@@ -188,20 +188,11 @@ public class PicturePanel extends Canvas implements MouseListener {
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent arg0) {
-		//First : create the PictureDialog
-		/*
-		if (pictureDialog == null) {
-			pictureDialog = new PictureDialog(null, pictureFileData.getFileName(), true);
+		if (pictureFileData != null) {
+			//Ok, we have a picture. Let's display it.
+			uploadPolicy.displayDebug("Opening PictureDialog", 60);
+			pictureDialog = new PictureDialog(null, pictureFileData, uploadPolicy);
 		}
-		//Then, display the big picture.
-		if (pictureDialog != null) {
-			pictureDialog.show();
-			pictureDialog.toFront();
-			pictureDialog.setPictureFile(pictureFileData);
-		}
-		*/
-		uploadPolicy.displayDebug("Opening PictureDialog", 60);
-		pictureDialog = new PictureDialog(null, pictureFileData, uploadPolicy);
 	}
 
 

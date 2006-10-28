@@ -5,6 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import wjhk.jupload2.gui.JUploadPanel;
+import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 
@@ -34,39 +35,46 @@ public class JUpload extends JFrame{
 
   public JUpload(UploadPolicy uploadPolicy){
     super("Java Multiple Upload Frame.");
-    this.addWindowListener(
-      new WindowAdapter() {
-        public void windowClosing(WindowEvent e) {
-          System.exit(0);
-        }
-      }
-    );
-    this.setSize(640,300);
-
-    Container c = this.getContentPane();
-    c.setLayout(new BorderLayout());
-
-    JUploadPanel jp = new JUploadPanel(this, uploadPolicy);
-
-    c.add(jp, BorderLayout.CENTER);
-    //this.show();
-    this.setVisible(true);
+    
+    try {
+	    this.addWindowListener(
+	      new WindowAdapter() {
+	        public void windowClosing(WindowEvent e) {
+	          System.exit(0);
+	        }
+	      }
+	    );
+	    this.setSize(640,300);
+	
+	    Container c = this.getContentPane();
+	    c.setLayout(new BorderLayout());
+	
+	    JUploadTextArea statusArea = new JUploadTextArea(5, 20);
+	    JUploadPanel jp = new JUploadPanel(this, statusArea, uploadPolicy);
+	
+	    c.add(jp, BorderLayout.CENTER);
+	    //this.show();
+	    this.setVisible(true);
+	  } catch (Exception e) {
+		  System.out.println(e.getMessage());
+		  System.out.println(e.getStackTrace());		  
+	  }
   }
 
   //Main method
-  public static void main(String[] args) {
-    UploadPolicy uploadPolicy;
-    if(1 == args.length){
-    	//We write the system property, so that the UploadPolicy will read it.
-    	System.setProperty(UploadPolicy.PROP_POST_URL, args[0]);
-    }
-    	
-    uploadPolicy = UploadPolicyFactory.getUploadPolicy(null, null);
-
-    JUpload ju = new JUpload(uploadPolicy);
-    if (ju == null) {
-    	//juste pour éviter un warning.
-    }
+  public static void main(String[] args) throws Exception {
+	    UploadPolicy uploadPolicy;
+	    if(1 == args.length){
+	    	//We write the system property, so that the UploadPolicy will read it.
+	    	System.setProperty(UploadPolicy.PROP_POST_URL, args[0]);
+	    }
+	    	
+	    uploadPolicy = UploadPolicyFactory.getUploadPolicy(null);
+	
+	    JUpload ju = new JUpload(uploadPolicy);
+	    if (ju == null) {
+	    	//juste pour éviter un warning.
+	    }
   }
 
 }

@@ -3,9 +3,7 @@
  */
 package wjhk.jupload2.policies;
 
-	
-	
-import java.applet.Applet;
+
 import java.awt.GridLayout;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -23,7 +21,6 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 //import sun.plugin.javascript.JSObject;
 
@@ -35,6 +32,7 @@ import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.FilePanel;
+import wjhk.jupload2.gui.JUploadTextArea;
 
 /**
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy} methods. Its
@@ -69,7 +67,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * <BR>
 	 * Default : no default value 
 	 */
-	Applet theApplet = null;
+	JUploadApplet theApplet = null;
 	
 	/**
 	 * The URL where files should be posted.
@@ -118,7 +116,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @see #displayMsg(String)
 	 */
-	private JTextArea status = null;
+	private JUploadTextArea statusArea = null;
 
 	/**
 	 * The resourceBundle contains all localized String (and others ??)
@@ -143,10 +141,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @param postURL The URL where files should be uploaded. 
 	 */
-	protected DefaultUploadPolicy(Applet theApplet, JTextArea status) {
+	public DefaultUploadPolicy(JUploadApplet theApplet) {
 		//Call default constructor for all default initialization;.
 		this.theApplet = theApplet;
-		this.status = status;
+		this.statusArea = theApplet.getStatusArea();
 		
 
 	    ///////////////////////////////////////////////////////////////////////////////
@@ -489,17 +487,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	}
 
 	/**
-	 * Displays a message. If the status panel is set, the message is displayed on it.
+	 * Displays a message. If the statusArea panel is set, the message is displayed on it.
 	 * If not, the System.out.println function is used.
 	 * 
 	 * @param msg The message to display.
 	 */
 	private void displayMsg (String msg) {
-		if (status == null) {
+		if (statusArea == null) {
 			System.out.println(msg);
 		} else {
-			status.append(msg);
-			status.append("\r\n");
+			statusArea.append(msg);
+			statusArea.append("\r\n");
 		}
 		//Let's store all text in the debug BufferString
 		addMsgToDebugBufferString(msg + "\r\n");
@@ -525,13 +523,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
 			//Let's store all text in the debug BufferString
 			addMsgToDebugBufferString(msg);
 		}
-	}
-
-	/**
-	 * @return Returns the status.
-	 */
-	public JTextArea getStatus() {
-		return status;
 	}
 
 	/**
@@ -584,16 +575,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/**
 	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(FilePanel, Exception, String)
 	 */
-	public void afterUpload(FilePanel filePanel, Exception e, String serverOutput) {
-        if(null != e){
-          	status.append("ERROR  : " + e.toString() + "\n");          
-        } else {
-          	status.append("INFO   : " + filePanel.getFilesLength() + " Files uploaded.\n");
-          	filePanel.removeAll();
-            displayMsg("INFO   : -------- Server Output Start --------\n");
-            displayMsg(serverOutput + "\n");
-            displayMsg("INFO   : --------- Server Output End ---------\n");
-        }
+	public void afterUpload(Exception e, String serverOutput) {
+		//Default: no special action.
 	}
 
 	/**
@@ -610,7 +593,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @return Reference to the applet.
 	 */
-	public Applet getApplet() {
+	public JUploadApplet getApplet() {
 		return theApplet;
 	}
 	/**

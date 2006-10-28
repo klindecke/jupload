@@ -39,6 +39,7 @@ import javax.swing.JProgressBar;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.FilePanel;
 import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -104,12 +105,13 @@ public class FileUploadThreadV3 extends Thread {
 	 * Thread Exception, if any occured during upload.
 	 */ 
 	
-	private Exception e = null;
+	private Exception uploadException = null;
 	
 	//------------- CONSTRUCTOR --------------------------------------------
-	public FileUploadThreadV3(FileData[] allFiles, UploadPolicy uploadPolicy){
+	public FileUploadThreadV3(FileData[] allFiles, UploadPolicy uploadPolicy, JProgressBar progress){
 		this.allFiles = allFiles;
 		this.uploadPolicy = uploadPolicy;
+		this.progress = progress;
 		
 		totalFilesLength = 0;
 	}
@@ -118,10 +120,11 @@ public class FileUploadThreadV3 extends Thread {
 	
 	/**
 	 *  Setting Progress Panel.
-	 */
+	 *
 	public void setProgressPanel(JProgressBar pgrBar){
 		progress = pgrBar;
 	}
+	*/
 	
 	/**
 	 * Stopping the Thread
@@ -145,7 +148,7 @@ public class FileUploadThreadV3 extends Thread {
 	 * @return The exception, or null if no exception were thrown.
 	 */
 	public Exception getException(){
-		return e;
+		return uploadException;
 	}
 	
 	//------------- Private Functions --------------------------------------
@@ -315,22 +318,6 @@ public class FileUploadThreadV3 extends Thread {
 			int iPerUploadCount = 0;
 			int iTotalFileCount = 0;
 			while (iTotalFileCount < allFiles.length  &&  bUploadOk) {
-				/*
-				//Wait for the current file to bee ready.
-				long wait = 100;
-				long totalWait = 0;
-				while (! allFiles[iTotalFileCount].isUploadReady()) {
-					try {
-						sleep(wait);
-					} catch (InterruptedException e) {
-						//Let's go on ...
-					}
-					totalWait += wait;
-					if (totalWait > MAX_WAIT) {
-						throw new JUploadException("FileUploadThreadV3.run : " + uploadPolicy.getString("errWaitTooLong"));
-					}
-				}
-				*/
 				filesToUpload[iPerUploadCount] = allFiles[iTotalFileCount]; 
 				iPerUploadCount += 1;
 				iTotalFileCount += 1;
@@ -354,7 +341,7 @@ public class FileUploadThreadV3 extends Thread {
 					progress.setString("errDuringUpload");
 				}
 			}
-		} catch (Exception e) {
+		} catch (JUploadException e) {
 			uploadPolicy.displayErr(e);
 			progress.setString(e.getMessage());
 		} finally {
@@ -450,7 +437,12 @@ public class FileUploadThreadV3 extends Thread {
 			
 			// Send http request to server
 			action = "send bytes (1)";
-			dataout.writeBytes(header.toString());
+			String headerStr = header.toString(); 
+			//uploadPolicy.displayDebug(headerStr, 100);
+
+			//Send the header
+			dataout.writeBytes(headerStr);
+			
 			for(int i=0; i < nbFilesToUpload && !stop; i++){
 				// Write to Server the head(4 Lines), a File and the tail.
 				action = "send bytes (20)" + i;
@@ -551,7 +543,7 @@ public class FileUploadThreadV3 extends Thread {
 			}
 
 		}catch(Exception e){
-			this.e = e;
+			this.uploadException = e;
 			bReturn = false;
 			uploadPolicy.displayErr(uploadPolicy.getString("errDuringUpload") + " (main | " + action + ") (" + e.getClass() + ") : " + e.getMessage());
 		}finally{
@@ -559,7 +551,7 @@ public class FileUploadThreadV3 extends Thread {
 				// Throws java.io.IOException
 				dataout.close();
 			} catch(Exception e) {
-				this.e = e;
+				this.uploadException = e;
 				bReturn = false;
 				uploadPolicy.displayErr(uploadPolicy.getString("errDuringUpload") + " (dataout.close) (" + e.getClass() + ") : " + e.getMessage());
 			}
@@ -581,6 +573,22 @@ public class FileUploadThreadV3 extends Thread {
 			uploadPolicy.displayDebug ("Serveur output : " + getServerOutput().toString(), 10);
 		}
 		
+		//If the upload was Ok, we remove the uploaded files from the filePanel.
+		FilePanel filePanel = uploadPolicy.getApplet().getFilePanel();
+        if(uploadException != null){
+        	uploadPolicy.displayErr(uploadException.toString() + "\n");          
+        } else {
+        	uploadPolicy.displayInfo(filePanel.getFilesLength() + " Files uploaded.\n");
+        	if (uploadPolicy.getDebugLevel() > 80) {
+	          	uploadPolicy.displayDebug("-------- Server Output Start --------\n", 80);
+	            uploadPolicy.displayDebug(getServerOutput() + "\n", 80);
+	            uploadPolicy.displayDebug("--------- Server Output End ---------\n", 80);
+        	}
+        	for(int i=0; i < nbFilesToUpload; i++){
+        		filePanel.remove(filesA[i]);
+        	}
+        }
+		
 		return bReturn;
 	}
 	
@@ -591,7 +599,7 @@ public class FileUploadThreadV3 extends Thread {
 	 */
 	public void close(){
 		allFiles = null;
-		e = null;
+		uploadException = null;
 		sbServerOutput = null;
 	}
 }
