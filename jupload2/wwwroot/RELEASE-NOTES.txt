@@ -1,7 +1,6 @@
 
 
 TODO LIST
-- Hangs when waiting for server answer.
 - Mime/Type incorrect when sending pictures.
 - Test how this applet works with a little memory size (only important for picture handling, no problem with the
 default behaviour).
