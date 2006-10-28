@@ -89,6 +89,9 @@ s	 * @see FileUploadThreadV3
 	}
 	
 	/**
+	 * Commented ... before eing removed.
+	 * 
+	 * 
 	 * Indicate if everything is ready for upload. This method is called for each file
 	 * by the 'heart' of the program, before upload, until it returns true.
 	 * 

@@ -16,7 +16,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * Implementation of the FilePanel : it creates the {@link wjhk.jupload2.gui.FilePanelJTable}, 
  * and handles the necessary functionnalities.
  */
-public class FilePanelTableImp extends Panel implements FilePanel{
+public class FilePanelTableImp extends Panel implements FilePanel {
 
   /**
 	 * 
@@ -53,7 +53,7 @@ public class FilePanelTableImp extends Panel implements FilePanel{
     new DropTarget(scrollPane, new DnDListener(jup));
   }
 
-  public void addFiles(File[] f){
+  public void addFiles(File[] f) {
     if(null != f){
       for(int i = 0; i < f.length; i++){
         addDirectoryFiles(f[i]);
@@ -61,7 +61,7 @@ public class FilePanelTableImp extends Panel implements FilePanel{
     }
   }
 
-  private void addDirectoryFiles(File f){
+  private void addDirectoryFiles(File f) {
     if(!f.isDirectory()){
       addFileOnly(f);
     }else{
@@ -76,7 +76,7 @@ public class FilePanelTableImp extends Panel implements FilePanel{
     }
   }
 
-  private void addFileOnly(File f){
+  private void addFileOnly(File f)  {
     // Make sure we don't select the same file twice.
     if (!model.contains(f)) {
       model.addFile(f);
@@ -103,9 +103,20 @@ public class FilePanelTableImp extends Panel implements FilePanel{
   }
 
   public void removeAll(){
-    for (int i = getFilesLength() - 1; 0 <= i; i--) {
-      model.removeRow(i);
-    }
+	    for (int i = getFilesLength() - 1; 0 <= i; i--) {
+	      model.removeRow(i);
+	    }
+	  }
+
+  
+  /**
+   * Removes all occurences of a file from the list. Each file should only appera once here, but 
+   * nobodody knows !
+   * 
+   * @param fileData
+   */  
+  public void remove(FileData fileData){
+	  model.removeRow(fileData);
   }
 
 }

@@ -3,9 +3,8 @@
  */
 package wjhk.jupload2.policies;
 
-import java.applet.Applet;
 
-import javax.swing.JTextArea;
+import wjhk.jupload2.JUploadApplet;
 
 
 /**
@@ -28,10 +27,10 @@ import javax.swing.JTextArea;
 public class FileByFileUploadPolicy extends DefaultUploadPolicy {
 
 	/**
-	 * @param postURL
+	 * @param theApplet The applet on which the UploadPolicy should apply.
 	 */
-	protected FileByFileUploadPolicy(Applet theApplet, JTextArea status) {
-		super(theApplet, status);
+	public FileByFileUploadPolicy(JUploadApplet theApplet) {
+		super(theApplet);
 		
 		this.maxFilesPerUpload = 1;
 	}

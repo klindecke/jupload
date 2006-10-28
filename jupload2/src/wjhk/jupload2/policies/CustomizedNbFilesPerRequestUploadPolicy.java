@@ -3,9 +3,7 @@
  */
 package wjhk.jupload2.policies;
 
-import java.applet.Applet;
-
-import javax.swing.JTextArea;
+import wjhk.jupload2.JUploadApplet;
 
 
 /**
@@ -21,13 +19,12 @@ import javax.swing.JTextArea;
 public class CustomizedNbFilesPerRequestUploadPolicy extends DefaultUploadPolicy {
 
 	/**
-	 * @param theApplet The applet to whom the UploadPolicy mus apply.
-	 * @param status Current instance of {@link wjhk.jupload2.gui.StatusArea}.
+	 * @param theApplet The applet to whom the UploadPolicy must apply.
 	 *  
 	 * @see UploadPolicy
 	 */
-	protected CustomizedNbFilesPerRequestUploadPolicy(Applet theApplet, JTextArea status) {
-		super(theApplet, status);
+	public CustomizedNbFilesPerRequestUploadPolicy(JUploadApplet theApplet) {
+		super(theApplet);
 	}
 
 

@@ -3,10 +3,7 @@
  */
 package wjhk.jupload2.policies;
 
-import java.applet.Applet;
-
-import javax.swing.JTextArea;
-
+import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.FilePanel;
 
@@ -91,16 +88,11 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	private int albumId;
 
 	/**
-	 * @param postURL The URL where files should be posted to are read by the {@link UploadPolicyFactory}.
-	 * @param albumId The identifier for the album, where pictures should be uploaded. This 
-	 * identifier can be updated by calling <I>applet.setProperty("albumId", n)</I> (see an example on the 
-	 * top of this page)
 	 * @param theApplet Identifier for the current applet. It's necessary, to read information from the navigator.
-	 * @param debugLevel See {@link UploadPolicy}
 	 */
-	protected CoppermineUploadPolicy(Applet theApplet, JTextArea status) {
+	public CoppermineUploadPolicy(JUploadApplet theApplet) {
 		//Let's call our mother !          :-)
-		super(theApplet, status);
+		super(theApplet);
 		
 		//Let's read the albumId from the applet parameter. It can be unset, but the user must then choose
 		//an album before upload.
@@ -150,7 +142,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 
 	/**
 	 * @see wjhk.jupload2.policies.UploadPolicy#isUploadReady()
-	 *
+	 */
 	public boolean isUploadReady() {
 		if (albumId <= 0) {
 			alert("chooseAlbumFirst");
@@ -158,12 +150,12 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 		}
 		// Default :  Let's ask the mother.
 		return super.isUploadReady();
-	}*/
+	}
 	
 	/**
 	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(FilePanel, Exception, String)
 	 */
-	public void afterUpload(FilePanel filePanel, Exception e, String serverOutput) {
+	public void afterUpload(Exception e, String serverOutput) {
         if(e == null){
         	try {
 	        	//First : construction of the editpic URL :

@@ -59,11 +59,11 @@
 
 	function writeParam (param, value) {
 		if (value != "") {
-			document.write('<param name="');
+			document.write('   <param name="');
 			document.write(param);
 			document.write('" VALUE="');
 			document.write(value);
-			document.write('" >');
+			document.writeln('" >');
 		}
 	}//writeParam
 
@@ -150,12 +150,14 @@
 	writeParam("maxPicWidth", maxPicWidth);
 	writeParam("debugLevel", debugLevel);
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);
+	writeParam("stringUploadSuccess", stringUploadSuccess);
 	document.writeln('Java 1.4 or higher plugin required.');
 	document.writeln('</APPLET>');
 </SCRIPT>
 
 
-
+<center>
+<table>
 <!-- footer -->
 		<!-- tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr -->
 		<tr><td COLSPAN=2>

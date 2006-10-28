@@ -3,7 +3,11 @@ package wjhk.jupload2;
 import java.applet.*;
 import java.awt.*;
 
+import wjhk.jupload2.gui.FilePanel;
 import wjhk.jupload2.gui.JUploadPanel;
+import wjhk.jupload2.gui.JUploadTextArea;
+import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.policies.UploadPolicyFactory;
 
 /**
  * The applet. It contains quite only the call to creation of the {@link wjhk.jupload2.gui.JUploadPanel},
@@ -29,27 +33,42 @@ public class JUploadApplet extends Applet{
       "Java Applet wrapper for JUploadPanel.";
   public static final String AUTHOR = "William JinHua Kwong (updated by Etienne Gauthier)";
 
-  public static final String VERSION = "2.2.4";
-  public static final String LAST_MODIFIED = "16 oct 2006";
+  public static final String VERSION = "2.3.0";
+  public static final String LAST_MODIFIED = "26 oct 2006";
 
   //----------------------------------------------------------------------
 
   //private boolean isStandalone = false;
-  
-  JUploadPanel jUploadPanel;
+
+  private UploadPolicy uploadPolicy;
+  private JUploadPanel jUploadPanel;
+  private JUploadTextArea statusArea; 
 
   //----------------------------------------------------------------------
 
   //Initialize the applet
   public void init() {
   	
-    this.setLayout(new BorderLayout());    
+	  try {
+	    this.setLayout(new BorderLayout());    
+	
+	    //Creation of the Panel, containing all GUI objects for upload.
+	    statusArea = new JUploadTextArea(5, 20);
+	    uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
 
-    //Creation of the Panel, containing all GUI objects for upload.
-    jUploadPanel = new JUploadPanel(this);
+		jUploadPanel = new JUploadPanel(this, statusArea, uploadPolicy);
+	
+	    this.add(jUploadPanel, BorderLayout.CENTER);
+	  } catch (Exception e) {
+		  System.out.println(e.getMessage());
+		  System.out.println(e.getStackTrace());		  
+	  }
 
-    this.add(jUploadPanel, BorderLayout.CENTER);
-
+  }
+  
+  
+  public FilePanel getFilePanel() {
+	  return jUploadPanel.getFilePanel();
   }
   
 	/**
@@ -65,5 +84,13 @@ public class JUploadApplet extends Applet{
 		} catch (Exception e) {
 			jUploadPanel.getUploadPolicy().displayErr("setProperty (exception " + e.getClass().getName() + ") : " + e.getMessage());
 		}
+	}
+
+
+	/**
+	 * @return the statusArea
+	 */
+	public JUploadTextArea getStatusArea() {
+		return statusArea;
 	}
  }

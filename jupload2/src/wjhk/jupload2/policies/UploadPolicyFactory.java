@@ -3,9 +3,9 @@
  */
 package wjhk.jupload2.policies;
 
-import java.applet.Applet;
+import java.lang.reflect.Constructor;
 
-import javax.swing.JTextArea;
+import wjhk.jupload2.JUploadApplet;
 
 /**
  * This class is used to control creation of the uploadPolicy instance, according to  applet parameters (or System properties).
@@ -53,31 +53,49 @@ public class UploadPolicyFactory {
 	 *    texts. The DEBUG ones will be displayed, according to the current debugLevel (see <a href="UploadPolicy.html#parameters">parameters</a>). 
 	 * @return The newly created UploadPolicy.
 	 */
-	public static UploadPolicy getUploadPolicy(Applet theApplet, JTextArea status) {
+	public static UploadPolicy getUploadPolicy(JUploadApplet theApplet) throws Exception {
 		UploadPolicy uploadPolicy = null;
 		//Let's create the update policy.
 	    String uploadPolicyStr = getParameter(theApplet, 
 	    		UploadPolicy.PROP_UPLOAD_POLICY, 
 				UploadPolicy.DEFAULT_UPLOAD_POLICY);
 
-	    if (uploadPolicyStr.equals("FileByFileUploadPolicy")) {
-	    	uploadPolicy = new FileByFileUploadPolicy(theApplet, status);
-	    } else if (uploadPolicyStr.equals("CustomizedNbFilesPerRequestUploadPolicy")) {
-	    	uploadPolicy = new CustomizedNbFilesPerRequestUploadPolicy(theApplet, status);
-	    } else if (uploadPolicyStr.equals("PictureUploadPolicy")) {
-	    	uploadPolicy = new PictureUploadPolicy(theApplet, status);	    	
-	    } else if (uploadPolicyStr.equals("CoppermineUploadPolicy")) {
-	    	uploadPolicy = new CoppermineUploadPolicy(theApplet, status);	    	
-	    } else {
-	    	//Create default Policy
-	    	uploadPolicy = new DefaultUploadPolicy(theApplet, status);
+	    String action=null;
+	    boolean usingDefaultUploadPolicy = false;
+	    try {
+	    	action = uploadPolicyStr;
+	    	Class uploadPolicyClass = null;
+	    	try {
+	    		uploadPolicyClass = Class.forName(uploadPolicyStr);
+	    	} catch (ClassNotFoundException e1) {
+	    		//Hum, let's try to prefix the policy name by the default package
+	    		try {
+	    			uploadPolicyClass = Class.forName("wjhk.jupload2.policies." + uploadPolicyStr);
+	    		} catch (ClassNotFoundException e2) {
+	    			//Too bad, we don't know how to create this class.
+	    			usingDefaultUploadPolicy = true;
+	    			uploadPolicyClass = Class.forName("wjhk.jupload2.policies.DefaultUploadPolicy");
+	    		}
+	    	}
+		    action = "constructorParameters";
+		    Class[] constructorParameters = {Class.forName("wjhk.jupload2.JUploadApplet")};
+		    Constructor constructor = uploadPolicyClass.getConstructor(constructorParameters);
+		    Object[] params = {theApplet};
+		    uploadPolicy = (UploadPolicy) constructor.newInstance(params);
+	    } catch (Exception e) {
+	    	System.out.println("-ERROR- " + e.getClass().getName() + " in " + action);
+	    	throw e;
 	    }
 	    
 	    //The current values are dispayed here, after the full initialization of all classes.
 	    //It could also be displayed in the DefaultUploadPolicy (for instance), but then, the 
 	    //display wouldn't show the modifications done by superclasses.	    
 	    uploadPolicy.displayDebug("uploadPolicy parameter = " + uploadPolicyStr, 1);
-	    uploadPolicy.displayInfo("uploadPolicy = " + uploadPolicy.getClass().getName());
+	    if (usingDefaultUploadPolicy) {
+	    	uploadPolicy.displayWarn("Unable to create the '" + uploadPolicyStr + "'. Using the DefaultUploadPolicy instead.");
+	    } else {
+	    	uploadPolicy.displayInfo("uploadPolicy = " + uploadPolicy.getClass().getName());
+	    }
 	    uploadPolicy.displayInfo("postURL = " + uploadPolicy.getPostURL());
 		///////////////////////////////////////////////////////////////////////////////
 		// Let's display some information to the user.
@@ -94,7 +112,7 @@ public class UploadPolicyFactory {
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
 	 */
-	static public String getParameter(Applet theApplet, String key, String def) {
+	static public String getParameter(JUploadApplet theApplet, String key, String def) {
 		if (theApplet == null) {
 			return (System.getProperty(key) != null ? System.getProperty(key) : def);
 		} else {
@@ -107,7 +125,7 @@ public class UploadPolicyFactory {
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
 	 */
-	static public int getParameter(Applet theApplet, String key, int def) {
+	static public int getParameter(JUploadApplet theApplet, String key, int def) {
 		String paramStr;
 		String paramDef = Integer.toString(def);
 		
@@ -126,7 +144,7 @@ public class UploadPolicyFactory {
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
 	 */
-	static public boolean getParameter(Applet theApplet, String key, boolean def) {
+	static public boolean getParameter(JUploadApplet theApplet, String key, boolean def) {
 		String paramStr;
 		String paramDef = (def ? "false" : "true");
 		

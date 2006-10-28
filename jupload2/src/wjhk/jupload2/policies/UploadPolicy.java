@@ -4,15 +4,14 @@
 package wjhk.jupload2.policies;
 
 
-import java.applet.Applet;
 import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.filedata.FileData;
-import wjhk.jupload2.gui.FilePanel;
 
 /**
  * 
@@ -413,9 +412,10 @@ public interface UploadPolicy {
 	/**
 	 * This method is called after a upload, whether it is successful or not.
 	 *
+	 * @param filePanel The panel that contains 
 	 * @param e null if success, or the exception indicating the problem. 
 	 */
-	public void afterUpload(FilePanel filePanel, Exception e, String serverOutput);
+	public void afterUpload(Exception e, String serverOutput);
 	
 	/**
 	 * 
@@ -519,7 +519,7 @@ public interface UploadPolicy {
 	 * 
 	 * @return Reference to the applet.
 	 */
-	public Applet getApplet();
+	public JUploadApplet getApplet();
 	
 	/**
 	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 

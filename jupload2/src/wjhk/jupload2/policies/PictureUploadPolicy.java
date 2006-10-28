@@ -3,7 +3,6 @@
  */
 package wjhk.jupload2.policies;
 
-import java.applet.Applet;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,8 +11,8 @@ import java.io.File;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
+import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.gui.PicturePanel;
@@ -160,8 +159,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	 * @param debugLevel Current debugLevel (applet parameter: debugLevel).
 	 * @param status The status bar, where messages are to be displayed.
 	 */
-	protected PictureUploadPolicy(Applet theApplet, JTextArea status) {
-		super(theApplet, status);
+	public PictureUploadPolicy(JUploadApplet theApplet) {
+		super(theApplet);
 	    
 	    //Creation of the PictureFileDataPolicy, from parameters given to
 		//the applet, or from default values.

@@ -115,15 +115,19 @@ class FilePanelDataModel2 extends AbstractTableModel {
 	 * @param file
 	 */
 	public void addFile (File file) {
-		//We first call the upload policy, to get : 
-		// - The correct fileData instance (for instance the PictureUploadPolicy returns a PictureFileData)
-		// - The reference to this newly FileData, or null if an error occurs (for instance: invalid file content, 
-		//   according to the current upload policy).
-		FileData df = uploadPolicy.createFileData(file);
-		if (df != null) {
-			//The file is Ok, let's add it.
-			rows.add(df);
-			fireTableDataChanged();
+		if (contains(file)) {
+			uploadPolicy.displayWarn("File " + file.getName() + " already exists");
+		} else {
+			//We first call the upload policy, to get : 
+			// - The correct fileData instance (for instance the PictureUploadPolicy returns a PictureFileData)
+			// - The reference to this newly FileData, or null if an error occurs (for instance: invalid file content, 
+			//   according to the current upload policy).
+			FileData df = uploadPolicy.createFileData(file);
+			if (df != null) {
+				//The file is Ok, let's add it.
+				rows.add(df);
+				fireTableDataChanged();
+			}
 		}
 	}
 	
@@ -155,6 +159,24 @@ class FilePanelDataModel2 extends AbstractTableModel {
 	public void removeRow(int row) {
 		rows.remove(row);
 		fireTableDataChanged();
+	}
+
+	/**
+	 * Removes fileData from the current list. There should be only one.
+	 * 
+	 * @param fileData
+	 */
+	public void removeRow(FileData fileData) {
+		Iterator i = rows.iterator();
+		FileData item;
+		while (i.hasNext()) {
+			item = (FileData) i.next();
+			if (item.getFile().equals(fileData.getFile())) {
+				rows.removeElement(item);
+				fireTableDataChanged();
+				break;
+			}
+		}
 	}
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getColumnCount()
