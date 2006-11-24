@@ -6,6 +6,25 @@ TODO LIST
 default behaviour).
 
 
+V2.4.0
+
+Changes:
+- Add of a FileUploadThread interface, that will be manipulated by other packages. This will help creation of new
+version of FileUploadThreadVn. The FileUploadThreadVn are the successive versions of these classes. I keep them, as 
+people often update them for their needs.
+- Add of a FileUploadThreadV4 and a UploadFileData. These class will help to implement further extension like _chunk_ 
+(to send file piece per piece) or mark of upload error per file. The original FileUploadThread has been renamed into
+FileUploadThreadV1 (of anyone stil use it). FileUploadThreadV1, FileUploadThreadV2 and FileUploadThreadV3 implement 
+- Creation of a FileData interface. The default implementation is now into the DefaultFileData.
+
+V2.3.1
+
+Changes:
+- Spanish translation available (thanks to jesusangelwork: jesusangelwork[at]users.sourceforge[dot]net)
+- The UploadPolicy.getUploadFilename method has been renamed in getUploadName, to avoid error, as this is not the
+filename. See the javadoc for all details. BE CAREFUL, if you create a new UploadPolicy, that a new getUploadFilename
+has been created. This to allow future encoding of filenames (still work in progress)
+
 
 V 2.3.0
 

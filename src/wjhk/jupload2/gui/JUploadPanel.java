@@ -20,7 +20,8 @@ import javax.swing.Timer;
 
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
-import wjhk.jupload2.upload.FileUploadThreadV3;
+import wjhk.jupload2.upload.FileUploadThread;
+import wjhk.jupload2.upload.FileUploadThreadV4;
 
 /**
  * Main code for the applet (or frame) creation. It contains all creation for necessary
@@ -61,7 +62,7 @@ public class JUploadPanel extends JPanel implements ActionListener{
 
 	private UploadPolicy uploadPolicy;
 
-	FileUploadThreadV3 pictureFileUploadThread;
+	FileUploadThread fileUploadThread;
 	//------------- CONSTRUCTOR --------------------------------------------
 
 
@@ -229,33 +230,33 @@ public class JUploadPanel extends JPanel implements ActionListener{
 				upload.setEnabled(false);
 				stop.setEnabled(true);
 
-				pictureFileUploadThread = new FileUploadThreadV3(filePanel.getFiles(), uploadPolicy, progress);
-				pictureFileUploadThread.start();
+				fileUploadThread = new FileUploadThreadV4(filePanel.getFiles(), uploadPolicy, progress);
+				fileUploadThread.start();
 				boolean isSuccess = false;
 
 
 				//Create a timer.
 				timer = new Timer(DEFAULT_TIMEOUT, new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
-						if(!pictureFileUploadThread.isAlive()){
+						if(!fileUploadThread.isAlive()){
 							timer.stop();
 							//boolean isSuccess = false;
-							StringBuffer svrRet=pictureFileUploadThread.getServerOutput();
-							Exception e = pictureFileUploadThread.getException();
+							String svrRet=fileUploadThread.getServerOutput();
+							Exception e = fileUploadThread.getException();
 							/*EGR
 
-		          if(null != pictureFileUploadThread.getException()){
-		          	statusArea.append("ERROR  : " + pictureFileUploadThread.getException().toString() + "\n");
+		          if(null != fileUploadThread.getException()){
+		          	statusArea.append("ERROR  : " + fileUploadThread.getException().toString() + "\n");
 		          }else{
 		          	statusArea.append("INFO   : " + filePanel.getFilesLength() + " Files uploaded.\n");
 		          	filePanel.removeAll();
 		            isSuccess = true;
 		          }
 							 */
-							pictureFileUploadThread.close();
-							pictureFileUploadThread = null;
+							fileUploadThread.close();
+							fileUploadThread = null;
 
-							uploadPolicy.afterUpload(e, svrRet.toString());
+							uploadPolicy.afterUpload(e, svrRet);
 							// Do something (eg Redirect to another page for processing).
 							//EGR if((null != aus) && isSuccess) aus.executeThis(svrRet);
 
@@ -278,16 +279,16 @@ public class JUploadPanel extends JPanel implements ActionListener{
 				timer.stop();
 			}
 			timer = null;
-			if(null != pictureFileUploadThread){
-				if(pictureFileUploadThread.isAlive()){
-					pictureFileUploadThread.stopUpload();
+			if(null != fileUploadThread){
+				if(fileUploadThread.isAlive()){
+					fileUploadThread.stopUpload();
 					try{
-						pictureFileUploadThread.join(1000);
+						fileUploadThread.join(1000);
 					}catch(InterruptedException ie){}
 				}
-				pictureFileUploadThread.close();
+				fileUploadThread.close();
 			}
-			pictureFileUploadThread = null;
+			fileUploadThread = null;
 			remove.setEnabled(true);
 			removeAll.setEnabled(true);
 			upload.setEnabled(true);

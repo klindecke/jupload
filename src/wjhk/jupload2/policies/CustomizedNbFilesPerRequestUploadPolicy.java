@@ -19,7 +19,7 @@ import wjhk.jupload2.JUploadApplet;
 public class CustomizedNbFilesPerRequestUploadPolicy extends DefaultUploadPolicy {
 
 	/**
-	 * @param theApplet The applet to whom the UploadPolicy must apply.
+	 * @param applet The applet to whom the UploadPolicy must apply.
 	 *  
 	 * @see UploadPolicy
 	 */

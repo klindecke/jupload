@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.PictureUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -45,7 +47,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @author Etienne Gauthier
  *
  */
-public class PictureFileData extends FileData  {
+public class PictureFileData extends DefaultFileData  {
 
 	/**
 	 * Indicate whether the data for this fileData has already been intialized.
@@ -313,10 +315,14 @@ public class PictureFileData extends FileData  {
 	 * 
 	 * @return An inputStream 
 	 */
-	public InputStream getInputStream () throws IOException, JUploadException {
+	public InputStream getInputStream () throws JUploadException {
 		//Do we have to transform the picture ?
 		if (transformedPictureFile != null) {
-			return new FileInputStream(transformedPictureFile);
+			try {
+				return new FileInputStream(transformedPictureFile);
+			} catch (FileNotFoundException e) {
+				throw new JUploadIOException(e, "PictureFileData.getInputStream()");
+			}
 		} else { 
 			//Otherwise : we read the file, in the standard way.
 			return super.getInputStream();

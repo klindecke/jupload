@@ -1,7 +1,7 @@
 package wjhk.jupload2.upload;
 
 /**
- * Second version of FileUploadThread : was used in Jupload V1, unused since V2.
+ * Second version of FileUploadThreadV1 : was used in Jupload V1, unused since V2.
  * 
  * URLConnection instance given by the URL class openConnection() function
  * can't handle uploading of large files.
@@ -29,7 +29,7 @@ import java.net.Socket;
 import java.net.URL;
 import javax.swing.JProgressBar;
 
-public class FileUploadThreadV2 extends Thread {
+public class FileUploadThreadV2 extends Thread implements FileUploadThread  {
 
   //------------- INFORMATION --------------------------------------------
   public static final String TITLE = "JUpload FileUploadThreadV2";
@@ -82,8 +82,8 @@ public class FileUploadThreadV2 extends Thread {
   }
 
   // Server Output.
-  public StringBuffer getServerOutput(){
-    return sb;
+  public String getServerOutput(){
+    return sb.toString();
   }
 
   // Exceptions
@@ -262,4 +262,15 @@ public class FileUploadThreadV2 extends Thread {
     e = null;
     sb = null;
   }
+  
+  /** @see FileUploadThread#nbBytesUploaded(long) */
+  public void nbBytesUploaded(long nbBytes) {
+		uploadedLength += nbBytes;
+		if(null != progress) progress.setValue((int)uploadedLength);
+  }
+	
+	/** @see FileUploadThread#isUploadStopped() */
+	public boolean isUploadStopped() {
+		return stop;
+	}
 }

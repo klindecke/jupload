@@ -154,8 +154,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	 * The standard constructor, which transmit most informations to the super.Constructor(). 
 	 * 
 	 * @param postURL The URL where picture files are to be posted (applet parameter name: postURL).
-	 * @param maxFilesPerUpload Number of files in one HTTP request to the server (applet parameter: nbFilesPerRequest)
-	 * @param theApplet Reference to the current applet. Allows access to javasript functions.
+	 * @param nbFilesPerRequest Number of files in one HTTP request to the server (applet parameter: nbFilesPerRequest)
+	 * @param applet Reference to the current applet. Allows access to javasript functions.
 	 * @param debugLevel Current debugLevel (applet parameter: debugLevel).
 	 * @param status The status bar, where messages are to be displayed.
 	 */
