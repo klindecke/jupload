@@ -62,7 +62,8 @@
 	        // write the file
 	        fileItem.write(fout);	        
 	    }
-	}
+	    out.println("SUCCESS");
+	}//while
   }catch(Exception e){
     out.println("Exception e = " + e.toString());
   }

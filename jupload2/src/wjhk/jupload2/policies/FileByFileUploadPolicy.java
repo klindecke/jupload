@@ -27,12 +27,12 @@ import wjhk.jupload2.JUploadApplet;
 public class FileByFileUploadPolicy extends DefaultUploadPolicy {
 
 	/**
-	 * @param theApplet The applet on which the UploadPolicy should apply.
+	 * @param applet The applet on which the UploadPolicy should apply.
 	 */
 	public FileByFileUploadPolicy(JUploadApplet theApplet) {
 		super(theApplet);
 		
-		this.maxFilesPerUpload = 1;
+		this.nbFilesPerRequest = 1;
 	}
 
 }

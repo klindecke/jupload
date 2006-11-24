@@ -21,9 +21,7 @@ import netscape.javascript.JSObject;
  * selects another album (with n is the numeric id for the selected album). This needs that the MAYSCRIPT HTML 
  * parameter is set, in the APPLET tag (see the example below). The upload can not start if the user didn't first 
  * select an album.
- * <LI>File by file upload (one file by HTTP Request). Uploaded files are sent to the coppermine's 
- * xp_publish.php script. If given, the nbFilesPerRequest parameter is ignored. Files are always uploaded one by one.
- * <LI>If an orror occurs, the applet asks the user if he wants to send a mail to the webmaster. If he answered yes,
+ * <LI>If an error occurs, the applet asks the user if he wants to send a mail to the webmaster. If he answered yes,
  * the full debug output is submitted to the URL pointed by urlToSendErrorTo. This URL should send a mail to the 
  * manager of the Coppermine galery. 
  * </UL>
@@ -83,12 +81,10 @@ import netscape.javascript.JSObject;
  */
 public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	
-	final static String  COPPERMINE_STRING_UPLOAD_SUCCESS	= "^SUCCESS$";
-
 	private int albumId;
 
 	/**
-	 * @param theApplet Identifier for the current applet. It's necessary, to read information from the navigator.
+	 * @param applet Identifier for the current applet. It's necessary, to read information from the navigator.
 	 */
 	public CoppermineUploadPolicy(JUploadApplet theApplet) {
 		//Let's call our mother !          :-)
@@ -97,16 +93,6 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 		//Let's read the albumId from the applet parameter. It can be unset, but the user must then choose
 		//an album before upload.
 	    albumId = UploadPolicyFactory.getParameter(theApplet, PROP_ALBUM_ID, DEFAULT_ALBUM_ID);
-		if (maxFilesPerUpload != 1 && maxFilesPerUpload != UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST) {
-			displayWarn(PROP_NB_FILES_PER_REQUEST + " is forced to 1 " + this.getClass().getName() + " (given value is: " + maxFilesPerUpload);
-		}
-		maxFilesPerUpload = 1;
-
-		//Now we explain her what we really want :
-		if (!stringUploadSuccess.equals(COPPERMINE_STRING_UPLOAD_SUCCESS)) {
-			displayWarn(PROP_STRING_UPLOAD_SUCCESS + " is ignored in " + this.getClass().getName() + " (given value is: " + stringUploadSuccess);
-			stringUploadSuccess = COPPERMINE_STRING_UPLOAD_SUCCESS;
-		}
 	}
 	
 	/**
@@ -134,9 +120,9 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	}
 	
 	/**
-	 * @see UploadPolicy#getUploadFilename(FileData, int)
+	 * @see UploadPolicy#getUploadName(FileData, int)
 	 */
-	public String getUploadFilename (FileData fileData, int index) {
+	public String getUploadName (FileData fileData, int index) {
 		return "userpicture";
 	}
 

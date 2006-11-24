@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 
 /**
@@ -35,29 +36,16 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TH>Description</TH>
 </TR>
 <TR>
-  <TD>uploadPolicy</TD>
-  <TD>DefaultUploadPolicy <BR><BR> see {@link wjhk.jupload2.policies.UploadPolicyFactory}</TD>
-  <TD>This parameter contains the class name for the UploadPolicy that should be used. If it is not 
-      set, or if its value is unknown from {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(Applet, JTextArea, String)},
-      the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used.
+  <TD>albumId</TD>
+  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
+  <TD>This parameter is only used by CoppermineUploadPolicy. So it is to be used to upload into a 
+      <a href="http://coppermine.sourceforge.net/">coppermine picture gallery</a>. This parameter 
+      contains the identifier of the album, where pictures should be used. See CoppermineUploadPolicy 
+      for an example.
+      <BR>
+      Before upload, CoppermineUploadPolicy.{@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()}
+      checks that the albumId is correct, that is: >=1.		
   </TD>
-</TR>
-<TR>
-  <TD>postURL</TD>
-  <TD><I>Mandatory</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>
-		It contains the target URL toward which the files should be upload. This parameter is mandatory for existing class. It may
-     become optional in new UploadPolicy, that would create this URL from other data.
-		If the this URL may change during the applet execution time, you can create a new UploadPolicy class, 
-		and either :
-		<DIR>
-			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#getPostURL()} method, to make the postURL totaly dynamic.  
-			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#setPostURL(String)} method, to modify the postURL on the fly, when it is changed. 
-			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#setProperty(String, String)} method. The 
-				{@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the postURL when the albumID property changes.  
-			<LI>Find another solution ... 
-	    </DIR> 
-	 </TD>
 </TR>
 <TR>
   <TD>debugLevel</TD>
@@ -69,66 +57,20 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   </TD>
 </TR>
 <TR>
+  <TD>filenameEncoding</TD>
+  <TD><I>null</I><BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>With null, the filename in the <I>Content-Disposition</I> header is not encoded. If not null, the applet
+  	tries to encode this filename with the given encoding. It's up to the receiver (the web site) to decode this
+  	encoding (see {@link #getUploadFilename(FileData, int)}.
+  	<BR>Example: if the "UTF8" encoding is choosen, the PHP function urldecode can be used to decode the filename.
+  </TD>
+</TR>
+<TR>
   <TD>lang</TD>
   <TD>Navigator language <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
   <TD>Should be something like <I>en</I>, <I>fr</I>... Currently only french and english are known 
       from the applet. If anyone want to add another language ... Please translate the
       wjhk.jupload2.lang.lang_en, and send it back to <mailto:etienne_sf@sourceforge.net>.
-  </TD>
-</TR>
-<TR>
-  <TD>urlToSendErrorTo</TD>
-  <TD><I>Empty String</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>If this url is given, and an upload error occurs, the applet post the all the debug output to this
-    address. It's up to this URL to handle this mail. It is possible to just store the file, or to log the 
-    error in a database, or to send a mail (like the mail.php script given with the coppermine pack).
-    <BR>
-    <U>Note:</U> Don't put a mailto link here: it won't be able to manage the debug output, that is too big. The 
-    maximum length of a mailto depends on the navigator. With Firefox, it seems to be around 4kb.
-  </TD>
-</TR>
-<TR>
-  <TD>nbFilesPerRequest</TD>
-  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>This allows the control of the maximal number of files that are uploaded in one HTTP upload to the server.
-       <BR>
-       If set to -1, there is no maximum. This means that all files are uploaded in the same HTTP request.
-       <BR>
-       If set to 5, for instance, and there are 6 files to upload, there will be two HTTP upload request to the 
-       server : 5 files in the first one, and that last file in a second HTTP request.   
-  </TD>
-</TR>
-<TR>
-  <TD>serverProtocol</TD>
-  <TD>HTTP/1.1 <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>This parameter allows the control of the protocol toward the server. Currently, only HTTP is supported, so 
-		valid values are HTTP/0.9 (not tested), HTTP/1.0 and HTTP/1.1.
-     <BR>This parameter is really useful only in {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, 
-		as the coppermine application also controls that the requests send within an HTTP session uses the same 
-     HTTP protocol (as a protection to limit the 'steal' of session cookies).  
-	 </TD>
-</TR>
-<TR>
-  <TD>stringUploadSuccess</TD>
-  <TD>.* 200 OK$ <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>This string is a regular expression. The upload thread will try to match this regular epression to each 
-     lines returned from the server.
-		If the match is successfull, the upload is considered to be a success. If not, a 
-     {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
-    <BR>
-    The default test expression testes that the web server returns no HTTP error: 200 is the return code for a 
-    successfull HTTP request. It actually means that postURL is a valid URL, and that the applet was able to send 
-    a request to this URL: there should be no problem with the network configuration, like proxy, password proxy...). 
-    <BR>
-    <B>But</B> it doesn't mean that the uploaded files have correctly be managed by the server. For instance, the
-    URL can be http://sourceforge.net, which, of course, would not take your files into account.
-    <BR>
-    So, as soon as you know a regular expression that test the return from the target application (and not just
-    a techical HTTP response code), change the stringUploadSuccess to this value. For instance, the 
-    {@link wjhk.jupload2.policies.CoppermineUploadPolicy}
-    changes this value to "^SUCCESS$", as the HTTP body content of the server's answer contain just this exact 
-    line. This 'success' means that the pictures have correctly be added to the album, that vignettes have been 
-    generated (this I suppose), etc...
   </TD>
 </TR>
 <TR>
@@ -157,24 +99,42 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.</TD>
 </TR>
 <TR>
-  <TD>targetPictureFormat</TD>
-  <TD><I>Empty String</I> <BR><BR>  (<B>to be</B> implemented in {@link wjhk.jupload2.policies.PictureUploadPolicy})</TD>
-  <TD>This parameter can contain any picture writer known by the JVM. For instance: jpeg, png, gif. All standard 
-      formats should be available. More information can be found on the  
-      <A href='http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html'>java.sun.com</A> web site.
+  <TD>nbFilesPerRequest</TD>
+  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This allows the control of the maximal number of files that are uploaded in one HTTP upload to the server.
+       <BR>
+       If set to -1, there is no maximum. This means that all files are uploaded in the same HTTP request.
+       <BR>
+       If set to 5, for instance, and there are 6 files to upload, there will be two HTTP upload request to the 
+       server : 5 files in the first one, and that last file in a second HTTP request.   
   </TD>
 </TR>
 <TR>
-  <TD>albumId</TD>
-  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
-  <TD>This parameter is only used by CoppermineUploadPolicy. So it is to be used to upload into a 
-      <a href="http://coppermine.sourceforge.net/">coppermine picture gallery</a>. This parameter 
-      contains the identifier of the album, where pictures should be used. See CoppermineUploadPolicy 
-      for an example.
-      <BR>
-      Before upload, CoppermineUploadPolicy.{@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()}
-      checks that the albumId is correct, that is: >=1.		
-  </TD>
+  <TD><B>postURL</B></TD>
+  <TD><I>Mandatory</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>
+		It contains the target URL toward which the files should be upload. This parameter is mandatory for existing class. It may
+     become optional in new UploadPolicy, that would create this URL from other data.
+		If the this URL may change during the applet execution time, you can create a new UploadPolicy class, 
+		and either :
+		<DIR>
+			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#getPostURL()} method, to make the postURL totaly dynamic.  
+			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#setPostURL(String)} method, to modify the postURL on the fly, when it is changed. 
+			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#setProperty(String, String)} method. The 
+				{@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the postURL when the albumID property changes.  
+			<LI>Find another solution ... 
+	    </DIR> 
+	 </TD>
+</TR>
+<TR>
+  <TD>serverProtocol</TD>
+  <TD>HTTP/1.1 <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This parameter allows the control of the protocol toward the server. Currently, only HTTP is supported, so 
+		valid values are HTTP/0.9 (not tested), HTTP/1.0 and HTTP/1.1.
+     <BR>This parameter is really useful only in {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, 
+		as the coppermine application also controls that the requests send within an HTTP session uses the same 
+     HTTP protocol (as a protection to limit the 'steal' of session cookies).  
+	 </TD>
 </TR>
 <TR>
   <TD>storeBufferedImage</TD>
@@ -185,6 +145,56 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
       anything. Be careful to this parameter, and let it to the default value, unless you've well tested it
       under all your target client configurations. 
    </TD>
+</TR>
+<TR>
+  <TD>stringUploadSuccess</TD>
+  <TD>.* 200 OK$ <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This string is a regular expression. The upload thread will try to match this regular epression to each 
+     lines returned from the server.
+		If the match is successfull, the upload is considered to be a success. If not, a 
+     {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
+    <BR>
+    The default test expression testes that the web server returns no HTTP error: 200 is the return code for a 
+    successfull HTTP request. It actually means that postURL is a valid URL, and that the applet was able to send 
+    a request to this URL: there should be no problem with the network configuration, like proxy, password proxy...). 
+    <BR>
+    <B>But</B> it doesn't mean that the uploaded files have correctly be managed by the server. For instance, the
+    URL can be http://sourceforge.net, which, of course, would not take your files into account.
+    <BR>
+    So, as soon as you know a regular expression that test the return from the target application (and not just
+    a techical HTTP response code), change the stringUploadSuccess to this value. For instance, the 
+    {@link wjhk.jupload2.policies.CoppermineUploadPolicy}
+    changes this value to "^SUCCESS$", as the HTTP body content of the server's answer contain just this exact 
+    line. This 'success' means that the pictures have correctly be added to the album, that vignettes have been 
+    generated (this I suppose), etc...
+  </TD>
+</TR>
+<TR>
+  <TD>targetPictureFormat</TD>
+  <TD><I>Empty String</I> <BR><BR>  (<B>to be</B> implemented in {@link wjhk.jupload2.policies.PictureUploadPolicy})</TD>
+  <TD>This parameter can contain any picture writer known by the JVM. For instance: jpeg, png, gif. All standard 
+      formats should be available. More information can be found on the  
+      <A href='http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html'>java.sun.com</A> web site.
+  </TD>
+</TR>
+<TR>
+  <TD><B>uploadPolicy</B></TD>
+  <TD>DefaultUploadPolicy <BR><BR> see {@link wjhk.jupload2.policies.UploadPolicyFactory}</TD>
+  <TD>This parameter contains the class name for the UploadPolicy that should be used. If it is not 
+      set, or if its value is unknown from {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(Applet, JTextArea, String)},
+      the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used.
+  </TD>
+</TR>
+<TR>
+  <TD>urlToSendErrorTo</TD>
+  <TD><I>Empty String</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>If this url is given, and an upload error occurs, the applet post the all the debug output to this
+    address. It's up to this URL to handle this mail. It is possible to just store the file, or to log the 
+    error in a database, or to send a mail (like the mail.php script given with the coppermine pack).
+    <BR>
+    <U>Note:</U> Don't put a mailto link here: it won't be able to manage the debug output, that is too big. The 
+    maximum length of a mailto depends on the navigator. With Firefox, it seems to be around 4kb.
+  </TD>
 </TR>
 </TABLE>
 
@@ -228,6 +238,7 @@ public interface UploadPolicy {
 	final static String PROP_STORE_BUFFERED_IMAGE	= "storeBufferedImage";   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static String PROP_DEBUG_LEVEL			= "debugLevel";
 	final static String PROP_LANG	 				= "lang";
+	final static String PROP_FILENAME_ENCODING		= "filenameEncoding";
 	final static String PROP_MAX_HEIGHT				= "maxPicHeight";
 	final static String PROP_MAX_WIDTH				= "maxPicWidth";
 	final static String PROP_NB_FILES_PER_REQUEST 	= "nbFilesPerRequest";
@@ -245,9 +256,10 @@ public interface UploadPolicy {
 	final static boolean DEFAULT_STORE_BUFFERED_IMAGE	= false;   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static int     DEFAULT_DEBUG_LEVEL			= 0;
 	final static String  DEFAULT_LANG	 				= null;
+	final static String  DEFAULT_FILENAME_ENCODING		= null;	   //Note: the CoppermineUploadPolicy forces it to "UTF8". 
 	final static int     DEFAULT_MAX_WIDTH				= -1;
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
-	final static int     DEFAULT_NB_FILES_PER_REQUEST	= -1;
+	final static int     DEFAULT_NB_FILES_PER_REQUEST	= -1;	   //Note: the CoppermineUploadPolicy forces it to 1.
 	final static String  DEFAULT_SERVER_PROTOCOL		= "HTTP/1.1";
 	final static String  DEFAULT_STRING_UPLOAD_SUCCESS	= ".* 200 OK$";
 	final static String  DEFAULT_TARGET_PICTURE_FORMAT	= null;
@@ -295,17 +307,38 @@ public interface UploadPolicy {
 	public void setPostURL(String postURL);
 
 	/**
-	 * Get an upload filename, that is to be send in the HTTP upload request. 
+	 * Get an upload filename, that is to be send in the HTTP upload request. This is the name part of the
+	 * Content-Disposition header. That is: this is the name under which you can manage the file (for instance
+	 * in the _FILES[$name] in PHP) and not the filename of the original file.
 	 * 
 	 * @param index index of the file within upload (can be4, ou of 10 for instance).
-	 * @return The upload filename
+	 * @return The name part of the Content-Disposition header.
+	 * @see #getUploadFilename(FileData, int)
 	 */
-	public String getUploadFilename (FileData fileData, int index);
+	public String getUploadName (FileData fileData, int index);
+
+	/**
+	 * Return the encoding that should be used for the filename. This encoding has no impact on the content of
+	 * the file that will be uploaded. 
+	 * 
+	 * @return The encoding name, like UTF-8 (see the Charset JDK documentation).
+	 */
+	public String getFilenameEncoding();
 	
 	/**
-	 * This function returns the number of files should be uploaded at a time. If negative or 0, all files are to 
-	 * be uploaded in one HTTP request. If positive, each HTTP upload contains this number of files. The last upload 
-	 * request may contain less files.
+	 * Get the original name of the file on the disk. This function can encode the filename (see 
+	 * the filenameEncoding parameter). By default, the original filename is returned.
+	 * 
+	 * @param fileData
+	 * @param index
+	 * @return The filename the is given in the filename part of the Content-Disposition header.
+	 */
+	public String getUploadFilename (FileData fileData, int index) throws JUploadException;
+	
+	/**
+	 * This function returns the number of files should be uploaded during one access to the server. If negative or 
+	 * 0, all files are to be uploaded in one HTTP request. If positive, each HTTP upload contains this number of 
+	 * files. The last upload request may contain less files.
 	 * <BR>
 	 * Examples :
 	 * <UL>
@@ -316,14 +349,15 @@ public interface UploadPolicy {
 	 * 
 	 * @return Returns the maximum number of files, to download in one HTTP request.
 	 */
-	public int getMaxFilesPerUpload();
+	public int getNbFilesPerRequest();
 
 	
 	/**
-	 * This method allows the applet to send debug information to the webmaster.
+	 * This method allows the applet to post debug information to the website (see {@link #getUrlToSendErrorTo()}). 
+	 * Then, it is possible to log the error, to send a mail...   
 	 * 
-	 * @param reason A string describing briefly the problem. The mail subject will be somethin like: Jupload Error (reason)
-	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#sendDebugInformation(String)
+	 * @param description A string describing briefly the problem. The mail subject will be something 
+	 * like: Jupload Error (reason)
 	 */
 	public void sendDebugInformation(String reason);
 	
@@ -525,8 +559,16 @@ public interface UploadPolicy {
 	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
 	 * 
 	 * @param key The string identifying the text to display, depending on the current language.
+	 * @see #alertStr(String)
 	 */
 	public void alert(String key);
+	/**
+	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
+	 * 
+	 * @param str The full String that must be displayed to the user.
+	 * @see #alert(String)
+	 */
+	void alertStr(String str);
 
 	/**
 	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 
