@@ -58,11 +58,11 @@ public class JUploadPanel extends JPanel implements ActionListener{
 
 	private JUploadTextArea statusArea = null;
 
-	private Timer timer;
+	private Timer timer = null;
 
-	private UploadPolicy uploadPolicy;
+	private UploadPolicy uploadPolicy = null;
 
-	FileUploadThread fileUploadThread;
+	private FileUploadThread fileUploadThread = null;
 	//------------- CONSTRUCTOR --------------------------------------------
 
 
@@ -264,8 +264,10 @@ public class JUploadPanel extends JPanel implements ActionListener{
 					}
 				});
 				timer.start();
+				uploadPolicy.displayDebug("Timer started", 60);
 
 				stop.setEnabled(false);
+				uploadPolicy.displayDebug("stop.setEnabled(false)", 60);
 				if(!isSuccess){
 					remove.setEnabled(true);
 					removeAll.setEnabled(true);
