@@ -73,14 +73,10 @@ class UploadFileData implements FileData {
 	 * Standard constructor for the UploadFileData class. It calls the {@link FileData.bef
 	 * 
 	 */
-	public UploadFileData(FileData fileDataParam, int fileIndexParam, FileUploadThread fileUploadThreadParam, UploadPolicy uploadPolicyParam) throws JUploadException {
+	public UploadFileData(FileData fileDataParam, FileUploadThread fileUploadThreadParam, UploadPolicy uploadPolicyParam){
 		this.fileData = fileDataParam;
-		this.fileIndex = fileIndexParam;
 		this.fileUploadThread = fileUploadThreadParam;
-		this.uploadPolicy = uploadPolicyParam;
-		
-		//Calculation of some internal variables.
-		uploadRemainingLength = fileData.getUploadLength();
+		this.uploadPolicy = uploadPolicyParam;		
 	}
 
 	
@@ -93,12 +89,13 @@ class UploadFileData implements FileData {
 	/**
 	 * Returns the header for this file, within the http multipart body.
 	 */
-	String getFileHeader(String boundaryParam) throws JUploadException {
-		if (fileHead == null  ||  ! boundary.equals(boundaryParam)) {
+	String getFileHeader(int fileIndexParam, String boundaryParam) throws JUploadException {
+		if (fileHead == null  ||  fileIndex != fileIndexParam  ||  ! boundary.equals(boundaryParam)) {
 			String filenameEncoding = uploadPolicy.getFilenameEncoding();
 			String uploadFilename = uploadPolicy.getUploadFilename(fileData, fileIndex);
 			StringBuffer sb = new StringBuffer();
 
+			fileIndex= fileIndexParam;
 			boundary = boundaryParam;
 			
 			// Line 1: boundary.
@@ -174,8 +171,8 @@ class UploadFileData implements FileData {
 		byteBuff = new byte[1024];
 		try {
 			while(-1 != (nbBytes = inputStream.read(byteBuff)) && !fileUploadThread.isUploadStopped()){
-				outputStream.write(byteBuff, 0, nbBytes);
 				fileUploadThread.nbBytesUploaded(nbBytes);
+				outputStream.write(byteBuff, 0, nbBytes);
 			}
 		} catch (IOException e) {
 			throw new JUploadIOException (e, "UploadFileData.uploadFile(OutputStream)");
@@ -209,12 +206,8 @@ class UploadFileData implements FileData {
 			}
 			inputStream  = null;
 		}
-		//2. Remove the file, from the FilePanel, only if there was no error.
-		if (fileUploadThread.getException() == null) {
-			uploadPolicy.getApplet().getFilePanel().remove(this);
-		}
 
-		//3. Ask the FileData to release any other locked resource.
+		//2. Ask the FileData to release any other locked resource.
 		fileData.afterUpload();		
 	}
 
@@ -222,6 +215,8 @@ class UploadFileData implements FileData {
 	public void beforeUpload() throws JUploadException {
 		fileData.beforeUpload();
 		
+		//Calculation of some internal variables.
+		uploadRemainingLength = fileData.getUploadLength();		
 	}
 
 	/** @see FileData#canRead() */
@@ -258,10 +253,10 @@ class UploadFileData implements FileData {
 	public InputStream getInputStream() throws JUploadException {
 		//If you didn't already open the input stream, the remaining length should be non 0.
 		if (inputStream == null) {
-			if (uploadRemainingLength > 0) {
+			if (uploadRemainingLength <= 0) {
 				//Too bad: we already uploaded this file. Perhaps its Ok (a second try?)
 				//To avoid this warning, just create a new UploadFileData instance, and not use an already existing one.
-				uploadPolicy.displayWarn("UploadFileData.getInputStream(): uploadRemainingLength is <= 0. Trying a new upload ?");
+				uploadPolicy.displayWarn("[" + getFileName() + "] UploadFileData.getInputStream(): uploadRemainingLength is <= 0. Trying a new upload ?");
 				uploadRemainingLength = fileData.getUploadLength();
 			}
 			//Ok, this is the start of upload for this file. Let's get its InputStream.

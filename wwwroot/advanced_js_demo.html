@@ -12,6 +12,7 @@
 	postURL = "http://localhost:8080/jupload/pages/parseRequest.jsp";
 	urlToSendErrorTo = "mailto:toto@yahoo.com"; //Careful: log info will be truncated, if sent to a mailto: link.
 	uploadPolicy = "";
+	filenameEncoding = "";
 	lang = "";
 	nbFilesPerRequest = "";
 	maxPicHeight = "";
@@ -82,6 +83,9 @@
 		case "debugLevel":
 			debugLevel = val;
 			break;
+		case "filenameEncoding":
+			filenameEncoding = val;
+			break;
 		case "lang":
 			lang = val;
 			break;
@@ -127,6 +131,7 @@
 	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList);
 	writeInputText("stringUploadSuccess", stringUploadSuccess);
 	writeInputText("debugLevel", debugLevel);
+	writeInputText("filenameEncoding", filenameEncoding);
 	writeInputText("nbFilesPerRequest", nbFilesPerRequest);
 	writeInputText("maxPicHeight", maxPicHeight);
 	writeInputText("maxPicWidth", maxPicWidth);
@@ -144,11 +149,12 @@
 	document.writeln('	MAYSCRIPT >');
 	writeParam("postURL", postURL);
 	writeParam("uploadPolicy", uploadPolicy);
+	writeParam("debugLevel", debugLevel);
+	writeParam("filenameEncoding", filenameEncoding);
 	writeParam("lang", lang);
 	writeParam("nbFilesPerRequest", nbFilesPerRequest);
 	writeParam("maxPicHeight", maxPicHeight);
 	writeParam("maxPicWidth", maxPicWidth);
-	writeParam("debugLevel", debugLevel);
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);
 	writeParam("stringUploadSuccess", stringUploadSuccess);
 	document.writeln('Java 1.4 or higher plugin required.');

@@ -44,9 +44,9 @@ import wjhk.jupload2.policies.UploadPolicy;
 public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	
 	//------------- INFORMATION --------------------------------------------
-	public static final String TITLE = "JUpload FileUploadThreadV3";
+	public static final String TITLE = "JUpload FileUploadThreadV4";
 	public static final String DESCRIPTION =
-		"Java Thread to upload files into a web server (based ont FileUploadThreadV2).";
+		"Java Thread to upload files into a web server (based on FileUploadThreadV2).";
 	public static final String AUTHOR = "Etienne Gauthier";
 	
 	public static final double VERSION = 2.2;
@@ -56,30 +56,34 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 		
 	
 	//------------- VARIABLES ----------------------------------------------
+	
 	/**
-	 * Files asked to be uploaded into the server.
-	 */ 
-	private FileData[] allFiles;
+	 * This array will contain a 'copy' of the relevant element of the filesDataParam array (see the constructor). 
+	 * After filling the filesToUpload array, the UploadThread will only manipulate it: all access to the file 
+	 * contained by the filesDataParam given to the constructor will be done through the {@link UploadFileData} 
+	 * contained by this array. 
+	 */
+	private UploadFileData[] filesToUpload=null;
 	
 	/**
 	 * The upload policy contains all parameters needed to define the way files should be uploaded, including the URL. 
 	 */
-	private UploadPolicy uploadPolicy;
+	private UploadPolicy uploadPolicy = null;
 	
 	/**
 	 * The progress bar, that will indicate to the user the upload state (0 to 100%). 
 	 */
-	private JProgressBar progress;
+	private JProgressBar progress = null;
 	
 	/**
 	 * The total number of bytes to be sent. This allows the calculation of the progress bar
 	 */
-	private long totalFilesLength;
+	private long totalFilesLength = 0;
 	
 	/**
 	 * Current number of byts that have been uploaded.
 	 */
-	private long uploadedLength;
+	private long uploadedLength = 0;
 	
 	/**
 	 * If set to 'true', the thread will stop the crrent upload. This attribute is not private as the
@@ -103,14 +107,16 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	private Exception uploadException = null;
 	
 	//------------- CONSTRUCTOR --------------------------------------------
-	public FileUploadThreadV4(FileData[] allFiles, UploadPolicy uploadPolicy, JProgressBar progress){
-		this.allFiles = allFiles;
+	public FileUploadThreadV4(FileData[] filesDataParam, UploadPolicy uploadPolicy, JProgressBar progress) {
 		this.uploadPolicy = uploadPolicy;
 		this.progress = progress;
-		
-		totalFilesLength = 0;
-		
 		uploadPolicy.displayDebug("Upload done by using the " + getClass().getName() + " class", 40);
+		
+		filesToUpload = new UploadFileData[filesDataParam.length];
+		
+		for (int i=0; i<filesDataParam.length; i+=1) {
+			filesToUpload[i] = new UploadFileData(filesDataParam[i], this, uploadPolicy);
+		}
 	}
 	
 	//------------- Public Functions ---------------------------------------
@@ -196,10 +202,10 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * 
 	 * @throws JUploadException
 	 */
-	private String[] setAllHead(UploadFileData[] files, int nbFilesToUpload, String bound) throws JUploadException {
+	private String[] setAllHead(int firstFileToUpload, int nbFilesToUpload, String bound) throws JUploadException {
 		String[] heads = new String[nbFilesToUpload];
 		for(int i=0; i < nbFilesToUpload; i++){
-			heads[i] = files[i].getFileHeader(bound);
+			heads[i] = filesToUpload[firstFileToUpload+i].getFileHeader(i, bound);
 		}
 		return heads;
 	}
@@ -211,13 +217,13 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * @param bound
 	 * @return Returns an array containing the HTTP tails for al files of the current HTTP request.
 	 */
-	private String[] setAllTail(int fileLength, String bound){
-		String[] tails = new String[fileLength];
-		for(int i=0; i < fileLength; i++){
+	private String[] setAllTail(int firstFileToUpload, int nbFilesToUpload, String bound){
+		String[] tails = new String[nbFilesToUpload];
+		for(int i=0; i < nbFilesToUpload; i++){
 			tails[i] = ("\r\n");
 		}
 		// Telling the Server we have Finished.
-		tails[fileLength-1] = tails[fileLength-1] + bound + "--\r\n";
+		tails[nbFilesToUpload-1] = tails[nbFilesToUpload-1] + bound + "--\r\n";
 		return tails;
 	}
 	//------------- THE HEART OF THE PROGRAM ------------------------------
@@ -226,7 +232,6 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * The heart of the program. This method prepare the upload, then calls doUpload for each HTTP request.
 	 */
 	public void run() {
-		UploadFileData[] filesToUpload = null;
 		boolean bUploadOk = true;
 		uploadedLength = 0;
 		totalFilesLength = 0;
@@ -234,16 +239,16 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 		try {
 			if(null != progress)  {
 				progress.setValue(0);
-				progress.setMaximum(allFiles.length);
+				progress.setMaximum(filesToUpload.length);
 			}
-			for(int i=0; i < this.allFiles.length; i++){
+			for(int i=0; i < this.filesToUpload.length; i++){
 				if(null != progress)  {
 					progress.setValue(i);
-					progress.setString(uploadPolicy.getString("preparingFile", (i+1) + "/" + (allFiles.length) ));
+					progress.setString(uploadPolicy.getString("preparingFile", (i+1) + "/" + (filesToUpload.length) ));
 				}
-				allFiles[i].beforeUpload();
+				filesToUpload[i].beforeUpload();
 				//totalFilesLength is used to correctly displays the progress bar.
-				totalFilesLength += allFiles[i].getUploadLength();
+				totalFilesLength += filesToUpload[i].getRemainingLength();
 			}
 			
 			if(null != progress)  {
@@ -252,41 +257,31 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				progress.setString("");
 			}
 			//Prepare upload
-			//Let's take the upload policy into accound  : how many files at a time ?
+			//Let's take the upload policy into account  : how many files at a time ?
 			int nbMaxFilesPerUpload = uploadPolicy.getNbFilesPerRequest();
-			if (nbMaxFilesPerUpload <= 0) {
-				nbMaxFilesPerUpload = Integer.MAX_VALUE;
-				filesToUpload = new UploadFileData[allFiles.length];
-			} else {
-				filesToUpload = new UploadFileData[nbMaxFilesPerUpload];
-			}
 			
 			//We upload files, according to the current upload policy.
-			int iPerUploadCount = 0;
-			int iTotalFileCount = 0;
-			while (iTotalFileCount < allFiles.length  &&  bUploadOk) {
-				//Now, we will only manage the filesToUpload array. 
-				//Important: We create the UploadFileData only now, to have a correct file index, within the current upload.
-				//			 e.g.: 13 files to upload, 5 by five. This index will be 0 to 4, 0 to 4, 0 to 2. 
-				filesToUpload[iPerUploadCount] = new UploadFileData(allFiles[iTotalFileCount], iTotalFileCount, this, uploadPolicy); 
-				iPerUploadCount += 1;
-				iTotalFileCount += 1;
-				if (iPerUploadCount == nbMaxFilesPerUpload) {
+			int iFirstFileForThisUpload = 0;
+			int iNbFilesForThisUpload = 0;
+			while (iFirstFileForThisUpload+iNbFilesForThisUpload < filesToUpload.length  &&  bUploadOk  && !stop) {
+				iNbFilesForThisUpload += 1;
+				if (iNbFilesForThisUpload == nbMaxFilesPerUpload) {
 					//Let's do an upload.
-					bUploadOk = doUpload (filesToUpload, iPerUploadCount, iTotalFileCount);
-					iPerUploadCount = 0;
+					bUploadOk = doUpload (iFirstFileForThisUpload, iNbFilesForThisUpload);
+					iFirstFileForThisUpload += iNbFilesForThisUpload;
+					iNbFilesForThisUpload = 0;
 				}
 			}//while
 			
-			if (iPerUploadCount > 0  &&  bUploadOk) {
+			if (iNbFilesForThisUpload > 0  &&  bUploadOk  &&  !stop) {
 				//Some files are still to upload. Let's finish the job.
-				bUploadOk = doUpload (filesToUpload, iPerUploadCount, iTotalFileCount);
+				bUploadOk = doUpload (iFirstFileForThisUpload, iNbFilesForThisUpload);
 			}
 
 			//Let's show everything is Ok
 			if(null != progress)  {
 				if (bUploadOk) {
-					progress.setString(uploadPolicy.getString("nbUploadedFiles", iTotalFileCount));
+					progress.setString(uploadPolicy.getString("nbUploadedFiles", iFirstFileForThisUpload+iNbFilesForThisUpload));
 				} else {
 					progress.setString("errDuringUpload");
 				}
@@ -296,8 +291,8 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			progress.setString(e.getMessage());
 		} finally {
 			//In all cases, we try to free all reserved resources.
-			for(int i=0; i < allFiles.length; i++){
-				allFiles[i].afterUpload();
+			for(int i=0; i < filesToUpload.length; i++){
+				filesToUpload[i].afterUpload();
 			}
 		}
 		
@@ -305,6 +300,8 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 		if (!bUploadOk) {
 			uploadPolicy.sendDebugInformation("Error in Upload");
 		}
+		
+		//Enf of thread.
 		
 	}//run
 	
@@ -317,7 +314,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * @param iTotalFileCount The total number of files that are to upload. It is used to generate the "file 1 out of 4 " message, on the progress bar. 
 	 *
 	 */
-	private boolean doUpload (UploadFileData[] filesToUpload, int nbFilesToUpload, int iTotalFileCount) {
+	private boolean doUpload (int firstFileToUpload, int nbFilesToUpload) {
 		boolean bReturn = true;
 		Socket sock = null;
 		DataOutputStream dataout = null;
@@ -329,9 +326,9 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 		clearServerOutPut();
 		
 		if (nbFilesToUpload == 1) {
-			msg = iTotalFileCount + "/" + allFiles.length;
+			msg = (firstFileToUpload + 1) + "/" + (filesToUpload.length);
 		} else {
-			msg = (iTotalFileCount - nbFilesToUpload + 1) + "-" + iTotalFileCount + "/" + allFiles.length;
+			msg = (firstFileToUpload + 1) + "-" + (firstFileToUpload + nbFilesToUpload) + "/" + (filesToUpload.length);
 		}
 		
 		if(!stop && (null != progress))
@@ -343,13 +340,13 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			
 			String boundary = "-----------------------------" + getRandomString();
 			
-			String[] heads = setAllHead(filesToUpload, nbFilesToUpload, boundary);
-			String[] tails = setAllTail(nbFilesToUpload, boundary);
+			String[] heads = setAllHead(firstFileToUpload, nbFilesToUpload, boundary);
+			String[] tails = setAllTail(firstFileToUpload, nbFilesToUpload, boundary);
 			
 			long contentLength = 0;
-			for(int i = 0; i < nbFilesToUpload; i++){
+			for(int i=0; i < nbFilesToUpload && !stop; i++){
 				contentLength += heads[i].length();
-				contentLength += filesToUpload[i].getUploadLength();
+				contentLength += filesToUpload[firstFileToUpload+i].getUploadLength();
 				contentLength += tails[i].length();
 			}
 			
@@ -393,11 +390,11 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			
 			for(int i=0; i < nbFilesToUpload && !stop; i++){
 				// Write to Server the head(4 Lines), a File and the tail.
-				action = "send bytes (20)" + i;
+				action = "send bytes (20)" + (firstFileToUpload+i);
 				dataout.writeBytes(heads[i]);
-				action = "send bytes (30)" + i;
-				filesToUpload[i].uploadFile(dataout);
-				action = "send bytes (40)" + i;
+				action = "send bytes (30)" + (firstFileToUpload+i);
+				filesToUpload[firstFileToUpload+i].uploadFile(dataout);
+				action = "send bytes (40)" + (firstFileToUpload+i);
 				dataout.writeBytes(tails[i]);
 			}
 			action = "flush";
@@ -502,15 +499,15 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
     	}
 		
 		//If the upload was Ok, we remove the uploaded files from the filePanel.
+		for(int i=0; i < nbFilesToUpload && !stop; i++){
+			uploadPolicy.getApplet().getFilePanel().remove(filesToUpload[firstFileToUpload+i]);
+		}
+    	
+    	
+    	
         if(uploadException != null){
         	uploadPolicy.displayErr(uploadException.toString() + "\n");          
         } 
-
-        //We release the locked resource for these files.
-    	for(int i=0; i < nbFilesToUpload; i++){
-    		filesToUpload[i].afterUpload();
-    	}
-        
 		
 		return bReturn;
 	}
@@ -521,7 +518,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * Some internal attributes are set to null.
 	 */
 	public void close(){
-		allFiles = null;
+		filesToUpload = null;
 		uploadException = null;
 		sbServerOutput = null;
 	}
