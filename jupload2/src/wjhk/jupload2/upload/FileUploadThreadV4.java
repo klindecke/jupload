@@ -32,6 +32,7 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 
@@ -406,11 +407,15 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			action = "wait for server answer";
 			String strUploadSuccess = uploadPolicy.getStringUploadSuccess();
 			boolean uploadSuccess = false;
-			boolean upload200OK = false;
+			boolean upload_200_OK = false;
 			boolean readingHttpBody = false;
 			boolean uploadTransferEncodingChunked = false;
 			StringBuffer sbHttpResponseBody = new StringBuffer(); 
 			String line;
+
+			Pattern patternSuccess = Pattern.compile(strUploadSuccess);
+			Pattern pattern_200_OK = Pattern.compile("HTTP(.*) 200 OK");
+			Pattern patternTransferEncodingChunked = Pattern.compile("Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
 
 			while ((line = datain.readLine()) != null) {
 				this.addServerOutPut(line);
@@ -418,7 +423,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				
 				//Is this upload a success ?
 				action ="test success";
-				if (line.matches(strUploadSuccess)) {
+				if (patternSuccess.matcher(line).find()) {
 					uploadSuccess = true;
 				}
 				
@@ -426,18 +431,20 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				//may have been refused by the webserver, for instance because the user is not allowed
 				//to upload files, or because the session is lost.
 				action = "test 200 OK";
-				if (line.matches("200 OK$")) {
-					upload200OK = true;
+				if (pattern_200_OK.matcher(line).find()) {
+				//if (line.equals("HTTP/1.1 200 OK")) {
+					upload_200_OK = true;
+					uploadPolicy.displayDebug("upload_200_OK = true", 30);
 				}
 				
 				//Check, if we get the "Transfer-Encoding: chunked" header, which means that the content
 				//may be split. Then, looking for a string within the body response will fail.
 				action = "test Transfer-Encoding: chunked";
-				if (line.equalsIgnoreCase("Transfer-Encoding: chunked")) {
+				if (patternTransferEncodingChunked.matcher(line).find()) {
 					uploadTransferEncodingChunked = true;
+					uploadPolicy.displayDebug("uploadTransferEncodingChunked = true", 30);
 				}
-				
-				
+
 				//Store the http body 
 				if (readingHttpBody) {
 					action = "sbHttpResponseBody";
@@ -448,22 +455,26 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 					action = "readingHttpBody";
 					readingHttpBody = true;
 				}
-			}
+			}//while
 				
 			//Is our upload a success ?
 			if (! uploadSuccess) {
 				//If the upload is 200 OK, and the encoding is chunked, the success string may not be found
 				//within the reponse body. We log a warning ... and consider it as being a success.
 				//FIXME correctly decode chunked encoding, instead of hoping it's Ok.
-				if (upload200OK && uploadTransferEncodingChunked) {
-					uploadPolicy.displayWarn("The success string was not found, but it may be split, as the transfer-encoding is chunked.");
+				if (upload_200_OK) {
+					if (uploadTransferEncodingChunked) {
+						uploadPolicy.displayWarn("The HTTP response is Ok. The success string was not found, but it may be split, as the transfer-encoding is chunked.");
+					} else {
+						uploadPolicy.displayWarn("The HTTP response is Ok, but the success string was not found. The server output is logged below, if debugLevel is 80 or more.");						
+					}
 				} else {
 					throw new JUploadExceptionUploadFailed(uploadPolicy.getString("errHttpResponse"));
 				}
 			}
 
 		}catch(Exception e){
-			this.uploadException = e;
+			uploadException = e;
 			bReturn = false;
 			uploadPolicy.displayErr(uploadPolicy.getString("errDuringUpload") + " (main | " + action + ") (" + e.getClass() + ".doUpload()) : " + e.getMessage());
 		}finally{
@@ -471,7 +482,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				// Throws java.io.IOException
 				dataout.close();
 			} catch(Exception e) {
-				this.uploadException = e;
+				uploadException = e;
 				bReturn = false;
 				uploadPolicy.displayErr(uploadPolicy.getString("errDuringUpload") + " (dataout.close) (" + e.getClass() + ".doUpload()) : " + e.getMessage());
 			}
@@ -498,14 +509,12 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
             uploadPolicy.displayDebug("--------- Server Output End ---------\n", 80);
     	}
 		
-		//If the upload was Ok, we remove the uploaded files from the filePanel.
-		for(int i=0; i < nbFilesToUpload && !stop; i++){
-			uploadPolicy.getApplet().getFilePanel().remove(filesToUpload[firstFileToUpload+i]);
-		}
-    	
-    	
-    	
-        if(uploadException != null){
+    	if (uploadException == null) {
+    		//The upload was Ok, we remove the uploaded files from the filePanel.
+			for(int i=0; i < nbFilesToUpload && !stop; i++){
+				uploadPolicy.getApplet().getFilePanel().remove(filesToUpload[firstFileToUpload+i]);
+			}
+    	} else {
         	uploadPolicy.displayErr(uploadException.toString() + "\n");          
         } 
 		

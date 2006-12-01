@@ -39,7 +39,10 @@ public class DialogPicturePanel extends PicturePanel {
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent arg0) {
-		//Let's display the big picture.
-		pictureDialog.dispose();
+		//Let's close the current DialogBox, if it has not already be done.
+		if (pictureDialog != null) {
+			pictureDialog.dispose();
+			pictureDialog = null;
+		}
 	}
 }

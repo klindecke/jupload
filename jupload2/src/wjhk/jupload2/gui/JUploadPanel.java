@@ -232,7 +232,6 @@ public class JUploadPanel extends JPanel implements ActionListener{
 
 				fileUploadThread = new FileUploadThreadV4(filePanel.getFiles(), uploadPolicy, progress);
 				fileUploadThread.start();
-				boolean isSuccess = false;
 
 
 				//Create a timer.
@@ -240,19 +239,16 @@ public class JUploadPanel extends JPanel implements ActionListener{
 					public void actionPerformed(ActionEvent evt) {
 						if(!fileUploadThread.isAlive()){
 							timer.stop();
-							//boolean isSuccess = false;
 							String svrRet=fileUploadThread.getServerOutput();
 							Exception e = fileUploadThread.getException();
-							/*EGR
+							
+							//Restore enable state, as the upload is finished.
+							stop.setEnabled(false);
+							uploadPolicy.displayDebug("stop.setEnabled(false)", 60);
+							browse.setEnabled(true);
+							upload.setEnabled(true);
 
-		          if(null != fileUploadThread.getException()){
-		          	statusArea.append("ERROR  : " + fileUploadThread.getException().toString() + "\n");
-		          }else{
-		          	statusArea.append("INFO   : " + filePanel.getFilesLength() + " Files uploaded.\n");
-		          	filePanel.removeAll();
-		            isSuccess = true;
-		          }
-							 */
+							//Free resources of the upload thread.
 							fileUploadThread.close();
 							fileUploadThread = null;
 
@@ -266,14 +262,6 @@ public class JUploadPanel extends JPanel implements ActionListener{
 				timer.start();
 				uploadPolicy.displayDebug("Timer started", 60);
 
-				stop.setEnabled(false);
-				uploadPolicy.displayDebug("stop.setEnabled(false)", 60);
-				if(!isSuccess){
-					remove.setEnabled(true);
-					removeAll.setEnabled(true);
-					upload.setEnabled(true);
-				}
-				browse.setEnabled(true);
 			}//if isIploadReady()
 		}else if(e.getActionCommand() == stop.getActionCommand()){
 			stop.setEnabled(false);

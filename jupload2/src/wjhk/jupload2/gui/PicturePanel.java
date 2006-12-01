@@ -62,13 +62,6 @@ public class PicturePanel extends Canvas implements MouseListener {
 	private PictureFileData pictureFileData;
 
 	/**
-	 * pictureDialog contains the current opened PictureDialog. Thid dialog is used to display the picture
-	 * as big as the screen allowed it. If a new picture is to be viewed in big size, the current PictureDialog
-	 * (if any) is used again. 
-	 */
-	PictureDialog pictureDialog = null;
-	
-	/**
 	 * offscreenImage contains an image, that can be asked by {@link PictureFileData#getImage(Canvas, boolean)}. It 
 	 * is used to preview this picture.
 	 * 
@@ -122,6 +115,7 @@ public class PicturePanel extends Canvas implements MouseListener {
     	//First : reset current picture configuration.
     	this.pictureFileData = null;
 		offscreenImage = null; //Useful, if a repaint event occurs while we calculate the offscreenImage
+		
 		//Ask for an immediate repaint, to clear the panel (as offscreenImage is null). 
 		repaint(0);
 
@@ -136,6 +130,13 @@ public class PicturePanel extends Canvas implements MouseListener {
 		//First : clear the panel area. 
 		g.clearRect(0, 0, getWidth(), getHeight());
 		//Do we have a picture to display
+		//Now, we calculate the picture if we don't already have one. If not, we get it.
+		if (offscreenImage == null) {
+			calculateOffscreenImage();
+		}
+		
+		/*
+		 Seems useless. I keep it here, for some time...
 		if (pictureFileData != null) {
 			//Check current calculated image size :
 			if (offscreenImage != null) {
@@ -153,78 +154,35 @@ public class PicturePanel extends Canvas implements MouseListener {
 					offscreenImage = null;
 				}
 			}
-			//Now, we calculate the picture if we don't already have one.
-			if (offscreenImage == null) {
-				calculateOffscreenImage();
-			}
 		}
+		*/
+		
 		//Then, display the picture, if any is defined.
     	if (offscreenImage != null) {
 			//Let's center this picture
 			int hMargin = (getWidth() - offscreenImage.getWidth(this))/2;
 			int vMargin = (getHeight() - offscreenImage.getHeight(this))/2;
-			long before = (new java.util.Date()).getTime();
 			g.drawImage(offscreenImage, hMargin, vMargin, this);
-			long after = (new java.util.Date()).getTime();
-			uploadPolicy.displayDebug("PicturePanel: After g.drawImage (time for display : " + (after-before) + " ms)", 80);
     	}
 	}
 		
 	/**
-	 * This function is used to rotate the picture. 
+	 * This function adds a quarter rotation to the current picture. 
 	 * 
-	 * @param quarter Number of quarters (90°) the picture should rotate. 1 means rotating of 90° clockwise (?). Can be negative.
+	 * @param quarter Number of quarters (90°) the picture should rotate. 1 means rotating of 90° 
+	 * clockwise (?). Can be negative (counterclockwise),  more than 1...
 	 */
 	public void rotate (int quarter) {
 		if (pictureFileData != null) {
 			pictureFileData.addRotation(quarter);
+			//The previously calculated picture is now wrong.
+			offscreenImage = null;
+			calculateOffscreenImage();
+			
+	    	repaint();
+		} else {
+			uploadPolicy.displayWarn("Strange: there is no pictureFileData in the PicturePanel! Command is ignored.");
 		}
-		calculateOffscreenImage();
-    	repaint();
-	}
-
-
-	/**
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent arg0) {
-		if (pictureFileData != null) {
-			//Ok, we have a picture. Let's display it.
-			uploadPolicy.displayDebug("Opening PictureDialog", 60);
-			pictureDialog = new PictureDialog(null, pictureFileData, uploadPolicy);
-		}
-	}
-
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent arg0) {
-		// Nothing to do.		
-	}
-
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-	 */
-	public void mouseExited(MouseEvent arg0) {
-		// Nothing to do.		
-	}
-
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-	 */
-	public void mousePressed(MouseEvent arg0) {
-		// Nothing to do.		
-	}
-
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent arg0) {
-		// Nothing to do.		
 	}
 
 	/**
@@ -239,13 +197,15 @@ public class PicturePanel extends Canvas implements MouseListener {
     		this.setCursor(null);
     	}
     	if (pictureFileData == null) {
-    		offscreenImage = null;
-    		uploadPolicy.displayDebug("calculateOffscreenImage: offscreenImage set to null", 25);
-    	} else {
+    		//Nothing to do. offscreenImage should be null.
+    		if (offscreenImage != null) {
+	    		offscreenImage = null;
+	    		uploadPolicy.displayWarn("PicturePanel.calculateOffscreenImage(): offscreenImage set to null");
+    		}
+    	} else if (offscreenImage == null) {
+    		uploadPolicy.displayDebug("PicturePanel.calculateOffscreenImage(): trying to calculate offscreenImage (PicturePanel.calculateOffscreenImage()", 40);
     		try {
-    			uploadPolicy.displayDebug("calculateOffscreenImage: creation of offscreenImage", 25);
     			offscreenImage = pictureFileData.getImage(this, hasToStoreOffscreenPicture);
-    			uploadPolicy.displayDebug("calculateOffscreenImage: offscreenImage created", 90);
 	    	} catch (JUploadException e) {
 	    		uploadPolicy.displayErr(e);
 	    		//We won't try to display the picture for this file.
@@ -259,4 +219,43 @@ public class PicturePanel extends Canvas implements MouseListener {
     		this.setCursor(picturePanelCursor);
     	}
     }
-};
+    
+    /**
+     * Is it really useful ??
+     */
+    protected void finalize() throws Throwable {
+    	//super.finalize();
+    	uploadPolicy.displayDebug("Within PicturePanel.finalize()", 90);
+    	mainContainer = null;
+    	pictureFileData = null;
+    }
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////      MouseListener interface   ////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+	/** @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent) */
+	public void mouseClicked(MouseEvent arg0) {
+		if (pictureFileData != null) {
+			//Ok, we have a picture. Let's display it.
+			uploadPolicy.displayDebug("Opening PictureDialog", 60);
+			new PictureDialog(null, pictureFileData, uploadPolicy);
+		}
+	}
+	/** @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent) */
+	public void mouseEntered(MouseEvent arg0) {
+		// Nothing to do.		
+	}
+	/** @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent) */
+	public void mouseExited(MouseEvent arg0) {
+		// Nothing to do.		
+	}
+	/** @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent) */
+	public void mousePressed(MouseEvent arg0) {
+		// Nothing to do.		
+	}
+	/** @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent) */
+	public void mouseReleased(MouseEvent arg0) {
+		// Nothing to do.		
+	}
+}
+
