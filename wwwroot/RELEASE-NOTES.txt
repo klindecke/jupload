@@ -1,19 +1,33 @@
 
 
 TODO LIST
-- Mime/Type incorrect when sending pictures.
 - Test how this applet works with a little memory size (only important for picture handling, no problem with the
 default behaviour).
+- Correct the scale calculation in PictureFileData. It's when the maxHeight and maxWidth are different, and the picture 
+must be rotated by one quarter (in either direction)
 
 
 V2.4.0
 
+Bugs Corrected:
+- It's now possible to use the 'stop' button to stop an upload. 
+- It's no more possible to click on 'upload' during an upload, which could lead to unpredictable behaviour.
+- In the given examples, the parse.jsp had the following bug, now corrected: no call to fileItem.delete(). Without it 
+the heap server quickly runs out of memory.
+
+
 Changes:
+- for Picture uploads (PictureUploadPolicy and CoppermineUploadPolicy) Upload of pictures stored in a read-only 
+directory won't block the upload anymore. The original file is send, without being resized or rotated.
+- The Mime Type is now correct, but only for pictures (see PictureUploadPolicy and CoppermineUploadPolicy).
+- Modified a test of the stringUploadSuccess applet parameter: if it's not found, a warning is now displayed. This
+test seems to be buggy on a lot of various systems. But I could repeat the troubles on my server. Now, if the 
+success string is not found, there is only a warning message.
 - Add of a FileUploadThread interface, that will be manipulated by other packages. This will help creation of new
 version of FileUploadThreadVn. The FileUploadThreadVn are the successive versions of these classes. I keep them, as 
 people often update them for their needs.
 - Add of a FileUploadThreadV4 and a UploadFileData. These class will help to implement further extension like _chunk_ 
-(to send file piece per piece) or mark of upload error per file. The original FileUploadThread has been renamed into
+(to send file piece per piece) or eaisier mark of upload error per file. The original FileUploadThread has been renamed into
 FileUploadThreadV1 (of anyone stil use it). FileUploadThreadV1, FileUploadThreadV2 and FileUploadThreadV3 implement 
 - Creation of a FileData interface. The default implementation is now into the DefaultFileData.
 

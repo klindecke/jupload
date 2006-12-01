@@ -44,7 +44,7 @@
 	    fileItem = (FileItem) iter.next();
 	
 	    if (fileItem.isFormField()) {
-	        //This should not occur, here.
+	        //This should not occur, in this example.
 	        out.println(" ------------------------------ ");
 	        out.println(fileItem.getFieldName() + " = " + fileItem.getString());
 	    } else {
@@ -61,10 +61,13 @@
 	        out.println("File Out: " + fout.toString());
 	        // write the file
 	        fileItem.write(fout);	        
+	        fileItem.delete();
 	    }
 	    out.println("SUCCESS");
 	}//while
   }catch(Exception e){
     out.println("Exception e = " + e.toString());
   }
+  
+  out.close();
 %>

@@ -30,9 +30,12 @@ public class PictureDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 7802205907550854333L;
 	JButton buttonClose;
 	PicturePanel picturePanel;
+	UploadPolicy uploadPolicy = null;
 	
 	public PictureDialog (Frame owner, PictureFileData pictureFileData, UploadPolicy uploadPolicy) {
 		super(owner, pictureFileData.getFileName(), true);
+		
+		this.uploadPolicy = uploadPolicy;
 
 		
 		JPanel panel = new JPanel();
@@ -59,16 +62,6 @@ public class PictureDialog extends JDialog implements ActionListener {
 		setVisible(true);
 	}
 	
-    /**
-     * This setter is called to set the picture that is to be previewed.
-     * 
-     * @param pictureFileData The pictureFileData instance that contains information about the picture.
-     *
-    public void setPictureFile(PictureFileData pictureFileData) {
-		picturePanel.setPictureFile(pictureFileData);
-    }
-    */
-
 	/**
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
@@ -76,5 +69,15 @@ public class PictureDialog extends JDialog implements ActionListener {
 	    if(event.getActionCommand() == buttonClose.getActionCommand()) {
 	    	this.dispose();			
 	    }
+	}
+	
+	/**
+	 * Free all locked data.
+	 */
+	protected void finalize () throws Throwable {
+		super.finalize();
+    	uploadPolicy.displayDebug("Within PicturePanel.finalize()", 90);
+		picturePanel = null;
+		buttonClose = null;
 	}
 }

@@ -38,10 +38,24 @@ public class DefaultFileData  implements FileData {
 	 */
 	UploadPolicy uploadPolicy;
 
-	private File file;
-	private Date lastModified;
-	private String mimeType = "application/octet-stream";
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////   Prrotected attributes   /////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Mime type of the file. It will be written in the upload HTTP request.
+	 */
+	protected String mimeType = "application/octet-stream";
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////   Private attributes   ////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * file is the file about which this FileData contains data.
+	 */
+	private File file;
+	
 
 	
 	/**
@@ -51,7 +65,6 @@ public class DefaultFileData  implements FileData {
 	 */
 	public DefaultFileData(File file, UploadPolicy uploadPolicy) {
 		this.file = file;
-		lastModified = new Date(file.lastModified());
 		this.uploadPolicy = uploadPolicy;
 	}
 
@@ -98,7 +111,7 @@ public class DefaultFileData  implements FileData {
 
 	/** @see FileData#getLastModified() */
 	public Date getLastModified() {
-		return lastModified;
+		return new Date(file.lastModified());
 	}
 	
 	/** @see FileData#getDirectory() */
