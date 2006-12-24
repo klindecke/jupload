@@ -178,16 +178,11 @@ class FilePanelDataModel2 extends AbstractTableModel {
 			}
 		}
 	}
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getColumnCount()
-	 */
+	/** @see javax.swing.table.TableModel#getColumnCount() */
 	public int getColumnCount() {
 	    return columnNames.length;
 	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getRowCount()
-	 */
+	/** @see javax.swing.table.TableModel#getRowCount()*/
 	public int getRowCount() {
 		return rows.size();
 	}

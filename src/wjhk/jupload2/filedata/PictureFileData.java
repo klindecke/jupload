@@ -5,11 +5,9 @@ package wjhk.jupload2.filedata;
 
 import java.awt.Canvas;
 import java.awt.Image;
-import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -300,11 +298,7 @@ public class PictureFileData extends DefaultFileData  {
 	 * @return The rescaled image.
 	 */
 	public Image getImage (Canvas canvas, boolean shadow) throws JUploadException {
-		freeMemory("start of " + this.getClass().getName() + ".getImage()");
-
-		BufferedImage bufferedImage = null;
-		Image image=null;
-		boolean hasToCalculateImage = false;
+		Image localImage=null;
 		
 		if (canvas == null) {
 			throw new JUploadException("canvas null in PictureFileData.getImage");
@@ -313,81 +307,61 @@ public class PictureFileData extends DefaultFileData  {
 		int canvasWidth  = canvas.getWidth();
 		int canvasHeight = canvas.getHeight(); 
 		if (canvasWidth <= 0 || canvasHeight <= 0) {
-			//Target width and/or height currenlty unknown (see Image.GetWidth())
-			hasToCalculateImage = false;
-		} else if (! shadow) {
-			hasToCalculateImage = true;
-		} else if (offscreenImage == null) {
-			hasToCalculateImage = true;
-		/*
-		 * This test seems non accurate (offscreenImage.getWidth(canvas) returns the image side, truncated by the 
-		 * canvas side), and useles
-		 * I keep it in the code. I'll remove it when I'm sure everything is Ok. 
-		} else {
-			hasToCalculateImage = (offscreenImage.getWidth(canvas) != maxWidth  || offscreenImage.getHeight(canvas) != maxHeight);
-		*/
-		}
-
-		if ( ! hasToCalculateImage) {
-			image = offscreenImage;
-		} else {
-	        if (isPicture) {
-				try {
-					//FIXME (minor) getBufferedImage() that can be smaller than the PictureDialog (if maxWidth or maxHeigth are smaller than the PictureDialog)
-					//bufferedImage 
-					image = getBufferedImage(canvasWidth, canvasHeight);
-					/**
-					 * getBufferedImage returns a picture of the correct size.
-					 * There is no need to do the checks below.
-					int originalWidth  = bufferedImage.getWidth ();
-					int originalHeight = bufferedImage.getHeight();
-					
-					debug: getBufferedImage() orw et orh
-					
-					float scaleWidth = (float) maxWidth / originalWidth;
-					float scaleHeight = (float) maxHeight / originalHeight;
-					float scale = Math.min(scaleWidth, scaleHeight);
-					//Should we resize this picture ?
-					if (scale < 1) {
-						int width  = (int) (scale * originalWidth);
-						int height = (int) (scale * originalHeight);
-						image = bufferedImage.getScaledInstance(width, height, Image.SCALE_DEFAULT);
-						uploadPolicy.displayDebug("Picture resized: " + getFileName(), 75);
-						//Diminuer le  nombre de couleurs ?
-					} else {
-						image = bufferedImage;
-						uploadPolicy.displayDebug("Picture not resized: " + getFileName(), 75);
-					}
-					*/
-				} catch (OutOfMemoryError e) {
-					//Too bad
-					bufferedImage = null;
-					image = null;
-					tooBigPicture();
+			uploadPolicy.displayDebug("canvas width and/or height null in PictureFileData.getImage()", 1);
+		} else if ( shadow  &&  offscreenImage != null) {
+			//We take and return the previous calculated image for this PictureFileData.
+			localImage = offscreenImage;
+		} else if (isPicture) {
+			try {
+				//FIXME (minor) getBufferedImage() that can return a picture smaller than the PictureDialog (if maxWidth or maxHeigth are smaller than the PictureDialog)
+				//bufferedImage 
+				localImage = getBufferedImage(canvasWidth, canvasHeight);
+				/**
+				 * getBufferedImage returns a picture of the correct size.
+				 * There is no need to do the checks below.
+				int originalWidth  = bufferedImage.getWidth ();
+				int originalHeight = bufferedImage.getHeight();
+				
+				debug: getBufferedImage() orw et orh
+				
+				float scaleWidth = (float) maxWidth / originalWidth;
+				float scaleHeight = (float) maxHeight / originalHeight;
+				float scale = Math.min(scaleWidth, scaleHeight);
+				//Should we resize this picture ?
+				if (scale < 1) {
+					int width  = (int) (scale * originalWidth);
+					int height = (int) (scale * originalHeight);
+					image = bufferedImage.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+					uploadPolicy.displayDebug("Picture resized: " + getFileName(), 75);
+					//Diminuer le  nombre de couleurs ?
+				} else {
+					image = bufferedImage;
+					uploadPolicy.displayDebug("Picture not resized: " + getFileName(), 75);
 				}
-	        } //If isPicture
-			
-			//We store it, if asked to.
-			if (shadow) {
-				offscreenImage = image;
+				*/
+			} catch (OutOfMemoryError e) {
+				//Too bad
+				localImage = null;
+				tooBigPicture();
 			}
-			
-			//Within the navigator, we have to free memory ASAP
-			if (!storeBufferedImage  &&  bufferedImage != null) {
-					bufferedImage.flush();
-					bufferedImage = null;
-					freeMemory("end of getOffscreenImage");
-			}
+        } //If isPicture
+		
+		//We store it, if asked to.
+		if (shadow) {
+			offscreenImage = localImage;
 		}
 
-		if (image != null) {
-			uploadPolicy.displayDebug("image Width: " + image.getWidth(canvas), 60);
-			uploadPolicy.displayDebug("image Height: " + image.getHeight(canvas), 60);
+		/*
+		if (localImage != null) {
+			uploadPolicy.displayDebug("image Width: " + localImage.getWidth(canvas), 60);
+			uploadPolicy.displayDebug("image Height: " + localImage.getHeight(canvas), 60);
 		}
+		*/
 
 		freeMemory("end of " + this.getClass().getName() + ".getImage()");
-		return image;
-	}//getOffscreenImage
+	
+		return localImage;
+	}//getImage
 	
 	/**
 	 * This function is used to rotate the picture. 
@@ -415,9 +389,11 @@ public class PictureFileData extends DefaultFileData  {
 			hasToTransformPicture = Boolean.TRUE;
 		}
 		
-		
-		//The current calculated pictures are now wrong
-		afterUpload();
+		//We need to change the precalculated picture, if any
+		if (offscreenImage != null) {
+			offscreenImage.flush();
+			offscreenImage = null;
+		}
 	}
 	
 	/**
@@ -580,9 +556,12 @@ public class PictureFileData extends DefaultFileData  {
 					*/
 					affineTransformOp.filter(localBufferedImage, bufferedImage);
 					affineTransformOp = null;
+					
+					bufferedImage.flush();
 				}
 
 				//Let's free some memory : useful when running as an applet
+				localBufferedImage.flush();
 				localBufferedImage = null;
 				transform = null;
 				freeMemory("end of getBufferedImage");
@@ -590,12 +569,14 @@ public class PictureFileData extends DefaultFileData  {
 				throw new JUploadException("IOException (createBufferedImage) : " + e.getMessage());
 			}
 			
+			/*
 			if (bufferedImage != null) {
-				uploadPolicy.displayDebug("bufferedImage MinX: " + bufferedImage.getMinX(), 60);
-				uploadPolicy.displayDebug("bufferedImage MinY: " + bufferedImage.getMinY(), 60);
-				uploadPolicy.displayDebug("bufferedImage Width: " + bufferedImage.getWidth(), 60);
-				uploadPolicy.displayDebug("bufferedImage Height: " + bufferedImage.getHeight(), 60);
+				uploadPolicy.displayDebug("bufferedImage MinX (" + bufferedImage + "): " + bufferedImage.getMinX(), 60);
+				uploadPolicy.displayDebug("bufferedImage MinY (" + bufferedImage + "): " + bufferedImage.getMinY(), 60);
+				uploadPolicy.displayDebug("bufferedImage Width (" + bufferedImage + "): " + bufferedImage.getWidth(), 60);
+				uploadPolicy.displayDebug("bufferedImage Height (" + bufferedImage + "): " + bufferedImage.getHeight(), 60);
 			}
+			*/
 		}
 		return bufferedImage;
 	}
@@ -730,7 +711,8 @@ public class PictureFileData extends DefaultFileData  {
 	                output.close();
 	                output = null;
 	                
-	                //For debug : let's display some parameters for the current image.
+                	/*
+                	 * Some debug information, to help analyze what happens.
 	                ColorModel cm = bufferedImage.getColorModel();
 	                ColorSpace cs = cm.getColorSpace();
                 	uploadPolicy.displayDebug("  colorSpace: isCS_RGB=" + (cs.isCS_sRGB() ? "true" : "false"), 90);
@@ -739,6 +721,7 @@ public class PictureFileData extends DefaultFileData  {
 	                	uploadPolicy.displayDebug("  colorSpace: component " + cs.getName(i) + "=" 
 	                			+ cs.getMinValue(i) + "-" + cs.getMaxValue(i), 90);
 	                }
+	                */
 	                
 	                
 	                //For debug: test if any other driver exists.

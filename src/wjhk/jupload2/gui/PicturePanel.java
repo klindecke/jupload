@@ -11,6 +11,8 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -52,7 +54,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  *
  */
 
-public class PicturePanel extends Canvas implements MouseListener {
+public class PicturePanel extends Canvas implements MouseListener, ComponentListener {
 
 	/**
 	 * 
@@ -84,7 +86,7 @@ public class PicturePanel extends Canvas implements MouseListener {
 	/**
 	 * The current upload policy.
 	 */
-	private UploadPolicy uploadPolicy;
+	protected UploadPolicy uploadPolicy;
 	
 	/**
 	 * Standard constructor.
@@ -100,6 +102,9 @@ public class PicturePanel extends Canvas implements MouseListener {
     	
     	//We want to trap the mouse actions on this picture. 
 	  	addMouseListener(this);
+	  	
+	  	//We want to know when a resize event occurs (to recalculate offscreenImage)
+	  	addComponentListener(this);
 
 	  	//Indication to the user : this panel can be clicked on.
 	  	setCursor(picturePanelCursor);
@@ -114,55 +119,65 @@ public class PicturePanel extends Canvas implements MouseListener {
     public void setPictureFile(PictureFileData pictureFileData) {
     	//First : reset current picture configuration.
     	this.pictureFileData = null;
-		offscreenImage = null; //Useful, if a repaint event occurs while we calculate the offscreenImage
+    	if (offscreenImage != null) {
+    		offscreenImage.flush();
+    		offscreenImage = null;
+    	}
 		
-		//Ask for an immediate repaint, to clear the panel (as offscreenImage is null). 
+		//Ask for an immediate repaint, to clear the panel (as offscreenImage is now null). 
 		repaint(0);
 
     	//Then, we store the new picture data, get the offscreen picture and ask for a repaint.
-		this.pictureFileData = pictureFileData;
-		calculateOffscreenImage();
-		repaint();
+		if (pictureFileData != null) {
+			this.pictureFileData = pictureFileData;
+			calculateOffscreenImage();
+			if (offscreenImage == null) {
+				uploadPolicy.displayDebug("PicturePanel.setPictureFile(): offscreenImage is null", 1); 
+			}
+			repaint();
+		}
     }
 
     
 	public void paint(Graphics g) {
 		//First : clear the panel area. 
 		g.clearRect(0, 0, getWidth(), getHeight());
-		//Do we have a picture to display
-		//Now, we calculate the picture if we don't already have one. If not, we get it.
-		if (offscreenImage == null) {
-			calculateOffscreenImage();
-		}
 		
 		/*
-		 Seems useless. I keep it here, for some time...
+		 * The picture is calculated outside of the paint() event. 
+		 * See: calculateOffscreenImage() and componentResized.
+		 * 
+		//Then, check if we must calculate the picture.
 		if (pictureFileData != null) {
-			//Check current calculated image size :
-			if (offscreenImage != null) {
-				if (offscreenImage.getWidth(this) != getWidth()  &&  offscreenImage.getHeight(this)!=getHeight()) {
-					uploadPolicy.displayDebug("Wrong width or height : recalculating offscreenImage (image : w=" 
-							+ offscreenImage.getWidth(this)
-							+ ", h="
-							+ offscreenImage.getHeight(this)
-							+ ", panel: w="
-							+ getWidth()
-							+ ", h="
-							+ getHeight()
-							, 20
-							);
-					offscreenImage = null;
-				}
+			//Now, we calculate the picture if we don't already have one.
+			if (offscreenImage == null) {
+				calculateOffscreenImage();
 			}
 		}
 		*/
 		
 		//Then, display the picture, if any is defined.
     	if (offscreenImage != null) {
-			//Let's center this picture
+    		/*
+			uploadPolicy.displayDebug("PicturePanel.paint(): Non null offscreenImage (image : w=" 
+					+ offscreenImage.getWidth(this)
+					+ ", h="
+					+ offscreenImage.getHeight(this)
+					+ ", panel: w="
+					+ getWidth()
+					+ ", h="
+					+ getHeight()
+					, 20
+					);
+			*/
+    		//Let's center this picture
 			int hMargin = (getWidth() - offscreenImage.getWidth(this))/2;
 			int vMargin = (getHeight() - offscreenImage.getHeight(this))/2;
 			g.drawImage(offscreenImage, hMargin, vMargin, this);
+			//Free the used memory.
+			offscreenImage.flush();
+    	} else {
+			uploadPolicy.displayDebug("PicturePanel.paint(): offscreenImage is null", 40); 
     	}
 	}
 		
@@ -176,12 +191,13 @@ public class PicturePanel extends Canvas implements MouseListener {
 		if (pictureFileData != null) {
 			pictureFileData.addRotation(quarter);
 			//The previously calculated picture is now wrong.
+			offscreenImage.flush();
 			offscreenImage = null;
 			calculateOffscreenImage();
 			
 	    	repaint();
 		} else {
-			uploadPolicy.displayWarn("Strange: there is no pictureFileData in the PicturePanel! Command is ignored.");
+			uploadPolicy.displayWarn("Hum, this is really strange: there is no pictureFileData in the PicturePanel! Command is ignored.");
 		}
 	}
 
@@ -189,7 +205,7 @@ public class PicturePanel extends Canvas implements MouseListener {
      * This method get the offscreenImage from the current pictureFileData. This image is null, if pictureFileData
      * is null. In this case, the repaint will only clear the panel rectangle, on the screen.
      */
-    private void calculateOffscreenImage () {
+    private void calculateOffscreenImage() {
     	Cursor previousCursor = null;
     	if (mainContainer != null) {
     		previousCursor = mainContainer.getCursor();
@@ -200,12 +216,19 @@ public class PicturePanel extends Canvas implements MouseListener {
     		//Nothing to do. offscreenImage should be null.
     		if (offscreenImage != null) {
 	    		offscreenImage = null;
-	    		uploadPolicy.displayWarn("PicturePanel.calculateOffscreenImage(): offscreenImage set to null");
+	    		uploadPolicy.displayWarn("PicturePanel.calculateOffscreenImage(): pictureFileData is null (offscreenImage set to null");
     		}
     	} else if (offscreenImage == null) {
     		uploadPolicy.displayDebug("PicturePanel.calculateOffscreenImage(): trying to calculate offscreenImage (PicturePanel.calculateOffscreenImage()", 40);
     		try {
     			offscreenImage = pictureFileData.getImage(this, hasToStoreOffscreenPicture);
+    			/*
+    			if (offscreenImage != null) {
+    	    		uploadPolicy.displayDebug("PicturePanel.calculateOffscreenImage(): got a non null offscreenImage", 40);
+    			} else {
+    	    		uploadPolicy.displayDebug("PicturePanel.calculateOffscreenImage(): got a null offscreenImage", 40);
+    			}
+    			*/
 	    	} catch (JUploadException e) {
 	    		uploadPolicy.displayErr(e);
 	    		//We won't try to display the picture for this file.
@@ -226,8 +249,15 @@ public class PicturePanel extends Canvas implements MouseListener {
     protected void finalize() throws Throwable {
     	//super.finalize();
     	uploadPolicy.displayDebug("Within PicturePanel.finalize()", 90);
+    			
     	mainContainer = null;
     	pictureFileData = null;
+    	uploadPolicy = null;
+    	
+    	if (offscreenImage != null) {
+    		offscreenImage.flush();
+    		offscreenImage = null;
+    	}
     }
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,8 +267,9 @@ public class PicturePanel extends Canvas implements MouseListener {
 	public void mouseClicked(MouseEvent arg0) {
 		if (pictureFileData != null) {
 			//Ok, we have a picture. Let's display it.
-			uploadPolicy.displayDebug("Opening PictureDialog", 60);
+			//uploadPolicy.displayDebug("---------- Opening PictureDialog", 60);
 			new PictureDialog(null, pictureFileData, uploadPolicy);
+			//uploadPolicy.displayDebug("---------- PictureDialog closed", 60);
 		}
 	}
 	/** @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent) */
@@ -256,6 +287,31 @@ public class PicturePanel extends Canvas implements MouseListener {
 	/** @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent) */
 	public void mouseReleased(MouseEvent arg0) {
 		// Nothing to do.		
+	}
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////   ComponentListener interface   ////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+	public void componentHidden(ComponentEvent arg0) {
+		// No action		
+	}
+	public void componentMoved(ComponentEvent arg0) {
+		// No action		
+	}
+	public void componentResized(ComponentEvent arg0) {
+		uploadPolicy.displayDebug("Within componentResized", 60);
+		if (offscreenImage != null) {
+			offscreenImage.flush();
+			offscreenImage = null;
+		}
+		
+		//Then we calculate a new image for this panel.
+		calculateOffscreenImage();
+		repaint();
+	}
+	public void componentShown(ComponentEvent arg0) {
+		// No action		
 	}
 }
 

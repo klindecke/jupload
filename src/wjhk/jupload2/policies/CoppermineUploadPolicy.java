@@ -3,7 +3,12 @@
  */
 package wjhk.jupload2.policies;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.FilePanel;
 
@@ -116,7 +121,13 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	 * @see wjhk.jupload2.policies.UploadPolicy#getPostURL()
 	 */
 	public String getPostURL() {
-		return postURL + "?cmd=add_picture&album=" + albumId;
+		//The jupload.phg script gives the upload php script that will receive the uploaded files.
+		//It can be xp_publish.php, or (much better) jupload.php.
+		//In either case, the postURL given to the applet contains already one paramete: the cmd (for xp_publish) or
+		//the action (for jupload). We just add one parameter.
+		//Note: if the postURL (given to the applet) doesn't need any parameter, it's necessary to add a dummy one, 
+		//      so that the line below generates a valid URL.
+		return postURL + "&album=" + albumId;
 	}
 	
 	/**
@@ -138,6 +149,92 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 		return super.isUploadReady();
 	}
 	
+	/**
+	 * The default behaviour (see {@link DefaultUploadPolicy}) is to check that the stringUploadSuccess applet 
+	 * parameter is present in the request. The return is :
+	 * <DIR>
+	 * <LI>True, if the stringUploadSuccess string is present in the serverOutputBody.
+	 * <LI>True, If previous condition is not filled, but the HTTP header "HTTP(.*)200OK$" is present: the test is
+	 *   currently non blocking, because I can not test all possible HTTP configurations.<BR>
+	 *   Note: If "Transfer-Encoding: chunked" is present, the body may be cut by 'strange' characters, which prevent 
+	 *   to find the success string. Then, a warning is displayed.
+	 * <LI>False if the previous conditions are not fullfilled.
+	 * </DIR>     
+	 * 
+	 * @param serverOutput The full HTTP answer, including the http headers. 
+	 * @param serverOutputBody The body of the HTTP answer.
+	 * @return True or False, indicating if the upload is a success or not.
+	 * 
+	 * @see UploadPolicy#checkUploadSuccess(String, String)
+	 */
+	public boolean checkUploadSuccess(String serverOutput, String serverOutputBody) throws JUploadException {
+		final Pattern patternSuccess = Pattern.compile(stringUploadSuccess);
+		final Pattern patternTransferEncodingChunked = Pattern.compile("^Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
+		//La première ligne est de la forme "HTTP/1.1 NNN Texte", où NNN et le code HTTP de retour (200, 404, 500...)
+		final Pattern patternHttpStatus = Pattern.compile("HTTP[^ ]* ([^ ]*) .*", Pattern.DOTALL);
+		
+		//The success string should be in the http body
+		boolean uploadSuccess = patternSuccess.matcher(serverOutputBody).find();
+		//The transfert encoding may be present in the serverOutput (that contains the http headers)
+		boolean uploadTransferEncodingChunked = patternTransferEncodingChunked.matcher(serverOutput).find();
+		
+		/////////////////////////////////////////////////////////////////////////////////////
+		//Changes from the DefaultUploadPolicy code : START (1/2)
+		final Pattern patternError = Pattern.compile("ERROR: (.*)");
+		Matcher matcherError = patternError.matcher(serverOutputBody);
+		String errorMessage = null;
+		if (matcherError.find()) {
+			try {
+				errorMessage = matcherError.group(1);
+			} catch (IndexOutOfBoundsException e) {
+				//Too bad, the RegExp didn't find any error message.
+				errorMessage = "An error occurs during upload (but the applet couldn't find the error message)";
+			}
+		}		
+		//Changes from the DefaultUploadPolicy code : END (1/2)
+		/////////////////////////////////////////////////////////////////////////////////////
+		
+		//And have a match, to search for the http return code (200 for Ok)
+		Matcher matcherUploadHttpStatus = patternHttpStatus.matcher(serverOutput);
+		if (!matcherUploadHttpStatus.matches()) {
+			throw new JUploadException("Can't find the HTTP status in serverOutput!");
+		} else {
+			int httpStatus = Integer.parseInt(matcherUploadHttpStatus.group(1));
+			boolean upload_200_OK = (httpStatus == 200);
+			
+			displayDebug("HTTP return code: " + httpStatus, 40);
+	
+			//Let's find what we should answer:
+			if (uploadSuccess) {
+				//Everything is Ok, we leave here.
+				return true;
+			/////////////////////////////////////////////////////////////////////////////////////
+			//Changes from the DefaultUploadPolicy code : START (2/2)
+			} else if (errorMessage != null) {
+				if (errorMessage.equals("")) {
+					errorMessage = "An unknown error occurs during upload."; 
+				}
+				throw new JUploadExceptionUploadFailed (getClass().getName() + ".checkUploadSuccess(): " + errorMessage);
+			//Changes from the DefaultUploadPolicy code : END (2/2)
+			/////////////////////////////////////////////////////////////////////////////////////
+			} else if (uploadTransferEncodingChunked && upload_200_OK) {
+				//Hum, as the transfert encoding is chuncked, the success string may be splitted. We display 
+				//an info message, and expect everything is Ok.
+				//FIXME The chunked encoding should be correctly handled, instead of the current 'expectations' below. 
+				displayInfo("The transertEncoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+				return true;
+			} else if (upload_200_OK) {
+				//This method is currently non blocking.
+				displayWarn("The http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+				//We raise no exception (= success)
+				return true;
+			} else {
+				//The upload is not successful: here, we know it!
+				throw new JUploadExceptionUploadFailed (getClass().getName() + ".checkUploadSuccess(): The http return code is : " + httpStatus + " (should be 200)");
+			}
+		}
+	}//isUploadSuccessful
+
 	/**
 	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(FilePanel, Exception, String)
 	 */

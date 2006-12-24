@@ -444,6 +444,29 @@ public interface UploadPolicy {
 	public boolean isUploadReady();
 	
 	/**
+	 * Enable any action, required before an upload. For instance, {@link PictureUploadPolicy} disable the rotation
+	 * buttons during buttons.
+	 * 
+	 *  @see #afterUpload(Exception, String)
+	 */
+	public void beforeUpload();
+	
+	/**
+	 * This method return true, if upload is a success. A HTTP response of "200 OK" indicates that the server 
+	 * response is techically correct. But, it may be a functionnal error. For instance, the server could answer
+	 * by a proper HTTP page, that the user is no allowed to upload files. It's up to the uploadPolicy to check this,
+	 * and answer true or false to this method.
+	 * 
+	 * @param serverOutput The full http response, including the http headers.
+	 * @param serverOutputBody The http body part (that is: the serverOuput without the http headers and the blank line
+	 *   that follow them=
+	 * @return true (or an exception is raised, instead of returning false). This garantees that all cases are handled:
+	 *   the compiler will indicate an error if the code can come to the end of the method, without finding a 'return'
+	 *   or a throw exception. This return code can be ignored by the caller. 
+	 */
+	public boolean checkUploadSuccess(String serverOutput, String serverOutputBody) throws JUploadException;
+
+	/**
 	 * This method is called after a upload, whether it is successful or not.
 	 *
 	 * @param filePanel The panel that contains 
