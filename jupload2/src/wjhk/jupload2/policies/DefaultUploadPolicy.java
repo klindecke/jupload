@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -215,11 +217,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		}
 		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
 
-	    
-		displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
-	    displayInfo("Java version  : " + System.getProperty("java.version")); 
-		
-
 		///////////////////////////////////////////////////////////////////////////////
 		//Load session data read from the navigator: 
 		// - cookies. 
@@ -260,10 +257,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    
 		///////////////////////////////////////////////////////////////////////////////
 		// Let's display some information to the user, about the received parameters.
+		displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
+	    displayInfo("postURL: " + postURL);
+
+	    displayDebug("Java version  : " + System.getProperty("java.version"), 20); 		
 	    displayDebug("debug: " + debugLevel, 1); 
 	    displayDebug("filenameEncoding: " + filenameEncoding, 20);
 	    displayDebug("nbFilesPerRequest: " + nbFilesPerRequest, 20);
-	    displayInfo("postURL: " + postURL);
 	    displayDebug("stringUploadSuccess: " + stringUploadSuccess, 20); 
 	    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
 	    displayDebug("serverProtocol: " + serverProtocol, 20); 
@@ -282,6 +282,73 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		headers.add(header);		
 	}
 	
+	/**
+	 * @see wjhk.jupload2.policies.UploadPolicy#beforeUpload()
+	 */
+	public void beforeUpload() {
+		//Default: no special action.
+	}
+
+	/**
+	 * The default behaviour (see {@link DefaultUploadPolicy}) is to check that the stringUploadSuccess applet 
+	 * parameter is present in the request. The return is :
+	 * <DIR>
+	 * <LI>True, if the stringUploadSuccess string is present in the serverOutputBody.
+	 * <LI>True, If previous condition is not filled, but the HTTP header "HTTP(.*)200OK$" is present: the test is
+	 *   currently non blocking, because I can not test all possible HTTP configurations.<BR>
+	 *   Note: If "Transfer-Encoding: chunked" is present, the body may be cut by 'strange' characters, which prevent 
+	 *   to find the success string. Then, a warning is displayed.
+	 * <LI>False if the previous conditions are not fullfilled.
+	 * </DIR>     
+	 * 
+	 * @param serverOutput The full HTTP answer, including the http headers. 
+	 * @param serverOutputBody The body of the HTTP answer.
+	 * @return True or False, indicating if the upload is a success or not.
+	 * 
+	 * @see UploadPolicy#isUploadSuccessful(String, String)
+	 */
+	public boolean checkUploadSuccess(String serverOutput, String serverOutputBody) throws JUploadException {
+		final Pattern patternSuccess = Pattern.compile(stringUploadSuccess);
+		final Pattern patternTransferEncodingChunked = Pattern.compile("^Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
+		//La première ligne est de la forme "HTTP/1.1 NNN Texte", où NNN et le code HTTP de retour (200, 404, 500...)
+		final Pattern patternHttpStatus = Pattern.compile("HTTP[^ ]* ([^ ]*) .*", Pattern.DOTALL);
+		
+		//The success string should be in the http body
+		boolean uploadSuccess = patternSuccess.matcher(serverOutputBody).find();
+		//The transfert encoding may be present in the serverOutput (that contains the http headers)
+		boolean uploadTransferEncodingChunked = patternTransferEncodingChunked.matcher(serverOutput).find();
+		
+		//And have a match, to search for the http return code (200 for Ok)
+		Matcher matcherUploadHttpStatus = patternHttpStatus.matcher(serverOutput);
+		if (!matcherUploadHttpStatus.matches()) {
+			throw new JUploadException("Can't find the HTTP status in serverOutput!");
+		} else {
+			int httpStatus = Integer.parseInt(matcherUploadHttpStatus.group(1));
+			boolean upload_200_OK = (httpStatus == 200);
+			
+			displayDebug("HTTP return code: " + httpStatus, 40);
+	
+			//Let's find what we should answer:
+			if (uploadSuccess) {
+				return true;
+			} else if (uploadTransferEncodingChunked && upload_200_OK) {
+				//Hum, as the transfert encoding is chuncked, the success string may be splitted. We display 
+				//an info message, and expect everything is Ok.
+				//FIXME The chunked encoding should be correctly handled, instead of the current 'expectations' below. 
+				displayInfo("The transertEncoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+				return true;
+			} else if (upload_200_OK) {
+				//This method is currently non blocking.
+				displayWarn("The http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+				//We raise no exception (= success)
+				return true;
+			} else {
+				//The upload is not successful: here, we know it!
+				throw new JUploadExceptionUploadFailed (getClass().getName() + ".checkUploadSuccess(): The http return code is : " + httpStatus + " (should be 200)");
+			}
+		}
+	}//isUploadSuccessful
+
 	/**
 	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(FilePanel, Exception, String)
 	 */

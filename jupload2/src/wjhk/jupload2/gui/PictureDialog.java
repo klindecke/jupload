@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JPanel;
 
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -29,37 +28,39 @@ public class PictureDialog extends JDialog implements ActionListener {
 	 */
 	private static final long serialVersionUID = 7802205907550854333L;
 	JButton buttonClose;
-	PicturePanel picturePanel;
+	PictureFileData pictureFileData = null;
+	PicturePanel picturePanel = null;
 	UploadPolicy uploadPolicy = null;
 	
 	public PictureDialog (Frame owner, PictureFileData pictureFileData, UploadPolicy uploadPolicy) {
 		super(owner, pictureFileData.getFileName(), true);
 		
 		this.uploadPolicy = uploadPolicy;
+		this.pictureFileData = pictureFileData; 
 
-		
-		JPanel panel = new JPanel();
-	  	panel.setLayout(new BorderLayout());	  	
 		//Creation of the image area
-	  	picturePanel = new DialogPicturePanel(this, uploadPolicy);
+	  	picturePanel = new DialogPicturePanel(this, uploadPolicy, pictureFileData);
+	  	
 	  	//Creation of the buttonClose button.
 	  	buttonClose = new JButton(uploadPolicy.getString("buttonClose"));
 		buttonClose.setMaximumSize(new Dimension(100, 100));
 	    buttonClose.addActionListener(this);
-	    //Creation of the panel, that'll contains both objects.
 
-	    panel.add(buttonClose, BorderLayout.SOUTH);
-	    panel.add(picturePanel);;
-
-	    getContentPane().add(panel);
-	  	
-
-	  	pack();
+	    getContentPane().add(buttonClose, BorderLayout.SOUTH);
+	    getContentPane().add(picturePanel);
+		
+	    pack();
 		setSize(getMaximumSize());
 
-		picturePanel.setPictureFile(pictureFileData);
-		//show();
+		//The dialog is modal: the next line will return when the DialogPicture is hidden (to be closed, in our case)
 		setVisible(true);
+		
+		// MEMORY LEAK CORRECTION :
+		
+		//Let's free some memory.
+		//This is necessary, as the finalize method is not called (if anyone has an explanation).
+		//So, I have to manually free the memory consummed to display the image, here.  
+		picturePanel.setPictureFile(null);
 	}
 	
 	/**
@@ -67,17 +68,19 @@ public class PictureDialog extends JDialog implements ActionListener {
 	 */
 	public void actionPerformed(ActionEvent event) {
 	    if(event.getActionCommand() == buttonClose.getActionCommand()) {
+			uploadPolicy.displayDebug("[PictureDialog] Before this.dispose()", 60);
 	    	this.dispose();			
 	    }
 	}
 	
 	/**
 	 * Free all locked data.
-	 */
+	 *
 	protected void finalize () throws Throwable {
 		super.finalize();
-    	uploadPolicy.displayDebug("Within PicturePanel.finalize()", 90);
+    	uploadPolicy.displayDebug("Within PictureDialog.finalize()", 90);
 		picturePanel = null;
 		buttonClose = null;
 	}
+	*/
 }

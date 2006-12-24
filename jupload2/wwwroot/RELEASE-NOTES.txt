@@ -1,10 +1,29 @@
 
 
 TODO LIST
-- Test how this applet works with a little memory size (only important for picture handling, no problem with the
-default behaviour).
-- Correct the scale calculation in PictureFileData. It's when the maxHeight and maxWidth are different, and the picture 
-must be rotated by one quarter (in either direction)
+
+- Make upload of files with non ascii characters (like accents) works with Coppermine. It seems like the problem is
+within coppermine, as standard coppermine upload doesn't work with these files. Here the applet si a progress, as it
+allows upload of a file whose name contain a space (dosn't work with standard coppermine upload).
+
+- Be able to swith the debug mode on and off, without the debugLevel applet parameter. This is specialy useful to 
+test problem on production web sites, without impact on other users, and without the right to modify files (for
+instance, when someone give me a login/password so that I can repeat the problem).
+
+
+V2.4.1
+
+Bugs Corrected:
+- [Major] Corrected an important memory leak when viewing a fullscreen picture (by clicking on the preview picture). 
+- [Minor] When previewing a picture in 'big' format (full screen), the size is now calculated only with the Window 
+size, not with the maxPicWidth and maxPicHeight parameters.
+- [Minor] Temporary files where not deleted, when using picture mode, and stopping the upload with the 'stop' button.
+
+
+Changes:
+- [Major] The applet has been tested, and runs well with only a little allocated memory: tested with a JVM of 
+minMemory=8M and a maxMemory=16M.
+- [Translation] Now translated in Esperanto, thanks to Chuck Smith (whiz.at.users.sourceforge.net)
 
 
 V2.4.0

@@ -224,6 +224,8 @@ public class JUploadPanel extends JPanel implements ActionListener{
 			//IMPORTANT: It's up to the UploadPolicy to explain to the user that the upload is not ready!
 			/////////////////////////////////////////////////////////////////////////////////////////////////
 			if (uploadPolicy.isUploadReady()) {
+				uploadPolicy.beforeUpload();
+				
 				browse.setEnabled(false);
 				remove.setEnabled(false);
 				removeAll.setEnabled(false);
@@ -238,14 +240,17 @@ public class JUploadPanel extends JPanel implements ActionListener{
 				timer = new Timer(DEFAULT_TIMEOUT, new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 						if(!fileUploadThread.isAlive()){
+							uploadPolicy.displayDebug("JUploadPanel: after !fileUploadThread.isAlive()", 60);
 							timer.stop();
 							String svrRet=fileUploadThread.getServerOutput();
 							Exception e = fileUploadThread.getException();
 							
 							//Restore enable state, as the upload is finished.
 							stop.setEnabled(false);
-							uploadPolicy.displayDebug("stop.setEnabled(false)", 60);
+
 							browse.setEnabled(true);
+							remove.setEnabled(true);
+							removeAll.setEnabled(true);
 							upload.setEnabled(true);
 
 							//Free resources of the upload thread.
@@ -264,6 +269,14 @@ public class JUploadPanel extends JPanel implements ActionListener{
 
 			}//if isIploadReady()
 		}else if(e.getActionCommand() == stop.getActionCommand()){
+			//We request the thread to stop its job. 
+			fileUploadThread.stopUpload();
+			/*
+			 * There was a bug here: this command should only ask the thread to stop.
+			 * 
+			 * It's up to the timer to wait until the thread's end. This insure that all ressources are freed 
+			 * by it
+			 
 			stop.setEnabled(false);
 			if(null != timer){
 				timer.stop();
@@ -277,12 +290,19 @@ public class JUploadPanel extends JPanel implements ActionListener{
 					}catch(InterruptedException ie){}
 				}
 				fileUploadThread.close();
+				
+				bug ici: il faut utiliser le timer, pour attendre la fin de la thread.
+				Fonction de libération à mutualiser
+				
+				Hum, un click sur stop ne devrait fare qu'appeler fileUploadThread.stop().
+				Le timer gèrera la libération de ress et les boutons.
 			}
 			fileUploadThread = null;
 			remove.setEnabled(true);
 			removeAll.setEnabled(true);
 			upload.setEnabled(true);
 			browse.setEnabled(true);
+			*/
 		}
 	}//actionPerformed
 

@@ -169,11 +169,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		maxWidth = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH, DEFAULT_MAX_WIDTH);
 		maxHeight = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT);
 		
-		if (maxWidth != DEFAULT_MAX_WIDTH) {
-			displayInfo(PROP_MAX_WIDTH + " : " + maxWidth);
-		}
-		if (maxHeight != DEFAULT_MAX_HEIGHT) {
-			displayInfo(PROP_MAX_HEIGHT + " : " + maxHeight);
+		if (maxWidth != DEFAULT_MAX_WIDTH   ||   maxHeight != DEFAULT_MAX_HEIGHT) {
+			displayInfo(PROP_MAX_WIDTH + " : " + maxWidth + ", " + PROP_MAX_HEIGHT + " : " + maxHeight);
 		}
 
 		
@@ -233,8 +230,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		
 		//The preview PicturePanel
 		JPanel pPanel = new JPanel();
-	  	pPanel.setLayout(new GridLayout(1,1));	  	
-	  	picturePanel = new PicturePanel(mainPanel, false, this);
+	  	pPanel.setLayout(new GridLayout(1,1));
+	  	picturePanel = new PicturePanel(mainPanel, true, this);
 	  	pPanel.add(picturePanel);
 	  	
 	  	//And last but not least ... creation of the top panel:
@@ -272,6 +269,20 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 			picturePanel.setPictureFile((PictureFileData)fileData);
 			rotateLeftButton.setEnabled(fileData != null);
 		    rotateRightButton.setEnabled(fileData != null);
+		}
+	}
+	
+	/** @see UploadPolicy#beforeUpload() */
+	public void beforeUpload() {
+		super.beforeUpload();
+		
+		//We clear the current picture selection. This insure a correct managing of enabling/disabling of
+		//buttons, even if the user stops the upload.
+		applet.getFilePanel().clearSelection();
+		if (picturePanel != null) {
+			picturePanel.setPictureFile(null);
+			rotateLeftButton.setEnabled(false);
+		    rotateRightButton.setEnabled(false);
 		}
 	}
     //////////////////////////////////////////////////////////////////////////////////////////////////////

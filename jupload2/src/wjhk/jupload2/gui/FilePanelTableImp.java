@@ -118,5 +118,13 @@ public class FilePanelTableImp extends Panel implements FilePanel {
   public void remove(FileData fileData){
 	  model.removeRow(fileData);
   }
+  
+
+  /**
+   * Clear the current selection, in the JTable. 
+   */
+  public void clearSelection() {
+	  jtable.clearSelection();
+  }
 
 }

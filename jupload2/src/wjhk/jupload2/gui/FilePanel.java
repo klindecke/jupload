@@ -15,4 +15,5 @@ public interface FilePanel {
   public void removeSelected();
   public void removeAll();
   public void remove(FileData fileData);
+  public void clearSelection();
 }
