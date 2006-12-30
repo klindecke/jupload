@@ -24,6 +24,7 @@ Changes:
 - [Major] The applet has been tested, and runs well with only a little allocated memory: tested with a JVM of 
 minMemory=8M and a maxMemory=16M.
 - [Translation] Now translated in Esperanto, thanks to Chuck Smith (whiz.at.users.sourceforge.net)
+- [Translation] Now translated in Dutch, thanks to Rob van Kempen (rob.at.vankempen.nu)
 
 
 V2.4.0

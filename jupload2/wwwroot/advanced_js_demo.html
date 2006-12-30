@@ -23,7 +23,8 @@
 	
 	//Some parameters can only be choosen from an existing list:
 	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy"];
-	langList = ["", "de", "en", "eo", "es", "fr", "us"];
+	//eo: esperanto
+	langList = ["", "de", "en", "eo", "es", "fr", "nl", "us"];
 	serverProtocolList = ["", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1"];
 
 	function writeInputText (name, value) {
@@ -136,7 +137,7 @@
 	writeInputText("maxPicHeight", maxPicHeight);
 	writeInputText("maxPicWidth", maxPicWidth);
 	document.writeln('</TABLE>');
-	document.writeln('<input type=submit>');
+	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button when parameters changed)">');
 	document.writeln('</FORM>');
 	document.writeln('');
 
