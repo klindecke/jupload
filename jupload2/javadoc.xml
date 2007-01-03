@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="javadoc">
 <target name="javadoc">
-<javadoc access="private" author="true" classpath="C:\Program Files\Java\jre1.5.0_05\lib\plugin.jar" destdir="doc" doctitle="JUpload - Multiple file upload applet" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="wjhk.jupload2.exception,wjhk.jupload2.gui,wjhk.jupload2,wjhk.jupload2.upload,wjhk.jupload2.policies,wjhk.jupload2.filedata" source="1.3" sourcepath="E:\Donnees\gauthier-ete\MES DOCUMENTS\Java\eclipse-3.2.1\workspace\jupload\src" splitindex="true" use="true" version="true"/>
+<javadoc access="private" author="true" classpath="C:\Program Files\Java\jre1.5.0_08\lib\plugin.jar" destdir="doc" doctitle="JUpload - Multiple file upload applet" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="wjhk.jupload2.exception,wjhk.jupload2.gui,wjhk.jupload2,wjhk.jupload2.upload,wjhk.jupload2.policies,wjhk.jupload2.filedata" source="1.3" sourcepath="src" splitindex="true" use="true" version="true"/>
 </target>
 </project>

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 //import sun.plugin.javascript.JSObject;
 
@@ -46,8 +47,8 @@ import wjhk.jupload2.gui.JUploadTextArea;
  * is used when no <I>uploadPolicy</I> parameter is given to the applet, or this parameter has 'DefaultUploadPolicy' 
  * as a value. 
  * <BR>
- * The default behavior is representated below. It can be overrided by adding parameters to the applet. All available
- * parameters are shown in the presentation of {@link UploadPolicy}.
+ * <P>The <U>default behavior</U> is representated below. It can be overrided by adding parameters to the applet. All available
+ * parameters are shown in the presentation of {@link UploadPolicy}.</P>
  * <UL>
  * <LI>Default implementation for all {@link wjhk.jupload2.policies.UploadPolicy} methods.
  * <LI>Files are uploaded all in one HTTP request.
@@ -80,13 +81,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/**
 	 * The current debug level.
 	 */
-	private int debugLevel = 0;
+	private int debugLevel = -1;
 	
 	/**
 	 * This String contains the filenameEncoding parameter. All details about the available applet parameters
 	 * are displayed in the <a href="UploadPolicy.html@parameters">Upload Policy javadoc page</a>.
 	 */
 	String filenameEncoding = null;
+	
+	/**
+	 * The look and feel is used as a parameter of the UIManager.setLookAndFeel(String) method. See the parameters
+	 * list on the {@link UploadPolicy} page.
+	 */
+	String lookAndFeel = "";
 
 	/**
 	 * The applet will do as may HTTP requests to upload all files, with the number 
@@ -178,6 +185,23 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    //get the filenameEncoding. If not null, it should be a valid argument for
 	    //the URLEncoder.encode method. 
 	    filenameEncoding = UploadPolicyFactory.getParameter(theApplet, PROP_FILENAME_ENCODING, DEFAULT_FILENAME_ENCODING);
+
+	    
+	    //Force the look and feel of the current system.
+	    lookAndFeel = UploadPolicyFactory.getParameter(theApplet, PROP_LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL);
+	    if (lookAndFeel != null  &&  !lookAndFeel.equals("")  &&  !lookAndFeel.equals("java")) {
+	    	//We try to call the UIManager.setLookAndFeel() method. We catch all possible exceptions, to prevent
+	    	//that the applet is blocked.
+	    	try {
+		    	if (! lookAndFeel.equals("system")) {
+		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		    	} else {
+		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		    	}
+	    	} catch (Exception e) {
+	    		displayErr(e);
+	    	}
+	    }
 
 	    ///////////////////////////////////////////////////////////////////////////////
 	    //get the maximum number of files to upload in one HTTP request. 
@@ -667,6 +691,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	}
 	/** @see UploadPolicy#setDebugLevel(int) */
 	public void setDebugLevel(int debugLevel) {
+		//If the debugLevel was previously set, we inform the user of this change.
+		if (this.debugLevel >= 0) {
+			displayInfo("Debug level set to " + debugLevel);
+		}
 		this.debugLevel = debugLevel;
 	}	
 

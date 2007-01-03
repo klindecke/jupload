@@ -2,22 +2,20 @@
 
 TODO LIST
 
-- Make upload of files with non ascii characters (like accents) works with Coppermine. It seems like the problem is
-within coppermine, as standard coppermine upload doesn't work with these files. Here the applet si a progress, as it
-allows upload of a file whose name contain a space (dosn't work with standard coppermine upload).
-
-- Be able to swith the debug mode on and off, without the debugLevel applet parameter. This is specialy useful to 
-test problem on production web sites, without impact on other users, and without the right to modify files (for
-instance, when someone give me a login/password so that I can repeat the problem).
+- Say more precisely in the docs that the upload is done in the same http session, as the one of the navigator. This 
+allows to control upload authorisation, depending on the user connected.
 
 
-V2.4.1
+
+V2.5.0
 
 Bugs Corrected:
 - [Major] Corrected an important memory leak when viewing a fullscreen picture (by clicking on the preview picture). 
 - [Minor] When previewing a picture in 'big' format (full screen), the size is now calculated only with the Window 
 size, not with the maxPicWidth and maxPicHeight parameters.
 - [Minor] Temporary files where not deleted, when using picture mode, and stopping the upload with the 'stop' button.
+- [Minor] Correction of the howto-customise and the javadoc: a lot of applet parameters were not displayed in these html
+files.
 
 
 Changes:
@@ -25,6 +23,12 @@ Changes:
 minMemory=8M and a maxMemory=16M.
 - [Translation] Now translated in Esperanto, thanks to Chuck Smith (whiz.at.users.sourceforge.net)
 - [Translation] Now translated in Dutch, thanks to Rob van Kempen (rob.at.vankempen.nu)
+- [Major] Add of a popup menu that allows changing the debug mode while using the applet: very useful to help
+debugging a problem on a distant server, with only a standard user access to the site. To switch the debug mode on: 
+click on the right button, while holding the CTRL down.
+- [Minor] Add of a new applet parameter: lookAndFeel. It allows to control the way the applet is displayed. This allow
+to display the applet with a java look & feel, or to use the current user's system one, or any other. Please, take a 
+look to the list of applet parameters, to use it.
 
 
 V2.4.0
