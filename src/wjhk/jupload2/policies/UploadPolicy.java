@@ -70,7 +70,20 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TD>Navigator language <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
   <TD>Should be something like <I>en</I>, <I>fr</I>... Currently only french and english are known 
       from the applet. If anyone want to add another language ... Please translate the
-      wjhk.jupload2.lang.lang_en, and send it back to <mailto:etienne_sf@sourceforge.net>.
+      wjhk.jupload2.lang.lang_en, and send it back to <mailto:etienne_sf@sourceforge.net">.
+  </TD>
+</TR>
+<TR>
+  <TD>lookAndFeel <BR> since 2.5</TD>
+  <TD><I>empty</I><BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This allows to control the look & feel of the applet. The authorized values are:
+  	<DIR>
+  		<LI><I>empty</I>: uses the default look & feel. This is the same as java.
+  		<LI>java: uses the java default look & feel. Same as <I>empty</I>.
+  		<LI>system: uses the current system look and feel. The call will be : 
+  			<BR>UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+  		<LI>Any valid String argument for UIManager.setLookAndFeel(String).
+  	</DIR>
   </TD>
 </TR>
 <TR>
@@ -239,6 +252,7 @@ public interface UploadPolicy {
 	final static String PROP_DEBUG_LEVEL			= "debugLevel";
 	final static String PROP_LANG	 				= "lang";
 	final static String PROP_FILENAME_ENCODING		= "filenameEncoding";
+	final static String PROP_LOOK_AND_FEEL			= "lookAndFeel";
 	final static String PROP_MAX_HEIGHT				= "maxPicHeight";
 	final static String PROP_MAX_WIDTH				= "maxPicWidth";
 	final static String PROP_NB_FILES_PER_REQUEST 	= "nbFilesPerRequest";
@@ -257,6 +271,7 @@ public interface UploadPolicy {
 	final static int     DEFAULT_DEBUG_LEVEL			= 0;
 	final static String  DEFAULT_LANG	 				= null;
 	final static String  DEFAULT_FILENAME_ENCODING		= null;	   //Note: the CoppermineUploadPolicy forces it to "UTF8". 
+	final static String  DEFAULT_LOOK_AND_FEEL			= "";
 	final static int     DEFAULT_MAX_WIDTH				= -1;
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
 	final static int     DEFAULT_NB_FILES_PER_REQUEST	= -1;	   //Note: the CoppermineUploadPolicy forces it to 1.
@@ -399,7 +414,7 @@ public interface UploadPolicy {
 	public void displayDebug (String debug, int minDebugLevel);
 	
 	/**
-	 * Add an header to the list of headers that will be added to ech HTTP upload request.
+	 * Add an header to the list of headers that will be added to each HTTP upload request.
 	 * This method is called from specific uploadPolicies, which would need headers to be
 	 * added to all uploads. These headers are used in {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
 	 * 
@@ -452,14 +467,14 @@ public interface UploadPolicy {
 	public void beforeUpload();
 	
 	/**
-	 * This method return true, if upload is a success. A HTTP response of "200 OK" indicates that the server 
+	 * This method returns true, if upload is a success. A HTTP response of "200 OK" indicates that the server 
 	 * response is techically correct. But, it may be a functionnal error. For instance, the server could answer
 	 * by a proper HTTP page, that the user is no allowed to upload files. It's up to the uploadPolicy to check this,
 	 * and answer true or false to this method.
 	 * 
 	 * @param serverOutput The full http response, including the http headers.
-	 * @param serverOutputBody The http body part (that is: the serverOuput without the http headers and the blank line
-	 *   that follow them=
+	 * @param serverOutputBody The http body part (that is: the serverOuput without the http headers and the blank 
+	 *   line that follow them).
 	 * @return true (or an exception is raised, instead of returning false). This garantees that all cases are handled:
 	 *   the compiler will indicate an error if the code can come to the end of the method, without finding a 'return'
 	 *   or a throw exception. This return code can be ignored by the caller. 
@@ -467,10 +482,13 @@ public interface UploadPolicy {
 	public boolean checkUploadSuccess(String serverOutput, String serverOutputBody) throws JUploadException;
 
 	/**
-	 * This method is called after a upload, whether it is successful or not.
+	 * This method is called after an upload, whether it is successful or not. This method is called once for each
+	 * click of the user on the 'upload' button. That is: if the nbFilesPerRequest is 2, and the user selected 5 
+	 * files before clicking on the 'upload' button. Then the afterUpload is called once the 5 files were uploaded to
+	 * the server. 
 	 *
-	 * @param filePanel The panel that contains 
-	 * @param e null if success, or the exception indicating the problem. 
+	 * @param e null if success, or the exception indicating the problem.
+	 * @param serverOutput The full server output, including the HTTP headers. 
 	 */
 	public void afterUpload(Exception e, String serverOutput);
 	
