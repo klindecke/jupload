@@ -32,7 +32,11 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 import javax.swing.JProgressBar;
 
 import wjhk.jupload2.exception.JUploadException;
@@ -40,7 +44,20 @@ import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
 
+
 public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
+	//	 TrustManager to allow all certificates
+	private final class TM implements X509TrustManager {
+		public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+		}
+
+		public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+		}
+
+		public X509Certificate[] getAcceptedIssuers() {
+			return new X509Certificate[0];
+		}
+	}
 	
 	//------------- INFORMATION --------------------------------------------
 	public static final String TITLE = "JUpload FileUploadThreadV4";
@@ -88,7 +105,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * If set to 'true', the thread will stop the crrent upload. This attribute is not private as the
 	 * {@link UploadFileData} class us it.
 	 * 
-	 *  @see UploadFileData#uploadFile(DataOutputStream)
+	 *  @see UploadFileData#uploadFile(java.io.OutputStream)
 	 */ 
 	boolean stop = false;
 	
@@ -193,9 +210,10 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	/**
 	 * Construction of the head for each file.
 	 * 
-	 * @param files array of UploadFileData classes, that contains all files to upload.
-	 * @param nbFilesToUpload actual number of files to manage, within files.
-	 * @param bound
+	 * @param firstFileToUpload The index of the first file to upload, in the {@link #filesToUpload} area.
+	 * @param nbFilesToUpload Number of file to upload, in the next HTTP upload request. These files are taken from 
+	 * the {@link #filesToUpload} area 
+	 * @param bound The String boundary between the post data in the HTTP request.
 	 * @return HTTP header for each file, within the multipart HTTP request.
 	 * 
 	 * @throws JUploadException
@@ -211,7 +229,9 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	/**
  	 * Construction of the tail for each file.
  	 * 
-	 * @param fileLength
+	 * @param firstFileToUpload The index of the first file to upload, in the {@link #filesToUpload} area.
+	 * @param nbFilesToUpload Number of file to upload, in the next HTTP upload request. These files are taken from 
+	 * the {@link #filesToUpload} area 
 	 * @param bound
 	 * @return Returns an array containing the HTTP tails for al files of the current HTTP request.
 	 */
@@ -316,10 +336,9 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * Actual execution file upload. It's called by the run methods, once for all files, or file by file, 
 	 * depending on the UploadPolicy.
 	 * 
-	 * @param filesA An array of FileData, that contains all files to upload in this HTTP request.
-	 * @param nbFilesToUpload The number of files in filesA to use (indice 0 to nbFilesToUpload-1).
-	 * @param iTotalFileCount The total number of files that are to upload. It is used to generate the "file 1 out of 4 " message, on the progress bar. 
-	 *
+	 * @param firstFileToUpload The index of the first file to upload, in the {@link #filesToUpload} area.
+	 * @param nbFilesToUpload Number of file to upload, in the next HTTP upload request. These files are taken from 
+	 * the {@link #filesToUpload} area 
 	 */
 	private boolean doUpload (int firstFileToUpload, int nbFilesToUpload) {
 		boolean bReturn = true;
@@ -382,7 +401,25 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			header.append("\r\n");
 			
 			// If port not specified then use default http port 80.
-			sock = new Socket(url.getHost(), (-1 == url.getPort())?80:url.getPort());
+			//sock = new Socket(url.getHost(), (-1 == url.getPort())?80:url.getPort());
+			
+			//////////////////////////////////////////////////////////////////////////////////////////////////
+			//Management of SSL, thanks to David Gnedt
+			// Check if SSL connection is needed
+			if (url.getProtocol().equals("https")) {
+				SSLContext context = SSLContext.getInstance("SSL");
+				// Allow all certificates
+				context.init(null, new X509TrustManager[] {new TM()}, null);
+				// If port not specified then use default https port 443.
+				uploadPolicy.displayDebug("Using SSL socket", 20);
+				sock = (Socket) context.getSocketFactory().createSocket(url.getHost(), (-1 == url.getPort())?443:url.getPort());
+			} else {
+				// If we are not in SSL, just use the old code.
+				sock = new Socket(url.getHost(), (-1 == url.getPort())?80:url.getPort());
+				uploadPolicy.displayDebug("Using non SSL socket", 20);
+			}
+			//////////////////////////////////////////////////////////////////////////////////////////////////
+			
 			dataout = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
 			datain  = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			//DataInputStream datain  = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
