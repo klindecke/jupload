@@ -36,7 +36,6 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
-import wjhk.jupload2.gui.FilePanel;
 import wjhk.jupload2.gui.JUploadTextArea;
 
 /**
@@ -167,7 +166,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/**
 	 * The main constructor : use default values, and the given postURL.
 	 * 
-	 * @param postURL The URL where files should be uploaded. 
+	 * @param theApplet The current applet. As the reference to the current upload policy exists almost everywhere,
+	 *   this parameter allows any access to anyone on the applet... including reading the applet parameters.    
 	 */
 	public DefaultUploadPolicy(JUploadApplet theApplet) {
 		//Call default constructor for all default initialization;.
@@ -329,7 +329,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * @param serverOutputBody The body of the HTTP answer.
 	 * @return True or False, indicating if the upload is a success or not.
 	 * 
-	 * @see UploadPolicy#isUploadSuccessful(String, String)
+	 * @see UploadPolicy#checkUploadSuccess(String, String)
 	 */
 	public boolean checkUploadSuccess(String serverOutput, String serverOutputBody) throws JUploadException {
 		final Pattern patternSuccess = Pattern.compile(stringUploadSuccess);
@@ -374,7 +374,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	}//isUploadSuccessful
 
 	/**
-	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(FilePanel, Exception, String)
+	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
 	 */
 	public void afterUpload(Exception e, String serverOutput) {
 		//Default: no special action.

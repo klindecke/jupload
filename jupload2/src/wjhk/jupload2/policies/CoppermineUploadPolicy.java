@@ -10,7 +10,6 @@ import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
-import wjhk.jupload2.gui.FilePanel;
 
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
@@ -89,7 +88,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	private int albumId;
 
 	/**
-	 * @param applet Identifier for the current applet. It's necessary, to read information from the navigator.
+	 * @param theApplet Identifier for the current applet. It's necessary, to read information from the navigator.
 	 */
 	public CoppermineUploadPolicy(JUploadApplet theApplet) {
 		//Let's call our mother !          :-)
@@ -236,7 +235,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	}//isUploadSuccessful
 
 	/**
-	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(FilePanel, Exception, String)
+	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
 	 */
 	public void afterUpload(Exception e, String serverOutput) {
         if(e == null){

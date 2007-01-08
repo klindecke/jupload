@@ -187,6 +187,17 @@ Here is the list of all parameters available in the current package. These are a
   </TD>
 </TR>
 <TR>
+  <TD>highQualityPreview</TD>
+  <TD>false<BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>If this parameter is set to <I>true</I>, the applet will call the BufferedImage.getScaledInstance(), instead
+  of doing a basic scale transformation. This consume more CPU: on a PII 500MHz, the full screen go from around 5 
+  seconds to between 12 and 20 seconds, for a picture created by my EOS20D (8,5M pixels). The standard preview (above 
+  the file list) seem to be displayed at the same speed, whatever is the value of this parameter.
+  <BR>Note: when resizing is done before upload, the BufferedImage.getScaledInstance() is always called, so that
+  the uploaded picture is of the best available quality.
+  </TD>
+</TR>
+<TR>
   <TD>lang</TD>
   <TD>Navigator language <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
   <TD>Should be something like <I>en</I>, <I>fr</I>... Currently only french and english are known 

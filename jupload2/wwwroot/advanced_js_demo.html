@@ -13,7 +13,9 @@
 	postURL = "http://localhost:8080/jupload/pages/parseRequest.jsp";
 	urlToSendErrorTo = "mailto:toto@yahoo.com"; //Careful: log info will be truncated, if sent to a mailto: link.
 	uploadPolicy = "";
+	
 	filenameEncoding = "";
+	highQualityPreview = "";
 	lang = "";
 	lookAndFeel = "";
 	nbFilesPerRequest = "";
@@ -89,6 +91,9 @@
 		case "filenameEncoding":
 			filenameEncoding = val;
 			break;
+		case "highQualityPreview":
+			highQualityPreview = val;
+			break;
 		case "lang":
 			lang = val;
 			break;
@@ -133,6 +138,7 @@
 	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList);
 	writeInputText("postURL", postURL);
 	writeInputText("urlToSendErrorTo", urlToSendErrorTo);
+	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"]);	
 	writeInputSelect("lang", lang, langList);
 	writeInputText("lookAndFeel", lookAndFeel);
 	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList);
@@ -143,7 +149,7 @@
 	writeInputText("maxPicHeight", maxPicHeight);
 	writeInputText("maxPicWidth", maxPicWidth);
 	document.writeln('</TABLE>');
-	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button when parameters changed)">');
+	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)">');
 	document.writeln('</FORM>');
 	document.writeln('');
 

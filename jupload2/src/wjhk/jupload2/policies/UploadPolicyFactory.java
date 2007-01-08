@@ -48,9 +48,7 @@ public class UploadPolicyFactory {
 	 * Returns an upload Policy for the given applet and URL. All other parameters for the uploadPolicy are
 	 * take from avaiable applet parameters (or from system properties, if it is not run as an applet).
 	 *
-	 * @param applet if not null : use this Applet Parameters. If null, use System properties.  
-	 * @param status A JTextArea, that'll contain output to the user. It will contain the ERROR, WARN and INFO
-	 *    texts. The DEBUG ones will be displayed, according to the current debugLevel (see <a href="UploadPolicy.html#parameters">parameters</a>). 
+	 * @param theApplet if not null : use this Applet Parameters. If null, use System properties.  
 	 * @return The newly created UploadPolicy.
 	 */
 	public static UploadPolicy getUploadPolicy(JUploadApplet theApplet) throws Exception {
@@ -149,7 +147,7 @@ public class UploadPolicyFactory {
 		}
 	    
 	    return parseBoolean(paramStr, def);
-	}//getParameter(int)
+	}//getParameter(boolean)
 
 	/**
 	 * This function try to parse value as an integer. If value is not a correct integer,
@@ -181,9 +179,9 @@ public class UploadPolicyFactory {
 	 */
 	static public boolean parseBoolean (String value, boolean def) {
 		//Then, parse it as a boolean.
-		if (value.toUpperCase().equals("false")) {
+		if (value.toUpperCase().equals("FALSE")) {
 			return false;
-		} else if (value.toUpperCase().equals("false")) {
+		} else if (value.toUpperCase().equals("TRUE")) {
 			return true;
 		} else {
 			return def;
