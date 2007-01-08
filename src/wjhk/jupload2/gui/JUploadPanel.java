@@ -2,7 +2,6 @@ package wjhk.jupload2.gui;
 
 import java.io.File;
 
-import java.applet.Applet;
 import java.awt.Container;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -15,7 +14,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.Timer;
 
 import wjhk.jupload2.policies.UploadPolicy;
@@ -72,9 +70,10 @@ public class JUploadPanel extends JPanel implements ActionListener{
 	 * useless as eclipse allow direct execution of applet, for tests. It can also be used
 	 * to use this code from within a java application.
 	 *  
-	 * @param container The container, where all GUI elements are to be created.
-	 * @param uploadPolicy The current UploadPolicy. Null if a new one must be created.
-	 * @see UploadPolicyFactory#getUploadPolicy(Applet, JTextArea)
+	 * @param containerParam The container, where all GUI elements are to be created.
+	 * @param statusParam The status area that should already have been created. This allows putting text into it, before the effective creation of the layout.
+	 * @param uploadPolicyParam The current UploadPolicy. Null if a new one must be created.
+	 * @see UploadPolicyFactory#getUploadPolicy(wjhk.jupload2.JUploadApplet)
 	 */
 	public JUploadPanel(Container containerParam, JUploadTextArea statusParam, UploadPolicy uploadPolicyParam) throws Exception {
 		this.statusArea = statusParam;

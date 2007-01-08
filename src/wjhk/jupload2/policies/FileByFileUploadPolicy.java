@@ -27,7 +27,7 @@ import wjhk.jupload2.JUploadApplet;
 public class FileByFileUploadPolicy extends DefaultUploadPolicy {
 
 	/**
-	 * @param applet The applet on which the UploadPolicy should apply.
+	 * @param theApplet The applet on which the UploadPolicy should apply.
 	 */
 	public FileByFileUploadPolicy(JUploadApplet theApplet) {
 		super(theApplet);

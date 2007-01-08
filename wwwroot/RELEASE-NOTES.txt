@@ -6,6 +6,22 @@ TODO LIST
 allows to control upload authorisation, depending on the user connected.
 
 
+V2.6.0rc1
+
+The next changes and corrections are given by David Gnedt:
+- [New fuctionnality] SSL management. You can now upload files with JUpload in SSL (HTTPS)!  Great!
+- [Update] Better picture resizing: the use of BufferedImage.getScaledInstance() allows better picture quality, when 
+resizing a picture. But it consumes more CPU and memory (see below the new applet parameter highQualityPreview)
+- [Correction] When the picture file format should change, the applet would not do it if there where no rotation
+or resizing.
+
+Other changes:
+- [Parameter] A new applet parameter: highQualityPreview. It allows the calculation of better preview picture. But
+displaying the full screen preview is longer. On an old PII 500MHz and a 8,5M pixels picture, the full screen
+picture is displayed in 12 seconds when highQualityPreview is set to true, instead of 5s when the parameter is not
+set or set to false.
+
+
 
 V2.5.0
 

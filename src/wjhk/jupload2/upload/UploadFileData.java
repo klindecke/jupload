@@ -31,7 +31,7 @@ class UploadFileData implements FileData {
 	/**
 	 * The head for this file, within the multi-part http body.
 	 * 
-	 * @see #getFileHead()
+	 * @see #getFileHeader(int, String)
 	 */
 	private String fileHead = null;
 	
@@ -70,8 +70,7 @@ class UploadFileData implements FileData {
 	
 	
 	/**
-	 * Standard constructor for the UploadFileData class. It calls the {@link FileData.bef
-	 * 
+	 * Standard constructor for the UploadFileData class. 
 	 */
 	public UploadFileData(FileData fileDataParam, FileUploadThread fileUploadThreadParam, UploadPolicy uploadPolicyParam){
 		this.fileData = fileDataParam;
@@ -157,9 +156,8 @@ class UploadFileData implements FileData {
 	 * This methods upload write the file data to upload (see {@link FileData#getInputStream()}
 	 * to the given outputStream (the output toward the HTTP server).
 	 * 
-	 * @param is
-	 * @param dOut
-	 * @throws IOException
+	 * @param outputStream The stream on which the file is to be written.
+	 * @throws JUploadException Any troubles that could occurs during upload.
 	 */
 	void uploadFile(OutputStream outputStream) throws JUploadException {
 		byte[] byteBuff = null;

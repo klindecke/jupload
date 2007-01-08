@@ -315,7 +315,7 @@ public class PictureFileData extends DefaultFileData  {
 			try {
 				//FIXME (minor) getBufferedImage() that can return a picture smaller than the PictureDialog (if maxWidth or maxHeigth are smaller than the PictureDialog)
 				//bufferedImage 
-				localImage = getBufferedImage(canvasWidth, canvasHeight);
+				localImage = getBufferedImage(canvasWidth, canvasHeight, ((PictureUploadPolicy)uploadPolicy).getHighQualityPreview());
 				/**
 				 * getBufferedImage returns a picture of the correct size.
 				 * There is no need to do the checks below.
@@ -413,15 +413,25 @@ public class PictureFileData extends DefaultFileData  {
 	/////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * This function resizes the picture, if necessary, according to the maxWidth and
-	 * maxHeight of fileDataPolicy.
+	 * This function resizes the picture, if necessary, according to the maxWidth and maxHeight of fileDataPolicy.
+	 * <BR>
 	 * This function should only be called if isPicture is true. But calling it with isPicture to false	just
-	 * won't do anything. 
+	 * won't do anything.
+	 * <BR>Note (Update given by David Gnedt): the highquality will condition the call of getScaledInstance, instead
+	 * of a basic scale Transformation. The generated picture is of better quality, but this is longer, especially
+	 * on 'small' CPU. Time samples, with one picture from my canon EOS20D, on a PII 500M: 
+	 * <BR>~3s for the full screen preview with highquality to false, and a quarter rotation. 12s to 20s with 
+	 * highquality to true. 
+	 * <BR>~5s for the first (small) preview of the picture, with both highquality to false or true.     
 	 *  
+	 * @param maxWidth Maximum width allowed to the BufferedImage that will be returned.
+	 * @param maxHeight Maximum height allowed to the BufferedImage that will be returned.
+	 * @param highquality (added by David Gnedt): if set to true, the BufferedImage.getScaledInstance() is called. This
+	 * generates better image, but consumes more CPU.
 	 * @return A BufferedImage which contains the picture according to current parameters (resizing, rotation...), or
 	 * null if this is not a picture.
 	 */
-	private BufferedImage getBufferedImage(int maxWidth, int maxHeight) throws JUploadException {
+	private BufferedImage getBufferedImage(int maxWidth, int maxHeight, boolean highquality) throws JUploadException {
 		BufferedImage bufferedImage = null;
 
 		
@@ -510,8 +520,19 @@ public class PictureFileData extends DefaultFileData  {
 								
 				//If we have to rescale the picture, we first do it:
 				if (scale < 1) {
-					//The scale method adds scaling before current transformation.
-		    		transform.scale(scale, scale);
+					if (highquality) {
+						uploadPolicy.displayDebug("Using high quality picture", 40);
+						Image img = localBufferedImage.getScaledInstance((int) (originalWidth * scale), (int) (originalHeight * scale), BufferedImage.SCALE_SMOOTH);
+						img.flush();
+						localBufferedImage = new BufferedImage((int) (originalWidth * scale), (int) (originalHeight * scale), localBufferedImage.getType());
+						localBufferedImage.getGraphics().drawImage(img, 0, 0, null);
+						localBufferedImage.flush();
+						img = null;
+					} else {
+						//The scale method adds scaling before current transformation.
+						uploadPolicy.displayDebug("Using standard quality picture", 40);
+						transform.scale(scale, scale);
+					}
 				}	
 				
 				if (transform.isIdentity()) {
@@ -614,8 +635,9 @@ public class PictureFileData extends DefaultFileData  {
 				if (ext   .equals("jpg")) ext    = "jpeg";
 				
 				if (! target.equals(ext)) {
-					uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true", 20);
-					//Third : should we resize the picture ?
+					uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (targetPictureFormat)", 20);
+					//Correction given by David Gnedt: the following line was lacking!
+					hasToTransformPicture = Boolean.TRUE;
 				}
 			}
 			
@@ -687,7 +709,7 @@ public class PictureFileData extends DefaultFileData  {
 				String localPictureFormat = (uploadPolicy.getTargetPictureFormat() == null) ? getFileExtension() : uploadPolicy.getTargetPictureFormat();
 
 				//Prepare (if not already done) the bufferedImage.
-				bufferedImage = getBufferedImage(uploadPolicy.getMaxWidth(), uploadPolicy.getMaxHeight());
+				bufferedImage = getBufferedImage(uploadPolicy.getMaxWidth(), uploadPolicy.getMaxHeight(), true);
 				//Get the writer (to choose the compression quality)
 				Iterator iter = ImageIO.getImageWritersByFormatName(localPictureFormat);
 				if (iter.hasNext()) {					

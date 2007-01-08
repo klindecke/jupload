@@ -8,7 +8,6 @@ import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
@@ -63,6 +62,17 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   	tries to encode this filename with the given encoding. It's up to the receiver (the web site) to decode this
   	encoding (see {@link #getUploadFilename(FileData, int)}.
   	<BR>Example: if the "UTF8" encoding is choosen, the PHP function urldecode can be used to decode the filename.
+  </TD>
+</TR>
+<TR>
+  <TD>highQualityPreview</TD>
+  <TD>false<BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>If this parameter is set to <I>true</I>, the applet will call the BufferedImage.getScaledInstance(), instead
+  of doing a basic scale transformation. This consume more CPU: on a PII 500MHz, the full screen go from around 5 
+  seconds to between 12 and 20 seconds, for a picture created by my EOS20D (8,5M pixels). The standard preview (above 
+  the file list) seem to be displayed at the same speed, whatever is the value of this parameter.
+  <BR>Note: when resizing is done before upload, the BufferedImage.getScaledInstance() is always called, so that
+  the uploaded picture is of the best available quality.
   </TD>
 </TR>
 <TR>
@@ -194,7 +204,7 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TD><B>uploadPolicy</B></TD>
   <TD>DefaultUploadPolicy <BR><BR> see {@link wjhk.jupload2.policies.UploadPolicyFactory}</TD>
   <TD>This parameter contains the class name for the UploadPolicy that should be used. If it is not 
-      set, or if its value is unknown from {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(Applet, JTextArea, String)},
+      set, or if its value is unknown from {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(JUploadApplet)},
       the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used.
   </TD>
 </TR>
@@ -252,6 +262,7 @@ public interface UploadPolicy {
 	final static String PROP_DEBUG_LEVEL			= "debugLevel";
 	final static String PROP_LANG	 				= "lang";
 	final static String PROP_FILENAME_ENCODING		= "filenameEncoding";
+	final static String PROP_HIGH_QUALITY_PREVIEW	= "highQualityPreview";
 	final static String PROP_LOOK_AND_FEEL			= "lookAndFeel";
 	final static String PROP_MAX_HEIGHT				= "maxPicHeight";
 	final static String PROP_MAX_WIDTH				= "maxPicWidth";
@@ -264,13 +275,14 @@ public interface UploadPolicy {
 	final static String PROP_URL_TO_SEND_ERROR_TO	= "urlToSendErrorTo";
 	
 	final static String DEFAULT_POST_URL = 
-		//"http://localhost:8080/jupload/pages/writeOut.jsp?URLParam=URL+Parameter+Value";
-		"http://localhost/coppermine/xp_publish.php";
+		"http://localhost:8080/jupload/pages/parseRequest.jsp";
+		//"http://localhost/coppermine/xp_publish.php";
 	final static int     DEFAULT_ALBUM_ID				= 0;
 	final static boolean DEFAULT_STORE_BUFFERED_IMAGE	= false;   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static int     DEFAULT_DEBUG_LEVEL			= 0;
 	final static String  DEFAULT_LANG	 				= null;
 	final static String  DEFAULT_FILENAME_ENCODING		= null;	   //Note: the CoppermineUploadPolicy forces it to "UTF8". 
+	final static boolean DEFAULT_HIGH_QUALITY_PREVIEW	= false;
 	final static String  DEFAULT_LOOK_AND_FEEL			= "";
 	final static int     DEFAULT_MAX_WIDTH				= -1;
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
@@ -339,7 +351,7 @@ public interface UploadPolicy {
 	 * @return The encoding name, like UTF-8 (see the Charset JDK documentation).
 	 */
 	public String getFilenameEncoding();
-	
+		
 	/**
 	 * Get the original name of the file on the disk. This function can encode the filename (see 
 	 * the filenameEncoding parameter). By default, the original filename is returned.
@@ -365,13 +377,12 @@ public interface UploadPolicy {
 	 * @return Returns the maximum number of files, to download in one HTTP request.
 	 */
 	public int getNbFilesPerRequest();
-
 	
 	/**
 	 * This method allows the applet to post debug information to the website (see {@link #getUrlToSendErrorTo()}). 
 	 * Then, it is possible to log the error, to send a mail...   
 	 * 
-	 * @param description A string describing briefly the problem. The mail subject will be something 
+	 * @param reason A string describing briefly the problem. The mail subject will be something 
 	 * like: Jupload Error (reason)
 	 */
 	public void sendDebugInformation(String reason);
@@ -471,6 +482,12 @@ public interface UploadPolicy {
 	 * response is techically correct. But, it may be a functionnal error. For instance, the server could answer
 	 * by a proper HTTP page, that the user is no allowed to upload files. It's up to the uploadPolicy to check this,
 	 * and answer true or false to this method.
+	 * <BR>
+	 * This method is called once for each HTTP request toward the server. For instance, if the upload is done file
+	 * by file, and there are three files to upload, this method will be called three times.
+	 * <BR>
+	 * So this method is different from the {@link #afterUpload(Exception, String)}, that will be called only once in this case, after the three
+	 * calls to the checkUploadSuccess method.
 	 * 
 	 * @param serverOutput The full http response, including the http headers.
 	 * @param serverOutputBody The http body part (that is: the serverOuput without the http headers and the blank 
@@ -518,7 +535,7 @@ public interface UploadPolicy {
 	 * 
 	 * @param key The key, whose associated text is to retrieve.
 	 * @return The associated text.
-	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(String, Applet, int, JTextArea)
+	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
 	 */
 	public String getString(String key);
 
@@ -536,7 +553,7 @@ public interface UploadPolicy {
 	 * @param key The key, whose associated text is to retrieve.
 	 * @param value1 The value, which will replace all occurence of {1}
 	 * @return The associated text.
-	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(String, Applet, int, JTextArea)
+	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
 	 */
 	public String getString(String key, String value1);
 	

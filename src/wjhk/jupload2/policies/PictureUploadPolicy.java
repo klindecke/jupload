@@ -110,6 +110,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	private String targetPictureFormat;
 	
 	/**
+	 * Indicates wether or not the preview pictures must be calculated by the BufferedImage.getScaledInstance() method.
+	 */
+	private boolean highQualityPreview;
+	
+	/**
 	 * Maximal width for the uploaded picture. If the actual width for the picture
 	 * is more than maxWidth, the picture is resized. The proportion between widht
 	 * and height are maintained.
@@ -153,21 +158,17 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	/**
 	 * The standard constructor, which transmit most informations to the super.Constructor(). 
 	 * 
-	 * @param postURL The URL where picture files are to be posted (applet parameter name: postURL).
-	 * @param nbFilesPerRequest Number of files in one HTTP request to the server (applet parameter: nbFilesPerRequest)
-	 * @param applet Reference to the current applet. Allows access to javasript functions.
-	 * @param debugLevel Current debugLevel (applet parameter: debugLevel).
-	 * @param status The status bar, where messages are to be displayed.
+	 * @param theApplet Reference to the current applet. Allows access to javasript functions.
 	 */
 	public PictureUploadPolicy(JUploadApplet theApplet) {
 		super(theApplet);
 	    
-	    //Creation of the PictureFileDataPolicy, from parameters given to
-		//the applet, or from default values.
+	    //Creation of the PictureFileDataPolicy, from parameters given to the applet, or from default values.
+	    highQualityPreview = UploadPolicyFactory.getParameter(theApplet, PROP_HIGH_QUALITY_PREVIEW, DEFAULT_HIGH_QUALITY_PREVIEW);
+		maxHeight = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT);
+		maxWidth = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH, DEFAULT_MAX_WIDTH);
 	    storeBufferedImage = UploadPolicyFactory.getParameter(theApplet, PROP_STORE_BUFFERED_IMAGE, DEFAULT_STORE_BUFFERED_IMAGE);
 		targetPictureFormat = UploadPolicyFactory.getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT);
-		maxWidth = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH, DEFAULT_MAX_WIDTH);
-		maxHeight = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT);
 		
 		if (maxWidth != DEFAULT_MAX_WIDTH   ||   maxHeight != DEFAULT_MAX_HEIGHT) {
 			displayInfo(PROP_MAX_WIDTH + " : " + maxWidth + ", " + PROP_MAX_HEIGHT + " : " + maxHeight);
@@ -296,6 +297,13 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		return storeBufferedImage;
 	}
 	
+	/** 
+	 * @return the applet parameter <I>highQualityPreview</I>.
+	 */
+	public boolean getHighQualityPreview() {
+		return highQualityPreview;
+	}
+
 	/**
 	 * @return Returns the maxHeight.
 	 */

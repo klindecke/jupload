@@ -12,14 +12,14 @@ import wjhk.jupload2.JUploadApplet;
  * <BR> 
  * 
  * @author Etienne Gauthier
- * @see #CustomizedNbFilesPerRequestUploadPolicy(String, int, Applet, int, JTextArea)
+ * @see #CustomizedNbFilesPerRequestUploadPolicy(JUploadApplet)
  * @deprecated This class is of no use, as it actually behaves exactly as the
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
  */
 public class CustomizedNbFilesPerRequestUploadPolicy extends DefaultUploadPolicy {
 
 	/**
-	 * @param applet The applet to whom the UploadPolicy must apply.
+	 * @param theApplet The applet to whom the UploadPolicy must apply.
 	 *  
 	 * @see UploadPolicy
 	 */
