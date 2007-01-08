@@ -28,9 +28,10 @@ function footer() {
   document.writeln("        <td colspan=2>");
   document.writeln("            Doc:");
   document.writeln("            <A HREF='doc/index.html'>javadoc</A>, &nbsp; ");
+  document.writeln("            <A HREF='howto-debug.html'>HowTo debug it</A>, &nbsp; ");
+  document.writeln("            <A HREF='howto-support.html'>HowTo get support</A>, &nbsp; ");
   document.writeln("            <A HREF='howto-customization.html'>HowTo customize it</A>, &nbsp; ");
-  document.writeln("            <A HREF='howto-translation.html'>HowTo translate it</A>, &nbsp; ");
-  document.writeln("            <A HREF='howto-debug.html'>HowTo debug it</A>");
+  document.writeln("            <A HREF='howto-translation.html'>HowTo translate it</A>");
   document.writeln("        </td>");
   document.writeln("       </tr>");
   document.writeln("       <tr><td colspan=3><hr size=1 noshade width=100%></td></tr>");
