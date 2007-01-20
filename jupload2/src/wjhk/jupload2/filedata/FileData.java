@@ -33,7 +33,7 @@ public interface FileData {
 	 * Prepare the fileData to upload. For instance, picture data can be resized before upload 
 	 * (see {@link PictureFileData}. This method is called before the upload of this file.
 	 * 
-s	 * @see FileUploadThreadV3
+	 * @see FileUploadThreadV3
 	 *
 	 */
 	public void beforeUpload () throws JUploadException;

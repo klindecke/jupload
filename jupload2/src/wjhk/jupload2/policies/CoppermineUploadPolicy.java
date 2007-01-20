@@ -85,7 +85,16 @@ import netscape.javascript.JSObject;
  */
 public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	
+	/**
+	 * The coppermine's album id where picture must be uploaded.
+	 */
 	private int albumId;
+	
+	/**
+	 * The number of pictures to download in the current upload. This number is stored in the {@link #isUploadReady()}
+	 * method, which is called at the beginning of each upload.
+	 */
+	private int nbPictureInUpload = 0;
 
 	/**
 	 * @param theApplet Identifier for the current applet. It's necessary, to read information from the navigator.
@@ -144,6 +153,10 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 			alert("chooseAlbumFirst");
 			return false;
 		}
+		
+		//We note the number of files to upload.
+		nbPictureInUpload = getApplet().getFilePanel().getFilesLength();
+		
 		// Default :  Let's ask the mother.
 		return super.isUploadReady();
 	}
@@ -242,7 +255,10 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         	try {
 	        	//First : construction of the editpic URL :
 	        	String editpicURL = postURL.substring(0,postURL.lastIndexOf('/')) 
-						+ "/editpics.php?album=" + albumId;
+						//+ "/editpics.php?album=" + albumId
+						+ "/jupload.php?action=edit_uploaded_pics&album=" + albumId
+						+ "&nb_pictures=" + nbPictureInUpload
+						;
 			    
 			    if (getDebugLevel() >= 100) {
 				    alertStr ("No switch to property page, because debug level is " + getDebugLevel() + " (>=100)");

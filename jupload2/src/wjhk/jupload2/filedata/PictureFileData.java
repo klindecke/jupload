@@ -29,7 +29,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * 
- * This class contains all data for files to upload a picture. It adds the following 
+ * This class contains all data about files to upload as a picture. It adds the following 
  * elements to the {@link wjhk.jupload2.filedata.FileData} class :<BR>
  * <UL>
  * <LI> Ability to define a target format (to convert pictures to JPG before upload, for instance)

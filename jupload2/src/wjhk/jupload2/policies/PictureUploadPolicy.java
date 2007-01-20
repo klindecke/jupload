@@ -190,6 +190,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		if (pfd.isPicture()) {
 			return pfd;
 		} else {
+			//TODO alert only once, when several files are not pictures... hum, hum: any idea, dear reader ?
 			alert("notAPicture", file.getName());
 			return null;
 		}
