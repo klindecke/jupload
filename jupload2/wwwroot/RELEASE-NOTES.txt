@@ -6,7 +6,7 @@ TODO LIST
 allows to control upload authorisation, depending on the user connected.
 
 
-V2.6.0rc1
+V2.6.0
 
 The next changes and corrections are given by David Gnedt:
 - [New fuctionnality] SSL management. You can now upload files with JUpload in SSL (HTTPS)!  Great!

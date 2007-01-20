@@ -4,7 +4,7 @@
 
 
 WEB SITE: http://jupload.sourceforge.net/
-Version : 2.3.2
+Version : 2.6.0
 
 This applet comes with source code. I take no responsibility for any damages caused by the usage of this applet. 
 Use it at your own risk!
@@ -24,6 +24,7 @@ Main evolution since V2 :
 inherited classes, like CoppermineUploadPolicy (which is dedicated to the coppermine online picture gallery.
 - Cookies session are kept: Upload are now done within the current navigator session. Thus, the upload is done within 
 the same user session, if any.
+- Works with SSL.
 
 UploadPolicies makes it easy to configure these parameters:
 - Target upload URL
