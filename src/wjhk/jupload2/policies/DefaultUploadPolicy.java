@@ -103,6 +103,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	int nbFilesPerRequest;
 	
 	/**
+	 * Current value (or default value) of the maxChunkSize applet parameter.
+	 * <BR>
+	 * Default : Long.MAX_VALUE
+	 */
+	long maxChunkSize;
+	
+	/**
 	 * The URL where files should be posted.
 	 * <BR>
 	 * Default : no default value. (mandatory) 
@@ -208,6 +215,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		nbFilesPerRequest = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST);
 
 	    ///////////////////////////////////////////////////////////////////////////////
+	    //get the maximum number of files to upload in one HTTP request. 
+		maxChunkSize = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_CHUNK_SIZE, DEFAULT_MAX_CHUNK_SIZE);
+
+	    ///////////////////////////////////////////////////////////////////////////////
 	    //get the URL where files must be posted. 
 	    postURL = UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL, DEFAULT_POST_URL);
 
@@ -288,6 +299,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    displayDebug("debug: " + debugLevel, 1); 
 	    displayDebug("filenameEncoding: " + filenameEncoding, 20);
 	    displayDebug("nbFilesPerRequest: " + nbFilesPerRequest, 20);
+	    displayDebug("maxChunkSize: " + maxChunkSize, 20);
 	    displayDebug("stringUploadSuccess: " + stringUploadSuccess, 20); 
 	    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
 	    displayDebug("serverProtocol: " + serverProtocol, 20); 
@@ -697,6 +709,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		}
 		this.debugLevel = debugLevel;
 	}	
+
+	/** @see wjhk.jupload2.policies.UploadPolicy#getMaxChunkSize() */
+	public long getMaxChunkSize() {
+		return maxChunkSize;
+	}
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getNbFilesPerRequest() */
 	public int getNbFilesPerRequest() {

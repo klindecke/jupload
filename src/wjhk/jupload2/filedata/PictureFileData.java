@@ -485,9 +485,15 @@ public class PictureFileData extends DefaultFileData  {
 					}
 				}
 				
-				//These variables contain the actual width and height after recaling, and before rotation.
-				int scaledWidth  = (int) (nonScaledRotatedWidth * scale);
-				int scaledHeight = (int) (nonScaledRotatedHeight* scale);
+				//These variables contain the actual width and height after rescaling, and before rotation.
+				int scaledWidth  = nonScaledRotatedWidth;
+				int scaledHeight = nonScaledRotatedHeight;
+				//Is there any rescaling to do ?
+				//Patch for the first bug, tracked in the sourceforge bug tracker !     ;-)
+				if (scale < 1) {
+					scaledWidth  *= scale;
+					scaledHeight *= scale;
+				}
 				
 				if (quarterRotation != 0) {
 					double theta = Math.toRadians(90 * quarterRotation);
@@ -521,7 +527,7 @@ public class PictureFileData extends DefaultFileData  {
 				//If we have to rescale the picture, we first do it:
 				if (scale < 1) {
 					if (highquality) {
-						uploadPolicy.displayDebug("Using high quality picture", 40);
+						uploadPolicy.displayDebug("Resizing picture(using high quality picture)", 40);
 						Image img = localBufferedImage.getScaledInstance((int) (originalWidth * scale), (int) (originalHeight * scale), BufferedImage.SCALE_SMOOTH);
 						img.flush();
 						localBufferedImage = new BufferedImage((int) (originalWidth * scale), (int) (originalHeight * scale), localBufferedImage.getType());
@@ -530,10 +536,10 @@ public class PictureFileData extends DefaultFileData  {
 						img = null;
 					} else {
 						//The scale method adds scaling before current transformation.
-						uploadPolicy.displayDebug("Using standard quality picture", 40);
+						uploadPolicy.displayDebug("Resizing picture(using standard quality picture)", 40);
 						transform.scale(scale, scale);
 					}
-				}	
+				}
 				
 				if (transform.isIdentity()) {
 					//No transformation

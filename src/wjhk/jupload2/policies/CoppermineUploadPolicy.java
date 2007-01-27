@@ -256,7 +256,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	        	//First : construction of the editpic URL :
 	        	String editpicURL = postURL.substring(0,postURL.lastIndexOf('/')) 
 						//+ "/editpics.php?album=" + albumId
-						+ "/jupload.php?action=edit_uploaded_pics&album=" + albumId
+						+ "/jupload&action=edit_uploaded_pics&album=" + albumId
 						+ "&nb_pictures=" + nbPictureInUpload
 						;
 			    

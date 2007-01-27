@@ -19,6 +19,7 @@
 	lang = "";
 	lookAndFeel = "";
 	nbFilesPerRequest = "";
+	maxChunkSize = "";
 	maxPicHeight = "";
 	maxPicWidth = "";
 	debugLevel = "";
@@ -28,12 +29,12 @@
 	//Some parameters can only be choosen from an existing list:
 	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy"];
 	//eo: esperanto
-	langList = ["", "de", "en", "eo", "es", "fr", "nl", "us"];
+	langList = ["", "de", "en", "eo", "es", "fr", "it", "nl", "us"];
 	serverProtocolList = ["", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1"];
 
-	function writeInputText (name, value) {
+	function writeInputText (name, value, comment) {
 		document.write('	<tr><td align="center">');
-		document.write(name);
+		document.write(name + comment);
 		document.write('</td><td><INPUT TYPE="TEXT" NAME="');
 		document.write(name);
 		document.write('"');
@@ -103,6 +104,9 @@
 		case "maxPicHeight":
 			maxPicHeight = val;
 			break;
+		case "maxChunkSize":
+			maxChunkSize = val;
+			break;
 		case "maxPicWidth":
 			maxPicWidth = val;
 			break;
@@ -136,18 +140,19 @@
 	document.writeln('<FORM>');
 	document.writeln('<TABLE>');
 	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList);
-	writeInputText("postURL (you can now put https URL here)", postURL);
-	writeInputText("urlToSendErrorTo", urlToSendErrorTo);
+	writeInputText("postURL", postURL, " (you can now put https URL here)");
+	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
 	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"]);	
 	writeInputSelect("lang", lang, langList);
-	writeInputText("lookAndFeel", lookAndFeel);
+	writeInputText("lookAndFeel", lookAndFeel, "");
 	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList);
-	writeInputText("stringUploadSuccess", stringUploadSuccess);
-	writeInputText("debugLevel", debugLevel);
-	writeInputText("filenameEncoding", filenameEncoding);
-	writeInputText("nbFilesPerRequest", nbFilesPerRequest);
-	writeInputText("maxPicHeight", maxPicHeight);
-	writeInputText("maxPicWidth", maxPicWidth);
+	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
+	writeInputText("debugLevel", debugLevel, "");
+	writeInputText("filenameEncoding", filenameEncoding, "");
+	writeInputText("nbFilesPerRequest", nbFilesPerRequest, "");
+	writeInputText("maxChunkSize", maxChunkSize, "");
+	writeInputText("maxPicHeight", maxPicHeight, "");
+	writeInputText("maxPicWidth", maxPicWidth, "");
 	document.writeln('</TABLE>');
 	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)">');
 	document.writeln('</FORM>');
@@ -167,6 +172,7 @@
 	writeParam("lang", lang);
 	writeParam("lookAndFeel", lookAndFeel);
 	writeParam("nbFilesPerRequest", nbFilesPerRequest);
+	writeParam("maxChunkSize", maxChunkSize);
 	writeParam("maxPicHeight", maxPicHeight);
 	writeParam("maxPicWidth", maxPicWidth);
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);

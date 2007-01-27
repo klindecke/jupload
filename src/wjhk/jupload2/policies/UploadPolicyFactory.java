@@ -131,6 +131,25 @@ public class UploadPolicyFactory {
 	}//getParameter(int)
 
 	/**
+	 * Get a String parameter value from applet properties or System properties.
+	 * 
+	 * @return the parameter value, or the default, if the system is not set. 
+	 */
+	static public long getParameter(JUploadApplet theApplet, String key, long def) {
+		String paramStr;
+		String paramDef = Long.toString(def);
+		
+		//First, read the parameter as a String
+		if (theApplet == null) {
+			paramStr = System.getProperty(key) != null ? System.getProperty(key) : paramDef;
+		} else {
+			paramStr = theApplet.getParameter(key) != null ? theApplet.getParameter(key) : paramDef;
+		}
+	    
+	    return parseLong(paramStr, def);
+	}//getParameter(int)
+
+	/**
 	 * Get a boolean parameter value from applet properties or System properties.
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
@@ -162,6 +181,25 @@ public class UploadPolicyFactory {
 		//Then, parse it as an integer.
 	    try {
 	    	ret = Integer.parseInt(value);
+	    } catch (NumberFormatException e) {
+	    	//Nothing to do
+	    }
+	    
+	    return ret;
+	}
+	/**
+	 * This function try to parse value as a Long. If value is not a correct long,
+	 * def is returned.
+	 * 
+	 * @param value
+	 * @param def
+	 * @return The integer value of value, or def if value is not valid.
+	 */
+	static public long parseLong (String value, long def) {
+		long ret = def;
+		//Then, parse it as an integer.
+	    try {
+	    	ret = Long.parseLong(value);
 	    } catch (NumberFormatException e) {
 	    	//Nothing to do
 	    }

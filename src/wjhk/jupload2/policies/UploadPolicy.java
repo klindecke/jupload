@@ -97,9 +97,25 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   </TD>
 </TR>
 <TR>
+  <TD>maxChunkSize<BR>Since 2.7.0</TD>
+  <TD><I>Long.MAX_VALUE</I><BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
+  <TD>This parameters defines the maximum size of an upload. If set, the upload size will be never be more than
+   maxChunkSize. A file bigger will be split in several part of maxChunkSize size, then the last part will contain 
+   the remaining, and will probably be smaller than maxChunkSize.
+   <BR>
+   Note: <BR>
+   If nbFilesPerRequest is different than 1, the applet will try to upload the files until the sum of their 
+   content length is less than maxChunkSize. The upload is triggered just before the sum of their content length
+   is bigger then maxChunkSize.<BR>
+   If one file is bigger than maxChunkSize, all previous files are uploaded (at once or not, depending on 
+   nbFilesPerRequest). Then the 'big' file is upload alone, splitted in chunk. Then upload goes on, at once or not, 
+   depending on nbFilesPerRequest.
+  </TD>
+</TR>
+<TR>
   <TD>maxPicHeight</TD>
   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
-  <TD>This parameters allows the PHP script to control the maximum height for pictures. If a picture is to be 
+  <TD>This parameters allows the HTML page to control the maximum height for pictures. If a picture is to be 
      download, and its height is bigger, the picture will be resized. The proportion between width and height
      of the resized picture are the same as those of the original picture. If both maxPicHeight and maxPicWidth
      are given, it can happen that the resized picture has a height lesser than maxPicHeight, so that width 
@@ -251,6 +267,8 @@ You'll find below an example of how to put the applet into a PHP page:
  * @see wjhk.jupload2.policies.DefaultUploadPolicy
  *
  */
+
+
 public interface UploadPolicy {
 
 	/*
@@ -264,6 +282,7 @@ public interface UploadPolicy {
 	final static String PROP_FILENAME_ENCODING		= "filenameEncoding";
 	final static String PROP_HIGH_QUALITY_PREVIEW	= "highQualityPreview";
 	final static String PROP_LOOK_AND_FEEL			= "lookAndFeel";
+	final static String PROP_MAX_CHUNK_SIZE			= "maxChunkSize";
 	final static String PROP_MAX_HEIGHT				= "maxPicHeight";
 	final static String PROP_MAX_WIDTH				= "maxPicWidth";
 	final static String PROP_NB_FILES_PER_REQUEST 	= "nbFilesPerRequest";
@@ -284,6 +303,7 @@ public interface UploadPolicy {
 	final static String  DEFAULT_FILENAME_ENCODING		= null;	   //Note: the CoppermineUploadPolicy forces it to "UTF8". 
 	final static boolean DEFAULT_HIGH_QUALITY_PREVIEW	= false;
 	final static String  DEFAULT_LOOK_AND_FEEL			= "";
+	final static long	 DEFAULT_MAX_CHUNK_SIZE			= Long.MAX_VALUE; 
 	final static int     DEFAULT_MAX_WIDTH				= -1;
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
 	final static int     DEFAULT_NB_FILES_PER_REQUEST	= -1;	   //Note: the CoppermineUploadPolicy forces it to 1.
@@ -362,6 +382,14 @@ public interface UploadPolicy {
 	 */
 	public String getUploadFilename (FileData fileData, int index) throws JUploadException;
 	
+	/**
+	 * Returns the value of the applet parameter maxChunkSize (see above for a description of all applet
+	 * parameters)
+	 * 
+	 * @return the current value of maxChunkSize.
+	 */
+	public long getMaxChunkSize();
+
 	/**
 	 * This function returns the number of files should be uploaded during one access to the server. If negative or 
 	 * 0, all files are to be uploaded in one HTTP request. If positive, each HTTP upload contains this number of 
