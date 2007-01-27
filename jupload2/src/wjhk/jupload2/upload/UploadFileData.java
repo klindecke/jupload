@@ -12,34 +12,18 @@ import java.net.URLEncoder;
 import java.util.Date;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class UploadFileData implements FileData {
-	
-	/**
-	 * The boundary is the randomly calculating field that separates multipart HTTP content.
-	 */
-	private String boundary = "";
-	
+		
 	/**
 	 * The {@link FileData} instance that contains all information about the file to upload.
 	 */
 	private FileData fileData = null;
-	
-	/**
-	 * The head for this file, within the multi-part http body.
-	 * 
-	 * @see #getFileHeader(int, String)
-	 */
-	private String fileHead = null;
-	
-	/**
-	 * The index of the file, within upload (from 0 to n).
-	 */
-	private int fileIndex = -1;
-	
+			
 	/**
 	 * Instance of the fileUploadThread. This allow this class to send feedback to the thread.
 	 * @see FileUploadThread#nbBytesUploaded(long)
@@ -87,52 +71,58 @@ class UploadFileData implements FileData {
 	
 	/**
 	 * Returns the header for this file, within the http multipart body.
+	 * 
+	 * @param fileIndex Index of the file in the array that contains all files to upload.
+	 * @param boundary The boundary that separate files in the http multipart post body.
+	 * @param chunkPart The numero of the current chunk (from 1 to n)
+	 * @return The header for this file.
 	 */
-	String getFileHeader(int fileIndexParam, String boundaryParam) throws JUploadException {
-		if (fileHead == null  ||  fileIndex != fileIndexParam  ||  ! boundary.equals(boundaryParam)) {
-			String filenameEncoding = uploadPolicy.getFilenameEncoding();
-			String uploadFilename = uploadPolicy.getUploadFilename(fileData, fileIndex);
-			StringBuffer sb = new StringBuffer();
-
-			fileIndex= fileIndexParam;
-			boundary = boundaryParam;
-			
-			// Line 1: boundary.
-			sb.append(boundary.toString());sb.append("\r\n");
-			// Line 2: Content-Disposition.
-			//try {
-			sb	.append("Content-Disposition: form-data; name=\"")
-				.append(uploadPolicy.getUploadName(fileData, fileIndex))
-				.append("\"; filename=\"")
-				;
-			if (filenameEncoding == null) {
+	String getFileHeader(int fileIndex, String boundary, int chunkPart) throws JUploadException {
+		String fileHead;
+		String filenameEncoding = uploadPolicy.getFilenameEncoding();
+		String uploadFilename = uploadPolicy.getUploadFilename(fileData, fileIndex);
+		StringBuffer sb = new StringBuffer();
+		
+		// Line 1: boundary.
+		sb.append(boundary.toString());sb.append("\r\n");
+		// Line 2: Content-Disposition.
+		//try {
+		sb	.append("Content-Disposition: form-data; name=\"")
+			.append(uploadPolicy.getUploadName(fileData, fileIndex))
+			.append("\"; filename=\"")
+			;
+		if (filenameEncoding == null) {
+			sb.append(uploadFilename);
+		} else {
+			try {
+				uploadPolicy.displayDebug("Encoded filename: " + URLEncoder.encode(uploadFilename, filenameEncoding), 99);
+				sb.append(URLEncoder.encode(uploadFilename, filenameEncoding));
+			} catch (UnsupportedEncodingException e) {
+				uploadPolicy.displayWarn(e.getClass().getName() + ": " + e.getMessage() + " (in UploadFileData.getFileHeader)");
 				sb.append(uploadFilename);
-			} else {
-				try {
-					uploadPolicy.displayDebug("Encoded filename: " + URLEncoder.encode(uploadFilename, filenameEncoding), 99);
-					sb.append(URLEncoder.encode(uploadFilename, filenameEncoding));
-				} catch (UnsupportedEncodingException e) {
-					uploadPolicy.displayWarn(e.getClass().getName() + ": " + e.getMessage() + " (in UploadFileData.getFileHeader)");
-					sb.append(uploadFilename);
-				}
 			}
-			sb.append("\"\r\n");
-
-			// Line 3: Content-Type.
-			sb	.append("Content-Type: ")
-				.append(fileData.getMimeType());
-			if (filenameEncoding != null) {
-				sb	.append("; charset=")
-					.append(filenameEncoding);
-			}
-			sb.append("\r\n");
-			
-			//An empty line to finish the header.
-			sb.append("\r\n");
-			
-			fileHead = sb.toString();		
-			uploadPolicy.displayDebug("head : <<" +  fileHead + ">>", 70);
 		}
+		//In chunk mode, we add 'partN' at the end of the filename (where N is the part number, from 1 to n)
+		if (chunkPart >= 0) {
+			sb.append(".part").append(chunkPart);
+		}
+		//Let's finish the header.
+		sb.append("\"\r\n");
+
+		// Line 3: Content-Type.
+		sb	.append("Content-Type: ")
+			.append(fileData.getMimeType());
+		if (filenameEncoding != null) {
+			sb	.append("; charset=")
+				.append(filenameEncoding);
+		}
+		sb.append("\r\n");
+		
+		//An empty line to finish the header.
+		sb.append("\r\n");
+		
+		fileHead = sb.toString();		
+		uploadPolicy.displayDebug("head : <<" +  fileHead + ">>", 70);
 		
 		return fileHead;
 	}
@@ -159,18 +149,26 @@ class UploadFileData implements FileData {
 	 * @param outputStream The stream on which the file is to be written.
 	 * @throws JUploadException Any troubles that could occurs during upload.
 	 */
-	void uploadFile(OutputStream outputStream) throws JUploadException {
+	void uploadFile(OutputStream outputStream, long nbBytesToWrite) throws JUploadException {
+		long nbBytesTransmitted = 0;
 		byte[] byteBuff = null;
 		//getInputStream will put a new fileInput in the inputStream attribute, or leave it unchanged if it 
 		//is not null.
 		getInputStream(); 
 		
+		
 		int nbBytes = 0;
 		byteBuff = new byte[1024];
 		try {
-			while(-1 != (nbBytes = inputStream.read(byteBuff)) && !fileUploadThread.isUploadStopped()){
+			while(!fileUploadThread.isUploadStopped() && nbBytesTransmitted < nbBytesToWrite) {
+				nbBytes = inputStream.read(byteBuff);
+				if (nbBytes < 1 || nbBytes >1024) {
+					throw new JUploadExceptionUploadFailed("nbBytes=" + nbBytes + " in UploadFileData.uploadFile (should be 1).");
+				}
 				fileUploadThread.nbBytesUploaded(nbBytes);
 				outputStream.write(byteBuff, 0, nbBytes);
+				nbBytesTransmitted += nbBytes;
+				uploadRemainingLength -= nbBytes;
 			}
 		} catch (IOException e) {
 			throw new JUploadIOException (e, "UploadFileData.uploadFile(OutputStream)");

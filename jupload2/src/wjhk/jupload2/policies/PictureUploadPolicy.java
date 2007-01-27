@@ -173,8 +173,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		if (maxWidth != DEFAULT_MAX_WIDTH   ||   maxHeight != DEFAULT_MAX_HEIGHT) {
 			displayInfo(PROP_MAX_WIDTH + " : " + maxWidth + ", " + PROP_MAX_HEIGHT + " : " + maxHeight);
 		}
-
-		
+		displayDebug(PROP_HIGH_QUALITY_PREVIEW + " : " + highQualityPreview, 20);		
+		displayDebug(PROP_STORE_BUFFERED_IMAGE + " : " + storeBufferedImage, 20);		
+		displayDebug(PROP_TARGET_PICTURE_FORMAT + " : " + targetPictureFormat, 20);		
 	}
 
 	/**

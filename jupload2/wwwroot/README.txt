@@ -9,6 +9,8 @@ Version : 2.6.0
 This applet comes with source code. I take no responsibility for any damages caused by the usage of this applet. 
 Use it at your own risk!
 
+This applet is 'given' with the GPL licence.
+
 ~~~~~~~~~~~~~~~~~~~
 1.0	DESCRIPTION
 ~~~~~~~~~~~~~~~~~~~
