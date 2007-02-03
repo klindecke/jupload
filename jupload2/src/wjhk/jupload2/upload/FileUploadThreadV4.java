@@ -137,13 +137,16 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * local head within the multipart post, for each file. This is precalculated for all files, in case 
 	 * the upload is not chunked. The heads length are counted in the total upload size, to check that
 	 * it is less than the maxChunkSize.
+	 * tails are calculated once, as they depend not of the file position in the upload.
 	 */
 	String[] heads = null;
 	
 	/**
 	 * same as heads, for the ... tail in the multipart post, for each file.
+	 * But tails depend on the file position (the boundary is added to the last tail). So it's to be
+	 * calculated by each function.
 	 */
-	String[] tails = null;
+	//String[] tails = null;
 
 	
 	//------------- CONSTRUCTOR --------------------------------------------
@@ -261,12 +264,12 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * @return Returns an array containing the HTTP tails for al files of the current HTTP request.
 	 */
 	private String[] setAllTail(int firstFileToUpload, int nbFilesToUpload, String bound){
-		String[] tails = new String[nbFilesToUpload];
+		String[] tails = new String[firstFileToUpload + nbFilesToUpload];
 		for(int i=0; i < nbFilesToUpload; i++){
-			tails[i] = ("\r\n");
+			tails[firstFileToUpload+i] = ("\r\n");
 		}
 		// Telling the Server we have Finished.
-		tails[nbFilesToUpload-1] = tails[nbFilesToUpload-1] + bound + "--\r\n";
+		tails[firstFileToUpload+nbFilesToUpload-1] += bound + "--\r\n";
 		return tails;
 	}
 	//------------- THE HEART OF THE PROGRAM ------------------------------
@@ -287,7 +290,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			}
 			
 			heads = setAllHead(0, filesToUpload.length, boundary);
-			tails = setAllTail(0, filesToUpload.length, boundary);
+			String[] tails = setAllTail(0, filesToUpload.length, boundary);
 
 			for(int i=0; i < this.filesToUpload.length && !stop; i++){
 				if(null != progress)  {
@@ -308,12 +311,13 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			//Let's take the upload policy into account  : how many files at a time ?
 			int nbMaxFilesPerUpload = uploadPolicy.getNbFilesPerRequest();
 			
-			//We upload files, according to the current upload policy.
 			int iFirstFileForThisUpload = 0;
 			int iNbFilesForThisUpload = 0;
 			int currentFile = 0;
 			long nextUploadContentLength = 0;	//The contentLength of file managed byt the current loop.
 			long currentUploadContentLength = 0;//The current contentLength of files between iFirstFileForThisUpload and iNbFilesForThisUpload   
+			//////////////////////////////////////////////////////////////////////////////////////////
+			//We upload files, according to the current upload policy.
 			while (iFirstFileForThisUpload+iNbFilesForThisUpload < filesToUpload.length  &&  bUploadOk  && !stop) {
 				currentFile = iFirstFileForThisUpload+iNbFilesForThisUpload;
 				//Calculate the size of this file upload
@@ -441,15 +445,23 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 			progress.setString(uploadPolicy.getString("infoUploading", msg));
 		}
 		
+		//The tails must recalclated for each upload, as the last one contains the boundary.
+		String[] tails = setAllTail(firstFileToUploadParam, nbFilesToUploadParam, boundary);
 		
 		//Let's be optimistic: we calculate the total upload length. Then, we'll test that this is less that the
 		//maximum chunk size ... if any is defined.
 		try {
 			
 			for(int i=0; i < nbFilesToUploadParam && !stop; i++){
-				totalContentLength += heads[i].length();
+				totalContentLength += heads[firstFileToUploadParam+i].length();
 				totalContentLength += filesToUpload[firstFileToUploadParam+i].getUploadLength();
-				totalContentLength += tails[i].length();
+				totalContentLength += tails[firstFileToUploadParam+i].length();
+				uploadPolicy.displayDebug("file " + (firstFileToUploadParam+i)
+					+ ": heads=" + heads[firstFileToUploadParam+i].length()
+					+ " bytes, content=" + filesToUpload[firstFileToUploadParam+i].getUploadLength()
+					+ " bytes, tail=" + tails[firstFileToUploadParam+i].length()
+					+ " bytes"
+					, 80);
 			}
 		} catch (JUploadException e) {
 			uploadPolicy.displayErr(e);
@@ -575,7 +587,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 					//heads[i] contains the header specific for the file, in the multipart content.
 					//It is initialized at the beginning of the run() method. It can be override at the beginning
 					//of this loop, if in chunk mode.
-					dataout.writeBytes(heads[i]);
+					dataout.writeBytes(heads[firstFileToUpload+i]);
 					action = "send bytes (30)" + (firstFileToUpload+i);
 
 					//In chunk mode, we already calculate the correct chunkSize.
@@ -600,7 +612,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 						}
 					}
 					action = "send bytes (40)" + (firstFileToUpload+i);
-					dataout.writeBytes(tails[i]);
+					dataout.writeBytes(tails[firstFileToUpload+i]);
 				}
 				action = "flush";
 				dataout.flush ();
