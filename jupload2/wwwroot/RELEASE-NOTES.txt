@@ -6,6 +6,13 @@ TODO LIST
 allows to control upload authorisation, depending on the user connected.
 
 
+V2.7.0rc3
+- The following methods have been added to the applet. They directly call the relevant method of the current upload
+policy. Useful to display additional information from the HTML, in coordination with the urlToSendErrorTo applet
+parameter. I use it to add to the status area the version of the HTML page that calls the applet. New functions 
+are: displayErr, displayInfo, displayWarn and displayDebug.
+
+
 V2.6.0
 
 The next changes and corrections are given by David Gnedt:
