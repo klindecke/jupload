@@ -14,7 +14,7 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  * outside any developpement tool like eclipse. <BR>
  * It's also a sample of how to use the code from a standard java aplication.
  * <BR><BR><BR>
- * Not really tested.
+ * It has been tested, a long time ago...
  */
 public class JUpload extends JFrame{
 

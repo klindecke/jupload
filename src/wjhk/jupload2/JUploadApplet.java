@@ -33,8 +33,8 @@ public class JUploadApplet extends Applet{
       "Java Applet wrapper for JUploadPanel.";
   public static final String AUTHOR = "William JinHua Kwong (updated by Etienne Gauthier)";
 
-  public static final String VERSION = "2.7.0rc3";
-  public static final String LAST_MODIFIED = "02 feb 2007";
+  public static final String VERSION = "2.7.0rc4";
+  public static final String LAST_MODIFIED = "06 feb 2007";
 
   //----------------------------------------------------------------------
 
@@ -71,7 +71,19 @@ public class JUploadApplet extends Applet{
   public FilePanel getFilePanel() {
 	  return jUploadPanel.getFilePanel();
   }
-  
+
+
+	/**
+	 * @return the statusArea
+	 */
+	public JUploadTextArea getStatusArea() {
+		return statusArea;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////:
+	//////////////////  FUNCTIONS INTENDED TO BE CALLED BY JAVASCRIPT FUNCTIONS  ////////////////////////////:
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////:
+
 	/**
 	 * This allow runtime modifications of properties. Currently, this is only user after
 	 * full initialization. This methods only calls the UploadPolicy.setProperty method. 
@@ -86,12 +98,24 @@ public class JUploadApplet extends Applet{
 			jUploadPanel.getUploadPolicy().displayErr("setProperty (exception " + e.getClass().getName() + ") : " + e.getMessage());
 		}
 	}
-
-
-	/**
-	 * @return the statusArea
-	 */
-	public JUploadTextArea getStatusArea() {
-		return statusArea;
+	
+	/** @see UploadPolicy#displayErr(Exception) */
+	public void displayErr (String err) {
+		uploadPolicy.displayErr(err);
 	}
- }
+
+	/** @see UploadPolicy#displayInfo(String) */
+	public void displayInfo (String info) {
+		uploadPolicy.displayInfo(info);
+	}
+	
+	/** @see UploadPolicy#displayWarn(String) */
+	public void displayWarn (String warn) {
+		uploadPolicy.displayWarn(warn);
+	}
+
+	/** @see UploadPolicy#displayDebug(String, int) */
+	public void displayDebug (String debug, int minDebugLevel) {
+		uploadPolicy.displayDebug(debug, minDebugLevel);
+	}
+}
