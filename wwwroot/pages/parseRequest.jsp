@@ -1,15 +1,28 @@
 <%@ page language="java" import="java.io.*, java.sql.*, java.util.*" %>
 <%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.disk.*, org.apache.commons.fileupload.servlet.*" %>
 <%
+  //Initialization for chunk management.
+  boolean bLastChunk = false;
+  int numChunk = 0;
+
   response.setContentType("text/plain");
   try{
     // Get URL Parameters.
     Enumeration paraNames = request.getParameterNames();
+    out.println(" ------------------------------ ");
+    String pname;
+    String pvalue;
     while (paraNames.hasMoreElements()) {
-      String pname = (String)paraNames.nextElement();
-      out.println(" ------------------------------ ");
-      out.println(pname + " = " + request.getParameter(pname));
+      pname = (String)paraNames.nextElement();
+      pvalue = request.getParameter(pname);
+      out.println(pname + " = " + pvalue);
+      if (pname.equals("jufinal")) {
+      	bLastChunk = pvalue.equals("1");
+      } else if (pname.equals("jupart")) {
+      	numChunk = Integer.parseInt(pvalue);
+      }
     }
+    out.println(" ------------------------------ ");
 
     // Directory to store all the uploaded files
     String ourTempDirectory = "/tmp/";
@@ -40,6 +53,7 @@
 	Iterator iter = items.iterator();
 	FileItem fileItem;
     File fout;
+    out.println(" Let's read input files ...");
 	while (iter.hasNext()) {
 	    fileItem = (FileItem) iter.next();
 	
@@ -57,10 +71,40 @@
 	        out.println("File Name: " + fileItem.getName());
 	        out.println("ContentType: " + fileItem.getContentType());
 	        out.println("Size (Bytes): " + fileItem.getSize());
-	        fout = new File(ourTempDirectory + (new File(fileItem.getName())).getName());
+	        //If we are in chunk mode, we add ".partN" at the end of the file, where N is the chunk number.
+	        String uploadedFilename = fileItem.getName() + ( numChunk>0 ? ".part"+numChunk : "") ;
+	        fout = new File(ourTempDirectory + (new File(uploadedFilename)).getName());
 	        out.println("File Out: " + fout.toString());
 	        // write the file
 	        fileItem.write(fout);	        
+	        
+	        //////////////////////////////////////////////////////////////////////////////////////
+	        //Chunk management: if it was the last chunk, let's recover the complete file
+	        //by concatenating all chunk parts.
+	        //
+	        if (bLastChunk) {	        
+		        out.println(" Last chunk received: let's rebuild the complete file (" + fileItem.getName() + ")");
+		        //First: construct the final filename.
+		        FileInputStream fis;
+		        FileOutputStream fos = new FileOutputStream(ourTempDirectory + fileItem.getName());
+		        int nbBytes;
+		        byte[] byteBuff = new byte[1024];
+		        String filename;
+		        for (int i=1; i<=numChunk; i+=1) {
+		        	filename = fileItem.getName() + ".part" + i;
+		        	out.println("  Concatenating " + filename);
+		        	fis = new FileInputStream(ourTempDirectory + filename);
+		        	while ( (nbBytes = fis.read(byteBuff)) >= 0) {
+		        		out.println("     Nb bytes read: " + nbBytes);
+		        		fos.write(byteBuff, 0, nbBytes);
+		        	}
+		        	fis.close();
+		        }
+		        fos.close();
+	        }
+	        // End of chunk management
+	        //////////////////////////////////////////////////////////////////////////////////////
+	        
 	        fileItem.delete();
 	    }
 	    out.println("SUCCESS");

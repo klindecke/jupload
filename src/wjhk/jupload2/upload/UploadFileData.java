@@ -102,10 +102,7 @@ class UploadFileData implements FileData {
 				sb.append(uploadFilename);
 			}
 		}
-		//In chunk mode, we add 'partN' at the end of the filename (where N is the part number, from 1 to n)
-		if (chunkPart >= 0) {
-			sb.append(".part").append(chunkPart);
-		}
+		
 		//Let's finish the header.
 		sb.append("\"\r\n");
 
@@ -151,24 +148,23 @@ class UploadFileData implements FileData {
 	 */
 	void uploadFile(OutputStream outputStream, long nbBytesToWrite) throws JUploadException {
 		long nbBytesTransmitted = 0;
-		byte[] byteBuff = null;
+		int byteBuff = 0;
+
 		//getInputStream will put a new fileInput in the inputStream attribute, or leave it unchanged if it 
 		//is not null.
 		getInputStream(); 
 		
 		
-		int nbBytes = 0;
-		byteBuff = new byte[1024];
 		try {
 			while(!fileUploadThread.isUploadStopped() && nbBytesTransmitted < nbBytesToWrite) {
-				nbBytes = inputStream.read(byteBuff);
-				if (nbBytes < 1 || nbBytes >1024) {
-					throw new JUploadExceptionUploadFailed("nbBytes=" + nbBytes + " in UploadFileData.uploadFile (should be 1).");
+				byteBuff = inputStream.read();
+				if (byteBuff == -1) {
+					throw new JUploadExceptionUploadFailed("No byte read in UploadFileData.uploadFile (should be 1).");
 				}
-				fileUploadThread.nbBytesUploaded(nbBytes);
-				outputStream.write(byteBuff, 0, nbBytes);
-				nbBytesTransmitted += nbBytes;
-				uploadRemainingLength -= nbBytes;
+				fileUploadThread.nbBytesUploaded(1);
+				outputStream.write(byteBuff);
+				nbBytesTransmitted += 1;
+				uploadRemainingLength -= 1;
 			}
 		} catch (IOException e) {
 			throw new JUploadIOException (e, "UploadFileData.uploadFile(OutputStream)");

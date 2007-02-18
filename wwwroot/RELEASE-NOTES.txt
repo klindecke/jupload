@@ -6,7 +6,11 @@ TODO LIST
 allows to control upload authorisation, depending on the user connected.
 
 
-V2.7.0rc3
+V2.7.1
+
+Changes:
+- [Translation] Add of the Japanese translation.
+- [Translation] Add of the Norwegian translation.
 - The following methods have been added to the applet. They directly call the relevant method of the current upload
 policy. Useful to display additional information from the HTML, in coordination with the urlToSendErrorTo applet
 parameter. I use it to add to the status area the version of the HTML page that calls the applet. New functions 

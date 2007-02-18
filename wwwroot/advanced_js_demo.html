@@ -29,7 +29,7 @@
 	//Some parameters can only be choosen from an existing list:
 	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy"];
 	//eo: esperanto
-	langList = ["", "de", "en", "eo", "es", "fr", "it", "nl", "us"];
+	langList = ["", "de", "en", "eo", "es", "fr", "it", "ja", "nl", "no", "us"];
 	serverProtocolList = ["", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1"];
 
 	function writeInputText (name, value, comment) {
@@ -46,9 +46,12 @@
 		document.writeln(	'></td></tr>');
 	}//writeInputText
 
-	function writeInputSelect (name, value, list) {
+	function writeInputSelect (name, value, list, comment) {
 		document.write('	<tr><td align="center">');
 		document.write(name);
+		if (comment != '') {
+			document.write(" (" + comment + ")");
+		}
 		document.write('</td><td><SELECT NAME="');
 		document.write(name);
 		document.writeln('">');
@@ -139,13 +142,13 @@
 	document.writeln('Enter Jupload parameters');
 	document.writeln('<FORM>');
 	document.writeln('<TABLE>');
-	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList);
+	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList, '');
 	writeInputText("postURL", postURL, " (you can now put https URL here)");
 	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
-	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"]);	
-	writeInputSelect("lang", lang, langList);
+	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"], '');	
+	writeInputSelect("lang", lang, langList, 'Japanese needs specific JRE extension');
 	writeInputText("lookAndFeel", lookAndFeel, "");
-	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList);
+	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
 	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
 	writeInputText("debugLevel", debugLevel, "");
 	writeInputText("filenameEncoding", filenameEncoding, "");
