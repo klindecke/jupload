@@ -1,3 +1,13 @@
+
+0.0	INFORMATION
+1.0	DESCRIPTION
+2.0 HOWTO USE IT
+3.0 Self Sign Applet.
+4.0	Server scripts
+4.0	FAQ:
+
+
+
 ~~~~~~~~~~~~~~~~~~~
 0.0	INFORMATION
 ~~~~~~~~~~~~~~~~~~~
@@ -46,7 +56,23 @@ The PictureUploadPolicy uses it to add a preview panel and two rotation buttons.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-2.0 Self Sign Applet.
+2.0 HOWTO USE IT
+~~~~~~~~~~~~~~~~~~~~~~~
+
+  The jupload-VA.B.C.jar file contains the full distribution. Until 2.6.0, it contains also the compiled code (class
+files), but not the source (java files). This is corrected in since 2.7.0: the class files are no more there, and
+java files are given in the distribution jar file.
+  Since 2.7.0, the distribution contains:
+- the Sources, contained in the /wjhk/ directory
+- The javadoc, contained in the /doc/ directory
+- A sample, contained in the /www/ directory
+
+  The compiled jar file, that should be used on production servers is /wwwroot/wjhk.jupload.jar
+
+The given samples contains the server scripts described below.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+3.0 Self Sign Applet.
 ~~~~~~~~~~~~~~~~~~~~~~~
   The applet must be signed, to be allowed to access to files on the client side. The best way is to sign the applet 
 with a real way.
@@ -63,7 +89,7 @@ the jar package.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~
-3.0	Server scripts
+4.0	Server scripts
 ~~~~~~~~~~~~~~~~~~~~~~
 The applet upload files to the server. Then, the server must handle the uploaded file. Here is an example, in java, 
 of the way to handle the incoming file.

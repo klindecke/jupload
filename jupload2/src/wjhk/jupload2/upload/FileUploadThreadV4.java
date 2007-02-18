@@ -328,7 +328,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				
 				//If we already had one or more files to upload, and the new upload content length is more
 				//the the maxChunkSize, we upload what we already have to.
-				if (nbMaxFilesPerUpload>0 && currentUploadContentLength+nextUploadContentLength>maxChunkSize) {
+				if (iNbFilesForThisUpload>0 && currentUploadContentLength+nextUploadContentLength>maxChunkSize) {
 					//Let's do an upload.
 					bUploadOk = doUpload (iFirstFileForThisUpload, iNbFilesForThisUpload);
 					iFirstFileForThisUpload += iNbFilesForThisUpload;
@@ -488,6 +488,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 					chunkPart += 1;
 					bLastChunk = (contentLength > filesToUpload[firstFileToUploadParam].getRemainingLength());
 					chunkHttpParam = "jupart=" +  chunkPart + "&jufinal=" + (bLastChunk ? "1" : "0");
+					uploadPolicy.displayDebug("chunkHttpParam: " + chunkHttpParam, 40);
 					
 					//Is this the last chunk ?
 					if (bLastChunk) {
@@ -516,6 +517,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				
 				// Header: Request line
 				action = "append headers";
+				header.setLength(0);  //Let's clear it. Useful only for chunked uploads.
 				header.append("POST ");header.append(url.getPath());
 				
 				if(null != url.getQuery() && !"".equals(url.getQuery())){
@@ -528,7 +530,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 						header.append("&").append(chunkHttpParam);
 					}
 				} else if (bChunkEnabled) {
-					header.append("&").append(chunkHttpParam);
+					header.append("?").append(chunkHttpParam);
 				}
 				
 				header.append(" ").append(uploadPolicy.getServerProtocol()).append("\r\n");
@@ -575,11 +577,8 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				
 				// Send http request to server
 				action = "send bytes (1)";
-				String headerStr = header.toString(); 
-				//uploadPolicy.displayDebug(headerStr, 100);
-	
-				//Send the header
-				dataout.writeBytes(headerStr);
+				uploadPolicy.displayDebug(header.toString(), 100);
+				dataout.writeBytes(header.toString());
 				
 				for(int i=0; i < nbFilesToUpload && !stop; i++){
 					// Write to Server the head(4 Lines), a File and the tail.
