@@ -25,24 +25,6 @@ import wjhk.jupload2.JUploadApplet;
  */
 public class UploadPolicyFactory {
 	
-
-	/**
-	 * This attribute contains the current UploadPolicy. It can be retrieved by the
-	 * {@link #getCurrentUploadPolicy()} method.
-	 *
-	private static UploadPolicy currentUploadPolicy = null;
-	*/
-	
-	
-	/** 
-	 * @return The current UploadPolicy. Null if no UploadPolicy was created.
-	 * 
-	 * @deprecated This method is static, which means that if the applet is opened two times (for instance 
-	 * into two different pages), you don't can't control which uploadPolicy is returned.  
-	 *
-	public static UploadPolicy getCurrentUploadPolicy() {
-		return currentUploadPolicy;
-	}*/
 	
 	/**
 	 * Returns an upload Policy for the given applet and URL. All other parameters for the uploadPolicy are
@@ -92,7 +74,7 @@ public class UploadPolicyFactory {
 	    if (usingDefaultUploadPolicy) {
 	    	uploadPolicy.displayWarn("Unable to create the '" + uploadPolicyStr + "'. Using the DefaultUploadPolicy instead.");
 	    } else {
-	    	uploadPolicy.displayInfo("uploadPolicy = " + uploadPolicy.getClass().getName());
+	    	uploadPolicy.displayDebug("uploadPolicy = " + uploadPolicy.getClass().getName(), 20);
 	    }
 	    		
 		return uploadPolicy ;

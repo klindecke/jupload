@@ -374,6 +374,8 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				}
 			}
 		} catch (JUploadException e) {
+			bUploadOk = false;
+			uploadException = e;
 			uploadPolicy.displayErr(e);
 			progress.setString(e.getMessage());
 		} finally {

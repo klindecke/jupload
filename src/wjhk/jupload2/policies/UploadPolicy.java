@@ -97,19 +97,59 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   </TD>
 </TR>
 <TR>
-  <TD>maxChunkSize<BR>Since 2.7.0</TD>
-  <TD><I>Long.MAX_VALUE</I><BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
-  <TD>This parameters defines the maximum size of an upload. If set, the upload size will be never be more than
-   maxChunkSize. A file bigger will be split in several part of maxChunkSize size, then the last part will contain 
-   the remaining, and will probably be smaller than maxChunkSize.
-   <BR>
-   Note: <BR>
-   If nbFilesPerRequest is different than 1, the applet will try to upload the files until the sum of their 
-   content length is less than maxChunkSize. The upload is triggered just before the sum of their content length
-   is bigger then maxChunkSize.<BR>
-   If one file is bigger than maxChunkSize, all previous files are uploaded (at once or not, depending on 
-   nbFilesPerRequest). Then the 'big' file is upload alone, splitted in chunk. Then upload goes on, at once or not, 
-   depending on nbFilesPerRequest.
+  <TD>maxChunkSize<BR>Since 2.7.1</TD>
+  <TD>0<BR><I>Long.MAX_VALUE</I><BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This parameters defines the maximum size of an upload. 
+	  <DIR>
+		  <LI>If not set, or set to a value of 0 or less, the chunk mode is disabled. That is: each file will be uploaded
+		   within being splitted in pieces.  
+		  <LI>If set to a value of 1 or more, the upload size will be never be more than
+		   maxChunkSize. A file bigger will be split in several part of <I>maxChunkSize</I> size, then the last part will 
+		   contain the remaining, and will probably be smaller than <I>maxChunkSize</I>.
+	  </DIR>
+	  <BR>
+	  <B>How to build the server part:</B> the server will have to 'guess' that the file is splitted, and then it will
+	  have to reconstruct the uploaded file. Here are the necessary informations:
+	  <DIR>
+	  	<LI>When a file is chunked, the <I>jupart</I> and <I>jufinal</I> parameter are given in the URL (get 
+	  	parameters). This identify a chunk upload. If these parameters are not given, the file(s) is(are) uploaded
+	  	in one piece.
+	  	<LI><I>jupart</I> identify the part number: from 1 to N for a file being plitted in N pieces. The N-1 chunks
+	  	should be <I>maxChunkSize</I> bytes long. The last one contains the remaining of the file.
+	  	<LI><I>jufinal</I> is set to 0 for chunks from 1 to N-1. It is is set to 1 only for the last chunk (N, in 
+	  	this 'example').
+	  	<LI>The uploaded filename is not modified when the upload is chunked. Example: upload of the file 
+	  	<I>bigPicture.jpeg</I>, of 4,5 Mb, with chunk of 2Mb. The upload is splitted in three chunk. Chunk 1 and 2 are
+	  	2Mb long. The third one is 0,5Mb long. The uploaded filename for these three uploads is <I>bigPicture.jpeg</I>.
+	  	It's up to the server part to read the <I>jupart</I> and <I>jufinal</I> get parameters, to understand that the
+	  	upload is chunked.
+	  	<LI><B>Important:</B> The server script <U>must</U> check the resulting filesize. If not, the client can 
+	  	send a file of any size, and fill the server hard drive.  
+	  	<LI>The wwwroot/pages/parseRequest.jsp is a java example of a server page that can receive chunk upload. It 
+	  	stores each chunk is <I>filename.partN</I> (where N is the chunk number), then construct the final file, by 
+	  	concatenating all parts together.  
+	  </DIR>
+	  <B>Note: </B>
+	  If nbFilesPerRequest is different than 1, the applet will try to upload the files until the sum of their 
+	  content length is less than maxChunkSize. The upload is triggered just before the sum of their content length
+	  is bigger then maxChunkSize.<BR>
+	  If one file is bigger than <I>maxChunkSize</I>, all previous files are uploaded (at once or not, depending on 
+	  nbFilesPerRequest). Then the 'big' file is uploaded alone, splitted in chunk. Then upload goes on, file by file
+	  or not, depending on <I>nbFilesPerRequest</I>.
+  </TD>
+</TR>
+<TR>
+  <TD>maxFileSize<BR>Since 2.7.1</TD>
+  <TD>0<BR><I>Long.MAX_VALUE</I><BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This parameter identify the maximum size that an uploaded file may have. It prevent the user to upload too big
+  files. It is especially important when chunk upload is activated (see below <I>maxChunkSizew</I>).
+  <DIR>
+  	<LI>If <I>maxChunkSize</I> is not set, negative or 0, <I>maxFileSize</I> should be the maximum upload size of 
+  	the server. In this case, it is useful only to display a message when the user select a file that will be 
+  	refused by the server.
+  	<LI>If chunk upload is activated, this parameter becomes really important: in this case the maximum file size
+  	of an uploaded file is ... the available space on the server hard drive! (see below, <I>maxChunkSize</I>).
+  </DIR> 
   </TD>
 </TR>
 <TR>
@@ -283,6 +323,7 @@ public interface UploadPolicy {
 	final static String PROP_HIGH_QUALITY_PREVIEW	= "highQualityPreview";
 	final static String PROP_LOOK_AND_FEEL			= "lookAndFeel";
 	final static String PROP_MAX_CHUNK_SIZE			= "maxChunkSize";
+	final static String PROP_MAX_FILE_SIZE			= "maxFileSize";
 	final static String PROP_MAX_HEIGHT				= "maxPicHeight";
 	final static String PROP_MAX_WIDTH				= "maxPicWidth";
 	final static String PROP_NB_FILES_PER_REQUEST 	= "nbFilesPerRequest";
@@ -304,6 +345,7 @@ public interface UploadPolicy {
 	final static boolean DEFAULT_HIGH_QUALITY_PREVIEW	= false;
 	final static String  DEFAULT_LOOK_AND_FEEL			= "";
 	final static long	 DEFAULT_MAX_CHUNK_SIZE			= Long.MAX_VALUE; 
+	final static long	 DEFAULT_MAX_FILE_SIZE			= Long.MAX_VALUE;  //Take care of this parameter if chunk upload is activated! See comment, here above. 
 	final static int     DEFAULT_MAX_WIDTH				= -1;
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
 	final static int     DEFAULT_NB_FILES_PER_REQUEST	= -1;	   //Note: the CoppermineUploadPolicy forces it to 1.
@@ -389,6 +431,14 @@ public interface UploadPolicy {
 	 * @return the current value of maxChunkSize.
 	 */
 	public long getMaxChunkSize();
+
+	/**
+	 * Returns the value of the applet parameter maxFileSize (see above for a description of all applet
+	 * parameters)
+	 * 
+	 * @return the current value of maxFileSize.
+	 */
+	public long getMaxFileSize();
 
 	/**
 	 * This function returns the number of files should be uploaded during one access to the server. If negative or 
@@ -584,7 +634,30 @@ public interface UploadPolicy {
 	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
 	 */
 	public String getString(String key, String value1);
-	
+
+	/**
+	 * Same as {@link #getString(String, String)}, for two parameters.
+	 *  
+	 * @param key The key, whose associated text is to retrieve.
+	 * @param value1 The first value, which will replace all occurence of {1}
+	 * @param value2 The second value, which will replace all occurence of {2}
+	 * @return The associated text.
+	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
+	 */
+	public String getString(String key, String value1, String value2);
+
+	/**
+	 * Same as {@link #getString(String, String)}, for three parameters.
+	 *  
+	 * @param key The key, whose associated text is to retrieve.
+	 * @param value1 The first value, which will replace all occurence of {1}
+	 * @param value2 The second value, which will replace all occurence of {2}
+	 * @param value3 The third value, which will replace all occurence of {3}
+	 * @return The associated text.
+	 * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
+	 */
+	public String getString(String key, String value1, String value2, String value3);
+
 	/**
 	 * Same as {@link #getString(String,String)}, but the given value is an integer.
 	 * @param key The key, whose associated text is to retrieve.

@@ -224,6 +224,9 @@ public class PictureFileData extends DefaultFileData  {
 				uploadLength = getFile().length();
 			}
 		}
+		
+		//Let's check that everything is Ok
+		super.beforeUpload();
 	}
 
 	/**

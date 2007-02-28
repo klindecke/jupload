@@ -121,7 +121,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 		//The, we check our properties. 
 		if (prop.equals(PROP_ALBUM_ID)) {
 			albumId = UploadPolicyFactory.parseInt(value, 0);
-		    displayInfo("Post URL = " + getPostURL());
+		    displayDebug("Post URL (modified in CoppermineUploadPolicy) = " + getPostURL(), 10);
 		}
 	}
 

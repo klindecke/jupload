@@ -101,7 +101,7 @@ public class JUploadPanel extends JPanel implements ActionListener{
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			fileChooser.setMultiSelectionEnabled(true);
 		}catch(Exception e){
-			this.statusArea.append("ERROR  : " + e.getMessage() + "\n");
+			uploadPolicy.displayErr(e);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class JUploadPanel extends JPanel implements ActionListener{
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		statusArea.append("Action : " + e.getActionCommand() + "\n");
+		uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
 		if(e.getActionCommand() == browse.getActionCommand()){
 			if(null!=fileChooser){
 				try{
@@ -199,7 +199,7 @@ public class JUploadPanel extends JPanel implements ActionListener{
 						addFiles(fileChooser.getSelectedFiles());
 					}
 				}catch(Exception ex){
-					statusArea.append("ERROR  : " + ex.getMessage() + "\n");
+					uploadPolicy.displayErr(ex);
 				}
 			}
 		}else if(e.getActionCommand() == remove.getActionCommand()){

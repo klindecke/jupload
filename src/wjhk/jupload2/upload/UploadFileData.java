@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import java.util.Date;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
@@ -269,7 +270,16 @@ class UploadFileData implements FileData {
 
 	/** @see FileData#getUploadLength() */
 	public long getUploadLength() throws JUploadException {
-		return fileData.getUploadLength();
+		long uploadLength = fileData.getUploadLength();
+		
+		//We check the filesize only now: the file to upload may be different from the original file. For instance,
+		//a selected picture on the local hard drive may be bigger than maxFileSize, but, as the picture can be
+		//resized before upload, the picture to upload may be still be smaller than maxFileSize. 
+		if (uploadLength > uploadPolicy.getMaxFileSize()) {
+			throw new JUploadExceptionTooBigFile(fileData.getFileName(), fileData.getUploadLength(), "UploadFileData.getUploadLength()", uploadPolicy);			
+		}
+		
+		return uploadLength;
 	}
 
 }

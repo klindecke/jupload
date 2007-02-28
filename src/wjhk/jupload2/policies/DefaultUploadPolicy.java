@@ -110,6 +110,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	long maxChunkSize;
 	
 	/**
+	 * Current value (or default value) of the maxFileSize applet parameter.
+	 * <BR>
+	 * Default : Long.MAX_VALUE
+	 */
+	long maxFileSize;
+	
+	/**
 	 * The URL where files should be posted.
 	 * <BR>
 	 * Default : no default value. (mandatory) 
@@ -215,8 +222,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		nbFilesPerRequest = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST);
 
 	    ///////////////////////////////////////////////////////////////////////////////
-	    //get the maximum number of files to upload in one HTTP request. 
+	    //get the maximum size of a file on one HTTP request (indicate if the file
+		//must be splitted before upload, see UploadPolicy comment).
 		maxChunkSize = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_CHUNK_SIZE, DEFAULT_MAX_CHUNK_SIZE);
+
+	    ///////////////////////////////////////////////////////////////////////////////
+	    //get the maximum size of an uploaded file.
+		maxFileSize = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_FILE_SIZE, DEFAULT_MAX_FILE_SIZE);
 
 	    ///////////////////////////////////////////////////////////////////////////////
 	    //get the URL where files must be posted. 
@@ -295,6 +307,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
 	    displayInfo("postURL: " + postURL);
 
+	    if (maxFileSize == Long.MAX_VALUE) {
+	    	//If the maxFileSize was not given, we display its value only in debug mode.
+	    	displayDebug("maxFileSize  : " + maxFileSize, 20);
+	    } else {
+	    	//If the maxFileSize was given, we always inform the user.
+	    	displayInfo("maxFileSize  : " + maxFileSize);
+	    }
 	    displayDebug("Java version  : " + System.getProperty("java.version"), 20); 		
 	    displayDebug("debug: " + debugLevel, 1); 
 	    displayDebug("filenameEncoding: " + filenameEncoding, 20);
@@ -473,19 +492,29 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		}
 	}
 
-	/**
-	 * @see UploadPolicy#getString(String)
-	 */
+	/** @see UploadPolicy#getString(String) */
 	public String getString(String key) {
 		String ret = resourceBundle.getString(key);
 		return ret;
-	}
-	
-	/**
-	 * @see UploadPolicy#getString(String,String)
-	 */
+	}	
+	/** @see UploadPolicy#getString(String,String) */
 	public String getString(String key, String value1) {
 		String ret = resourceBundle.getString(key).replaceAll("\\{1\\}", value1);
+		return ret;
+	}
+	/** @see UploadPolicy#getString(String,String,String) */
+	public String getString(String key, String value1, String value2) {
+		String ret = resourceBundle.getString(key).
+		replaceAll("\\{1\\}", value1).
+		replaceAll("\\{2\\}", value2);
+		return ret;
+	}
+	/** @see UploadPolicy#getString(String,String,String,String) */
+	public String getString(String key, String value1, String value2, String value3) {
+		String ret = resourceBundle.getString(key).
+		replaceAll("\\{1\\}", value1).
+		replaceAll("\\{2\\}", value2).
+		replaceAll("\\{3\\}", value3);
 		return ret;
 	}
 	
@@ -713,6 +742,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/** @see wjhk.jupload2.policies.UploadPolicy#getMaxChunkSize() */
 	public long getMaxChunkSize() {
 		return maxChunkSize;
+	}
+
+	/** @see wjhk.jupload2.policies.UploadPolicy#getMaxFileSize() */
+	public long getMaxFileSize() {
+		return maxFileSize;
 	}
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getNbFilesPerRequest() */
