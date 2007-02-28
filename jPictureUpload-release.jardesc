@@ -6,7 +6,6 @@
 <selectedProjects/>
 <selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="false">
 <folder path="/jupload/wwwroot"/>
-<folder path="/jupload/doc"/>
 <javaElement handleIdentifier="=jupload/src"/>
 </selectedElements>
 </jardesc>

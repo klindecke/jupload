@@ -111,7 +111,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * If set to 'true', the thread will stop the crrent upload. This attribute is not private as the
 	 * {@link UploadFileData} class us it.
 	 * 
-	 *  @see UploadFileData#uploadFile(java.io.OutputStream)
+	 *  @see UploadFileData#uploadFile(java.io.OutputStream, long)
 	 */ 
 	boolean stop = false;
 	
@@ -414,8 +414,8 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * <LI>nbFilesToUploadParam is less (or equal) than the nbMaxFilesPerUpload.
 	 * </DIR>
 	 * 
-	 * @param firstFileToUpload The index of the first file to upload, in the {@link #filesToUpload} area.
-	 * @param nbFilesToUpload Number of file to upload, in the next HTTP upload request. These files are taken from 
+	 * @param firstFileToUploadParam The index of the first file to upload, in the {@link #filesToUpload} area.
+	 * @param nbFilesToUploadParam Number of file to upload, in the next HTTP upload request. These files are taken from 
 	 * the {@link #filesToUpload} area 
 	 */
 	private boolean doUpload (int firstFileToUploadParam, int nbFilesToUploadParam) {
