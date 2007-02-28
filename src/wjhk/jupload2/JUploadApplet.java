@@ -33,8 +33,8 @@ public class JUploadApplet extends Applet{
       "Java Applet wrapper for JUploadPanel.";
   public static final String AUTHOR = "William JinHua Kwong (updated by Etienne Gauthier)";
 
-  public static final String VERSION = "2.7.1rc2";
-  public static final String LAST_MODIFIED = "18 feb 2007";
+  public static final String VERSION = "2.8.0";
+  public static final String LAST_MODIFIED = "28 feb 2007";
 
   //----------------------------------------------------------------------
 
