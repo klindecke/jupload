@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Date;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -70,7 +71,11 @@ public class DefaultFileData  implements FileData {
 
 	/** @see FileData#beforeUpload() */
 	public void beforeUpload () throws JUploadException {
-		//Default : nothing to do. 
+		//Default : we check that the file is smalled than the maximum upload size.
+		if (getUploadLength() > uploadPolicy.getMaxFileSize()) {
+			throw new JUploadExceptionTooBigFile(getFileName(), getUploadLength(),
+					"DefaultFileData.beforeUpload()", uploadPolicy);			
+		}
 	}
 	
 	/** @see FileData#getUploadLength() */

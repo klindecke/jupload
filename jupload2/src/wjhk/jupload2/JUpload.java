@@ -73,7 +73,7 @@ public class JUpload extends JFrame{
 	
 	    JUpload ju = new JUpload(uploadPolicy);
 	    if (ju == null) {
-	    	//juste pour éviter un warning.
+	    	//Just to avoid a warning on compilation time.
 	    }
   }
 
