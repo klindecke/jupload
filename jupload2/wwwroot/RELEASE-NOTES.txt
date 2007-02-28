@@ -6,7 +6,11 @@ TODO LIST
 allows to control upload authorisation, depending on the user connected.
 
 
-V2.7.1
+V2.8.0
+
+Main change:
+- [Upload] The applet is now able of splitting the file to upload in chunks. This allow to upload file of any size, 
+whatever the max_upload_size of your server is.
 
 Changes:
 - [Translation] Add of the Japanese translation.

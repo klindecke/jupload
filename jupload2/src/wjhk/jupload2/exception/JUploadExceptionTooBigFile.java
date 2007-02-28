@@ -17,7 +17,10 @@ public class JUploadExceptionTooBigFile extends JUploadException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * @param arg0 the Error message
+	 * @param filename The filename for the file in error
+	 * @param uploadLength The length of this file
+	 * @param function The function in which the error occurs (nice, if the class name is given here, too)
+	 * @param uploadPolicy The current upload policy.
 	 */
 	public JUploadExceptionTooBigFile(String filename, long uploadLength, String function, UploadPolicy uploadPolicy) {
 		super(createErrorMessage(filename, uploadLength, function, uploadPolicy));
