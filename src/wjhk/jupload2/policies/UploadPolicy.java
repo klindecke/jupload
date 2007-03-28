@@ -35,6 +35,14 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TH>Description</TH>
 </TR>
 <TR>
+  <TD>afterUploadURL</TD>
+  <TD><I>null</I><BR>since 2.9.0<BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This parameter is used by all policies. It allows the applet to change the current page to another
+  one after a successful upload. <BR>This allows, for instance, to display a page containing the file description
+  of the newly uploaded page. 		
+  </TD>
+</TR>
+<TR>
   <TD>albumId</TD>
   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
   <TD>This parameter is only used by CoppermineUploadPolicy. So it is to be used to upload into a 
@@ -170,12 +178,15 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
      If the picture is resized, its other characteristics are kept (number of colors, ColorModel...). The picture 
      format is ketp, if targetPictureFormat is empty. If the picture format is a destructive (like jpeg), the 
      maximum available quality is choosed.
+  <BR><I>See also maxPicWidth, realMaxPicHeight</I>
   </TD>
 </TR>
 <TR>
   <TD>maxPicWidth</TD>
   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
-  <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.</TD>
+  <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.
+  <BR><I>See also maxPicHeight, realMaxPicWidth</I>
+  </TD>
 </TR>
 <TR>
   <TD>nbFilesPerRequest</TD>
@@ -191,7 +202,7 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
 <TR>
   <TD><B>postURL</B></TD>
   <TD><I>Mandatory</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>
+  <TD><B>
 		It contains the target URL toward which the files should be upload. This parameter is mandatory for existing class. It may
      become optional in new UploadPolicy, that would create this URL from other data.
 		If the this URL may change during the applet execution time, you can create a new UploadPolicy class, 
@@ -202,8 +213,35 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
 			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#setProperty(String, String)} method. The 
 				{@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the postURL when the albumID property changes.  
 			<LI>Find another solution ... 
-	    </DIR> 
-	 </TD>
+	    </DIR>
+	    <U>Note:</U> in HTTP, the upload is done in the same user session, as the applet uses the cookies from the 
+	    navigator. This allows right management during upload, on the server side.
+	 </B> </TD>
+</TR>
+<TR>
+  <TD>realMaxPicHeight</TD>
+  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}<BR><I>Since v2.8.1</I></TD>
+  <TD>This parameters is about the same as maxPicHeight. It overrides it for pictures that must be transformed
+  (currentlty only when the picture is rotated).
+  <BR>The aim of this parameter, is to prevent the applet to resize picture, and let the server do it: it will be
+  much quicker. 
+  <BR>This allows you to:
+  <DIR>
+  <LI>Put a 'big' <I>maxPicHeight</I> (or don't provide the parameter in the APPLET tag), and let the server resize 
+	  the picture according to the real maxHeight. The <I>maxPicHeight</I> will be used when the picture is not 
+	  tranformed by the user.
+  <LI>Put this realMaxHeight to the real configured maxHeight. The applet will then directly produce the final file, 
+  when it has to tranform the picture (picture rotation, for instance).
+  </DIR>
+  <BR><I>See also maxPicHeight, realMaxPicWidth, maxChunkSize (to override any server upload size limitation).</I>
+  </TD>
+</TR>
+<TR>
+  <TD>realMaxPicWidth</TD>
+  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}<I>Since v2.8.1</I></TD>
+  <TD>Same as realMaxPicHeight, but for the maximum width of uploaded picture that must be transformed.
+  <BR><I>See also maxPicWidth, realMaxPicHeight</I>
+  </TD>
 </TR>
 <TR>
   <TD>serverProtocol</TD>
@@ -213,7 +251,15 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
      <BR>This parameter is really useful only in {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, 
 		as the coppermine application also controls that the requests send within an HTTP session uses the same 
      HTTP protocol (as a protection to limit the 'steal' of session cookies).  
-	 </TD>
+ </TD>
+</TR>
+<TR>
+  <TD>showStatusBar</TD>
+  <TD>True<BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>If given with the <I>False</I> value, the status bar will be hidden. The applet will still store all debug
+  information in it. But the user won't see it any more. If a problem occurs, the <I>urlToSendErrorTo</I> can still
+  be used to log all available information.
+ </TD>
 </TR>
 <TR>
   <TD>storeBufferedImage</TD>
@@ -227,10 +273,11 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
 </TR>
 <TR>
   <TD>stringUploadSuccess</TD>
-  <TD>.* 200 OK$ <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>This string is a regular expression. The upload thread will try to match this regular epression to each 
-     lines returned from the server.
-		If the match is successfull, the upload is considered to be a success. If not, a 
+  <TD>empty string ("") since 2.9.0<BR>(was ".* 200 OK$" before) <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This string is a regular expression. It allows the applet to test that the server has accepted the upload. 
+  If this parameter is given to the applet, the upload thread will try to match this regular epression to each lines 
+  returned from the server.<BR>
+		If the match is successfull once, the upload is considered to be a success. If not, a 
      {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
     <BR>
     The default test expression testes that the web server returns no HTTP error: 200 is the return code for a 
@@ -315,6 +362,7 @@ public interface UploadPolicy {
 	 * Available parameters for the applet. New parameters (for instance for new policies) should all
 	 * be added here, in alphabetic order. These ensure that all tags are unique
 	 */
+	final static String PROP_AFTER_UPLOAD_URL		= "afterUploadURL";
 	final static String PROP_ALBUM_ID 				= "albumId";
 	final static String PROP_STORE_BUFFERED_IMAGE	= "storeBufferedImage";   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static String PROP_DEBUG_LEVEL			= "debugLevel";
@@ -328,15 +376,16 @@ public interface UploadPolicy {
 	final static String PROP_MAX_WIDTH				= "maxPicWidth";
 	final static String PROP_NB_FILES_PER_REQUEST 	= "nbFilesPerRequest";
 	final static String PROP_POST_URL 				= "postURL";
+	final static String PROP_REAL_MAX_HEIGHT		= "realMaxPicHeight";
+	final static String PROP_REAL_MAX_WIDTH			= "realMaxPicWidth";
 	final static String PROP_SERVER_PROTOCOL		= "serverProtocol";
+	final static String PROP_SHOW_STATUSBAR         = "showStatusBar";
 	final static String PROP_STRING_UPLOAD_SUCCESS	= "stringUploadSuccess";
 	final static String PROP_TARGET_PICTURE_FORMAT	= "targetPictureFormat";
 	final static String PROP_UPLOAD_POLICY 			= "uploadPolicy";
 	final static String PROP_URL_TO_SEND_ERROR_TO	= "urlToSendErrorTo";
 	
-	final static String DEFAULT_POST_URL = 
-		"http://localhost:8080/jupload/pages/parseRequest.jsp";
-		//"http://localhost/coppermine/xp_publish.php";
+	final static String	 DEFAULT_AFTER_UPLOAD_URL		= null;
 	final static int     DEFAULT_ALBUM_ID				= 0;
 	final static boolean DEFAULT_STORE_BUFFERED_IMAGE	= false;   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static int     DEFAULT_DEBUG_LEVEL			= 0;
@@ -349,8 +398,12 @@ public interface UploadPolicy {
 	final static int     DEFAULT_MAX_WIDTH				= -1;
 	final static int     DEFAULT_MAX_HEIGHT				= -1;
 	final static int     DEFAULT_NB_FILES_PER_REQUEST	= -1;	   //Note: the CoppermineUploadPolicy forces it to 1.
+	final static String	 DEFAULT_POST_URL 				= "http://localhost:8080/jupload/pages/parseRequest.jsp";
+	final static int     DEFAULT_REAL_MAX_WIDTH			= -1;
+	final static int     DEFAULT_REAL_MAX_HEIGHT		= -1;
 	final static String  DEFAULT_SERVER_PROTOCOL		= "HTTP/1.1";
-	final static String  DEFAULT_STRING_UPLOAD_SUCCESS	= ".* 200 OK$";
+	final static boolean DEFAULT_SHOW_STATUSBAR         = true;
+	final static String  DEFAULT_STRING_UPLOAD_SUCCESS	= "";  //was ".* 200 OK$" before 2.9.0
 	final static String  DEFAULT_TARGET_PICTURE_FORMAT	= null;
 	final static String  DEFAULT_UPLOAD_POLICY			= "DefaultUploadPolicy";
 	final static String  DEFAULT_URL_TO_SEND_ERROR_TO	= "";
@@ -381,31 +434,57 @@ public interface UploadPolicy {
 	 */
 	public FileData createFileData(File file);
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////    getters / setters   ///////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
-	 * Get the target URL for upload.
+	 * This allow runtime modifications of properties. With this method, you can change any applet parameter
+	 * after the applet initilization, with JavaScript for instance. If the applet parameters given in <I>prop</I>
+	 * is not managed by this method, a warning is displayed on the status bar.
 	 * 
-	 * @return Should be valid URL...
+	 * @param prop The applet parameter name.
+	 * @param value The new value for this parameter. If the value is not valid (for instance <I>aaa</I> for a
+	 * number), a warning is displayed in the status bar, and the existing value is not changed.
 	 */
-	public String getPostURL();
+	public void setProperty(String prop, String value);
 	
 	/**
-	 * The URL can change during the life of our policy ...
-	 * 
-	 * @param postURL
+	 * Retrieve the current value for the afterUploadURL applet parameter.
+	 * @return The current value for he afterUploadURL applet parameter.
 	 */
-	public void setPostURL(String postURL);
+	public String getAfterUploadURL();
+	
+	/**
+	 * A useful function, that has nothing to do with an upload policy. But it
+	 * is useful to have it here, as the uploadPolicy is known everywhere in the applet.
+	 * 
+	 * @return Reference to the applet.
+	 */
+	public JUploadApplet getApplet();
 
 	/**
-	 * Get an upload filename, that is to be send in the HTTP upload request. This is the name part of the
-	 * Content-Disposition header. That is: this is the name under which you can manage the file (for instance
-	 * in the _FILES[$name] in PHP) and not the filename of the original file.
+	 * This method indicate whether or not the debug messages must be displayed. Default is no debug (0).
+	 * <BR>
+	 * To activate the debug, add a 'debugLevel' parameter to the applet (with 1 to n value), or call this method.  
+	 * Currently, level used in the code are between 0 (no debug) and 100 (max debug).
+	 * <BR>
+	 * With a 0 value, no debug messages will be displayed. The {@link DefaultUploadPolicy}.addMsgToDebugBufferString
+	 * method stores all debug output in a BufferString.
 	 * 
-	 * @param index index of the file within upload (can be4, ou of 10 for instance).
-	 * @return The name part of the Content-Disposition header.
-	 * @see #getUploadFilename(FileData, int)
+	 * @param debugLevel The new debugLevel.
+	 * @see DefaultUploadPolicy#sendDebugInformation(String)
 	 */
-	public String getUploadName (FileData fileData, int index);
+	public void setDebugLevel(int debugLevel);
 
+	/**
+	 * This method returns the current debug level.
+	 * 
+	 * @return The current debug level
+	 * @see #setDebugLevel(int)
+	 */
+	public int getDebugLevel();	
+	
 	/**
 	 * Return the encoding that should be used for the filename. This encoding has no impact on the content of
 	 * the file that will be uploaded. 
@@ -414,16 +493,6 @@ public interface UploadPolicy {
 	 */
 	public String getFilenameEncoding();
 		
-	/**
-	 * Get the original name of the file on the disk. This function can encode the filename (see 
-	 * the filenameEncoding parameter). By default, the original filename is returned.
-	 * 
-	 * @param fileData
-	 * @param index
-	 * @return The filename the is given in the filename part of the Content-Disposition header.
-	 */
-	public String getUploadFilename (FileData fileData, int index) throws JUploadException;
-	
 	/**
 	 * Returns the value of the applet parameter maxChunkSize (see above for a description of all applet
 	 * parameters)
@@ -456,6 +525,91 @@ public interface UploadPolicy {
 	 */
 	public int getNbFilesPerRequest();
 	
+	/**
+	 * Get the target URL for upload.
+	 * 
+	 * @return Should be valid URL...
+	 */
+	public String getPostURL();
+	
+	/**
+	 * The URL can change during the life of our policy ...
+	 * 
+	 * @param postURL
+	 */
+	public void setPostURL(String postURL);
+
+	/**
+	 * HTTP protocol that should be used to send the HTTP request. Currently, this is mainly used by
+	 * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine control that the protocol used for each HTTP request 
+	 * is the same as the one used during the session creation. It is used in the default policy, as it could 
+	 * be used elsewhere.
+	 * <BR>
+	 * Default is : HTTP/1.1
+	 * 
+	 * @return The selected server protocol.
+	 */
+	public String getServerProtocol();
+	
+	/**
+	 * Indicate whether the status bar should be shown. It may be interesting to hide it, as it contains no really
+	 * text information. But it still is the only place where is displayed the upload status (and upload error if 
+	 * any).
+	 * <BR>
+	 * Default is : true
+	 * 
+	 * @return The current value for the <I>showStatusBar</I> applet parameter.
+	 */
+	public boolean getShowStatusBar();
+	
+	/**
+	 * Get the original name of the file on the disk. This function can encode the filename (see 
+	 * the filenameEncoding parameter). By default, the original filename is returned.
+	 * 
+	 * @param fileData
+	 * @param index
+	 * @return The filename the is given in the filename part of the Content-Disposition header.
+	 */
+	public String getUploadFilename (FileData fileData, int index) throws JUploadException;
+
+	/**
+	 * Get an upload filename, that is to be send in the HTTP upload request. This is the name part of the
+	 * Content-Disposition header. That is: this is the name under which you can manage the file (for instance
+	 * in the _FILES[$name] in PHP) and not the filename of the original file.
+	 * 
+	 * @param index index of the file within upload (can be4, ou of 10 for instance).
+	 * @return The name part of the Content-Disposition header.
+	 * @see #getUploadFilename(FileData, int)
+	 */
+	public String getUploadName (FileData fileData, int index);
+
+	/**
+	 * Returns the current URL where error log must be posted. See <a href="#parameters>Parameters</a>
+	 * @return the urlToSendErrorTo
+	 */
+	public String getUrlToSendErrorTo();
+
+	/**
+	 * Get the regular expression that will be tested against each line of the server answer. If one line matches this
+	 * expression, that upload is marked as successful. 
+	 * <BR>
+	 * The upload works this way:
+	 * <OL>
+	 * <LI>Upload the selected file(s) to the server
+	 * <LI>Get all the server HTTP response. 
+	 * <LI>The stringUploadSuccess regular expression is tested against each line from the server.
+	 * <LI>If the above test gives a match, the upload is marked as successful. Else, the upload is marked
+	 *     as unsuccessful, and a JUploadExceptionUploadFailure is thrown. 
+	 * </OL>
+	 * 
+	 * @return The regular expression that must be run again each line of the http answer.
+	 */
+	public String getStringUploadSuccess();
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////   miscellanneous methods  ////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * This method allows the applet to post debug information to the website (see {@link #getUrlToSendErrorTo()}). 
 	 * Then, it is possible to log the error, to send a mail...   
@@ -532,15 +686,6 @@ public interface UploadPolicy {
 	public void onSelectFile (FileData fileData);
 	
 	/**
-	 * This allow runtime modifications of properties. Currently, this is only user after
-	 * full initialization.
-	 * 
-	 * @param prop
-	 * @param value
-	 */
-	public void setProperty(String prop, String value);
-	
-	/**
 	 * Indicate if everything is ready for upload.
 	 * 
 	 * @return indicate if everything is ready for upload.
@@ -587,26 +732,6 @@ public interface UploadPolicy {
 	 */
 	public void afterUpload(Exception e, String serverOutput);
 	
-	/**
-	 * 
-	 * HTTP protocol that should be used to send the HTTP request. Currently, this is mainly used by
-	 * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine control that the protocol used for each HTTP request 
-	 * is the same as the one used during the session creation. It is used in the default policy, as it could 
-	 * be used elsewhere.
-	 * <BR>
-	 * Default is : HTTP/1.1
-	 * 
-	 * @return The selected server protocol.
-	 * 
-	 */
-	public String getServerProtocol();
-	
-	/**
-	 * Returns the current URL where error log must be posted. See <a href="#parameters>Parameters</a>
-	 * @return the urlToSendErrorTo
-	 */
-	public String getUrlToSendErrorTo();
-
 	/**
 	 * Retrieve a local property. This allows localization. All strings are stored in the property files in the
 	 * wjhk.jupload2.lang package. 
@@ -665,54 +790,6 @@ public interface UploadPolicy {
 	 * @return The associated text.
 	 */
 	public String getString(String key, int value1);
-
-
-	/**
-	 * Get the regular expression that will be tested against each line of the server answer. If one line matches this
-	 * expression, that upload is marked as successful. 
-	 * <BR>
-	 * The upload works this way:
-	 * <OL>
-	 * <LI>Upload the selected file(s) to the server
-	 * <LI>Get all the server HTTP response. 
-	 * <LI>The stringUploadSuccess regular expression is tested against each line from the server.
-	 * <LI>If the above test gives a match, the upload is marked as successful. Else, the upload is marked
-	 *     as unsuccessful, and a JUploadExceptionUploadFailure is thrown. 
-	 * </OL>
-	 * 
-	 * @return The regular expression that must be run again each line of the http answer.
-	 */
-	public String getStringUploadSuccess();
-	
-	/**
-	 * This method indicate whether or not the debug messages must be displayed. Default is no debug (0).
-	 * <BR>
-	 * To activate the debug, add a 'debugLevel' parameter to the applet (with 1 to n value), or call this method.  
-	 * Currently, level used in the code are between 0 (no debug) and 100 (max debug).
-	 * <BR>
-	 * With a 0 value, no debug messages will be displayed. The {@link DefaultUploadPolicy}.addMsgToDebugBufferString
-	 * method stores all debug output in a BufferString.
-	 * 
-	 * @param debugLevel The new debugLevel.
-	 * @see DefaultUploadPolicy#sendDebugInformation(String)
-	 */
-	public void setDebugLevel(int debugLevel);
-
-	/**
-	 * This method returns the current debug level.
-	 * 
-	 * @return The current debug level
-	 * @see #setDebugLevel(int)
-	 */
-	public int getDebugLevel();	
-	
-	/**
-	 * A useful function, that has nothing to do with an upload policy. But it
-	 * is rather eay to have it here.
-	 * 
-	 * @return Reference to the applet.
-	 */
-	public JUploadApplet getApplet();
 	
 	/**
 	 * alert displays a MessageBox with a unique 'Ok' button, like the javascript alert function. 

@@ -354,13 +354,6 @@ public class PictureFileData extends DefaultFileData  {
 			offscreenImage = localImage;
 		}
 
-		/*
-		if (localImage != null) {
-			uploadPolicy.displayDebug("image Width: " + localImage.getWidth(canvas), 60);
-			uploadPolicy.displayDebug("image Height: " + localImage.getHeight(canvas), 60);
-		}
-		*/
-
 		freeMemory("end of " + this.getClass().getName() + ".getImage()");
 	
 		return localImage;
@@ -376,20 +369,15 @@ public class PictureFileData extends DefaultFileData  {
 		quarterRotation += quarter;
 		uploadLength = -1;
 		
+		//We don't know anymore if the picture has to be transformed. We let the hasToTransform method decide.
+		hasToTransformPicture = null;
+		
 		//We keep the 'quarter' in the segment [0;4[
 		while (quarterRotation < 0) {
 			quarterRotation += 4;
 		}
 		while (quarterRotation >= 4) {
 			quarterRotation -= 4;
-		}
-		
-		//Should we tranform the picture ?
-		if (quarterRotation == 0) {
-			//We're back to a non rotated picture. We don't know here if the picture is to be transformed.
-			hasToTransformPicture = null;
-		} else {
-			hasToTransformPicture = Boolean.TRUE;
 		}
 		
 		//We need to change the precalculated picture, if any
@@ -599,14 +587,12 @@ public class PictureFileData extends DefaultFileData  {
 				throw new JUploadException("IOException (createBufferedImage) : " + e.getMessage());
 			}
 			
-			/*
-			if (bufferedImage != null) {
+			if (bufferedImage != null && uploadPolicy.getDebugLevel()>=60) {
 				uploadPolicy.displayDebug("bufferedImage MinX (" + bufferedImage + "): " + bufferedImage.getMinX(), 60);
 				uploadPolicy.displayDebug("bufferedImage MinY (" + bufferedImage + "): " + bufferedImage.getMinY(), 60);
 				uploadPolicy.displayDebug("bufferedImage Width (" + bufferedImage + "): " + bufferedImage.getWidth(), 60);
 				uploadPolicy.displayDebug("bufferedImage Height (" + bufferedImage + "): " + bufferedImage.getHeight(), 60);
 			}
-			*/
 		}
 		return bufferedImage;
 	}
@@ -630,7 +616,7 @@ public class PictureFileData extends DefaultFileData  {
 			
 			//First : the easiest test. A rotation is needed ?
 			if (hasToTransformPicture == null && quarterRotation != 0) {
-				uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true", 20);
+				uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (quarterRotation != 0)", 20);
 				hasToTransformPicture = Boolean.TRUE;
 			}
 			
@@ -663,30 +649,45 @@ public class PictureFileData extends DefaultFileData  {
 				} catch (IOException e) {
 					throw new JUploadException("IOException in ImageIO.read (hasToTransformPicture) : " + e.getMessage());
 				}
+
+				int rotatedWidth, rotatedHeight;
+				int maxWidth, maxHeight;
+				
+				//The width and height of the transformed picture depends on the rotation.
+				if (quarterRotation%2 == 0) {
+					rotatedWidth = originalWidth;
+					rotatedHeight = originalHeight;
+				} else {
+					rotatedWidth = originalHeight;
+					rotatedHeight = originalWidth;
+				}
+				
+				//If the image is rotated, we compare to realMaxWidth and realMaxHeight, instead of
+				//maxWidth and maxHeight. This allows to have a different picture size for rotated and
+				//not rotated pictures. See the UploadPolicy javadoc for details ... and a good reason !  ;-)
+				if (quarterRotation == 0) {
+					maxWidth = uploadPolicy.getMaxWidth();
+					maxHeight = uploadPolicy.getMaxHeight();
+				} else {
+					maxWidth = uploadPolicy.getRealMaxWidth();
+					maxHeight = uploadPolicy.getRealMaxHeight();
+				}
+				
+				
+				if (hasToTransformPicture == null && maxWidth > 0) { 
+					if (rotatedWidth > maxWidth) {
+						uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (rotatedWidth > maxWidth)", 20);
+						hasToTransformPicture = Boolean.TRUE;
+					}
+				}
+				if (hasToTransformPicture == null && maxHeight > 0) { 
+					if (rotatedHeight > maxHeight) {
+						uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (rotatedHeight > maxHeight)", 20);
+						hasToTransformPicture = Boolean.TRUE;
+					}
+				}				
 			}
 			
-			int rotatedWidth, rotatedHeight;
-			//The width and height of the transformed picture depends on the rotation.
-			if (quarterRotation%2 == 0) {
-				rotatedWidth = originalWidth;
-				rotatedHeight = originalHeight;
-			} else {
-				rotatedWidth = originalHeight;
-				rotatedHeight = originalWidth;
-			}
-			
-			if (hasToTransformPicture == null && uploadPolicy.getMaxWidth() > 0) { 
-				if (rotatedWidth > uploadPolicy.getMaxWidth()) {
-					uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true", 20);
-					hasToTransformPicture = Boolean.TRUE;
-				}
-			}
-			if (hasToTransformPicture == null && uploadPolicy.getMaxHeight() > 0) { 
-				if (rotatedHeight > uploadPolicy.getMaxHeight()) {
-					uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true", 20);
-					hasToTransformPicture = Boolean.TRUE;
-				}
-			}				
 
 			//If we find no reason to tranform the picture, then let's let the picture unmodified.
 			if (hasToTransformPicture == null) {
@@ -718,7 +719,16 @@ public class PictureFileData extends DefaultFileData  {
 				String localPictureFormat = (uploadPolicy.getTargetPictureFormat() == null) ? getFileExtension() : uploadPolicy.getTargetPictureFormat();
 
 				//Prepare (if not already done) the bufferedImage.
-				bufferedImage = getBufferedImage(uploadPolicy.getMaxWidth(), uploadPolicy.getMaxHeight(), true);
+
+				//If the image is rotated, we compare to realMaxWidth and realMaxHeight, instead of
+				//maxWidth and maxHeight. This allows to have a different picture size for rotated and
+				//not rotated pictures. See the UploadPolicy javadoc for details ... and a good reason !  ;-)
+				if (quarterRotation == 0) {
+					bufferedImage = getBufferedImage(uploadPolicy.getMaxWidth(), uploadPolicy.getMaxHeight(), true);
+				} else {
+					bufferedImage = getBufferedImage(uploadPolicy.getRealMaxWidth(), uploadPolicy.getRealMaxHeight(), true);
+				}
+				
 				//Get the writer (to choose the compression quality)
 				Iterator iter = ImageIO.getImageWritersByFormatName(localPictureFormat);
 				if (iter.hasNext()) {					
@@ -741,20 +751,7 @@ public class PictureFileData extends DefaultFileData  {
 	                writer.dispose();
 	                output.close();
 	                output = null;
-	                
-                	/*
-                	 * Some debug information, to help analyze what happens.
-	                ColorModel cm = bufferedImage.getColorModel();
-	                ColorSpace cs = cm.getColorSpace();
-                	uploadPolicy.displayDebug("  colorSpace: isCS_RGB=" + (cs.isCS_sRGB() ? "true" : "false"), 90);
-	                int nbComponents = cs.getNumComponents();
-	                for (int i=0; i<nbComponents; i+=1) {
-	                	uploadPolicy.displayDebug("  colorSpace: component " + cs.getName(i) + "=" 
-	                			+ cs.getMinValue(i) + "-" + cs.getMaxValue(i), 90);
-	                }
-	                */
-	                
-	                
+	                	                
 	                //For debug: test if any other driver exists.
 	                int i=2;
 	                while (iter.hasNext()) {

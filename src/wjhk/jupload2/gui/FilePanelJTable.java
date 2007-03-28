@@ -42,7 +42,10 @@ protected int sortedColumnIndex = -1;
     
     JTableHeader header = getTableHeader();
     header.setDefaultRenderer(new SortHeaderRenderer());
+    //We add the mouse listener on the header (to manage column sorts) and on the main part (to manage 
+    //the contextual popup menu)
     header.addMouseListener(this);
+    addMouseListener(this);
   }
   
   /**
@@ -66,9 +69,13 @@ protected int sortedColumnIndex = -1;
 
   // MouseListener implementation.
   public void mouseReleased(MouseEvent event) {
+	  //Displays the contextual menu ?
+	  uploadPolicy.getApplet().getUploadPanel().maybeOpenPopupMenu(event);
   }
 
   public void mousePressed(MouseEvent event) {
+	  //Displays the contextual menu ?
+	  uploadPolicy.getApplet().getUploadPanel().maybeOpenPopupMenu(event);
   }
 
   public void mouseClicked(MouseEvent event) {
@@ -85,6 +92,8 @@ protected int sortedColumnIndex = -1;
 
       model.sortColumn(modelIndex, sortedColumnAscending);
     }
+	  //Displays the contextual menu ?
+	  uploadPolicy.getApplet().getUploadPanel().maybeOpenPopupMenu(event);
   }
 
   public void mouseEntered(MouseEvent event) {

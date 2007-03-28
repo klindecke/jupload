@@ -105,23 +105,23 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 		
 		//Let's read the albumId from the applet parameter. It can be unset, but the user must then choose
 		//an album before upload.
-	    albumId = UploadPolicyFactory.getParameter(theApplet, PROP_ALBUM_ID, DEFAULT_ALBUM_ID);
+	    albumId = UploadPolicyFactory.getParameter(theApplet, PROP_ALBUM_ID, DEFAULT_ALBUM_ID, this);
 	}
 	
 	/**
-	 * This method only handle the <I>albumId</I> parameter. The super.setProperty method 
-	 * is then called.
+	 * This method only handles the <I>albumId</I> parameter, which is the only applet parameter that is
+	 * specific to this class. The super.setProperty method is called for other properties.
 	 * 
 	 * @see wjhk.jupload2.policies.UploadPolicy#setProperty(java.lang.String, java.lang.String)
 	 */
-	public void setProperty(String prop, String value) {
-		//In every case, transmission to the mother class.
-		super.setProperty(prop, value);
-		
-		//The, we check our properties. 
+	public void setProperty(String prop, String value) {		
+		//The, we check the local properties. 
 		if (prop.equals(PROP_ALBUM_ID)) {
-			albumId = UploadPolicyFactory.parseInt(value, 0);
+			albumId = UploadPolicyFactory.parseInt(value, 0, this);
 		    displayDebug("Post URL (modified in CoppermineUploadPolicy) = " + getPostURL(), 10);
+		} else {
+			//Otherwise, transmission to the mother class.
+			super.setProperty(prop, value);
 		}
 	}
 
@@ -135,7 +135,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 		//the action (for jupload). We just add one parameter.
 		//Note: if the postURL (given to the applet) doesn't need any parameter, it's necessary to add a dummy one, 
 		//      so that the line below generates a valid URL.
-		return postURL + "&album=" + albumId;
+		return super.getPostURL() + "&album=" + albumId;
 	}
 	
 	/**
@@ -180,7 +180,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	 * @see UploadPolicy#checkUploadSuccess(String, String)
 	 */
 	public boolean checkUploadSuccess(String serverOutput, String serverOutputBody) throws JUploadException {
-		final Pattern patternSuccess = Pattern.compile(stringUploadSuccess);
+		final Pattern patternSuccess = Pattern.compile(getStringUploadSuccess());
 		final Pattern patternTransferEncodingChunked = Pattern.compile("^Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
 		//La première ligne est de la forme "HTTP/1.1 NNN Texte", où NNN et le code HTTP de retour (200, 404, 500...)
 		final Pattern patternHttpStatus = Pattern.compile("HTTP[^ ]* ([^ ]*) .*", Pattern.DOTALL);
@@ -254,7 +254,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         if(e == null){
         	try {
 	        	//First : construction of the editpic URL :
-	        	String editpicURL = postURL.substring(0,postURL.lastIndexOf('/')) 
+	        	String editpicURL = getPostURL().substring(0,getPostURL().lastIndexOf('/')) 
 						//+ "/editpics.php?album=" + albumId
 						+ "/jupload&action=edit_uploaded_pics&album=" + albumId
 						+ "&nb_pictures=" + nbPictureInUpload

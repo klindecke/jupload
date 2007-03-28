@@ -16,7 +16,7 @@ import javax.swing.*;
   * Work Around: Breakup the file into smaller ones then upload =)
   * 
   * 
-  * @deprecated Replaced by {@link wjhk.jupload2.upload.FileUploadThreadV3}
+  * @deprecated Replaced by {@link wjhk.jupload2.upload.FileUploadThreadHTTP}
   */
 public class FileUploadThreadV1 extends Thread implements FileUploadThread {
 

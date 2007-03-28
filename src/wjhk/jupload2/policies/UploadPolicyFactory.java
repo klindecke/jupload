@@ -33,49 +33,54 @@ public class UploadPolicyFactory {
 	 * @param theApplet if not null : use this Applet Parameters. If null, use System properties.  
 	 * @return The newly created UploadPolicy.
 	 */
-	public static UploadPolicy getUploadPolicy(JUploadApplet theApplet) throws Exception {
-		UploadPolicy uploadPolicy = null;
-		//Let's create the update policy.
-	    String uploadPolicyStr = getParameter(theApplet, 
-	    		UploadPolicy.PROP_UPLOAD_POLICY, 
-				UploadPolicy.DEFAULT_UPLOAD_POLICY);
-
-	    String action=null;
-	    boolean usingDefaultUploadPolicy = false;
-	    try {
-	    	action = uploadPolicyStr;
-	    	Class uploadPolicyClass = null;
-	    	try {
-	    		uploadPolicyClass = Class.forName(uploadPolicyStr);
-	    	} catch (ClassNotFoundException e1) {
-	    		//Hum, let's try to prefix the policy name by the default package
-	    		try {
-	    			uploadPolicyClass = Class.forName("wjhk.jupload2.policies." + uploadPolicyStr);
-	    		} catch (ClassNotFoundException e2) {
-	    			//Too bad, we don't know how to create this class.
-	    			usingDefaultUploadPolicy = true;
-	    			uploadPolicyClass = Class.forName("wjhk.jupload2.policies.DefaultUploadPolicy");
-	    		}
-	    	}
-		    action = "constructorParameters";
-		    Class[] constructorParameters = {Class.forName("wjhk.jupload2.JUploadApplet")};
-		    Constructor constructor = uploadPolicyClass.getConstructor(constructorParameters);
-		    Object[] params = {theApplet};
-		    uploadPolicy = (UploadPolicy) constructor.newInstance(params);
-	    } catch (Exception e) {
-	    	System.out.println("-ERROR- " + e.getClass().getName() + " in " + action);
-	    	throw e;
-	    }
-	    
-	    //The current values are dispayed here, after the full initialization of all classes.
-	    //It could also be displayed in the DefaultUploadPolicy (for instance), but then, the 
-	    //display wouldn't show the modifications done by superclasses.	    
-	    uploadPolicy.displayDebug("uploadPolicy parameter = " + uploadPolicyStr, 1);
-	    if (usingDefaultUploadPolicy) {
-	    	uploadPolicy.displayWarn("Unable to create the '" + uploadPolicyStr + "'. Using the DefaultUploadPolicy instead.");
-	    } else {
-	    	uploadPolicy.displayDebug("uploadPolicy = " + uploadPolicy.getClass().getName(), 20);
-	    }
+	public static UploadPolicy getUploadPolicy(JUploadApplet theApplet) throws Exception {		
+		UploadPolicy uploadPolicy = theApplet.getUploadPolicy();
+		
+		if (uploadPolicy == null) {
+			//Let's create the update policy.
+		    String uploadPolicyStr = getParameter(theApplet, 
+		    		UploadPolicy.PROP_UPLOAD_POLICY, 
+					UploadPolicy.DEFAULT_UPLOAD_POLICY,
+					null);
+	
+		    String action=null;
+		    boolean usingDefaultUploadPolicy = false;
+		    try {
+		    	action = uploadPolicyStr;
+		    	Class uploadPolicyClass = null;
+		    	try {
+		    		uploadPolicyClass = Class.forName(uploadPolicyStr);
+		    	} catch (ClassNotFoundException e1) {
+		    		//Hum, let's try to prefix the policy name by the default package
+		    		try {
+		    			uploadPolicyClass = Class.forName("wjhk.jupload2.policies." + uploadPolicyStr);
+		    		} catch (ClassNotFoundException e2) {
+		    			//Too bad, we don't know how to create this class.
+		    			usingDefaultUploadPolicy = true;
+		    			uploadPolicyClass = Class.forName("wjhk.jupload2.policies.DefaultUploadPolicy");
+		    		}
+		    	}
+			    action = "constructorParameters";
+			    Class[] constructorParameters = {Class.forName("wjhk.jupload2.JUploadApplet")};
+			    Constructor constructor = uploadPolicyClass.getConstructor(constructorParameters);
+			    Object[] params = {theApplet};
+			    action = "newInstance";
+			    uploadPolicy = (UploadPolicy) constructor.newInstance(params);
+		    } catch (Exception e) {
+		    	System.out.println("-ERROR- " + e.getClass().getName() + " in " + action + "(error message: " + e.getMessage() + ")");
+		    	throw e;
+		    }
+		    
+		    //The current values are dispayed here, after the full initialization of all classes.
+		    //It could also be displayed in the DefaultUploadPolicy (for instance), but then, the 
+		    //display wouldn't show the modifications done by superclasses.	    
+		    uploadPolicy.displayDebug("uploadPolicy parameter = " + uploadPolicyStr, 1);
+		    if (usingDefaultUploadPolicy) {
+		    	uploadPolicy.displayWarn("Unable to create the '" + uploadPolicyStr + "'. Using the DefaultUploadPolicy instead.");
+		    } else {
+		    	uploadPolicy.displayDebug("uploadPolicy = " + uploadPolicy.getClass().getName(), 20);
+		    }
+		}
 	    		
 		return uploadPolicy ;
 	}
@@ -85,7 +90,7 @@ public class UploadPolicyFactory {
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
 	 */
-	static public String getParameter(JUploadApplet theApplet, String key, String def) {
+	static public String getParameter(JUploadApplet theApplet, String key, String def, UploadPolicy uploadPolicy) {
 		if (theApplet == null) {
 			return (System.getProperty(key) != null ? System.getProperty(key) : def);
 		} else {
@@ -98,7 +103,7 @@ public class UploadPolicyFactory {
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
 	 */
-	static public int getParameter(JUploadApplet theApplet, String key, int def) {
+	static public int getParameter(JUploadApplet theApplet, String key, int def, UploadPolicy uploadPolicy) {
 		String paramStr;
 		String paramDef = Integer.toString(def);
 		
@@ -109,7 +114,7 @@ public class UploadPolicyFactory {
 			paramStr = theApplet.getParameter(key) != null ? theApplet.getParameter(key) : paramDef;
 		}
 	    
-	    return parseInt(paramStr, def);
+	    return parseInt(paramStr, def, uploadPolicy);
 	}//getParameter(int)
 
 	/**
@@ -117,7 +122,7 @@ public class UploadPolicyFactory {
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
 	 */
-	static public long getParameter(JUploadApplet theApplet, String key, long def) {
+	static public long getParameter(JUploadApplet theApplet, String key, long def, UploadPolicy uploadPolicy) {
 		String paramStr;
 		String paramDef = Long.toString(def);
 		
@@ -128,7 +133,7 @@ public class UploadPolicyFactory {
 			paramStr = theApplet.getParameter(key) != null ? theApplet.getParameter(key) : paramDef;
 		}
 	    
-	    return parseLong(paramStr, def);
+	    return parseLong(paramStr, def, uploadPolicy);
 	}//getParameter(int)
 
 	/**
@@ -136,9 +141,9 @@ public class UploadPolicyFactory {
 	 * 
 	 * @return the parameter value, or the default, if the system is not set. 
 	 */
-	static public boolean getParameter(JUploadApplet theApplet, String key, boolean def) {
+	static public boolean getParameter(JUploadApplet theApplet, String key, boolean def, UploadPolicy uploadPolicy) {
 		String paramStr;
-		String paramDef = (def ? "false" : "true");
+		String paramDef = (def ? "true" : "false");
 		
 		//First, read the parameter as a String
 		if (theApplet == null) {
@@ -147,7 +152,7 @@ public class UploadPolicyFactory {
 			paramStr = theApplet.getParameter(key) != null ? theApplet.getParameter(key) : paramDef;
 		}
 	    
-	    return parseBoolean(paramStr, def);
+	    return parseBoolean(paramStr, def, uploadPolicy);
 	}//getParameter(boolean)
 
 	/**
@@ -158,13 +163,16 @@ public class UploadPolicyFactory {
 	 * @param def
 	 * @return The integer value of value, or def if value is not valid.
 	 */
-	static public int parseInt (String value, int def) {
+	static public int parseInt (String value, int def, UploadPolicy uploadPolicy) {
 		int ret = def;
 		//Then, parse it as an integer.
 	    try {
 	    	ret = Integer.parseInt(value);
 	    } catch (NumberFormatException e) {
-	    	//Nothing to do
+	    	ret = def;
+			if (uploadPolicy != null) {
+				uploadPolicy.displayWarn("Invalid int value: " + value + ", using default value: " + def);
+			}
 	    }
 	    
 	    return ret;
@@ -177,13 +185,16 @@ public class UploadPolicyFactory {
 	 * @param def
 	 * @return The integer value of value, or def if value is not valid.
 	 */
-	static public long parseLong (String value, long def) {
+	static public long parseLong (String value, long def, UploadPolicy uploadPolicy) {
 		long ret = def;
 		//Then, parse it as an integer.
 	    try {
 	    	ret = Long.parseLong(value);
 	    } catch (NumberFormatException e) {
-	    	//Nothing to do
+	    	ret = def;
+			if (uploadPolicy != null) {
+				uploadPolicy.displayWarn("Invalid long value: " + value + ", using default value: " + def);
+			}
 	    }
 	    
 	    return ret;
@@ -193,17 +204,22 @@ public class UploadPolicyFactory {
 	 * This function try to parse value as a boolean. If value is not a correct boolean,
 	 * def is returned.
 	 * 
-	 * @param value
-	 * @param def
+	 * @param value The new value for this property. If invalid, the default value is used.
+	 * @param def The default value: used if value is invalid.
+	 * @param uploadPolicy If not null, it will be used to display a warning when the value is invalid.
+	 * 
 	 * @return The boolean value of value, or def if value is not a valid boolean.
 	 */
-	static public boolean parseBoolean (String value, boolean def) {
+	static public boolean parseBoolean (String value, boolean def, UploadPolicy uploadPolicy) {
 		//Then, parse it as a boolean.
 		if (value.toUpperCase().equals("FALSE")) {
 			return false;
 		} else if (value.toUpperCase().equals("TRUE")) {
 			return true;
 		} else {
+			if (uploadPolicy != null) {
+				uploadPolicy.displayWarn("Invalid boolean value: " + value + ", using default value: " + def);
+			}
 			return def;
 		}
 	}
