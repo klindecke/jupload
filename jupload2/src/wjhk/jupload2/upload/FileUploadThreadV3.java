@@ -24,6 +24,8 @@ package wjhk.jupload2.upload;
  *
  * With the above reason I have decided to replace the use of URLConnection
  * with sockets.
+ * 
+ * @deprecated Replaced by {@link wjhk.jupload2.upload.FileUploadThreadHTTP}
  */
 
 import java.io.BufferedOutputStream;

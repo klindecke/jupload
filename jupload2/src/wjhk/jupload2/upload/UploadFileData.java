@@ -19,7 +19,7 @@ import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class UploadFileData implements FileData {
-		
+
 	/**
 	 * The {@link FileData} instance that contains all information about the file to upload.
 	 */
@@ -150,11 +150,16 @@ class UploadFileData implements FileData {
 	void uploadFile(OutputStream outputStream, long nbBytesToWrite) throws JUploadException {
 		long nbBytesTransmitted = 0;
 		int byteBuff = 0;
+		//We'l update the progess bar every NUM_BYTES bytes, instead of every byte.
+		
+		uploadPolicy.displayDebug("in UploadFileData.uploadFile (nbBytesToWrite:" + nbBytesToWrite + ", nbBytesTransmitted:" + nbBytesTransmitted + ", getUploadLength(): " + getUploadLength() + ")", 30);
 
 		//getInputStream will put a new fileInput in the inputStream attribute, or leave it unchanged if it 
 		//is not null.
 		getInputStream(); 
 		
+		
+		//Super lent en FTP !!
 		
 		try {
 			while(!fileUploadThread.isUploadStopped() && nbBytesTransmitted < nbBytesToWrite) {

@@ -36,6 +36,7 @@ public class FilePanelTableImp extends Panel implements FilePanel {
 
   public FilePanelTableImp(JUploadPanel jup, UploadPolicy uploadPolicy){
     setLayout(new BorderLayout());
+    addMouseListener(jup);
 
     jtable = new FilePanelJTable(uploadPolicy);
 
@@ -48,7 +49,8 @@ public class FilePanelTableImp extends Panel implements FilePanel {
     }
 
     JScrollPane scrollPane = new JScrollPane(jtable);
-    add( scrollPane, BorderLayout.CENTER );
+    add(scrollPane, BorderLayout.CENTER);
+    scrollPane.addMouseListener(jup);
 
     new DropTarget(scrollPane, new DnDListener(jup));
   }

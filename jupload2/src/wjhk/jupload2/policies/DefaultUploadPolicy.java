@@ -75,7 +75,21 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * <BR>
 	 * Default : no default value 
 	 */
-	JUploadApplet applet = null;
+	private JUploadApplet applet = null;
+	
+	/**
+	 * Contains the applet parameter of the same name. If a valid URL is given here, the navigator will get redirected
+	 * to this page, after a successful upload.
+	 */
+	private String afterUploadURL = null;
+	
+	
+	/**
+	 * Indicate whether the status bar is shown or not to the user. In all cases it remains in memory, and stores
+	 * all debug information. This allows a log information, in case of an error occurs. 
+	 * @see #urlToSendErrorTo 
+	 */
+	private boolean showStatusBar = true;
 	
 	/**
 	 * The current debug level.
@@ -86,13 +100,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * This String contains the filenameEncoding parameter. All details about the available applet parameters
 	 * are displayed in the <a href="UploadPolicy.html@parameters">Upload Policy javadoc page</a>.
 	 */
-	String filenameEncoding = null;
+	private String filenameEncoding = null;
 	
 	/**
 	 * The look and feel is used as a parameter of the UIManager.setLookAndFeel(String) method. See the parameters
 	 * list on the {@link UploadPolicy} page.
 	 */
-	String lookAndFeel = "";
+	private String lookAndFeel = "";
 
 	/**
 	 * The applet will do as may HTTP requests to upload all files, with the number 
@@ -100,38 +114,38 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * <BR>
 	 * Default : -1 
 	 */
-	int nbFilesPerRequest;
+	private int nbFilesPerRequest;
 	
 	/**
 	 * Current value (or default value) of the maxChunkSize applet parameter.
 	 * <BR>
 	 * Default : Long.MAX_VALUE
 	 */
-	long maxChunkSize;
+	private long maxChunkSize;
 	
 	/**
 	 * Current value (or default value) of the maxFileSize applet parameter.
 	 * <BR>
 	 * Default : Long.MAX_VALUE
 	 */
-	long maxFileSize;
+	private long maxFileSize;
 	
 	/**
 	 * The URL where files should be posted.
 	 * <BR>
 	 * Default : no default value. (mandatory) 
 	 */
-	String postURL = null;	
+	private String postURL = null;	
 	
 	/**
 	 * @see UploadPolicy#getServerProtocol()
 	 */
-	String serverProtocol;
+	private String serverProtocol;
 	
 	/**
 	 * @see UploadPolicy#getStringUploadSuccess()
 	 */
-	String stringUploadSuccess;
+	private String stringUploadSuccess;
 	
 	/**
 	 * If an error occurs during upload, and this attribute is not null, the applet asks the user if wants to send 
@@ -140,7 +154,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @see UploadPolicy#sendDebugInformation(String)
 	 */
-	String urlToSendErrorTo;
+	private String urlToSendErrorTo;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////    INTERNAL ATTRIBUTE  ///////////////////////////////////////////////////
@@ -164,7 +178,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/**
 	 * The resourceBundle contains all localized String (and others ??)
 	 */
-	ResourceBundle resourceBundle = null;
+	private ResourceBundle resourceBundle = null;
 
 	/**
 	 * This StringBuffer is used to store all information that could be useful, in case a problem occurs.
@@ -188,81 +202,68 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		this.applet = theApplet;
 		this.statusArea = theApplet.getStatusArea();
 		
+		
+	    //////////////////////////////////////////////////////////////////////////////
+	    //get the afterUploadURL applet parameter.
+		setAfterUploadURL(UploadPolicyFactory.getParameter(theApplet, PROP_AFTER_UPLOAD_URL, DEFAULT_AFTER_UPLOAD_URL, this));
+
+	    //////////////////////////////////////////////////////////////////////////////
+	    //get the showStatusBar applet parameter.
+		setShowStatusBar(UploadPolicyFactory.getParameter(theApplet, PROP_SHOW_STATUSBAR, DEFAULT_SHOW_STATUSBAR, this));
 
 	    //////////////////////////////////////////////////////////////////////////////
 	    //get the debug level. This control the level of debug messages that are written 
 	    //in the status area (see displayDebugMessage). In all cases, the full output 
 	    //is written in the debugBufferString (see also urlToSendErrorTo)
-	    debugLevel = UploadPolicyFactory.getParameter(theApplet, PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL);
+	    setDebugLevel (UploadPolicyFactory.getParameter(theApplet, PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL, this), false);
 
 	    //////////////////////////////////////////////////////////////////////////////
 	    //get the filenameEncoding. If not null, it should be a valid argument for
 	    //the URLEncoder.encode method. 
-	    filenameEncoding = UploadPolicyFactory.getParameter(theApplet, PROP_FILENAME_ENCODING, DEFAULT_FILENAME_ENCODING);
+	    setFilenameEncoding (UploadPolicyFactory.getParameter(theApplet, PROP_FILENAME_ENCODING, DEFAULT_FILENAME_ENCODING, this));
 
 	    
 	    //Force the look and feel of the current system.
-	    lookAndFeel = UploadPolicyFactory.getParameter(theApplet, PROP_LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL);
-	    if (lookAndFeel != null  &&  !lookAndFeel.equals("")  &&  !lookAndFeel.equals("java")) {
-	    	//We try to call the UIManager.setLookAndFeel() method. We catch all possible exceptions, to prevent
-	    	//that the applet is blocked.
-	    	try {
-		    	if (! lookAndFeel.equals("system")) {
-		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		    	} else {
-		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		    	}
-	    	} catch (Exception e) {
-	    		displayErr(e);
-	    	}
-	    }
+	    setLookAndFeel (UploadPolicyFactory.getParameter(theApplet, PROP_LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL, this));
 
 	    ///////////////////////////////////////////////////////////////////////////////
 	    //get the maximum number of files to upload in one HTTP request. 
-		nbFilesPerRequest = UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST);
+		setNbFilesPerRequest (UploadPolicyFactory.getParameter(theApplet, PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST, this));
 
 	    ///////////////////////////////////////////////////////////////////////////////
 	    //get the maximum size of a file on one HTTP request (indicate if the file
 		//must be splitted before upload, see UploadPolicy comment).
-		maxChunkSize = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_CHUNK_SIZE, DEFAULT_MAX_CHUNK_SIZE);
+		setMaxChunkSize (UploadPolicyFactory.getParameter(theApplet, PROP_MAX_CHUNK_SIZE, DEFAULT_MAX_CHUNK_SIZE, this));
 
 	    ///////////////////////////////////////////////////////////////////////////////
 	    //get the maximum size of an uploaded file.
-		maxFileSize = UploadPolicyFactory.getParameter(theApplet, PROP_MAX_FILE_SIZE, DEFAULT_MAX_FILE_SIZE);
+		setMaxFileSize (UploadPolicyFactory.getParameter(theApplet, PROP_MAX_FILE_SIZE, DEFAULT_MAX_FILE_SIZE, this));
 
 	    ///////////////////////////////////////////////////////////////////////////////
 	    //get the URL where files must be posted. 
-	    postURL = UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL, DEFAULT_POST_URL);
+	    setPostURL (UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL, DEFAULT_POST_URL, this));
 
 		///////////////////////////////////////////////////////////////////////////////
 	    //get the server protocol. 
 		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
 	    // sending the cookie uses the same http protocol that the original connexion.
 	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
-		serverProtocol = UploadPolicyFactory.getParameter(theApplet, PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL);
+		setServerProtocol (UploadPolicyFactory.getParameter(theApplet, PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
 
 		///////////////////////////////////////////////////////////////////////////////
 	    //get the upload String Success. See Uploadolicy#getStringUploadSuccess 
 		// It is used by Coppermine Picture Gallery (nice tool) to control that the user
 	    // sending the cookie uses the same http protocol that the original connexion.
 	    // Please have a look tp the UploadPolicy.serverProtocol attribute.
-		stringUploadSuccess = UploadPolicyFactory.getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS, DEFAULT_STRING_UPLOAD_SUCCESS);		
+		setStringUploadSuccess (UploadPolicyFactory.getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS, DEFAULT_STRING_UPLOAD_SUCCESS, this));		
 		
 		///////////////////////////////////////////////////////////////////////////////
 	    //get the URL where the full debug output can be sent when an error occurs. 
-		urlToSendErrorTo = UploadPolicyFactory.getParameter(theApplet, PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO);
+		setUrlToSendErrorTo (UploadPolicyFactory.getParameter(theApplet, PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO, this));
 
 		///////////////////////////////////////////////////////////////////////////////
 		//Get resource file.
-		String lang = UploadPolicyFactory.getParameter(theApplet,PROP_LANG, DEFAULT_LANG);
-		Locale locale;
-		if (lang == null) {
-			displayInfo("lang = null, taking default language");
-			locale = Locale.getDefault();
-		} else {
-			locale = new Locale(lang);
-		}
-		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
+		setLang (UploadPolicyFactory.getParameter(theApplet,PROP_LANG, DEFAULT_LANG, this));
 
 		///////////////////////////////////////////////////////////////////////////////
 		//Load session data read from the navigator: 
@@ -296,32 +297,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		//The cookies and user-agent will be added to the header sent by the applet:
 	    addHeader("Cookie: " + cookie);
 	    addHeader("User-Agent: " + userAgent);
-
-		//Let's handle the language:
-	    displayDebug("lang (parameter): " + lang, 20);
-	    displayDebug("language: " + locale.getLanguage(), 20);
-	    displayDebug("country: " + locale.getCountry(), 20);
 	    
-		///////////////////////////////////////////////////////////////////////////////
-		// Let's display some information to the user, about the received parameters.
-		displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
-	    displayInfo("postURL: " + postURL);
-
-	    if (maxFileSize == Long.MAX_VALUE) {
-	    	//If the maxFileSize was not given, we display its value only in debug mode.
-	    	displayDebug("maxFileSize  : " + maxFileSize, 20);
-	    } else {
-	    	//If the maxFileSize was given, we always inform the user.
-	    	displayInfo("maxFileSize  : " + maxFileSize);
-	    }
-	    displayDebug("Java version  : " + System.getProperty("java.version"), 20); 		
-	    displayDebug("debug: " + debugLevel, 1); 
-	    displayDebug("filenameEncoding: " + filenameEncoding, 20);
-	    displayDebug("nbFilesPerRequest: " + nbFilesPerRequest, 20);
-	    displayDebug("maxChunkSize: " + maxChunkSize, 20);
-	    displayDebug("stringUploadSuccess: " + stringUploadSuccess, 20); 
-	    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
-	    displayDebug("serverProtocol: " + serverProtocol, 20); 
+	    //Then, we display the applet parameter list.
+	    displayParameterStatus();
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -346,8 +324,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
 	/**
 	 * The default behaviour (see {@link DefaultUploadPolicy}) is to check that the stringUploadSuccess applet 
-	 * parameter is present in the request. The return is :
+	 * parameter is present in the response from the server. The return is tested, in the order below:
 	 * <DIR>
+	 * <LI>True, if the stringUploadSuccess was not given as an applet parameter (no test at all).
 	 * <LI>True, if the stringUploadSuccess string is present in the serverOutputBody.
 	 * <LI>True, If previous condition is not filled, but the HTTP header "HTTP(.*)200OK$" is present: the test is
 	 *   currently non blocking, because I can not test all possible HTTP configurations.<BR>
@@ -367,39 +346,44 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		final Pattern patternTransferEncodingChunked = Pattern.compile("^Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
 		//La première ligne est de la forme "HTTP/1.1 NNN Texte", où NNN et le code HTTP de retour (200, 404, 500...)
 		final Pattern patternHttpStatus = Pattern.compile("HTTP[^ ]* ([^ ]*) .*", Pattern.DOTALL);
-		
-		//The success string should be in the http body
-		boolean uploadSuccess = patternSuccess.matcher(serverOutputBody).find();
-		//The transfert encoding may be present in the serverOutput (that contains the http headers)
-		boolean uploadTransferEncodingChunked = patternTransferEncodingChunked.matcher(serverOutput).find();
-		
-		//And have a match, to search for the http return code (200 for Ok)
-		Matcher matcherUploadHttpStatus = patternHttpStatus.matcher(serverOutput);
-		if (!matcherUploadHttpStatus.matches()) {
-			throw new JUploadException("Can't find the HTTP status in serverOutput!");
+
+		if (stringUploadSuccess.equals("")) {
+			return true;
 		} else {
-			int httpStatus = Integer.parseInt(matcherUploadHttpStatus.group(1));
-			boolean upload_200_OK = (httpStatus == 200);
 			
-			displayDebug("HTTP return code: " + httpStatus, 40);
-	
-			//Let's find what we should answer:
-			if (uploadSuccess) {
-				return true;
-			} else if (uploadTransferEncodingChunked && upload_200_OK) {
-				//Hum, as the transfert encoding is chuncked, the success string may be splitted. We display 
-				//an info message, and expect everything is Ok.
-				//FIXME The chunked encoding should be correctly handled, instead of the current 'expectations' below. 
-				displayInfo("The transertEncoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
-				return true;
-			} else if (upload_200_OK) {
-				//This method is currently non blocking.
-				displayWarn("The http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
-				//We raise no exception (= success)
-				return true;
+			//The success string should be in the http body
+			boolean uploadSuccess = patternSuccess.matcher(serverOutputBody).find();
+			//The transfert encoding may be present in the serverOutput (that contains the http headers)
+			boolean uploadTransferEncodingChunked = patternTransferEncodingChunked.matcher(serverOutput).find();
+			
+			//And have a match, to search for the http return code (200 for Ok)
+			Matcher matcherUploadHttpStatus = patternHttpStatus.matcher(serverOutput);
+			if (!matcherUploadHttpStatus.matches()) {
+				throw new JUploadException("Can't find the HTTP status in serverOutput!");
 			} else {
-				//The upload is not successful: here, we know it!
-				throw new JUploadExceptionUploadFailed (getClass().getName() + ".checkUploadSuccess(): The http return code is : " + httpStatus + " (should be 200)");
+				int httpStatus = Integer.parseInt(matcherUploadHttpStatus.group(1));
+				boolean upload_200_OK = (httpStatus == 200);
+				
+				displayDebug("HTTP return code: " + httpStatus, 40);
+		
+				//Let's find what we should answer:
+				if (uploadSuccess) {
+					return true;
+				} else if (uploadTransferEncodingChunked && upload_200_OK) {
+					//Hum, as the transfert encoding is chuncked, the success string may be splitted. We display 
+					//an info message, and expect everything is Ok.
+					//FIXME The chunked encoding should be correctly handled, instead of the current 'expectations' below. 
+					displayInfo("The transertEncoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+					return true;
+				} else if (upload_200_OK) {
+					//This method is currently non blocking.
+					displayWarn("The http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+					//We raise no exception (= success)
+					return true;
+				} else {
+					//The upload is not successful: here, we know it!
+					throw new JUploadExceptionUploadFailed (getClass().getName() + ".checkUploadSuccess(): The http return code is : " + httpStatus + " (should be 200)");
+				}
 			}
 		}
 	}//isUploadSuccessful
@@ -408,7 +392,25 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
 	 */
 	public void afterUpload(Exception e, String serverOutput) {
-		//Default: no special action.
+		//If there was no error, and afterUploadURL is defined, let's try to go to this URL.
+        if(e == null && getAfterUploadURL()!=null){
+        	try {
+			    if (getDebugLevel() >= 100) {
+				    alertStr ("No switch to property page, because debug level is " + getDebugLevel() + " (>=100)");
+			    } else {
+				    //Let's change the current URL to edit names and comments, for the selected album. 
+		        	//Ok, let's go and add names and comments to the newly updated pictures.
+					JSObject applet = JSObject.getWindow(getApplet());
+				    JSObject doc = (JSObject) applet.getMember("document");
+				    JSObject loc = (JSObject) doc.getMember("location");
+				    Object[] argsReplace = {getAfterUploadURL()};
+				    loc.call("replace", argsReplace);
+			    }
+        	} catch (JSException ee) {
+        		//Oups, no navigator. We are probably in debug mode, within eclipse for instance.
+        		displayErr(ee);
+        	}
+        }
 	}
 
 	
@@ -711,16 +713,53 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	}//sendDebugInformation
 
 	/**
+	 * This method manages all applet parameters. It allows javascript to update their value, for instance
+	 * after the user chooses a value in a list ...
+	 *  
 	 * @see wjhk.jupload2.policies.UploadPolicy#setProperty(java.lang.String, java.lang.String)
 	 */
 	public void setProperty(String prop, String value) {
-		// Default : nothing to do.	
+		if (prop.equals(PROP_AFTER_UPLOAD_URL)) {
+			setAfterUploadURL(value);
+		} else if (prop.equals(PROP_DEBUG_LEVEL)) {
+			setDebugLevel(UploadPolicyFactory.parseInt(value, debugLevel, this));
+		} else if (prop.equals(PROP_LANG)) {
+			setAfterUploadURL(value);
+		} else if (prop.equals(PROP_FILENAME_ENCODING)) {
+			setFilenameEncoding(value);
+		} else if (prop.equals(PROP_LOOK_AND_FEEL)) {
+			setLookAndFeel(value);
+		} else if (prop.equals(PROP_MAX_CHUNK_SIZE)) {
+			setMaxChunkSize(UploadPolicyFactory.parseLong(value, maxChunkSize, this));
+		} else if (prop.equals(PROP_MAX_FILE_SIZE)) {
+			setMaxFileSize(UploadPolicyFactory.parseLong(value, maxFileSize, this));
+		} else if (prop.equals(PROP_NB_FILES_PER_REQUEST)) {
+			setNbFilesPerRequest(UploadPolicyFactory.parseInt(value, nbFilesPerRequest, this));
+		} else if (prop.equals(PROP_POST_URL)) {
+			setPostURL(value);
+		} else if (prop.equals(PROP_SERVER_PROTOCOL)) {
+			setServerProtocol(value);
+		} else if (prop.equals(PROP_STRING_UPLOAD_SUCCESS)) {
+			setStringUploadSuccess(value);
+		} else if (prop.equals(PROP_URL_TO_SEND_ERROR_TO)) {
+			setUrlToSendErrorTo(value);
+		} else {
+			displayWarn("Unknown applet parameter: " + prop + " (in DefaultUploadPolicy.setProperty)");
+		}
+	
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////    getters / setters   ///////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	
+	/** @see UploadPolicy#getAfterUploadURL() */
+	public String getAfterUploadURL() { return afterUploadURL; }
+	/** @param afterUploadURL the afterUploadURL to set */
+	protected void setAfterUploadURL(String afterUploadURL) {
+		this.afterUploadURL = afterUploadURL;
+	}
+
 	/** @see UploadPolicy#getApplet() */
 	public JUploadApplet getApplet() {
 		return applet;
@@ -731,57 +770,118 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		return debugLevel;
 	}
 	/** @see UploadPolicy#setDebugLevel(int) */
-	public void setDebugLevel(int debugLevel) {
+	public void setDebugLevel (int debugLevel) {setDebugLevel(debugLevel,true); }
+	public void setDebugLevel(int debugLevel, boolean displayAppletParameterList) {
 		//If the debugLevel was previously set, we inform the user of this change.
 		if (this.debugLevel >= 0) {
 			displayInfo("Debug level set to " + debugLevel);
 		}
 		this.debugLevel = debugLevel;
+		
+		//The status bar may become visible or hidden, depending on the current debug level.
+		if (getApplet().getUploadPanel() != null) {
+			getApplet().getUploadPanel().showOrHideStatusBar();
+		
+			//Let's display the current applet parameters.
+			if (displayAppletParameterList) {
+				displayParameterStatus();
+			}
+		}
 	}	
+	
+	/**
+	 * This method sets the current language to take into account. It loads the {@link #resourceBundle}, which
+	 * will allow the applet to display the texts in the correct language.
+	 * 
+	 * @param lang The new language to take into account. See the java.util.Locale(String) constructor for a list 
+	 * of valid values.
+	 */
+	protected void setLang(String lang) {
+		Locale locale;
+		if (lang == null) {
+			displayInfo("lang = null, taking default language");
+			locale = Locale.getDefault();
+		} else {
+			locale = new Locale(lang);
+		}
+		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
+	}
+
+	protected String getLookAndFeel() { return lookAndFeel; } 
+	/** @param lookAndFeel the lookAndFeel to set */
+	protected void setLookAndFeel(String lookAndFeel) { 
+		this.lookAndFeel = lookAndFeel; 
+	    if (lookAndFeel != null  &&  !lookAndFeel.equals("")  &&  !lookAndFeel.equals("java")) {
+	    	//We try to call the UIManager.setLookAndFeel() method. We catch all possible exceptions, to prevent
+	    	//that the applet is blocked.
+	    	try {
+		    	if (! lookAndFeel.equals("system")) {
+		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		    	} else {
+		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		    	}
+	    	} catch (Exception e) {
+	    		displayErr(e);
+	    	}
+	    }
+	}
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getMaxChunkSize() */
-	public long getMaxChunkSize() {
-		return maxChunkSize;
+	public long getMaxChunkSize() { return maxChunkSize; }
+	/** @param maxChunkSize the maxChunkSize to set */
+	protected void setMaxChunkSize(long maxChunkSize) { 
+		if (maxChunkSize < 0) {
+			displayWarn("maxChunkSize<0 which is invalid. Switched to the default value (Long.MAX_VALUE)");
+			maxChunkSize = Long.MAX_VALUE;
+		}
+		this.maxChunkSize = maxChunkSize; 
 	}
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getMaxFileSize() */
-	public long getMaxFileSize() {
-		return maxFileSize;
-	}
+	public long getMaxFileSize() { return maxFileSize; }
+	/** @param maxFileSize the maxFileSize to set */
+	protected void setMaxFileSize(long maxFileSize) { this.maxFileSize = maxFileSize; }
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getNbFilesPerRequest() */
-	public int getNbFilesPerRequest() {
-		return nbFilesPerRequest;
-	}
+	public int getNbFilesPerRequest() { return nbFilesPerRequest; }
+	/** @param nbFilesPerRequest the nbFilesPerRequest to set */
+	protected void setNbFilesPerRequest(int nbFilesPerRequest) { this.nbFilesPerRequest = nbFilesPerRequest; }
 
 	/** @see UploadPolicy#getFilenameEncoding() */
-	public String getFilenameEncoding() {
-		return filenameEncoding;
-	}
+	public String getFilenameEncoding() { return filenameEncoding; }
+	/** @param filenameEncoding the filenameEncoding to set */
+	protected void setFilenameEncoding(String filenameEncoding) { this.filenameEncoding = filenameEncoding; }
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getPostURL() */
-	public String getPostURL() {
-		return postURL;
-	}
+	public String getPostURL() { return postURL; }
 	/** @see wjhk.jupload2.policies.UploadPolicy#setPostURL(String) */
-	public void setPostURL(String postURL) {
-		this.postURL = postURL;
-	}
+	public void setPostURL(String postURL) { this.postURL = postURL; }
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
-	public String getServerProtocol() {
-		return serverProtocol;
+	public String getServerProtocol() { return serverProtocol; }
+	/** @param serverProtocol the serverProtocol to set */
+	protected void setServerProtocol(String serverProtocol) { this.serverProtocol = serverProtocol; }
+
+	/** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
+	public boolean getShowStatusBar() { return showStatusBar; }
+	/** @param showStatusBar the new showStatusBar value */
+	protected void setShowStatusBar(boolean showStatusBar) { 
+		this.showStatusBar = showStatusBar; 
+		//The status bar may become visible or hidden, depending on this parameter.
+		if (getApplet().getUploadPanel() != null) {
+			getApplet().getUploadPanel().showOrHideStatusBar();
+		}
 	}
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getStringUploadSuccess() */
-	public String getStringUploadSuccess() {
-		return stringUploadSuccess;
-	}
+	public String getStringUploadSuccess() { return stringUploadSuccess; }
+	/** @param stringUploadSuccess the stringUploadSuccess to set */
+	protected void setStringUploadSuccess(String stringUploadSuccess) { this.stringUploadSuccess = stringUploadSuccess; }
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getUrlToSendErrorTo() */
-	public String getUrlToSendErrorTo() {
-		return urlToSendErrorTo;
-	}
+	public String getUrlToSendErrorTo() { return urlToSendErrorTo; }
+	/** @param urlToSendErrorTo the urlToSendErrorTo to set */
+	protected void setUrlToSendErrorTo(String urlToSendErrorTo) { this.urlToSendErrorTo = urlToSendErrorTo; }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////    Internal methods    ///////////////////////////////////////////////////
@@ -816,5 +916,48 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		//Let's store all text in the debug BufferString
 		addMsgToDebugBufferString(msg + "\r\n");
 	}
+
+
+	/**
+	 * This method displays the applet parameter list, according to the current debugLevel. It is called by the
+	 * {@link #setDebugLevel(int)} method. It should be override by any subclasses, that should display its own 
+	 * parameters, then call <I>super.displayParameterStatus()</I>. 
+	 *
+	 */
+	public void displayParameterStatus() {
+		//Let's handle the language:
+		if( getDebugLevel() >= 20) {
+			displayDebug("=======================================================================", 20);
+			displayDebug("List of all applet parameters value", 20);
+		    displayDebug("language: " + resourceBundle.getLocale().getLanguage(), 20);
+		    displayDebug("country: " + resourceBundle.getLocale().getCountry(), 20);
+		    
+			///////////////////////////////////////////////////////////////////////////////
+			// Let's display some information to the user, about the received parameters.
+			displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
+		    displayInfo("postURL: " + postURL);
 	
+		    if (maxFileSize == Long.MAX_VALUE) {
+		    	//If the maxFileSize was not given, we display its value only in debug mode.
+		    	displayDebug("maxFileSize  : " + maxFileSize, 20);
+		    } else {
+		    	//If the maxFileSize was given, we always inform the user.
+		    	displayInfo("maxFileSize  : " + maxFileSize);
+		    }
+		    displayDebug("Java version  : " + System.getProperty("java.version"), 20); 		
+		    displayDebug("debug: " + debugLevel, 1); 
+		    displayDebug("afterUploadURL: " + getAfterUploadURL(), 20);
+		    displayDebug("filenameEncoding: " + filenameEncoding, 20);
+		    displayDebug("nbFilesPerRequest: " + nbFilesPerRequest, 20);
+		    displayDebug("maxChunkSize: " + maxChunkSize, 20);
+		    displayDebug("stringUploadSuccess: " + stringUploadSuccess, 20); 
+		    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
+		    displayDebug("serverProtocol: " + serverProtocol, 20); 
+		    displayDebug("showStatusBar: " + getShowStatusBar(), 20); 
+			displayDebug("=======================================================================", 20);
+		}
+	}
+
+
+
 }

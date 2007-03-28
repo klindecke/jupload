@@ -17,7 +17,8 @@
 </DIR>
 
 <A name="MainChoices"><H2>Main choices</H2></A>
-You can customize the behavour of this applet by using one (or more) of the following ways (from the simplest to the more complex):
+You can customize the behavour of this applet by using one (or more) of the following ways (from the simplest to the 
+most complex):
 <UL>
 	<LI><U>Basic HTML Customization</U>. Simply precise other applet parameters to the applet, in the HTML APPLET tag: 
 	copy the sample given in the <A HREF="applet-basic.html">basic</A> demo. The parameters for all available upload 
@@ -32,6 +33,8 @@ You can customize the behavour of this applet by using one (or more) of the foll
 	can use precisely anagewhat the kind of fils that may be upload, check them, prepare upload (for instance, compress
 	file before upload), check that specific parameters are set before upload (the existing CoppermineUploadPolicy
 	checks that an albumId is set), and much more...
+	<LI><U>Changing the upload way</U>. Since 2.9.0, the DefaultUploadThreadV5 provides a default implementation of
+	the FileUploadThread interface.
 	<LI><U>And, of course, change code everywhere in the applet</U> ... like I did    ;-) 
 </UL> 
 
@@ -155,6 +158,14 @@ Here is the list of all parameters available in the current package. These are a
   <TH>Parameter name</TH>
   <TH>Default value / <BR> Implemented in</TH>
   <TH>Description</TH>
+</TR>
+<TR>
+  <TD>afterUploadURL</TD>
+  <TD><I>null</I><BR>since 2.9.0<BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This parameter is used by all policies. It allows the applet to change the current page to another
+  one after a successful upload. <BR>This allows, for instance, to display a page containing the file description
+  of the newly uploaded page. 		
+  </TD>
 </TR>
 <TR>
   <TD>albumId</TD>
@@ -292,12 +303,15 @@ Here is the list of all parameters available in the current package. These are a
      If the picture is resized, its other characteristics are kept (number of colors, ColorModel...). The picture 
      format is ketp, if targetPictureFormat is empty. If the picture format is a destructive (like jpeg), the 
      maximum available quality is choosed.
+  <BR><I>See also maxPicWidth, realMaxPicHeight</I>
   </TD>
 </TR>
 <TR>
   <TD>maxPicWidth</TD>
   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
-  <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.</TD>
+  <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.
+  <BR><I>See also maxPicHeight, realMaxPicWidth</I>
+  </TD>
 </TR>
 <TR>
   <TD>nbFilesPerRequest</TD>
@@ -313,7 +327,7 @@ Here is the list of all parameters available in the current package. These are a
 <TR>
   <TD><B>postURL</B></TD>
   <TD><I>Mandatory</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>
+  <TD><B>
 		It contains the target URL toward which the files should be upload. This parameter is mandatory for existing class. It may
      become optional in new UploadPolicy, that would create this URL from other data.
 		If the this URL may change during the applet execution time, you can create a new UploadPolicy class, 
@@ -324,8 +338,35 @@ Here is the list of all parameters available in the current package. These are a
 			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#setProperty(String, String)} method. The 
 				{@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the postURL when the albumID property changes.  
 			<LI>Find another solution ... 
-	    </DIR> 
-	 </TD>
+	    </DIR>
+	    <U>Note:</U> in HTTP, the upload is done in the same user session, as the applet uses the cookies from the 
+	    navigator. This allows right management during upload, on the server side.
+	 </B> </TD>
+</TR>
+<TR>
+  <TD>realMaxPicHeight</TD>
+  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}<BR><I>Since v2.8.1</I></TD>
+  <TD>This parameters is about the same as maxPicHeight. It overrides it for pictures that must be transformed
+  (currentlty only when the picture is rotated).
+  <BR>The aim of this parameter, is to prevent the applet to resize picture, and let the server do it: it will be
+  much quicker. 
+  <BR>This allows you to:
+  <DIR>
+  <LI>Put a 'big' <I>maxPicHeight</I> (or don't provide the parameter in the APPLET tag), and let the server resize 
+	  the picture according to the real maxHeight. The <I>maxPicHeight</I> will be used when the picture is not 
+	  tranformed by the user.
+  <LI>Put this realMaxHeight to the real configured maxHeight. The applet will then directly produce the final file, 
+  when it has to tranform the picture (picture rotation, for instance).
+  </DIR>
+  <BR><I>See also maxPicHeight, realMaxPicWidth, maxChunkSize (to override any server upload size limitation).</I>
+  </TD>
+</TR>
+<TR>
+  <TD>realMaxPicWidth</TD>
+  <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.PictureUploadPolicy}<I>Since v2.8.1</I></TD>
+  <TD>Same as realMaxPicHeight, but for the maximum width of uploaded picture that must be transformed.
+  <BR><I>See also maxPicWidth, realMaxPicHeight</I>
+  </TD>
 </TR>
 <TR>
   <TD>serverProtocol</TD>
@@ -335,7 +376,15 @@ Here is the list of all parameters available in the current package. These are a
      <BR>This parameter is really useful only in {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, 
 		as the coppermine application also controls that the requests send within an HTTP session uses the same 
      HTTP protocol (as a protection to limit the 'steal' of session cookies).  
-	 </TD>
+ </TD>
+</TR>
+<TR>
+  <TD>showStatusBar</TD>
+  <TD>True<BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>If given with the <I>False</I> value, the status bar will be hidden. The applet will still store all debug
+  information in it. But the user won't see it any more. If a problem occurs, the <I>urlToSendErrorTo</I> can still
+  be used to log all available information.
+ </TD>
 </TR>
 <TR>
   <TD>storeBufferedImage</TD>
@@ -349,10 +398,11 @@ Here is the list of all parameters available in the current package. These are a
 </TR>
 <TR>
   <TD>stringUploadSuccess</TD>
-  <TD>.* 200 OK$ <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
-  <TD>This string is a regular expression. The upload thread will try to match this regular epression to each 
-     lines returned from the server.
-		If the match is successfull, the upload is considered to be a success. If not, a 
+  <TD>empty string ("") since 2.9.0<BR>(was ".* 200 OK$" before) <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This string is a regular expression. It allows the applet to test that the server has accepted the upload. 
+  If this parameter is given to the applet, the upload thread will try to match this regular epression to each lines 
+  returned from the server.<BR>
+		If the match is successfull once, the upload is considered to be a success. If not, a 
      {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
     <BR>
     The default test expression testes that the web server returns no HTTP error: 200 is the return code for a 

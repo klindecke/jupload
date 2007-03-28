@@ -33,16 +33,16 @@ public class JUploadApplet extends Applet{
       "Java Applet wrapper for JUploadPanel.";
   public static final String AUTHOR = "William JinHua Kwong (updated by Etienne Gauthier)";
 
-  public static final String VERSION = "2.8.0";
-  public static final String LAST_MODIFIED = "28 feb 2007";
+  public static final String VERSION = "2.9.0a4";
+  public static final String LAST_MODIFIED = "26 mar 2007";
 
   //----------------------------------------------------------------------
 
   //private boolean isStandalone = false;
 
-  private UploadPolicy uploadPolicy;
-  private JUploadPanel jUploadPanel;
-  private JUploadTextArea statusArea; 
+  private UploadPolicy uploadPolicy = null;
+  private JUploadPanel jUploadPanel = null;
+  private JUploadTextArea statusArea = null; 
 
   //----------------------------------------------------------------------
 
@@ -55,10 +55,9 @@ public class JUploadApplet extends Applet{
 	    //Creation of the Panel, containing all GUI objects for upload.
 	    statusArea = new JUploadTextArea(5, 20);
 	    uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
-	    statusArea.setUploadPolicy(uploadPolicy);
 
 		jUploadPanel = new JUploadPanel(this, statusArea, uploadPolicy);
-	
+
 	    this.add(jUploadPanel, BorderLayout.CENTER);
 	  } catch (Exception e) {
 		  System.out.println(e.getMessage());
@@ -68,16 +67,26 @@ public class JUploadApplet extends Applet{
   }
   
   
-  public FilePanel getFilePanel() {
-	  return jUploadPanel.getFilePanel();
-  }
-
-
+	public FilePanel getFilePanel() {
+		return jUploadPanel.getFilePanel();
+	}
+	  
 	/**
+	 * This status area may visible or not depending on various applet parameter.
+	 *  
 	 * @return the statusArea
+	 * @see JUploadPanel#showOrHideStatusBar()
 	 */
 	public JUploadTextArea getStatusArea() {
 		return statusArea;
+	}
+
+	public JUploadPanel getUploadPanel() {
+		return jUploadPanel;
+	}
+	
+	public UploadPolicy getUploadPolicy() {
+		return uploadPolicy;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////:
@@ -118,4 +127,5 @@ public class JUploadApplet extends Applet{
 	public void displayDebug (String debug, int minDebugLevel) {
 		uploadPolicy.displayDebug(debug, minDebugLevel);
 	}
+
 }

@@ -14,22 +14,25 @@
 	urlToSendErrorTo = "mailto:toto@yahoo.com"; //Careful: log info will be truncated, if sent to a mailto: link.
 	uploadPolicy = "";
 	
+	afterUploadURL = "";
 	filenameEncoding = "";
 	highQualityPreview = "";
 	lang = "";
 	lookAndFeel = "";
 	nbFilesPerRequest = "";
 	maxChunkSize = "";
+	maxFileSize = "";
 	maxPicHeight = "";
 	maxPicWidth = "";
 	debugLevel = "";
 	serverProtocol = "";
+	showStatusBar = "";
 	stringUploadSuccess = "";
 	
 	//Some parameters can only be choosen from an existing list:
 	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy"];
 	//eo: esperanto
-	langList = ["", "de", "en", "eo", "es", "fr", "it", "ja", "nl", "no", "us"];
+	langList = ["", "ch", "de", "en", "eo", "es", "fr", "it", "ja", "nl", "no", "us"];
 	serverProtocolList = ["", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1"];
 
 	function writeInputText (name, value, comment) {
@@ -89,6 +92,9 @@
 	while (array != null) {
 		val = unescape(array[2]);
 		switch (array[1]) {
+		case "afterUploadURL":
+			afterUploadURL = val;
+			break;
 		case "debugLevel":
 			debugLevel = val;
 			break;
@@ -110,6 +116,9 @@
 		case "maxChunkSize":
 			maxChunkSize = val;
 			break;
+		case "maxFileSize":
+			maxFileSize = val;
+			break;
 		case "maxPicWidth":
 			maxPicWidth = val;
 			break;
@@ -121,6 +130,9 @@
 			break;
 		case "serverProtocol":
 			serverProtocol = val;
+			break;
+		case "showStatusBar":
+			showStatusBar = val;
 			break;
 		case "stringUploadSuccess":
 			stringUploadSuccess = val;
@@ -139,23 +151,29 @@
 
 
 	//First the form, with default values given by the query parameters.
-	document.writeln('Enter Jupload parameters');
+	document.writeln('<H3>Enter Jupload parameters</H3>');
 	document.writeln('<FORM>');
-	document.writeln('<TABLE>');
+	document.writeln('<TABLE BORDER=0>');
+	document.writeln('<TR><TD><TABLE>');
 	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList, '');
 	writeInputText("postURL", postURL, " (you can now put https URL here)");
-	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
+	writeInputText("afterUploadURL", afterUploadURL, "");
+	writeInputText("debugLevel", debugLevel, "");
 	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"], '');	
 	writeInputSelect("lang", lang, langList, 'Japanese needs specific JRE extension');
 	writeInputText("lookAndFeel", lookAndFeel, "");
-	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
-	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
-	writeInputText("debugLevel", debugLevel, "");
 	writeInputText("filenameEncoding", filenameEncoding, "");
+	document.writeln('</TABLE></TD><TD><TABLE>');
 	writeInputText("nbFilesPerRequest", nbFilesPerRequest, "");
 	writeInputText("maxChunkSize", maxChunkSize, "");
+	writeInputText("maxFileSize", maxFileSize, "");
 	writeInputText("maxPicHeight", maxPicHeight, "");
 	writeInputText("maxPicWidth", maxPicWidth, "");
+	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
+	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
+	writeInputText("showStatusBar", showStatusBar, "");
+	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
+	document.writeln('</TABLE></TD></TR>');
 	document.writeln('</TABLE>');
 	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)">');
 	document.writeln('</FORM>');
@@ -164,21 +182,24 @@
 	//Let's write one APPLET tag for the selected language	
 	document.writeln('<APPLET ');
 	document.writeln('	CODE    = "wjhk.jupload2.JUploadApplet" ');
-	document.writeln('	ARCHIVE = "wjhk.jupload.jar" ');
+	document.writeln('	ARCHIVE = "wjhk.jupload.jar, jakarta-commons-oro.jar, jakarta-commons-net.jar" ');
 	document.writeln('	WIDTH   = "640" ');
 	document.writeln('	HEIGHT  = "300"');
 	document.writeln('	MAYSCRIPT >');
 	writeParam("postURL", postURL);
 	writeParam("uploadPolicy", uploadPolicy);
+	writeParam("afterUploadURL", afterUploadURL);
 	writeParam("debugLevel", debugLevel);
 	writeParam("filenameEncoding", filenameEncoding);
 	writeParam("lang", lang);
 	writeParam("lookAndFeel", lookAndFeel);
 	writeParam("nbFilesPerRequest", nbFilesPerRequest);
 	writeParam("maxChunkSize", maxChunkSize);
+	writeParam("maxFileSize", maxFileSize);
 	writeParam("maxPicHeight", maxPicHeight);
 	writeParam("maxPicWidth", maxPicWidth);
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);
+	writeParam("showStatusBar", showStatusBar);
 	writeParam("stringUploadSuccess", stringUploadSuccess);
 	document.writeln('Java 1.4 or higher plugin required.');
 	document.writeln('</APPLET>');

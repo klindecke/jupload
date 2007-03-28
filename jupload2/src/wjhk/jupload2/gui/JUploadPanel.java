@@ -6,12 +6,19 @@ import java.awt.Container;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.Timer;
@@ -19,18 +26,69 @@ import javax.swing.Timer;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 import wjhk.jupload2.upload.FileUploadThread;
-import wjhk.jupload2.upload.FileUploadThreadV4;
+import wjhk.jupload2.upload.FileUploadThreadFTP;
+import wjhk.jupload2.upload.FileUploadThreadHTTP;
+
+/**
+ * Overwriting the default Append class such that it scrolls to the bottom of
+ * the text. The JFC doesn't always remember to do that. <BR>
+ */
+
+class JUploadPopupMenu extends JPopupMenu implements ActionListener, ItemListener {
+
+	/** A generated serialVersionUID */
+	private static final long serialVersionUID = -5473337111643079720L;
+	
+	/**
+	 * Identifies the menu item that will set debug mode on or off (on means: debugLevel=100)
+	 */
+	JCheckBoxMenuItem cbMenuItemDebugOnOff = null;
+	
+	/**
+	 * The current upload policy.
+	 */
+	private UploadPolicy uploadPolicy;
+
+	
+	JUploadPopupMenu(UploadPolicy uploadPolicy) {
+		this.uploadPolicy = uploadPolicy;
+		//Creation of the menu items
+		cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug on");
+		add(cbMenuItemDebugOnOff);
+		cbMenuItemDebugOnOff.addItemListener(this);		
+	}
+
+	/**
+	 * This methods receive the event triggered by our popup menu.
+	 */
+	public void actionPerformed(ActionEvent action) {
+		// TODO Auto-generated method stub		
+	}
+
+	public void itemStateChanged(ItemEvent e) {
+		if (cbMenuItemDebugOnOff == e.getItem()) {
+			uploadPolicy.setDebugLevel( (cbMenuItemDebugOnOff.isSelected() ? 100 : 0) );
+		}
+		// TODO Auto-generated method stub
+		
+	}
+	
+}
 
 /**
  * Main code for the applet (or frame) creation. It contains all creation for necessary
  * elements, or calls to {@link wjhk.jupload2.policies.UploadPolicy} to allow easy personalization.
  */
-public class JUploadPanel extends JPanel implements ActionListener{
+public class JUploadPanel extends JPanel implements ActionListener, MouseListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1212601012568225757L;
+	
+	/** The popup menu of the applet */
+	private JUploadPopupMenu jUploadPopupMenu;
+	
 //	------------- INFORMATION --------------------------------------------
 	public static final String TITLE = "JUpload JUploadPanel";
 	public static final String DESCRIPTION =
@@ -54,7 +112,9 @@ public class JUploadPanel extends JPanel implements ActionListener{
 	private JButton upload, stop;
 	private JProgressBar progress = null;
 
+	private JScrollPane jStatusScrollPane = null;
 	private JUploadTextArea statusArea = null;
+	private boolean isStatusAreaVisible = false;
 
 	private Timer timer = null;
 
@@ -78,8 +138,10 @@ public class JUploadPanel extends JPanel implements ActionListener{
 	public JUploadPanel(Container containerParam, JUploadTextArea statusParam, UploadPolicy uploadPolicyParam) throws Exception {
 		this.statusArea = statusParam;
 		this.uploadPolicy = uploadPolicyParam;
+		jUploadPopupMenu = new JUploadPopupMenu(uploadPolicy);
 		
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		statusParam.addMouseListener(this);
 
 		// Setup Top Panel
 		setupTopPanel();
@@ -171,12 +233,15 @@ public class JUploadPanel extends JPanel implements ActionListener{
 	}
 
 	private void setupStatus(){
-		JScrollPane pane = new JScrollPane();
-		pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		jStatusScrollPane = new JScrollPane();
+		jStatusScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		jStatusScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-		pane.getViewport().add(statusArea);
-		this.add(pane);
+		jStatusScrollPane.getViewport().add(statusArea);
+		
+		//See viewStatusBar
+		showOrHideStatusBar();
+		//this.add(jStatusScrollPane);
 	}
 
 	//----------------------------------------------------------------------
@@ -231,7 +296,14 @@ public class JUploadPanel extends JPanel implements ActionListener{
 				upload.setEnabled(false);
 				stop.setEnabled(true);
 
-				fileUploadThread = new FileUploadThreadV4(filePanel.getFiles(), uploadPolicy, progress);
+				//The FileUploadThread instance depends on the protocol.
+				if (uploadPolicy.getPostURL().substring(0, 4).equals("ftp:")) {
+					//fileUploadThread = new FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy, progress);
+					fileUploadThread = new FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy, progress);
+				} else {
+					//fileUploadThread = new FileUploadThreadV4(filePanel.getFiles(), uploadPolicy, progress);
+					fileUploadThread = new FileUploadThreadHTTP(filePanel.getFiles(), uploadPolicy, progress);
+				}
 				fileUploadThread.start();
 
 
@@ -319,6 +391,60 @@ public class JUploadPanel extends JPanel implements ActionListener{
 		return filePanel;
 	}
 
+	/**
+	 * This methods show or hides the statusArea, depending on the following applet parameters. The following 
+	 * conditions must be met, to hide the status area:
+	 * <DIR>
+	 * <LI>showStatusBar (must be False)
+	 * <LI>debugLevel (must be 0 or less)
+	 * </DIR>
+	 *
+	 */
+	public void showOrHideStatusBar() {
+		if (uploadPolicy.getShowStatusBar() || uploadPolicy.getDebugLevel()>0) {
+			//The status bar should be visible. Is it visible already?
+			if (!isStatusAreaVisible) {
+				add(jStatusScrollPane, -1);
+				isStatusAreaVisible = true;
+				//Let's recalculate the component display
+				validate();
+			}
+		} else {
+			//It should be hidden.
+			if (isStatusAreaVisible) {
+				remove(jStatusScrollPane);
+				isStatusAreaVisible = false;
+				//Let's recalculate the component display
+				validate();
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////   MouseListener interface   //////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	public void mouseClicked(MouseEvent mouseEvent) {
+		maybeOpenPopupMenu(mouseEvent);
+	}
+	public void mouseEntered(MouseEvent mouseEvent) {
+		maybeOpenPopupMenu(mouseEvent);
+	}
+	public void mouseExited(MouseEvent mouseEvent) {
+		maybeOpenPopupMenu(mouseEvent);
+	}
+	public void mousePressed(MouseEvent mouseEvent) {
+		maybeOpenPopupMenu(mouseEvent);
+	}
+	public void mouseReleased(MouseEvent mouseEvent) {
+		maybeOpenPopupMenu(mouseEvent);
+	}
+	void maybeOpenPopupMenu(MouseEvent mouseEvent) {
+		if (mouseEvent.isPopupTrigger()  &&  ( (mouseEvent.getModifiersEx()&InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)) {
+			if (jUploadPopupMenu != null) {
+				jUploadPopupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
+			}
+		}
+	}
 
 }
 

@@ -24,6 +24,8 @@ package wjhk.jupload2.upload;
  *
  * With the above reason I have decided to replace the use of URLConnection
  * with sockets.
+ * 
+ * @deprecated Replaced by {@link wjhk.jupload2.upload.FileUploadThreadHTTP}
  */
 
 import java.io.BufferedOutputStream;
@@ -98,7 +100,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	private long totalFilesLength = 0;
 	
 	/**
-	 * Current number of byts that have been uploaded.
+	 * Current number of bytes that have been uploaded.
 	 */
 	private long uploadedLength = 0;
 	
@@ -113,7 +115,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * 
 	 *  @see UploadFileData#uploadFile(java.io.OutputStream, long)
 	 */ 
-	boolean stop = false;
+	private boolean stop = false;
 	
 	/**
 	 * Server Output. It can then be displayed in the status bar, if debug is enabled. It is stored 
@@ -131,7 +133,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	/**
 	 * http boundary, for the posting multipart post.
 	 */
-	String boundary = "-----------------------------" + getRandomString();
+	private String boundary = "-----------------------------" + getRandomString();
 
 	/**
 	 * local head within the multipart post, for each file. This is precalculated for all files, in case 
@@ -139,7 +141,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 	 * it is less than the maxChunkSize.
 	 * tails are calculated once, as they depend not of the file position in the upload.
 	 */
-	String[] heads = null;
+	private String[] heads = null;
 	
 	/**
 	 * same as heads, for the ... tail in the multipart post, for each file.
@@ -194,10 +196,18 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 		return uploadException;
 	}
 	
-	//Unused, but necessary to verify the FileUploadThread interface.
+	/**
+	 * Used by the {@link UploadFileData#uploadFile(java.io.OutputStream, long)} for each 
+	 * uploaded byte ! 
+	 * 
+	 * @see wjhk.jupload2.upload.FileUploadThread#nbBytesUploaded(long)
+	 */
 	public void nbBytesUploaded(long nbBytes) {
 		uploadedLength += nbBytes;
-		if(null != progress) progress.setValue((int)uploadedLength);
+		//We 
+		if (null != progress) {
+			progress.setValue((int)uploadedLength);
+		}
 	}
 	
 	//------------- Private Functions --------------------------------------
@@ -428,6 +438,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 		Socket sock = null;
 		long totalContentLength = 0;
 		long contentLength = 0;
+		long totalFileLength = 0;
 		long thisChunkSize = 0;
 		int firstFileToUpload = 0;
 		DataOutputStream dataout = null;
@@ -458,6 +469,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 				totalContentLength += heads[firstFileToUploadParam+i].length();
 				totalContentLength += filesToUpload[firstFileToUploadParam+i].getUploadLength();
 				totalContentLength += tails[firstFileToUploadParam+i].length();
+				totalFileLength += filesToUpload[firstFileToUploadParam+i].getUploadLength();
 				uploadPolicy.displayDebug("file " + (firstFileToUploadParam+i)
 					+ ": heads=" + heads[firstFileToUploadParam+i].length()
 					+ " bytes, content=" + filesToUpload[firstFileToUploadParam+i].getUploadLength()
@@ -471,7 +483,7 @@ public class FileUploadThreadV4 extends Thread implements FileUploadThread  {
 		}
 		
 		//Ok, now we check that the totalContentLength is less than the chunk size.
-		if (totalContentLength >= maxChunkSize) {
+		if (totalFileLength >= maxChunkSize) {
 			//hum, hum, we have to download file by file, with chunk enabled. This a prerequisite of this method.
 			if (nbFilesToUploadParam > 1) {
 				uploadException = new JUploadException("totalContentLength >= chunkSize: nbFilesToUploadParam should be more than 1 (doUpload)");

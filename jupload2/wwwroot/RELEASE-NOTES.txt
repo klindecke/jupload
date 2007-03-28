@@ -6,6 +6,32 @@ TODO LIST
 allows to control upload authorisation, depending on the user connected.
 
 
+
+
+V2.9.0
+
+Changes:
+- [FTP Upload] Thanks to Evin Callahan, you can now put FTP URL in the postURL parameter. The files will be uploaded to any kind of FTP 
+server (anonymous or not).
+- [New parameter:showStatusBar] Thanks to XXXXXXXXXXX, a new applet parameter (showStatusBar) allows to hide the status bar. This
+status bar will remain visible, if debugLevel is > 0 (or if debug is activated while the applet is running. You can 
+now put the debug on, by CTRL+riht click on both the status bar and the file list.
+- [New parameter: afterUploadURL] If this parameter is set, the applet will redirect the current web page to this
+URL. This allows the application to view the uploaded files, and entre comments, for instance.
+- [Parameters] Add of the realMaxPicWidth and realMaxPicHeight. This allows you to better control when the applet
+will generate a new picture file: these parameters allow you to prevent any picture work from the applet, when 
+uploading a picture that doesn't need to be transformed (-> speed up of upload time).
+- [setProperty] The applet setProperty method allows to change any applet parameter from the javascript on the web page.
+This allows, for instance, to change the postURL or afterUploadURL parameters according to value selected by the user
+on the web page.
+- [Internal Code] A new DefaultUploadThreadV5 is created. This should help to create new upload behaviours, for instance
+SMTP upload (to send files by email) or Samba upload (to send files on a local network, in intranet configuration). Just 
+inherit from it, and implement the few fabstract methods defined in DefaultUploadThreadV5.
+
+
+Bug Corrected:
+- [Boolean] Default value for boolean parameter were inverted (false to true, and true to false).
+
 V2.8.0
 
 Main change:
