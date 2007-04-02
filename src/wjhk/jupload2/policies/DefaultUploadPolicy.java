@@ -103,6 +103,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	private String filenameEncoding = null;
 	
 	/**
+	 * The lang parameter, given to the applet.
+	 */
+	private String lang = null;
+
+	/**
 	 * The look and feel is used as a parameter of the UIManager.setLookAndFeel(String) method. See the parameters
 	 * list on the {@link UploadPolicy} page.
 	 */
@@ -297,9 +302,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		//The cookies and user-agent will be added to the header sent by the applet:
 	    addHeader("Cookie: " + cookie);
 	    addHeader("User-Agent: " + userAgent);
-	    
-	    //Then, we display the applet parameter list.
-	    displayParameterStatus();
+
+	    //We let the UploadPolicyFactory call the displayParameterStatus method, so that the
+	    //initialization is finished, including for classes which inherit from DefaultUploadPolicy.
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -749,6 +754,48 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	
 	}
 
+	/**
+	 * This method displays the applet parameter list, according to the current debugLevel. It is called by the
+	 * {@link #setDebugLevel(int)} method. It should be override by any subclasses, that should display its own 
+	 * parameters, then call <I>super.displayParameterStatus()</I>. 
+	 *
+	 *  @see UploadPolicy#displayParameterStatus()
+	 */
+	public void displayParameterStatus() {
+		//Let's handle the language:
+		if( getDebugLevel() >= 20) {
+			displayDebug("=======================================================================", 20);
+			///////////////////////////////////////////////////////////////////////////////
+			// Let's display some information to the user, about the received parameters.
+			displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
+		    displayDebug("Java version  : " + System.getProperty("java.version"), 20); 		
+
+		    displayDebug("List of all applet parameters value", 20);
+		    displayDebug("language: " + resourceBundle.getLocale().getLanguage(), 20);
+		    displayDebug("country: " + resourceBundle.getLocale().getCountry(), 20);
+		    
+	
+		    displayDebug("afterUploadURL: " + getAfterUploadURL(), 20);
+		    displayDebug("debug: " + debugLevel, 1); 
+		    displayDebug("filenameEncoding: " + filenameEncoding, 20);
+		    displayDebug("lang: " + lang, 20);
+		    displayDebug("maxChunkSize: " + maxChunkSize, 20);
+		    if (maxFileSize == Long.MAX_VALUE) {
+		    	//If the maxFileSize was not given, we display its value only in debug mode.
+		    	displayDebug("maxFileSize  : " + maxFileSize, 20);
+		    } else {
+		    	//If the maxFileSize was given, we always inform the user.
+		    	displayInfo("maxFileSize  : " + maxFileSize);
+		    }
+		    displayDebug("nbFilesPerRequest: " + nbFilesPerRequest, 20);
+		    displayDebug("postURL: " + postURL, 20);
+		    displayDebug("serverProtocol: " + serverProtocol, 20); 
+		    displayDebug("showStatusBar: " + getShowStatusBar(), 20); 
+		    displayDebug("stringUploadSuccess: " + stringUploadSuccess, 20); 
+		    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
+		}
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////    getters / setters   ///////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -798,11 +845,22 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 */
 	protected void setLang(String lang) {
 		Locale locale;
+		this.lang = lang;
 		if (lang == null) {
 			displayInfo("lang = null, taking default language");
 			locale = Locale.getDefault();
 		} else {
-			locale = new Locale(lang);
+			//If we have a 5 characters lang string, then it should look like ll_CC, where ll is the language code
+			//and CC is the Contry code.
+			if (lang.length()==5 && (lang.substring(2,3).equals("_") || lang.substring(2,3).equals("-"))) {
+				String language = lang.substring(0,2);
+				String country = lang.substring(3,5);
+				displayDebug("setLang - language read: " + language, 50);
+				displayDebug("setLang - country read: " + country, 50);
+				locale  = new Locale(language, country.toUpperCase());
+			} else {
+				locale = new Locale(lang);
+			}
 		}
 		resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang", locale);
 	}
@@ -831,7 +889,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/** @param maxChunkSize the maxChunkSize to set */
 	protected void setMaxChunkSize(long maxChunkSize) { 
 		if (maxChunkSize < 0) {
-			displayWarn("maxChunkSize<0 which is invalid. Switched to the default value (Long.MAX_VALUE)");
+			displayDebug("maxChunkSize<0 which is invalid. Switched to the default value (Long.MAX_VALUE)", 1);
 			maxChunkSize = Long.MAX_VALUE;
 		}
 		this.maxChunkSize = maxChunkSize; 
@@ -840,12 +898,24 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/** @see wjhk.jupload2.policies.UploadPolicy#getMaxFileSize() */
 	public long getMaxFileSize() { return maxFileSize; }
 	/** @param maxFileSize the maxFileSize to set */
-	protected void setMaxFileSize(long maxFileSize) { this.maxFileSize = maxFileSize; }
+	protected void setMaxFileSize(long maxFileSize) { 
+		if (maxFileSize < 0) {
+			displayDebug("maxFileSize<0 which is invalid. Switched to the default value (Long.MAX_VALUE)", 1);
+			maxFileSize = Long.MAX_VALUE;
+		}
+		this.maxFileSize = maxFileSize; 
+	}
 
 	/** @see wjhk.jupload2.policies.UploadPolicy#getNbFilesPerRequest() */
 	public int getNbFilesPerRequest() { return nbFilesPerRequest; }
 	/** @param nbFilesPerRequest the nbFilesPerRequest to set */
-	protected void setNbFilesPerRequest(int nbFilesPerRequest) { this.nbFilesPerRequest = nbFilesPerRequest; }
+	protected void setNbFilesPerRequest(int nbFilesPerRequest) { 
+		if (nbFilesPerRequest < 0) {
+			displayDebug("nbFilesPerRequest<0 which is invalid. Switched to the default value (Integer.MAX_VALUE)", 1);
+			nbFilesPerRequest = Integer.MAX_VALUE;
+		}
+		this.nbFilesPerRequest = nbFilesPerRequest;
+	}
 
 	/** @see UploadPolicy#getFilenameEncoding() */
 	public String getFilenameEncoding() { return filenameEncoding; }
@@ -916,48 +986,4 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		//Let's store all text in the debug BufferString
 		addMsgToDebugBufferString(msg + "\r\n");
 	}
-
-
-	/**
-	 * This method displays the applet parameter list, according to the current debugLevel. It is called by the
-	 * {@link #setDebugLevel(int)} method. It should be override by any subclasses, that should display its own 
-	 * parameters, then call <I>super.displayParameterStatus()</I>. 
-	 *
-	 */
-	public void displayParameterStatus() {
-		//Let's handle the language:
-		if( getDebugLevel() >= 20) {
-			displayDebug("=======================================================================", 20);
-			displayDebug("List of all applet parameters value", 20);
-		    displayDebug("language: " + resourceBundle.getLocale().getLanguage(), 20);
-		    displayDebug("country: " + resourceBundle.getLocale().getCountry(), 20);
-		    
-			///////////////////////////////////////////////////////////////////////////////
-			// Let's display some information to the user, about the received parameters.
-			displayInfo("JUpload applet, version " + JUploadApplet.VERSION + " (" + JUploadApplet.LAST_MODIFIED + "), available at http://jupload.sourceforge.net/");
-		    displayInfo("postURL: " + postURL);
-	
-		    if (maxFileSize == Long.MAX_VALUE) {
-		    	//If the maxFileSize was not given, we display its value only in debug mode.
-		    	displayDebug("maxFileSize  : " + maxFileSize, 20);
-		    } else {
-		    	//If the maxFileSize was given, we always inform the user.
-		    	displayInfo("maxFileSize  : " + maxFileSize);
-		    }
-		    displayDebug("Java version  : " + System.getProperty("java.version"), 20); 		
-		    displayDebug("debug: " + debugLevel, 1); 
-		    displayDebug("afterUploadURL: " + getAfterUploadURL(), 20);
-		    displayDebug("filenameEncoding: " + filenameEncoding, 20);
-		    displayDebug("nbFilesPerRequest: " + nbFilesPerRequest, 20);
-		    displayDebug("maxChunkSize: " + maxChunkSize, 20);
-		    displayDebug("stringUploadSuccess: " + stringUploadSuccess, 20); 
-		    displayDebug("urlToSendErrorTo: " + urlToSendErrorTo, 20);
-		    displayDebug("serverProtocol: " + serverProtocol, 20); 
-		    displayDebug("showStatusBar: " + getShowStatusBar(), 20); 
-			displayDebug("=======================================================================", 20);
-		}
-	}
-
-
-
 }

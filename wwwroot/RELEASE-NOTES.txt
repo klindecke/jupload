@@ -1,13 +1,4 @@
 
-
-TODO LIST
-
-- Say more precisely in the docs that the upload is done in the same http session, as the one of the navigator. This 
-allows to control upload authorisation, depending on the user connected.
-
-
-
-
 V2.9.0
 
 Changes:
@@ -15,7 +6,8 @@ Changes:
 server (anonymous or not).
 - [New parameter:showStatusBar] Thanks to XXXXXXXXXXX, a new applet parameter (showStatusBar) allows to hide the status bar. This
 status bar will remain visible, if debugLevel is > 0 (or if debug is activated while the applet is running. You can 
-now put the debug on, by CTRL+riht click on both the status bar and the file list.
+now put the debug on, by CTRL+right click on both the status bar or the file list. If debug is on, the showSatusBar 
+parameter is ignored.
 - [New parameter: afterUploadURL] If this parameter is set, the applet will redirect the current web page to this
 URL. This allows the application to view the uploaded files, and entre comments, for instance.
 - [Parameters] Add of the realMaxPicWidth and realMaxPicHeight. This allows you to better control when the applet
@@ -27,6 +19,10 @@ on the web page.
 - [Internal Code] A new DefaultUploadThreadV5 is created. This should help to create new upload behaviours, for instance
 SMTP upload (to send files by email) or Samba upload (to send files on a local network, in intranet configuration). Just 
 inherit from it, and implement the few fabstract methods defined in DefaultUploadThreadV5.
+- [Chinese] A chinese translation is now available
+- [Bresilian - Portugese] A Bresilian translation, is available. I copied this file to also give a first Portugese 
+translation. I don't know the differences between Portugese and Bresilian...
+- [Norwegian] Updated translation.
 
 
 Bug Corrected:

@@ -203,10 +203,10 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TD><B>postURL</B></TD>
   <TD><I>Mandatory</I> <BR><BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
   <TD><B>
-		It contains the target URL toward which the files should be upload. This parameter is mandatory for existing class. It may
-     become optional in new UploadPolicy, that would create this URL from other data.
-		If the this URL may change during the applet execution time, you can create a new UploadPolicy class, 
-		and either :
+		It contains the target URL toward which the files should be upload. This parameter is mandatory for 
+	existing class. It may become optional in new UploadPolicy, that would create this URL from other data.
+	If this URL may change during the applet execution time, you can call the setProperty applet method from 
+	javascript, or create a new UploadPolicy class and either :
 		<DIR>
 			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#getPostURL()} method, to make the postURL totaly dynamic.  
 			<LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#setPostURL(String)} method, to modify the postURL on the fly, when it is changed. 
@@ -214,8 +214,12 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
 				{@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the postURL when the albumID property changes.  
 			<LI>Find another solution ... 
 	    </DIR>
-	    <U>Note:</U> in HTTP, the upload is done in the same user session, as the applet uses the cookies from the 
-	    navigator. This allows right management during upload, on the server side.
+	    <U>Note 1:</U> in HTTP, the upload is done in the same user session, as the applet uses the cookies from the 
+	    navigator. This allows right management during upload, on the server side.<BR>
+	    <U>Note 2:</U> FTP URL should looks like: ftp://username:password@myhost.com:21/directory<BR>
+	    <U>Note 3:</U> in FTP, you'll have to add the jakarta-commons-oro.jar and jakarta-commons-net.jar jar files in
+	    the applet ARCHIVE tag attribute. See the 'advanced_js_demo.html page for a sample. You'll have to put the
+	    two files coming from the JUpload distribution in the same directory as the wjhk.jupload.jar.
 	 </B> </TD>
 </TR>
 <TR>
@@ -434,7 +438,14 @@ public interface UploadPolicy {
 	 */
 	public FileData createFileData(File file);
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * This method displays the applet parameter list, according to the current debugLevel. It is called by the
+	 * {@link #setDebugLevel(int)} method. It should be override by any subclasses, that should display its own 
+	 * parameters, then call <I>super.displayParameterStatus()</I>.
+	 */
+	public void displayParameterStatus();
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////    getters / setters   ///////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////
 

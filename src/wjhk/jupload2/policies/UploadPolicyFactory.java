@@ -80,6 +80,9 @@ public class UploadPolicyFactory {
 		    } else {
 		    	uploadPolicy.displayDebug("uploadPolicy = " + uploadPolicy.getClass().getName(), 20);
 		    }
+
+		    //Then, we display the applet parameter list.
+		    uploadPolicy.displayParameterStatus();
 		}
 	    		
 		return uploadPolicy ;

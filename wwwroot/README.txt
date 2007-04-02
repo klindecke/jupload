@@ -37,6 +37,8 @@ inherited classes, like CoppermineUploadPolicy (which is dedicated to the copper
 - Cookies session are kept: Upload are now done within the current navigator session. Thus, the upload is done within 
 the same user session, if any.
 - Works with SSL.
+- Works with FTP (since 2.9.0).
+- Upload is done in the current HTTP Session (the applet reads the cookies from the navigator).
 
 UploadPolicies makes it easy to configure these parameters:
 - Target upload URL
@@ -44,14 +46,28 @@ UploadPolicies makes it easy to configure these parameters:
 or by packet of limited number of files (see CustomizedNbFilesPerRequestUploadPolicy)
 - Top part of the applet can be modified by writing a new UploadPolicy, using the UploadPolicy.createTopPanel method. 
 The PictureUploadPolicy uses it to add a preview panel and two rotation buttons.
-- And much more ...  Please see the javadoc.
+- And much more ...  Please see the javadoc and the "HowTo customize it" page.
 
- Picture management is added by the PictureUploadPolicy. (see the Démo of the picture applet). This includes the 
+ Picture management is added by the PictureUploadPolicy. (see the Demo of the picture applet). This includes the 
  following parameters:
 - Ability to set a maximum width and/or height for pictures,
 - Ability to rotate pictures, by quarters of turn,
 - Ability to preview pictures. A click on the small picture displays a full screen picture.
 
+Translation.
+  The JUpload package contains the following languages:
+- Bresilian
+- Chinese
+- Dutch
+- English (default language, when the user's one is not found)
+- Esperanto
+- French
+- German
+- Italian
+- Japanese
+- Norwegian
+- Portugese (currently coming from the Bresilian translation)
+- Spanish
 
 
 
@@ -94,7 +110,7 @@ the jar package.
 The applet upload files to the server. Then, the server must handle the uploaded file. Here is an example, in java, 
 of the way to handle the incoming file.
 
-Here's a simple JSP script to store each uploaded file in the 'c:\temp' directory (./pages/parseRequest.jsp)
+Here's a simple JSP script to store each uploaded file in the 'c:\temp' directory (see /wwwroot/pages/parseRequest.jsp for the last version)
 ---------------------------------------------------------------------
 <%@ page language="java" import="java.io.*, java.sql.*, java.util.*" %>
 <%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.disk.*, org.apache.commons.fileupload.servlet.*" %>
@@ -194,3 +210,7 @@ First try to sign the applet. Don't forget to close your navigator, to make sure
 3) You create a new jar on the web server, but your navigator only display the previous version.
 
  Don't forget to close your navigator, to make sure that your new applet is loaded.
+
+ 4) Any other problem  ?
+ 
+Please take a look to the available documentation on http://jupload.sourceforge.net
