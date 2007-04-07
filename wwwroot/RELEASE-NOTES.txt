@@ -4,25 +4,31 @@ V2.9.0
 Changes:
 - [FTP Upload] Thanks to Evin Callahan, you can now put FTP URL in the postURL parameter. The files will be uploaded to any kind of FTP 
 server (anonymous or not).
-- [New parameter:showStatusBar] Thanks to XXXXXXXXXXX, a new applet parameter (showStatusBar) allows to hide the status bar. This
-status bar will remain visible, if debugLevel is > 0 (or if debug is activated while the applet is running. You can 
-now put the debug on, by CTRL+right click on both the status bar or the file list. If debug is on, the showSatusBar 
-parameter is ignored.
-- [New parameter: afterUploadURL] If this parameter is set, the applet will redirect the current web page to this
-URL. This allows the application to view the uploaded files, and entre comments, for instance.
-- [Parameters] Add of the realMaxPicWidth and realMaxPicHeight. This allows you to better control when the applet
-will generate a new picture file: these parameters allow you to prevent any picture work from the applet, when 
-uploading a picture that doesn't need to be transformed (-> speed up of upload time).
-- [setProperty] The applet setProperty method allows to change any applet parameter from the javascript on the web page.
-This allows, for instance, to change the postURL or afterUploadURL parameters according to value selected by the user
-on the web page.
 - [Internal Code] A new DefaultUploadThreadV5 is created. This should help to create new upload behaviours, for instance
 SMTP upload (to send files by email) or Samba upload (to send files on a local network, in intranet configuration). Just 
 inherit from it, and implement the few fabstract methods defined in DefaultUploadThreadV5.
+- [Minor] It's now possible to select multiple files in the file list, to remove several files, for instance.
+
+Languages:
 - [Chinese] A chinese translation is now available
 - [Bresilian - Portugese] A Bresilian translation, is available. I copied this file to also give a first Portugese 
 translation. I don't know the differences between Portugese and Bresilian...
 - [Norwegian] Updated translation.
+
+New parameters / setProperty method:
+- [setProperty] The applet setProperty method allows to change any applet parameter from the javascript on the web page.
+This allows, for instance, to change the postURL or afterUploadURL parameters according to value selected by the user
+on the web page.
+- [showStatusBar] Thanks to XXXXXXXXXXX, a new applet parameter (showStatusBar) allows to hide the status bar. This
+status bar will remain visible, if debugLevel is > 0 (or if debug is activated while the applet is running. You can 
+now put the debug on, by CTRL+right click on both the status bar or the file list. If debug is on, the showSatusBar 
+parameter is ignored.
+- [afterUploadURL] If this parameter is set, the applet will redirect the current web page to this
+URL. This allows the application to view the uploaded files, and entre comments, for instance.
+- [realMaxPicWidth, realMaxPicHeight] Add of the realMaxPicWidth and realMaxPicHeight. This allows you to better control when the applet
+will generate a new picture file: these parameters allow you to prevent any picture work from the applet, when 
+uploading a picture that doesn't need to be transformed (-> speed up of upload time).
+- [allowedFileExtensions] Allows the caller to specify a list of file extensions.
 
 
 Bug Corrected:

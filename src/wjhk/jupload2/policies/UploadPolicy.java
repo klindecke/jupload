@@ -12,6 +12,8 @@ import javax.swing.JPanel;
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.JUploadFileFilter;
+import wjhk.jupload2.gui.JUploadPanel;
 
 /**
  * 
@@ -40,6 +42,14 @@ These are applet parameters that should be 'given' to the applet, with <PARAM> t
   <TD>This parameter is used by all policies. It allows the applet to change the current page to another
   one after a successful upload. <BR>This allows, for instance, to display a page containing the file description
   of the newly uploaded page. 		
+  </TD>
+</TR>
+<TR>
+  <TD>allowedFileExtensions</TD>
+  <TD><I>empty string</I><BR>since 2.9.0<BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This parameter allows the caller to specify a list of file extension. If this parameter is specified, only file
+  with this extension can be selected in the applet.<BR>
+  This parameter must contains a list of extensions, in lower case, separated by slashes. eg: jpg/jpeg/gif 
   </TD>
 </TR>
 <TR>
@@ -367,6 +377,7 @@ public interface UploadPolicy {
 	 * be added here, in alphabetic order. These ensure that all tags are unique
 	 */
 	final static String PROP_AFTER_UPLOAD_URL		= "afterUploadURL";
+	final static String PROP_ALLOWED_FILE_EXTENSIONS= "allowedFileExtensions";
 	final static String PROP_ALBUM_ID 				= "albumId";
 	final static String PROP_STORE_BUFFERED_IMAGE	= "storeBufferedImage";   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static String PROP_DEBUG_LEVEL			= "debugLevel";
@@ -390,6 +401,7 @@ public interface UploadPolicy {
 	final static String PROP_URL_TO_SEND_ERROR_TO	= "urlToSendErrorTo";
 	
 	final static String	 DEFAULT_AFTER_UPLOAD_URL		= null;
+	final static String  DEFAULT_ALLOWED_FILE_EXTENSIONS= "";
 	final static int     DEFAULT_ALBUM_ID				= 0;
 	final static boolean DEFAULT_STORE_BUFFERED_IMAGE	= false;   //Be careful: if set to true, you'll probably have memory problems whil in a navigator.
 	final static int     DEFAULT_DEBUG_LEVEL			= 0;
@@ -461,10 +473,16 @@ public interface UploadPolicy {
 	public void setProperty(String prop, String value);
 	
 	/**
-	 * Retrieve the current value for the afterUploadURL applet parameter.
+	 * Retrieves the current value for the afterUploadURL applet parameter.
 	 * @return The current value for he afterUploadURL applet parameter.
 	 */
 	public String getAfterUploadURL();
+	
+	/**
+	 * Retrieves the current value for allowedFileExtensions	 * 
+	 * @return Current value for allowedFileExtensions
+	 */
+	public String getAllowedFileExtensions();
 	
 	/**
 	 * A useful function, that has nothing to do with an upload policy. But it
@@ -621,6 +639,21 @@ public interface UploadPolicy {
 	/////////////////////   miscellanneous methods  ////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * This methods is called by the {@link JUploadFileFilter#accept(File)}. It allows the current upload policy
+	 * to filter files, according to any choosen applet behaviour.<BR>
+	 * In the {@link DefaultUploadPolicy} upload policy, this filter is based on the applet parameter: 
+	 * <I>allowedFileExtensions</I>.
+	 * 
+	 * @see JUploadPanel#JUploadPanel(java.awt.Container, wjhk.jupload2.gui.JUploadTextArea, UploadPolicy)
+	 */
+	public boolean fileFilterAccept(File file);
+	
+	/**
+	 * Return a description for the FileFilter, according to the current upload policy.
+	 */
+	public String fileFilterGetDescription();
+	
 	/**
 	 * This method allows the applet to post debug information to the website (see {@link #getUrlToSendErrorTo()}). 
 	 * Then, it is possible to log the error, to send a mail...   

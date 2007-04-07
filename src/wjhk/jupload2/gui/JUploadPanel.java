@@ -158,10 +158,14 @@ public class JUploadPanel extends JPanel implements ActionListener, MouseListene
 
 		// Setup File Chooser.
 		try{
-			this.fileChooser = new JFileChooser();
+			fileChooser = new JFileChooser();
+			//BasicFileChooserUI fileChooser2 = new BasicFileChooserUI(fileChooser);
 			fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			fileChooser.setMultiSelectionEnabled(true);
+			fileChooser.setFileFilter(new JUploadFileFilter(uploadPolicy));
+			fileChooser.setFileView(new JUploadFileView(uploadPolicy));
+			//fileChooser.setFileView(new BasicFileChooserUI.BasicFileView());
 		}catch(Exception e){
 			uploadPolicy.displayErr(e);
 		}
@@ -438,12 +442,21 @@ public class JUploadPanel extends JPanel implements ActionListener, MouseListene
 	public void mouseReleased(MouseEvent mouseEvent) {
 		maybeOpenPopupMenu(mouseEvent);
 	}
-	void maybeOpenPopupMenu(MouseEvent mouseEvent) {
+	/**
+	 * This method opens the popup menu, if the mouseEvent is relevant. In this case it returns true. Otherwise,
+	 * it does nothing and returns false.
+	 * 
+	 * @param mouseEvent The triggered mouse event.
+	 * @return true if the popup menu was opened, false otherwise.
+	 */
+	boolean maybeOpenPopupMenu(MouseEvent mouseEvent) {
 		if (mouseEvent.isPopupTrigger()  &&  ( (mouseEvent.getModifiersEx()&InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)) {
 			if (jUploadPopupMenu != null) {
 				jUploadPopupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
+				return true;
 			}
 		}
+		return false;
 	}
 
 }
