@@ -36,6 +36,7 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadTextArea;
 
 /**
@@ -81,7 +82,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * Contains the applet parameter of the same name. If a valid URL is given here, the navigator will get redirected
 	 * to this page, after a successful upload.
 	 */
-	private String afterUploadURL = null;
+	private String afterUploadURL = UploadPolicy.DEFAULT_AFTER_UPLOAD_URL;
+	
+	
+	/**
+	 * Contains the allowedFileExtensions applet paramater.
+	 */
+	private String allowedFileExtensions = UploadPolicy.DEFAULT_ALLOWED_FILE_EXTENSIONS;
 	
 	
 	/**
@@ -89,29 +96,29 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * all debug information. This allows a log information, in case of an error occurs. 
 	 * @see #urlToSendErrorTo 
 	 */
-	private boolean showStatusBar = true;
+	private boolean showStatusBar = UploadPolicy.DEFAULT_SHOW_STATUSBAR;
 	
 	/**
 	 * The current debug level.
 	 */
-	private int debugLevel = -1;
+	private int debugLevel = UploadPolicy.DEFAULT_DEBUG_LEVEL;
 	
 	/**
 	 * This String contains the filenameEncoding parameter. All details about the available applet parameters
 	 * are displayed in the <a href="UploadPolicy.html@parameters">Upload Policy javadoc page</a>.
 	 */
-	private String filenameEncoding = null;
+	private String filenameEncoding = UploadPolicy.DEFAULT_FILENAME_ENCODING;
 	
 	/**
 	 * The lang parameter, given to the applet.
 	 */
-	private String lang = null;
+	private String lang = UploadPolicy.DEFAULT_LANG;
 
 	/**
 	 * The look and feel is used as a parameter of the UIManager.setLookAndFeel(String) method. See the parameters
 	 * list on the {@link UploadPolicy} page.
 	 */
-	private String lookAndFeel = "";
+	private String lookAndFeel = UploadPolicy.DEFAULT_LOOK_AND_FEEL;
 
 	/**
 	 * The applet will do as may HTTP requests to upload all files, with the number 
@@ -119,38 +126,38 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * <BR>
 	 * Default : -1 
 	 */
-	private int nbFilesPerRequest;
+	private int nbFilesPerRequest = UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST;
 	
 	/**
 	 * Current value (or default value) of the maxChunkSize applet parameter.
 	 * <BR>
 	 * Default : Long.MAX_VALUE
 	 */
-	private long maxChunkSize;
+	private long maxChunkSize = UploadPolicy.DEFAULT_MAX_CHUNK_SIZE;
 	
 	/**
 	 * Current value (or default value) of the maxFileSize applet parameter.
 	 * <BR>
 	 * Default : Long.MAX_VALUE
 	 */
-	private long maxFileSize;
+	private long maxFileSize = UploadPolicy.DEFAULT_MAX_FILE_SIZE;
 	
 	/**
 	 * The URL where files should be posted.
 	 * <BR>
 	 * Default : no default value. (mandatory) 
 	 */
-	private String postURL = null;	
+	private String postURL = UploadPolicy.DEFAULT_POST_URL;	
 	
 	/**
 	 * @see UploadPolicy#getServerProtocol()
 	 */
-	private String serverProtocol;
+	private String serverProtocol = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
 	
 	/**
 	 * @see UploadPolicy#getStringUploadSuccess()
 	 */
-	private String stringUploadSuccess;
+	private String stringUploadSuccess = UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS;
 	
 	/**
 	 * If an error occurs during upload, and this attribute is not null, the applet asks the user if wants to send 
@@ -159,7 +166,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @see UploadPolicy#sendDebugInformation(String)
 	 */
-	private String urlToSendErrorTo;
+	private String urlToSendErrorTo = UploadPolicy.DEFAULT_URL_TO_SEND_ERROR_TO;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////    INTERNAL ATTRIBUTE  ///////////////////////////////////////////////////
@@ -211,6 +218,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    //////////////////////////////////////////////////////////////////////////////
 	    //get the afterUploadURL applet parameter.
 		setAfterUploadURL(UploadPolicyFactory.getParameter(theApplet, PROP_AFTER_UPLOAD_URL, DEFAULT_AFTER_UPLOAD_URL, this));
+
+	    //////////////////////////////////////////////////////////////////////////////
+		//get the allowedFileExtensions applet parameter 
+		setAllowedFileExtensions(UploadPolicyFactory.getParameter(theApplet, PROP_ALLOWED_FILE_EXTENSIONS, DEFAULT_ALLOWED_FILE_EXTENSIONS, this));
+		
 
 	    //////////////////////////////////////////////////////////////////////////////
 	    //get the showStatusBar applet parameter.
@@ -470,6 +482,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * @see UploadPolicy#displayErr(String)
 	 */
 	public void displayErr (String err) {
+		//If debug is off, the status bar may not be visible. We switch the debug to on, to be sure that some 
+		//information will be displayed to the user.
+		if (getDebugLevel() <= 0) {
+			setDebugLevel(1);
+		}
 		displayMsg ("-ERROR- " + err);
 	}
 	/**
@@ -726,6 +743,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	public void setProperty(String prop, String value) {
 		if (prop.equals(PROP_AFTER_UPLOAD_URL)) {
 			setAfterUploadURL(value);
+		} else if (prop.equals(PROP_ALLOWED_FILE_EXTENSIONS)) {
+			setAllowedFileExtensions(value);
 		} else if (prop.equals(PROP_DEBUG_LEVEL)) {
 			setDebugLevel(UploadPolicyFactory.parseInt(value, debugLevel, this));
 		} else if (prop.equals(PROP_LANG)) {
@@ -776,6 +795,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		    
 	
 		    displayDebug("afterUploadURL: " + getAfterUploadURL(), 20);
+		    displayDebug("allowedFileExtensions: " + getAllowedFileExtensions(), 20);
 		    displayDebug("debug: " + debugLevel, 1); 
 		    displayDebug("filenameEncoding: " + filenameEncoding, 20);
 		    displayDebug("lang: " + lang, 20);
@@ -805,6 +825,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/** @param afterUploadURL the afterUploadURL to set */
 	protected void setAfterUploadURL(String afterUploadURL) {
 		this.afterUploadURL = afterUploadURL;
+	}
+
+	/** @see UploadPolicy#getAllowedFileExtensions()   */
+	public String getAllowedFileExtensions() { return allowedFileExtensions; }
+	/** @param allowedFileExtensions the allowedFileExtensions to set  */
+	protected void setAllowedFileExtensions(String allowedFileExtensions) { 
+		this.allowedFileExtensions = "/" + allowedFileExtensions.toLowerCase() + "/";
 	}
 
 	/** @see UploadPolicy#getApplet() */
@@ -985,5 +1012,40 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		}
 		//Let's store all text in the debug BufferString
 		addMsgToDebugBufferString(msg + "\r\n");
+	}
+
+	/**
+	 * This method returns the response for the {@link JUploadFileFilter#accept(File)} which just calls this method.
+	 * This method checks that the file extension corresponds to the allowedFileExtensions applet parameter.
+	 * 
+	 * @see UploadPolicy#fileFilterAccept(File)
+	 */
+	public boolean fileFilterAccept(File file) {
+		if (file.isDirectory()) {
+			return true;
+		} else if (allowedFileExtensions==null || allowedFileExtensions.equals("")) {
+			return true;
+		} else {
+			//Get the file extension
+			String filename = file.getName();
+			int point = filename.lastIndexOf('.');
+			//Do our filename ends with a point ?
+			if (point == filename.length()-1) {
+				return false;
+			}
+			String extension = filename.substring(point+1).toLowerCase();
+			//allowedFileExtensions is :
+			//- a list of file extensions, 
+			//- in lower case,
+			//- separated by slash
+			//- A slash has been added at the beginning in setAllowedFileExtensions
+			//- A slash has been added at the end in setAllowedFileExtensions
+			//So, we just look for the /ext/ string in the stored allowedFileExtensions.
+			return (allowedFileExtensions.indexOf("/" + extension + "/")) >= 0;
+		}
+	}
+
+	public String fileFilterGetDescription() {
+		return "JUpload file filter";
 	}
 }

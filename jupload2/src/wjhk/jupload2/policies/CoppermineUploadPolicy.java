@@ -3,13 +3,16 @@
  */
 package wjhk.jupload2.policies;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
+import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.filedata.PictureFileData;
 
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
@@ -108,6 +111,34 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 	    albumId = UploadPolicyFactory.getParameter(theApplet, PROP_ALBUM_ID, DEFAULT_ALBUM_ID, this);
 	}
 	
+	
+	/**
+	 * The Coppermine gallery allows files other than pictures. If it's a picture, we manage it as a 
+	 * picture. Otherwise, we currently do nothing.
+	 * 
+	 *  @see #onSelectFile(FileData)
+	 */
+	public FileData createFileData(File file) {
+		PictureFileData pfd = new PictureFileData(file, this);
+		if (pfd.isPicture()) {
+			return pfd;
+		} else {
+			return new DefaultFileData(file, this);
+		}
+	}
+	/**
+	 * @see wjhk.jupload2.policies.UploadPolicy#onSelectFile(wjhk.jupload2.filedata.FileData)
+	 */
+	public void onSelectFile(FileData fileData) {
+		if (fileData == null) {
+			super.onSelectFile(fileData);
+		} else if (fileData instanceof PictureFileData) {
+			super.onSelectFile(fileData);
+		} else {
+			super.onSelectFile(null);
+		}
+	}
+
 	/**
 	 * This method only handles the <I>albumId</I> parameter, which is the only applet parameter that is
 	 * specific to this class. The super.setProperty method is called for other properties.

@@ -168,6 +168,14 @@ Here is the list of all parameters available in the current package. These are a
   </TD>
 </TR>
 <TR>
+  <TD>allowedFileExtensions</TD>
+  <TD><I>empty string</I><BR>since 2.9.0<BR> {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
+  <TD>This parameter allows the caller to specify a list of file extension. If this parameter is specified, only file
+  with this extension can be selected in the applet.<BR>
+  This parameter must contains a list of extensions, in lower case, separated by slashes. eg: jpg/jpeg/gif 
+  </TD>
+</TR>
+<TR>
   <TD>albumId</TD>
   <TD>-1 <BR><BR> {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
   <TD>This parameter is only used by CoppermineUploadPolicy. So it is to be used to upload into a 
