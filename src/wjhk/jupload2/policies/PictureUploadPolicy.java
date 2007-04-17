@@ -174,15 +174,15 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		super(theApplet);
 	    
 	    //Creation of the PictureFileDataPolicy, from parameters given to the applet, or from default values.
-	    setHighQualityPreview (UploadPolicyFactory.getParameter(theApplet, PROP_HIGH_QUALITY_PREVIEW, DEFAULT_HIGH_QUALITY_PREVIEW, this));
-		setMaxHeight ( UploadPolicyFactory.getParameter(theApplet, PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT, this));
-		setMaxWidth (UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH, DEFAULT_MAX_WIDTH, this));
-		setRealMaxHeight (UploadPolicyFactory.getParameter(theApplet, PROP_REAL_MAX_HEIGHT, DEFAULT_REAL_MAX_HEIGHT, this));
-		setRealMaxWidth (UploadPolicyFactory.getParameter(theApplet, PROP_REAL_MAX_WIDTH, DEFAULT_REAL_MAX_WIDTH, this));
-	    setStoreBufferedImage (UploadPolicyFactory.getParameter(theApplet, PROP_STORE_BUFFERED_IMAGE, DEFAULT_STORE_BUFFERED_IMAGE, this));
-		setTargetPictureFormat (UploadPolicyFactory.getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT, this));
+	    setHighQualityPreview 	(UploadPolicyFactory.getParameter(theApplet, PROP_HIGH_QUALITY_PREVIEW,	DEFAULT_HIGH_QUALITY_PREVIEW,	this));
+		setMaxHeight 			(UploadPolicyFactory.getParameter(theApplet, PROP_MAX_HEIGHT,			DEFAULT_MAX_HEIGHT,				this));
+		setMaxWidth 			(UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH,			DEFAULT_MAX_WIDTH,				this));
+		setRealMaxHeight 		(UploadPolicyFactory.getParameter(theApplet, PROP_REAL_MAX_HEIGHT,		DEFAULT_REAL_MAX_HEIGHT,		this));
+		setRealMaxWidth 		(UploadPolicyFactory.getParameter(theApplet, PROP_REAL_MAX_WIDTH,		DEFAULT_REAL_MAX_WIDTH,			this));
+	    setStoreBufferedImage	(UploadPolicyFactory.getParameter(theApplet, PROP_STORE_BUFFERED_IMAGE,	DEFAULT_STORE_BUFFERED_IMAGE,	this));
+		setTargetPictureFormat	(UploadPolicyFactory.getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT,DEFAULT_TARGET_PICTURE_FORMAT,	this));
 		
-		//The superclass (DefaultUploadPolicy) will call displayParameterStatus(), so that 
+		//The UploadPolicyFactory class will call displayParameterStatus(), so that 
 		//we display all applet parameters, after initialization.
 	}
 
@@ -284,10 +284,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 	}
 	
 	/** @see UploadPolicy#beforeUpload() */
-	public void beforeUpload() {
-		super.beforeUpload();
-		
-		//We clear the current picture selection. This insure a correct managing of enabling/disabling of
+	public void beforeUpload() {		
+		//We clear the current picture selection. This insures a correct managing of enabling/disabling of
 		//buttons, even if the user stops the upload.
 		getApplet().getFilePanel().clearSelection();
 		if (picturePanel != null) {
@@ -295,6 +293,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 			rotateLeftButton.setEnabled(false);
 		    rotateRightButton.setEnabled(false);
 		}
+
+		//Then, we call the standard action, if any.
+		super.beforeUpload();
 	}
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////      Getters and Setters   ////////////////////////////////////////////////

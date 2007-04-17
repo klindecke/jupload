@@ -7,8 +7,10 @@ package wjhk.jupload2.filedata;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Properties;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
@@ -39,8 +41,14 @@ public class DefaultFileData  implements FileData {
 	 */
 	UploadPolicy uploadPolicy;
 
+	/**
+	 * the mime type list, coming from: http://www.mimetype.org/
+	 * Thanks to them!
+	 */
+	public static Properties mimeTypes = null;
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////   Prrotected attributes   /////////////////////////////////////////////////////
+	/////////////////////////    Protected attributes   /////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -67,6 +75,23 @@ public class DefaultFileData  implements FileData {
 	public DefaultFileData(File file, UploadPolicy uploadPolicy) {
 		this.file = file;
 		this.uploadPolicy = uploadPolicy;
+		
+		//Let's load the mime types list.
+		if (mimeTypes == null) {
+			mimeTypes = new Properties();
+			try {
+				mimeTypes.load(getClass().getResourceAsStream("/conf/mimetypes.properties"));
+			} catch (IOException e) {
+				uploadPolicy.displayWarn("Unable to load the mime types list: " + e.getMessage());
+				mimeTypes = null;
+			}
+		}
+		
+		//Let
+		mimeType = mimeTypes.getProperty(getFileExtension().toLowerCase());
+		if (mimeType == null) {
+			mimeType = "application/octet-stream";
+		}
 	}
 
 	/** @see FileData#beforeUpload() */
