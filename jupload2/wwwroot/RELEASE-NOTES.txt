@@ -1,4 +1,20 @@
 
+TODO list:
+- Allows upload from the demo site, or inform that it doesn't work.
+
+V2.9.1
+
+Changes:
+- [Minor] The mime types is no set. The reference list is taken from http://www.mimetype.org/, thanks to them!
+
+Translation:
+- [Polish] Polish translation has been given by Wojtek Semik: wojteks@pvd.pl.
+
+Bugs correction:
+- [Major] The applet would not resize a picture that has been previewed in the applet. This file could then remain
+bigger than maxFileSize, and not be uploaded.
+
+
 V2.9.0
 
 Changes:
@@ -10,10 +26,10 @@ inherit from it, and implement the few fabstract methods defined in DefaultUploa
 - [Minor] It's now possible to select multiple files in the file list, to remove several files, for instance.
 
 Languages:
-- [Chinese] A chinese translation is now available
-- [Bresilian - Portugese] A Bresilian translation, is available. I copied this file to also give a first Portugese 
-translation. I don't know the differences between Portugese and Bresilian...
-- [Norwegian] Updated translation.
+- [Chinese] A chinese translation is now available, thanks to Liu (Fbo ?)
+- [Bresilian - Portugese] A Bresilian translation, is available, thanks to Frederico Ronfaut Klein. I copied this file 
+to also give a first Portugese translation. I don't know the differences between Portugese and Bresilian...
+- [Norwegian] Updated translation, thanks to Pal Knudsen.
 
 New parameters / setProperty method:
 - [setProperty] The applet setProperty method allows to change any applet parameter from the javascript on the web page.

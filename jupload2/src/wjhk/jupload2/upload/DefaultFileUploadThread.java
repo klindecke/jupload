@@ -519,6 +519,10 @@ public abstract class DefaultFileUploadThread extends Thread implements FileUplo
 			bChunkEnabled = true;
 		}
 		
+		//This while enables the chunk management:
+		// In chunk mode, it loops until the last chunk is uploaded. This works only because, in chunk mode,
+		//		files are uploaded one y one (the for loop within the while loops through ... 1 unique file).
+		// In normal mode, it does nothing, as the bLastChunk is set to true in the first test, within the while.
 		while (!bLastChunk && uploadException == null) {
 			try {
 				//First: chunk management.
@@ -572,6 +576,8 @@ public abstract class DefaultFileUploadThread extends Thread implements FileUplo
 
 					//If we are not in chunk mode, or if it was the last chunk, upload should be finished.
 					if (!bChunkEnabled  ||  bLastChunk) {
+						if(!stop && (null != progress))
+							progress.setString(uploadPolicy.getString("infoUploaded", msg));
 						if (filesToUpload[firstFileToUpload+i].getRemainingLength() > 0) {
 							uploadException = new JUploadExceptionUploadFailed(
 									"Files has not be entirely uploaded. The remaining size is "
@@ -589,8 +595,6 @@ public abstract class DefaultFileUploadThread extends Thread implements FileUplo
 				}
 				action = "flush";
 				getOutputStream().flush ();
-				if(!stop && (null != progress))
-					progress.setString(uploadPolicy.getString("infoUploaded", msg));
 				
 				
 				//Let's finish the request, and wait for the server Output, if any (not applicable in FTP)
@@ -623,9 +627,10 @@ public abstract class DefaultFileUploadThread extends Thread implements FileUplo
 	            uploadPolicy.displayDebug(getServerOutput() + "\n", 80);
 	            uploadPolicy.displayDebug("--------- Server Output End ---------\n", 80);
 	    	}
-		}//while (uploadException==null)
+		}//while(!bLastChunk && uploadException==null)
 		
-    	if (uploadException == null) {
+
+		if (uploadException == null) {
     		//The upload was Ok, we remove the uploaded files from the filePanel.
 			for(int i=0; i < nbFilesToUpload && !stop; i++){
 				uploadPolicy.getApplet().getFilePanel().remove(filesToUpload[firstFileToUpload+i]);

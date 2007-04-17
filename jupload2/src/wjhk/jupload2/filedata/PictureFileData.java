@@ -181,7 +181,7 @@ public class PictureFileData extends DefaultFileData  {
 		uploadPolicy.displayDebug("maxMemory  (before " + caller + ") : " + rt.maxMemory(), 80);
 		*/
 
-		rt.runFinalization();
+		//rt.runFinalization();
 		rt.gc();
 		
 		uploadPolicy.displayDebug("freeMemory (after " + caller + ") : " + rt.freeMemory(), 80);
@@ -367,8 +367,9 @@ public class PictureFileData extends DefaultFileData  {
 	 */
 	public void addRotation(int quarter) {
 		quarterRotation += quarter;
-		uploadLength = -1;
 		
+		//We'll have to recalculate the upload length, as the resulting file is different.
+		uploadLength = -1;		
 		//We don't know anymore if the picture has to be transformed. We let the hasToTransform method decide.
 		hasToTransformPicture = null;
 		
@@ -649,45 +650,47 @@ public class PictureFileData extends DefaultFileData  {
 				} catch (IOException e) {
 					throw new JUploadException("IOException in ImageIO.read (hasToTransformPicture) : " + e.getMessage());
 				}
+			}
 
-				int rotatedWidth, rotatedHeight;
-				int maxWidth, maxHeight;
-				
-				//The width and height of the transformed picture depends on the rotation.
-				if (quarterRotation%2 == 0) {
-					rotatedWidth = originalWidth;
-					rotatedHeight = originalHeight;
-				} else {
-					rotatedWidth = originalHeight;
-					rotatedHeight = originalWidth;
-				}
-				
-				//If the image is rotated, we compare to realMaxWidth and realMaxHeight, instead of
-				//maxWidth and maxHeight. This allows to have a different picture size for rotated and
-				//not rotated pictures. See the UploadPolicy javadoc for details ... and a good reason !  ;-)
-				if (quarterRotation == 0) {
-					maxWidth = uploadPolicy.getMaxWidth();
-					maxHeight = uploadPolicy.getMaxHeight();
-				} else {
-					maxWidth = uploadPolicy.getRealMaxWidth();
-					maxHeight = uploadPolicy.getRealMaxHeight();
-				}
-				
-				
-				if (hasToTransformPicture == null && maxWidth > 0) { 
-					if (rotatedWidth > maxWidth) {
-						uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (rotatedWidth > maxWidth)", 20);
-						hasToTransformPicture = Boolean.TRUE;
-					}
-				}
-				if (hasToTransformPicture == null && maxHeight > 0) { 
-					if (rotatedHeight > maxHeight) {
-						uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (rotatedHeight > maxHeight)", 20);
-						hasToTransformPicture = Boolean.TRUE;
-					}
-				}				
+			//Then, we calculated the rotated width and height, that we would have if we rotate or not the picture
+			//according to the current user choice.
+			int rotatedWidth, rotatedHeight;
+			int maxWidth, maxHeight;
+			
+			//The width and height of the transformed picture depends on the rotation.
+			if (quarterRotation%2 == 0) {
+				rotatedWidth = originalWidth;
+				rotatedHeight = originalHeight;
+			} else {
+				rotatedWidth = originalHeight;
+				rotatedHeight = originalWidth;
 			}
 			
+			//If the image is rotated, we compare to realMaxWidth and realMaxHeight, instead of
+			//maxWidth and maxHeight. This allows to have a different picture size for rotated and
+			//not rotated pictures. See the UploadPolicy javadoc for details ... and a good reason !  ;-)
+			if (quarterRotation == 0) {
+				maxWidth = uploadPolicy.getMaxWidth();
+				maxHeight = uploadPolicy.getMaxHeight();
+			} else {
+				maxWidth = uploadPolicy.getRealMaxWidth();
+				maxHeight = uploadPolicy.getRealMaxHeight();
+			}
+			
+			//Ok, let's check if we would obtain a width superior to the given maxPicWidth or realMaxPicWidth.	
+			if (hasToTransformPicture == null && maxWidth > 0) { 
+				if (rotatedWidth > maxWidth) {
+					uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (rotatedWidth > maxWidth)", 20);
+					hasToTransformPicture = Boolean.TRUE;
+				}
+			}
+			//Ok, let's check if we would obtain a width superior to the given maxPichHeigth or realMaxPicHeigth.	
+			if (hasToTransformPicture == null && maxHeight > 0) { 
+				if (rotatedHeight > maxHeight) {
+					uploadPolicy.displayDebug(getFileName() + " : hasToTransformPicture = true (rotatedHeight > maxHeight)", 20);
+					hasToTransformPicture = Boolean.TRUE;
+				}
+			}				
 
 			//If we find no reason to tranform the picture, then let's let the picture unmodified.
 			if (hasToTransformPicture == null) {
