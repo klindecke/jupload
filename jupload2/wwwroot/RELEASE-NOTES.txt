@@ -5,14 +5,16 @@ TODO list:
 V2.9.1
 
 Changes:
-- [Minor] The mime types is no set. The reference list is taken from http://www.mimetype.org/, thanks to them!
+- [Minor] The mime types is now set. The reference list is taken from http://www.mimetype.org/, thanks to them!
 
-Translation:
-- [Polish] Polish translation has been given by Wojtek Semik: wojteks@pvd.pl.
+Translations:
+- [Polish] Polish translation has been given by Wojtek Semik: wojteks at pvd dot pl
+- [Slovenian] Slovenian translation has been given by Damjan Leban: damjan dot leban at siol dot net
 
 Bugs correction:
 - [Major] The applet would not resize a picture that has been previewed in the applet. This file could then remain
 bigger than maxFileSize, and not be uploaded.
+
 
 
 V2.9.0
