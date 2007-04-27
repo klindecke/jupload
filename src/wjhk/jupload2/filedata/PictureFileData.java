@@ -714,11 +714,15 @@ public class PictureFileData extends DefaultFileData  {
 	 */
 	private File getTransformedPictureFile() throws JUploadException {
 		BufferedImage bufferedImage = null;
+		String tmpFileName = null;
 		//Do we already created the transformed file ?
 		if (transformedPictureFile == null) {
-			String tmpFileName = getFile().getPath() + ".upload.tmp";
 			try {
-				transformedPictureFile = new File(tmpFileName);
+				transformedPictureFile = File.createTempFile("jupload_", ".tmp");
+				transformedPictureFile.deleteOnExit();
+				tmpFileName = transformedPictureFile.getAbsolutePath();
+				uploadPolicy.displayDebug("Using temp file " + tmpFileName + " for " + getFileName(), 50);
+				
 				String localPictureFormat = (uploadPolicy.getTargetPictureFormat() == null) ? getFileExtension() : uploadPolicy.getTargetPictureFormat();
 
 				//Prepare (if not already done) the bufferedImage.
@@ -762,7 +766,7 @@ public class PictureFileData extends DefaultFileData  {
 	                }//while
 				} else {
 					//Too bad: no writer for the selected picture format
-					throw new JUploadException ("No writer for the '" + localPictureFormat + "'picture format.");
+					throw new JUploadException ("No writer for the '" + localPictureFormat + "' picture format.");
 				}
 				
 
@@ -781,7 +785,11 @@ public class PictureFileData extends DefaultFileData  {
 				}
 				//We try to remove the temporary file, if it has been created.
 				if (transformedPictureFile != null) {
-					transformedPictureFile.delete();
+					try {
+						transformedPictureFile.delete();
+					} catch (Exception e2) {
+						uploadPolicy.displayWarn(e2.getClass() + " while trying to remove temporary file (" + e2.getMessage() + ")");
+					}
 				}
 				transformedPictureFile = null;
 			}

@@ -21,6 +21,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -830,8 +831,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	/** @see UploadPolicy#getAllowedFileExtensions()   */
 	public String getAllowedFileExtensions() { return allowedFileExtensions; }
 	/** @param allowedFileExtensions the allowedFileExtensions to set  */
-	protected void setAllowedFileExtensions(String allowedFileExtensions) { 
-		this.allowedFileExtensions = "/" + allowedFileExtensions.toLowerCase() + "/";
+	protected void setAllowedFileExtensions(String allowedFileExtensions) {
+		if (allowedFileExtensions==null || allowedFileExtensions.equals("")) {
+			this.allowedFileExtensions = null;
+		} else {
+			this.allowedFileExtensions = 
+				( allowedFileExtensions.startsWith("/")  ?  "" : "/")
+				+ allowedFileExtensions.toLowerCase()
+				+ ( allowedFileExtensions.endsWith("/")  ?  "" : "/")
+				;
+		}
 	}
 
 	/** @see UploadPolicy#getApplet() */
@@ -901,7 +910,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	    	//that the applet is blocked.
 	    	try {
 		    	if (! lookAndFeel.equals("system")) {
-		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		    		//Correction given by Fritz. Thanks to him.
+		    		UIManager.setLookAndFeel(lookAndFeel);
 		    	} else {
 		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		    	}
@@ -1045,7 +1055,22 @@ public class DefaultUploadPolicy implements UploadPolicy {
 		}
 	}
 
+	/** @see UploadPolicy#fileFilterGetDescription() */
 	public String fileFilterGetDescription() {
-		return "JUpload file filter";
+		if (allowedFileExtensions==null || allowedFileExtensions.equals("")) {
+			return null;
+		} else {
+			return "JUpload file filter (" + allowedFileExtensions + ")";
+		}
 	}
+
+	/**
+	 * Returns null: the default icon is used.
+	 *  
+	 * @see UploadPolicy#fileViewGetIcon(File) 
+	 */
+	public Icon fileViewGetIcon(File file) {
+		return null;
+	}
+	
 }

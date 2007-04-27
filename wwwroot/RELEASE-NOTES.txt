@@ -2,6 +2,17 @@
 TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
 
+
+V2.9.2
+
+Changes:
+- [Minor/pictureMode] Temporary files are now created by File.createTempFile. They are removed by the end of the JVM, even if
+debugLevel>=100. No more pollution of the picture directory.
+
+Bug correction:
+- [Minor] The lookAndFeel aapplet parameter was uncorrecty managed. Correction given by Fritz (sourceforge username)
+
+
 V2.9.1
 
 Changes:
@@ -9,7 +20,7 @@ Changes:
 
 Translations:
 - [Polish] Polish translation has been given by Wojtek Semik: wojteks at pvd dot pl
-- [Slovenian] Slovenian translation has been given by Damjan Leban: damjan dot leban at siol dot net
+- [Slovenian] Slovenian translation has been given by Alenka Pirman and Damjan Leban: damjan dot leban at siol dot net
 
 Bugs correction:
 - [Major] The applet would not resize a picture that has been previewed in the applet. This file could then remain

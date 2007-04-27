@@ -3,11 +3,22 @@
  */
 package wjhk.jupload2.policies;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
+import java.awt.image.ReplicateScaleFilter;
 import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -79,7 +90,7 @@ import wjhk.jupload2.gui.PicturePanel;
  *
  */
 
-public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionListener {
+public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionListener, ImageObserver {
 	
 	/**
 	 * Indicates that a BufferedImage is to be created when the user selects the file.
@@ -381,5 +392,76 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements ActionLi
 		displayDebug(PROP_TARGET_PICTURE_FORMAT + " : " + targetPictureFormat, 20);		
 	}
 
+	/**
+	 * Returns null: the default icon is used.
+	 *  
+	 * @see UploadPolicy#fileViewGetIcon(File) 
+	 */
+	public Icon fileViewGetIcon(File file) {
+		ImageIcon imageIcon = null;
+		displayDebug("In PictureUploadPolicy.fileViewGetIcon for " + file.getName(), 100);
+		try {
+			//First, we load the picture
+			BufferedImage image = ImageIO.read(file);
+			BufferedImage resized = resizePicture(image, 20, 20, false, this); 
+			imageIcon = new ImageIcon(resized);
+			
+			//Runtime.getRuntime().gc();
+			displayDebug("freeMemory: " + Runtime.getRuntime().freeMemory(), 80);
+		} catch (IOException e) {
+			displayErr(e);
+		}
+		return imageIcon;
+	}
+	
+	
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////      static methods        ////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * This methods resizes the given picture to the given width and height. It is largely inspired from the
+	 * sample available on: http://java.sun.com/products/java-media/2D/reference/faqs
+	 * 
+	 * @param originalImage The picture to resize
+	 * @param scaledWidth The width for the resized picture. 
+	 * @param scaledHeight The height for the resized picture.
+	 * @param preserveAlpha 
+	 */
+	public static BufferedImage resizePicture(Image originalImage, int maxWidth, int maxHeight, boolean preserveAlpha, PictureUploadPolicy uploadPolicy) {
+		//We calculate the real scale factor, that is must set both width less than maxWidth and height less 
+		//than maxHeight.
+		int originalWidth = originalImage.getWidth(uploadPolicy);
+		int originalHeight = originalImage.getHeight(uploadPolicy);
+		float widthScale = (float) maxWidth / originalWidth;
+		float heightScale = (float) maxHeight / originalHeight;
+		double scale = Math.min(widthScale, heightScale);
+		//Picture will not be enlarged.
+		scale = (scale > 1) ? 1 : scale;
+		
+		int scaledWidth = (int) (scale * originalWidth);
+		int scaledHeight = (int) (scale * originalHeight);
+		//Some rounding operation may generate wrong calculation.
+		if (scaledWidth > maxWidth) {
+			scaledWidth = maxWidth;
+		}
+		if (scaledHeight > maxHeight) {
+			scaledHeight = maxHeight;
+		}
+		
+		int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+		BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
+		Graphics2D g = scaledBI.createGraphics();
+		if (preserveAlpha) {
+			g.setComposite(AlphaComposite.Src);
+		}
+		g.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null); 
+		g.dispose();
+		return scaledBI;
+	}
+
+	/** Implementation of the ImageObserver interface */
+	public boolean imageUpdate(Image arg0, int arg1, int arg2, int arg3, int arg4, int arg5) {
+		return true;
+	}
 }
