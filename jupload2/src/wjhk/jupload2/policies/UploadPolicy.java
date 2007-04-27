@@ -6,6 +6,7 @@ package wjhk.jupload2.policies;
 
 import java.io.File;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -13,6 +14,7 @@ import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.JUploadFileFilter;
+import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.JUploadPanel;
 
 /**
@@ -653,6 +655,15 @@ public interface UploadPolicy {
 	 * Return a description for the FileFilter, according to the current upload policy.
 	 */
 	public String fileFilterGetDescription();
+	
+	/**
+	 * Response for the {@link JUploadFileView#getIcon(File)}. Default is implemented in 
+	 * {@link DefaultUploadPolicy#fileViewGetIcon(File)}, by returning null, which displays the default icon.
+	 *  
+	 * @param file The file from which the icon should represent. 
+	 * @return The resulting icon.
+	 */
+	public Icon fileViewGetIcon(File file);
 	
 	/**
 	 * This method allows the applet to post debug information to the website (see {@link #getUrlToSendErrorTo()}). 

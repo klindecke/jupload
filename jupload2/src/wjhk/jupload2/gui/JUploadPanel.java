@@ -105,6 +105,8 @@ public class JUploadPanel extends JPanel implements ActionListener, MouseListene
 	private JPanel topPanel;
 	private JButton browse, remove, removeAll;
 	private JFileChooser fileChooser = null;
+	private JUploadFileFilter fileFilter = null;
+	private JUploadFileView fileView = null;
 
 	private FilePanel filePanel = null;
 
@@ -159,12 +161,17 @@ public class JUploadPanel extends JPanel implements ActionListener, MouseListene
 		// Setup File Chooser.
 		try{
 			fileChooser = new JFileChooser();
+			fileFilter = new JUploadFileFilter(uploadPolicy);
+			fileView = new JUploadFileView(uploadPolicy, fileChooser);
+			
 			//BasicFileChooserUI fileChooser2 = new BasicFileChooserUI(fileChooser);
 			fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			fileChooser.setMultiSelectionEnabled(true);
-			fileChooser.setFileFilter(new JUploadFileFilter(uploadPolicy));
-			fileChooser.setFileView(new JUploadFileView(uploadPolicy));
+			if (uploadPolicy.fileFilterGetDescription() != null) {
+				fileChooser.setFileFilter(fileFilter);
+				fileChooser.setFileView(fileView);
+			}
 			//fileChooser.setFileView(new BasicFileChooserUI.BasicFileView());
 		}catch(Exception e){
 			uploadPolicy.displayErr(e);
@@ -266,6 +273,8 @@ public class JUploadPanel extends JPanel implements ActionListener, MouseListene
 					if(JFileChooser.APPROVE_OPTION ==
 						fileChooser.showOpenDialog(new Frame())){
 						addFiles(fileChooser.getSelectedFiles());
+						//We stop any running task for the JUploadFileView
+						fileView.shutdownNow();
 					}
 				}catch(Exception ex){
 					uploadPolicy.displayErr(ex);
