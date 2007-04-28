@@ -179,7 +179,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 	 * 
 	 * @see #onAppendHeader(StringBuffer)
 	 */
-	private Vector headers = new Vector();
+	private Vector<String> headers = new Vector<String>();
 	
 	/**
 	 * The text area, where message are to be displayed.
