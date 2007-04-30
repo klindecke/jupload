@@ -36,7 +36,9 @@ public class FilePanelJTable extends JTable implements MouseListener {
 		this.uploadPolicy = uploadPolicy;
 
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		setDefaultRenderer(Date.class, new DateRenderer());
+        setDefaultRenderer(Long.class, new SizeRenderer(uploadPolicy));
+        setDefaultRenderer(Date.class, new DateRenderer(uploadPolicy));
+        setDefaultRenderer(String.class, new NameRenderer());
 
 		//setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 

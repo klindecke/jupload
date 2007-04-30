@@ -9,7 +9,6 @@ import java.util.Date;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.FileUploadThreadV3;
 
 /**
 *
@@ -33,7 +32,7 @@ public interface FileData {
 	 * Prepare the fileData to upload. For instance, picture data can be resized before upload 
 	 * (see {@link PictureFileData}. This method is called before the upload of this file.
 	 * 
-	 * @see FileUploadThreadV3
+	 * @see FileUploadThread
 	 *
 	 */
 	public void beforeUpload () throws JUploadException;
@@ -58,7 +57,7 @@ public interface FileData {
 	public void afterUpload ();
 	
 	/**
-	 * This function create an input stream for this file. The {@link FileUploadThreadV3} class can then read
+	 * This function create an input stream for this file. The {@link FileUploadThread} class can then read
 	 * bytes from it, to transfert them to the webserver. The caller is responsible for closing this input stream.
 	 * 
 	 * @return An inputStream 
@@ -90,9 +89,9 @@ public interface FileData {
 	public Date getLastModified();
 	
 	/**
-	 * Get the absolute path of the file. 
+	 * Get the directory of the file. 
 	 * 
-	 * @return Get the directory where is stored this file.
+	 * @return The directory where this file is stored.
 	 */
 	public String getDirectory ();
 	

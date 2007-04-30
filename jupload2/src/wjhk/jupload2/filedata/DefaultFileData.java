@@ -146,7 +146,7 @@ public class DefaultFileData  implements FileData {
 	
 	/** @see FileData#getDirectory() */
 	public String getDirectory () {
-		return file.getAbsolutePath();
+		return file.getAbsoluteFile().getParent();
 	}
 	
 	/** @see FileData#getMimeType() */
