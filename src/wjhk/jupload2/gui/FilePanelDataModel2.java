@@ -37,6 +37,15 @@ class FilePanelDataModel2 extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = 1473262424494858913L;
 
+    /**
+     * The colum indices of the columns, as displayed by the applet.
+     */
+    public static final int COLINDEX_NAME = 0;
+    public static final int COLINDEX_SIZE = 1;
+    public static final int COLINDEX_DIRECTORY = 2;
+    public static final int COLINDEX_MODIFIED = 3;
+    public static final int COLINDEX_READABLE = 4;
+    
 	/**
 	 * The uploadPolicy contains all current parameter, including the FileDataParam
 	 */

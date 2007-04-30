@@ -164,7 +164,6 @@ public class JUploadPanel extends JPanel implements ActionListener, MouseListene
 			fileFilter = new JUploadFileFilter(uploadPolicy);
 			fileView = new JUploadFileView(uploadPolicy, fileChooser);
 			
-			//BasicFileChooserUI fileChooser2 = new BasicFileChooserUI(fileChooser);
 			fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			fileChooser.setMultiSelectionEnabled(true);
@@ -172,7 +171,6 @@ public class JUploadPanel extends JPanel implements ActionListener, MouseListene
 				fileChooser.setFileFilter(fileFilter);
 				fileChooser.setFileView(fileView);
 			}
-			//fileChooser.setFileView(new BasicFileChooserUI.BasicFileView());
 		}catch(Exception e){
 			uploadPolicy.displayErr(e);
 		}
