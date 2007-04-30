@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Program Files/Java/jre1.5.0_08/lib/plugin.jar"/>
-	<classpathentry kind="lib" path="E:/Mes documents/gauthier-eti/Java/eclipse-3.2.1/workspace/jupload/wwwroot/jakarta-commons-net.jar"/>
+	<classpathentry kind="lib" path="wwwroot/plugin.jar"/>
+	<classpathentry kind="lib" path="wwwroot/jakarta-commons-net.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
