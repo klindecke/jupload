@@ -323,11 +323,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
                 // Restore enable state, as the upload is finished.
                 this.stopButton.setEnabled(false);
-
                 this.browseButton.setEnabled(true);
-                this.removeButton.setEnabled(true);
-                this.removeAllButton.setEnabled(true);
-                this.uploadButton.setEnabled(true);
 
                 // Free resources of the upload thread.
                 this.fileUploadThread.close();
@@ -338,6 +334,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 // processing).
                 // EGR if((null != aus) && isSuccess)
                 // aus.executeThis(svrRet);
+
+                boolean haveFiles = (0 < this.filePanel.getFilesLength());
+                this.uploadButton.setEnabled(haveFiles);
+                this.removeButton.setEnabled(haveFiles);
+                this.removeAllButton.setEnabled(haveFiles);
 
             }
             return;
