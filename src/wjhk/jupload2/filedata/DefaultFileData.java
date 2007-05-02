@@ -112,7 +112,7 @@ public class DefaultFileData implements FileData {
         // Nothing to do here
     }
 
-    /** @see FileData#getRandomAccessFile() */
+    /** @see FileData#getInputStream() */
     public InputStream getInputStream() throws JUploadException {
         // Standard FileData : we read the file.
         try {
