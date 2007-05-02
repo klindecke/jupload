@@ -1,10 +1,10 @@
 package wjhk.jupload2.upload;
 
 /**
- * This interface defines the methods of the various FileUploadThread classes. These
- * classes are kept in the CVS, as people often update them for their needs: I
- * don't want to remove them, when I do a 'big bang' within them. Created on 21
- * nov. 06
+ * This interface defines the methods of the various FileUploadThread classes.
+ * These classes are kept in the CVS, as people often update them for their
+ * needs: I don't want to remove them, when I do a 'big bang' within them.
+ * Created on 21 nov. 06
  */
 public interface FileUploadThread {
 
@@ -44,7 +44,7 @@ public interface FileUploadThread {
     public void nbBytesUploaded(long nbBytes);
 
     /**
-     * 
+     * Closes the connection to the server and releases resources.
      */
     public void close();
 
