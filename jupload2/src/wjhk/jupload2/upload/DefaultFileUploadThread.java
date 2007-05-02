@@ -1,3 +1,23 @@
+//
+// $Id$
+// 
+// jupload - A file upload applet.
+// Copyright 2007 The JUpload Team
+// 
+// Created: ?
+// Creator: William JinHua Kwong
+// Last modified: $Date$
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation; either version 2 of the License, or (at your option) any later
+// version. This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details. You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
+// 675 Mass Ave, Cambridge, MA 02139, USA.
+
 package wjhk.jupload2.upload;
 
 import java.io.OutputStream;
@@ -120,7 +140,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     private int nbBytesBeforeUpdatingProgressBar = NUM_BYTES;
 
-    private long start, now;
+    private long startTime;
 
     /**
      * Creates a new instance.
@@ -351,6 +371,14 @@ public abstract class DefaultFileUploadThread extends Thread implements
     }
 
     /**
+     * Retrieve the start time of this thread.
+     * @return The time this thread was started in ms.
+     */
+    public final long getStartTime() {
+        return this.startTime;
+    }
+    
+    /**
      * The heart of the program. This method prepare the upload, then calls
      * doUpload for each HTTP request.
      * 
@@ -360,7 +388,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     final public void run() {
         boolean bUploadOk = true;
 
-        this.start = System.currentTimeMillis();
+        this.startTime = System.currentTimeMillis();
         this.uploadedLength = 0;
         this.totalFilesLength = 0;
 
