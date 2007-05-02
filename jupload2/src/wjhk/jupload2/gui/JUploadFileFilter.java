@@ -7,7 +7,7 @@ import javax.swing.filechooser.FileFilter;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
- * Default File Filter used by the {@link DefaultUploadPolicy} to filter the
+ * Default File Filter used by the {@link wjhk.jupload2.policies.DefaultUploadPolicy} to filter the
  * allowed file in the JFileChooser. This class is an empty one: it just calls
  * the {
  */

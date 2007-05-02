@@ -11,7 +11,7 @@ import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
- * This class is based on the {@link FileUploadThreadV4} class. It's an abstract
+ * This class is based on the {@link FileUploadThread} class. It's an abstract
  * class that contains the default implementation for the
  * {@link FileUploadThread} interface. <BR>
  * It contains the following abstract methods, which must be implemented in the
@@ -19,7 +19,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <LI>For each upload request (for instance, upload of 3 files with
  * nbFilesPerRequest to 2, makes 2 request: 2 files, then the last one): <DIR>
  * <LI><I>try</I>
- * <LI>{@link startRequest}: start of the UploadRequest.
+ * <LI>{@link #startRequest}: start of the UploadRequest.
  * <LI>Then, for each file to upload (according to the nbFilesPerRequest and
  * maxChunkSize applet parameters) <DIR>
  * <LI>{@link #beforeFile(int)} is called before writting the bytes for this

@@ -872,7 +872,7 @@ public interface UploadPolicy {
      * @return The StringBuffer given in parameters. This is conform to the
      *         StringBuffer.append method.
      * @see #addHeader(String)
-     * @see wjhk.jupload2.upload.FileUploadThreadV3#doUpload(FileData[],int,int)
+     * @see wjhk.jupload2.upload.FileUploadThread
      */
     public StringBuffer onAppendHeader(StringBuffer sb);
 

@@ -18,7 +18,7 @@ public class SortArrowIcon implements Icon {
     /**
      * Draw arrow, representing descending sort order.
      */
-    public static final int DECENDING = 1;
+    public static final int DESCENDING = 1;
 
     /**
      * Draw arrow, representing ascending sort order.
@@ -34,8 +34,8 @@ public class SortArrowIcon implements Icon {
     /**
      * Creates a new instance.
      * 
-     * @param direction The desired direction, either {@link ASCENDING},
-     *            {@link DESCENDING} or {@link NONE}
+     * @param direction The desired direction, either {@link #ASCENDING},
+     *            {@link #DESCENDING} or {@link #NONE}
      */
     public SortArrowIcon(int direction) {
         this.direction = direction;
@@ -75,7 +75,7 @@ public class SortArrowIcon implements Icon {
                 g.setColor(light);
                 g.drawLine(x + w, y, x + m, y + h);
                 break;
-            case DECENDING:
+            case DESCENDING:
                 g.setColor(shade);
                 g.drawLine(x + m, y, x, y + h);
                 g.setColor(light);

@@ -44,7 +44,7 @@ public interface FileUploadThread {
     public void nbBytesUploaded(long nbBytes);
 
     /**
-     * @see java.lang.Thread#close()
+     * 
      */
     public void close();
 

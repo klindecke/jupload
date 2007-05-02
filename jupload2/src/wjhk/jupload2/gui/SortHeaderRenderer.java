@@ -22,8 +22,8 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer {
     private static final Icon ASCENDING = new SortArrowIcon(
             SortArrowIcon.ASCENDING);
 
-    private static final Icon DECENDING = new SortArrowIcon(
-            SortArrowIcon.DECENDING);
+    private static final Icon DESCENDING = new SortArrowIcon(
+            SortArrowIcon.DESCENDING);
 
     /**
      * Creates a new instance.
@@ -58,7 +58,7 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer {
                 setFont(header.getFont());
             }
         }
-        Icon icon = ascending ? ASCENDING : DECENDING;
+        Icon icon = ascending ? ASCENDING : DESCENDING;
         setIcon(col == index ? icon : NONSORTED);
         setText((value == null) ? "" : value.toString());
         setBorder(UIManager.getBorder("TableHeader.cellBorder"));

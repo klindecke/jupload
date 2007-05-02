@@ -508,8 +508,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * http://java.sun.com/products/java-media/2D/reference/faqs
      * 
      * @param originalImage The picture to resize
-     * @param scaledWidth The width for the resized picture.
-     * @param scaledHeight The height for the resized picture.
+     * @param maxWidth The maximum width for the resized picture.
+     * @param maxHeight The maximum height for the resized picture.
      * @param preserveAlpha
      */
     public static BufferedImage resizePicture(Image originalImage,

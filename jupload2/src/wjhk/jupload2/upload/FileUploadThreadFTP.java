@@ -23,7 +23,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * The FileUploadThreadFTP class is intended to extend the functionality of the
  * JUpload applet and allow it to handle ftp:// addresses. <br>
  * Note: this class is not a V4 of the FTP upload. It is named V4, as it
- * inherits from the {@link FileUploadThreadV4} class. <br>
+ * inherits from the {@link FileUploadThread} class. <br>
  * <br>
  * In order to use it, simply change the postURL argument to the applet to
  * contain the approperiate ftp:// link. The format is:
@@ -48,7 +48,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @see DefaultFileUploadThread
  * @version 1.0, 01 Jan 2007 * Update march 2007, Etienne Gauthier Adaptation to
  *          match all JUpload functions: <DIR>
- *          <LI>Inheritance from the {@link FileUploadThreadV4} class,
+ *          <LI>Inheritance from the {@link FileUploadThread} class,
  *          <LI>Use of the UploadFileData class,
  *          <LI>Before upload file preparation,
  *          <LI>Upload stop by the user.
