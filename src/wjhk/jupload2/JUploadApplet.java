@@ -6,7 +6,8 @@
 // 
 // Created: ?
 // Creator: William JinHua Kwong
-// 
+// Last modified: $Date$
+//
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
 // Foundation; either version 2 of the License, or (at your option) any later
@@ -40,6 +41,7 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  * </DIR>
  * 
  * @author William JinHua Kwong (updated by Etienne Gauthier)
+ * @version $Revision$
  */
 public class JUploadApplet extends Applet {
 
@@ -48,20 +50,15 @@ public class JUploadApplet extends Applet {
      */
     private static final long serialVersionUID = -3207851532114846776L;
 
-    // ------------- INFORMATION --------------------------------------------
-    public static final String TITLE = "JUpload JUploadApplet";
-
-    public static final String DESCRIPTION = "Java Applet wrapper for JUploadPanel.";
-
-    public static final String AUTHOR = "William JinHua Kwong (updated by Etienne Gauthier)";
-
-    public static final String VERSION = "2.9.2rc4";
-
-    public static final String LAST_MODIFIED = "27 Apr 2007";
-
-    // ----------------------------------------------------------------------
-
-    // private boolean isStandalone = false;
+    /**
+     * The version of this applet.
+     */
+    public final static String VERSION = "2.9.2rc4 ($Revision$)";
+    
+    /**
+     * The last modification of this applet.
+     */
+    public final static String LAST_MODIFIED = "$Date$";
 
     private UploadPolicy uploadPolicy = null;
 

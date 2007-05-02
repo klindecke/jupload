@@ -1,3 +1,23 @@
+//
+// $Id$
+// 
+// jupload - A file upload applet.
+// Copyright 2007 The JUpload Team
+// 
+// Created: ?
+// Creator: William JinHua Kwong
+// Last modified: $Date$
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation; either version 2 of the License, or (at your option) any later
+// version. This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details. You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
+// 675 Mass Ave, Cambridge, MA 02139, USA.
+
 package wjhk.jupload2.gui;
 
 import java.awt.Container;
@@ -83,6 +103,8 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
  * Main code for the applet (or frame) creation. It contains all creation for
  * necessary elements, or calls to {@link wjhk.jupload2.policies.UploadPolicy}
  * to allow easy personalization.
+ * @author William JinHua Kwong
+ * @version $Revision$
  */
 public class JUploadPanel extends JPanel implements ActionListener,
         MouseListener {
@@ -94,17 +116,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     /** The popup menu of the applet */
     private JUploadPopupMenu jUploadPopupMenu;
-
-    // ------------- INFORMATION --------------------------------------------
-    public static final String TITLE = "JUpload JUploadPanel";
-
-    public static final String DESCRIPTION = "Main Panel for JUpload Application/Applet.";
-
-    public static final String AUTHOR = "William JinHua Kwong";
-
-    public static final double VERSION = 1.3;
-
-    public static final String LAST_MODIFIED = "$Date$";
 
     // Timeout at DEFAULT_TIMEOUT milliseconds
     private final static int DEFAULT_TIMEOUT = 100;
