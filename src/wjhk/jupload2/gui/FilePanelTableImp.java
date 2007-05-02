@@ -15,6 +15,9 @@ import wjhk.jupload2.policies.UploadPolicy;
  * Implementation of the FilePanel : it creates the
  * {@link wjhk.jupload2.gui.FilePanelJTable}, and handles the necessary
  * functionnalities.
+ * 
+ * @author William JinHua Kwong
+ * @version $Revision$
  */
 public class FilePanelTableImp extends Panel implements FilePanel {
 
