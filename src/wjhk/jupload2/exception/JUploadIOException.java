@@ -26,7 +26,7 @@ package wjhk.jupload2.exception;
  * interface definition.
  * 
  * @author Etienne Gauthier
- * @revision $Revision$
+ * @version $Revision$
  */
 
 public class JUploadIOException extends JUploadException {
