@@ -40,12 +40,14 @@ public class DialogPicturePanel extends PicturePanel {
 	/**
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
-	public void mouseClicked(MouseEvent arg0) {
+	@Override
+    public void mouseClicked(@SuppressWarnings("unused")
+    MouseEvent arg0) {
 		//Let's close the current DialogBox, if it has not already be done.
-		if (pictureDialog != null) {
-			uploadPolicy.displayDebug("[DialogPicturePanel] Before pictureDialog.dispose()", 60);
-			pictureDialog.dispose();
-			pictureDialog = null;
+		if (this.pictureDialog != null) {
+			this.uploadPolicy.displayDebug("[DialogPicturePanel] Before pictureDialog.dispose()", 60);
+			this.pictureDialog.dispose();
+			this.pictureDialog = null;
 		}
 	}
 }

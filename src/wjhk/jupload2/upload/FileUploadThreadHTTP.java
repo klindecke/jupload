@@ -29,18 +29,38 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
-    // TrustManager to allow all certificates
+    private final static String DUMMYMD5 = "DUMMYMD5DUMMYMD5DUMMYMD5DUMMYMD5";
+
+    /**
+     * An implementation of {@link javax.net.ssl.X509TrustManager} which accepts
+     * any certificate.
+     */
     protected final class TM implements X509TrustManager {
+        /**
+         * @see javax.net.ssl.X509TrustManager#checkClientTrusted(java.security.cert.X509Certificate[],
+         *      java.lang.String)
+         */
+        @SuppressWarnings("unused")
         public void checkClientTrusted(@SuppressWarnings("unused")
         X509Certificate[] arg0, @SuppressWarnings("unused")
         String arg1) throws CertificateException {
+            // Nothing to do.
         }
 
+        /**
+         * @see javax.net.ssl.X509TrustManager#checkServerTrusted(java.security.cert.X509Certificate[],
+         *      java.lang.String)
+         */
+        @SuppressWarnings("unused")
         public void checkServerTrusted(@SuppressWarnings("unused")
         X509Certificate[] chain, @SuppressWarnings("unused")
         String authType) throws CertificateException {
+            // Nothing to do.
         }
 
+        /**
+         * @see javax.net.ssl.X509TrustManager#getAcceptedIssuers()
+         */
         public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[0];
         }
@@ -75,7 +95,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * @see #startRequest(long, boolean, int, boolean)
      * @see #cleanRequest()
      * @see #getOutputStream()
-     * 
      */
     private DataOutputStream httpDataOut = null;
 
@@ -98,52 +117,51 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      */
     private StringBuffer sbHttpResponseBody = null;
 
-    // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////////// CONSTRUCTOR
-    // ///////////////////////////////////////
-    // ////////////////////////////////////////////////////////////////////////////////////
-
+    /**
+     * Creates a new instance.
+     * 
+     * @param filesDataParam The files to upload.
+     * @param uploadPolicy The policy to be applied.
+     * @param progress The progress bar to be updated.
+     */
     public FileUploadThreadHTTP(FileData[] filesDataParam,
             UploadPolicy uploadPolicy, JProgressBar progress) {
         super(filesDataParam, uploadPolicy, progress);
         uploadPolicy.displayDebug("Upload done by using the "
                 + getClass().getName() + " class", 40);
-        heads = new String[filesDataParam.length];
-        tails = new String[filesDataParam.length];
+        // Name the thread (useful for debugging)
+        setName("FileUploadThreadHTTP");
+        this.heads = new String[filesDataParam.length];
+        this.tails = new String[filesDataParam.length];
     }
-
-    // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////////// PUBLIC FUNCTIONS
-    // ////////////////////////////////////////
-    // ////////////////////////////////////////////////////////////////////////////////////
-
-    // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////////// IMPLEMENTATION OF INHERITED METHODS
-    // ///////////////////////
-    // ////////////////////////////////////////////////////////////////////////////////////
 
     /** @see DefaultFileUploadThread#beforeRequest(int, int) */
     @Override
     void beforeRequest(int firstFileToUploadParam, int nbFilesToUploadParam)
             throws JUploadException {
-        setAllHead(firstFileToUploadParam, nbFilesToUploadParam, boundary);
-        setAllTail(firstFileToUploadParam, nbFilesToUploadParam, boundary);
+        setAllHead(firstFileToUploadParam, nbFilesToUploadParam, this.boundary);
+        setAllTail(firstFileToUploadParam, nbFilesToUploadParam, this.boundary);
     }
 
     /** @see DefaultFileUploadThread#getAdditionnalBytesForUpload(int) */
     @Override
-    long getAdditionnalBytesForUpload(int indexFile) {
-        return heads[indexFile].length() + tails[indexFile].length();
+    long getAdditionnalBytesForUpload(int index) {
+        return this.heads[index].length() + this.tails[index].length();
     }
 
     /** @see DefaultFileUploadThread#afterFile(int) */
     @Override
     void afterFile(int index) throws JUploadException {
         try {
-            httpDataOut.writeBytes(tails[index]);
+            String tail = this.tails[index].replaceFirst(DUMMYMD5,
+                    this.filesToUpload[index].getMD5());
+            this.httpDataOut.writeBytes(tail);
+            this.uploadPolicy.displayDebug("--- filetail start (len="
+                    + tail.length() + "):", 80);
+            this.uploadPolicy.displayDebug(quoteCRLF(tail), 80);
+            this.uploadPolicy.displayDebug("--- filetail end", 80);
         } catch (Exception e) {
-            throw new JUploadException(e, this.getClass().getName()
-                    + ".afterFile(index)");
+            throw new JUploadException(e);
         }
     }
 
@@ -156,14 +174,18 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // override at the beginning
         // of this loop, if in chunk mode.
         try {
-            httpDataOut.writeBytes(heads[index]);
+            this.httpDataOut.writeBytes(this.heads[index]);
+            this.uploadPolicy.displayDebug("--- fileheader start (len="
+                    + this.heads[index].length() + "):", 80);
+            this.uploadPolicy.displayDebug(quoteCRLF(this.heads[index]), 80);
+            this.uploadPolicy.displayDebug("--- fileheader end", 80);
         } catch (Exception e) {
-            throw new JUploadException(e, this.getClass().getName()
-                    + ".beforeFile(index)");
+            throw new JUploadException(e);
         }
     }
 
     /** @see DefaultFileUploadThread#cleanAll() */
+    @SuppressWarnings("unused")
     @Override
     void cleanAll() throws JUploadException {
         // Nothing to do in HTTP mode.
@@ -176,48 +198,47 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         try {
             // Throws java.io.IOException
-            httpDataOut.close();
+            this.httpDataOut.close();
         } catch (NullPointerException e) {
             // httpDataOut is already null ...
         } catch (IOException e) {
-            localException = new JUploadException(e, getClass().getName()
-                    + ".cleanRequest() (10)");
-            uploadPolicy.displayErr(uploadPolicy.getString("errDuringUpload")
-                    + " (httpDataOut.close) (" + e.getClass()
+            localException = new JUploadException(e);
+            this.uploadPolicy.displayErr(this.uploadPolicy
+                    .getString("errDuringUpload")
+                    + " (httpDataOut.close) ("
+                    + e.getClass()
                     + ".doUpload()) : " + localException.getMessage());
         } finally {
-            httpDataOut = null;
+            this.httpDataOut = null;
         }
 
         try {
             // Throws java.io.IOException
-            httpDataIn.close();
+            this.httpDataIn.close();
         } catch (NullPointerException e) {
             // httpDataIn is already null ...
         } catch (IOException e) {
             if (localException != null) {
-                localException = new JUploadException(e, getClass().getName()
-                        + ".cleanRequest() (20)");
-                uploadPolicy.displayErr(uploadPolicy
+                localException = new JUploadException(e);
+                this.uploadPolicy.displayErr(this.uploadPolicy
                         .getString("errDuringUpload")
                         + " (httpDataIn.close) ("
                         + e.getClass()
                         + ".doUpload()) : " + localException.getMessage());
             }
         } finally {
-            httpDataIn = null;
+            this.httpDataIn = null;
         }
 
         try {
             // Throws java.io.IOException
-            sock.close();
+            this.sock.close();
         } catch (NullPointerException e) {
             // sock is already null ...
         } catch (IOException e) {
             if (localException != null) {
-                localException = new JUploadException(e, getClass().getName()
-                        + ".cleanRequest() (30)");
-                uploadPolicy.displayErr(uploadPolicy
+                localException = new JUploadException(e);
+                this.uploadPolicy.displayErr(this.uploadPolicy
                         .getString("errDuringUpload")
                         + " (sock.close)("
                         + e.getClass()
@@ -225,7 +246,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         + e.getMessage());
             }
         } finally {
-            sock = null;
+            this.sock = null;
         }
 
         if (localException != null) {
@@ -236,17 +257,29 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     @Override
     void finishRequest() throws JUploadException {
         boolean readingHttpBody = false;
+        boolean gotClose = false;
         String line;
 
-        sbHttpResponseBody = new StringBuffer();
+        this.sbHttpResponseBody = new StringBuffer();
         try {
-            while ((line = httpDataIn.readLine()) != null && !stop) {
+            // If the user requested abort, we are not going to send
+            // anymore, so shutdown the outgoing half of the socket.
+            // This helps the server to speed up with it's response.
+            if (this.stop)
+                this.sock.shutdownOutput();
+            // && is evaluated from left to right so !stop must come first!
+            while (!this.stop && (line = this.httpDataIn.readLine()) != null) {
                 this.addServerOutPut(line);
                 this.addServerOutPut("\n");
 
                 // Store the http body
                 if (readingHttpBody) {
-                    sbHttpResponseBody.append(line).append("\n");
+                    this.sbHttpResponseBody.append(line).append("\n");
+                } else {
+                    if (line.matches("^Connection:\\sclose"))
+                        gotClose = true;
+                    if (line.matches("^Proxy-Connection:\\sclose"))
+                        gotClose = true;
                 }
                 if (line.length() == 0) {
                     // Next lines will be the http body (or perhaps we already
@@ -254,26 +287,33 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     readingHttpBody = true;
                 }
             }// while
+
+            if (gotClose) {
+                // RFC 2868, section 8.1.2.1
+                cleanRequest();
+            }
         } catch (Exception e) {
-            throw new JUploadException(e, this.getClass().getName()
-                    + ".finishRequest()");
+            throw new JUploadException(e);
         }
     }
 
     /** @see DefaultFileUploadThread#getResponseBody() */
+    @SuppressWarnings("unused")
     @Override
     String getResponseBody() throws JUploadException {
-        return sbHttpResponseBody.toString();
+        return this.sbHttpResponseBody.toString();
     }
 
     /** @see DefaultFileUploadThread#getOutputStream() */
+    @SuppressWarnings("unused")
     @Override
     OutputStream getOutputStream() throws JUploadException {
-        return httpDataOut;
+        return this.httpDataOut;
     }
 
     /**
      * Helper function for perforing a proxy CONNECT request.
+     * 
      * @param proxy The proxy to use.
      * @param host The destination's hostname.
      * @param port The destination's port
@@ -298,8 +338,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         String line = proxyIn.readLine();
         if (!line.matches("^HTTP/\\d\\.\\d\\s200\\s.*"))
             throw new ConnectException("Proxy response: " + line);
-        uploadPolicy.displayDebug(
-                "Proxy response: " + line, 40);
+        this.uploadPolicy.displayDebug("Proxy response: " + line, 40);
         proxyIn.readLine(); // eat the header delimiter
         // we now are connected ...
         return proxysock;
@@ -310,24 +349,21 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     void startRequest(long contentLength, boolean bChunkEnabled, int chunkPart,
             boolean bLastChunk) throws JUploadException {
         StringBuffer header = new StringBuffer();
-        String action = "init (FileUploadThreadHTTP)";
 
         try {
             String chunkHttpParam = "jupart=" + chunkPart + "&jufinal="
                     + (bLastChunk ? "1" : "0");
-            uploadPolicy.displayDebug("chunkHttpParam: " + chunkHttpParam, 40);
+            this.uploadPolicy.displayDebug("chunkHttpParam: " + chunkHttpParam,
+                    40);
 
-            action = "get URL";
-            URL url = new URL(uploadPolicy.getPostURL());
+            URL url = new URL(this.uploadPolicy.getPostURL());
 
-            action = "check proxy";
             Proxy proxy = null;
             proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
             boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
             boolean useSSL = url.getProtocol().equals("https");
 
             // Header: Request line
-            action = "append headers";
             // Let's clear it. Useful only for chunked uploads.
             header.setLength(0);
             header.append("POST ");
@@ -353,104 +389,123 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 header.append("?").append(chunkHttpParam);
             }
 
-            header.append(" ").append(uploadPolicy.getServerProtocol()).append(
-                    "\r\n");
+            header.append(" ").append(this.uploadPolicy.getServerProtocol())
+                    .append("\r\n");
             // Header: General
             header.append("Host: ");
             header.append(url.getHost());
             header.append("\r\n");
             header.append("Accept: */*\r\n");
-            header.append("Content-type: multipart/form-data; boundary=");
-            header.append(boundary.substring(2, boundary.length()) + "\r\n");
-            header.append("Connection: close\r\n");
-            header.append("Content-length: ").append(contentLength - 2).append(
+            if (!bChunkEnabled
+                    || bLastChunk
+                    || useProxy
+                    || !this.uploadPolicy.getServerProtocol()
+                            .equals("HTTP/1.1")) {
+                // RFC 2086, section 19.7.1
+                header.append("Connection: close\r\n");
+            } else {
+                header.append("Keep-Alive: 300\r\n");
+                if (useProxy)
+                    header.append("Proxy-Connection: keep-alive\r\n");
+                else
+                    header.append("Connection: keep-alive\r\n");
+            }
+            header.append("Content-Type: multipart/form-data; boundary=");
+            header.append(this.boundary.substring(2)).append("\r\n");
+            header.append("Content-Length: ").append(contentLength).append(
                     "\r\n");
 
             // Get specific headers for this upload.
-            uploadPolicy.onAppendHeader(header);
+            this.uploadPolicy.onAppendHeader(header);
 
             // Blank line (end of header)
             header.append("\r\n");
 
-            // ////////////////////////////////////////////////////////////////////////////////////////////////
-            // Management of SSL, thanks to David Gnedt
-            // Check if SSL connection is needed
-            if (url.getProtocol().equals("https")) {
-                SSLContext context = SSLContext.getInstance("SSL");
-                // Allow all certificates
-                context.init(null, new X509TrustManager[] { new TM() }, null);
-                if (useProxy) {
-                    if (proxy.type() == Proxy.Type.HTTP) {
-                        // First establish a CONNECT, then do a normal SSL thru
-                        // that connection.
-                        action = "proxy connect";
-                        uploadPolicy.displayDebug(
-                                "Using SSL socket, via proxy", 20);
-                        String host = url.getHost();
-                        int port = (-1 == url.getPort()) ? 443 : url.getPort();
-                        sock = (Socket) context.getSocketFactory()
-                                .createSocket(
-                                        HttpProxyConnect(proxy, host, port),
-                                        host, port, true);
-                    } else if (proxy.type() == Proxy.Type.SOCKS) {
-                        throw new ConnectException("SOCKS proxy not supported");
-                    } else
-                        throw new ConnectException("Unkown proxy type "
-                                + proxy.type());
+            // Only connect, if sock is null!!
+            if (this.sock == null) {
+                // Check if SSL connection is needed
+                if (url.getProtocol().equals("https")) {
+                    SSLContext context = SSLContext.getInstance("SSL");
+                    // Allow all certificates
+                    context.init(null, new X509TrustManager[] {
+                        new TM()
+                    }, null);
+                    if (useProxy) {
+                        if (proxy.type() == Proxy.Type.HTTP) {
+                            // First establish a CONNECT, then do a normal SSL
+                            // thru
+                            // that connection.
+                            this.uploadPolicy.displayDebug(
+                                    "Using SSL socket, via proxy", 20);
+                            String host = url.getHost();
+                            int port = (-1 == url.getPort()) ? 443 : url
+                                    .getPort();
+                            this.sock = context
+                                    .getSocketFactory()
+                                    .createSocket(
+                                            HttpProxyConnect(proxy, host, port),
+                                            host, port, true);
+                        } else if (proxy.type() == Proxy.Type.SOCKS) {
+                            throw new ConnectException(
+                                    "SOCKS proxy not supported");
+                        } else
+                            throw new ConnectException("Unkown proxy type "
+                                    + proxy.type());
+                    } else {
+                        // If port not specified then use default https port
+                        // 443.
+                        this.uploadPolicy.displayDebug(
+                                "Using SSL socket, direct connection", 20);
+                        this.sock = context.getSocketFactory().createSocket(
+                                url.getHost(),
+                                (-1 == url.getPort()) ? 443 : url.getPort());
+                    }
                 } else {
-                    // If port not specified then use default https port 443.
-                    uploadPolicy.displayDebug(
-                            "Using SSL socket, direct connection", 20);
-                    sock = (Socket) context.getSocketFactory().createSocket(
-                            url.getHost(),
-                            (-1 == url.getPort()) ? 443 : url.getPort());
+                    // If we are not in SSL, just use the old code.
+                    if (useProxy) {
+                        if (proxy.type() == Proxy.Type.HTTP) {
+                            InetSocketAddress sa = (InetSocketAddress) proxy
+                                    .address();
+                            String host = (sa.isUnresolved()) ? sa
+                                    .getHostName() : sa.getAddress()
+                                    .getHostAddress();
+                            int port = sa.getPort();
+                            this.uploadPolicy.displayDebug(
+                                    "Using non SSL socket, proxy=" + host + ":"
+                                            + port, 20);
+                            this.sock = new Socket(host, port);
+                        } else if (proxy.type() == Proxy.Type.SOCKS) {
+                            throw new ConnectException(
+                                    "SOCKS proxy not supported");
+                        } else
+                            throw new ConnectException("Unkown proxy type "
+                                    + proxy.type());
+                    } else {
+                        this.uploadPolicy.displayDebug(
+                                "Using non SSL socket, direct connection", 20);
+                        this.sock = new Socket(url.getHost(), (-1 == url
+                                .getPort()) ? 80 : url.getPort());
+                    }
                 }
-            } else {
-                // If we are not in SSL, just use the old code.
-                if (useProxy) {
-                    if (proxy.type() == Proxy.Type.HTTP) {
-                        InetSocketAddress sa = (InetSocketAddress) proxy
-                                .address();
-                        String host = (sa.isUnresolved()) ? sa.getHostName()
-                                : sa.getAddress().getHostAddress();
-                        int port = sa.getPort();
-                        uploadPolicy.displayDebug(
-                                "Using non SSL socket, proxy=" + host + ":"
-                                        + port, 20);
-                        sock = new Socket(host, port);
-                    } else if (proxy.type() == Proxy.Type.SOCKS) {
-                        throw new ConnectException("SOCKS proxy not supported");
-                    } else
-                        throw new ConnectException("Unkown proxy type "
-                                + proxy.type());
-                } else {
-                    uploadPolicy.displayDebug(
-                            "Using non SSL socket, direct connection", 20);
-                    sock = new Socket(url.getHost(), (-1 == url.getPort()) ? 80
-                            : url.getPort());
-                }
-            }
-            // ////////////////////////////////////////////////////////////////////////////////////////////////
+                // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-            httpDataOut = new DataOutputStream(new BufferedOutputStream(sock
-                    .getOutputStream()));
-            httpDataIn = new BufferedReader(new InputStreamReader(sock
-                    .getInputStream()));
-            // DataInputStream datain = new DataInputStream(new
-            // BufferedInputStream(sock.getInputStream()));
+                this.httpDataOut = new DataOutputStream(
+                        new BufferedOutputStream(this.sock.getOutputStream()));
+                this.httpDataIn = new BufferedReader(new InputStreamReader(
+                        this.sock.getInputStream()));
+            } // sock == null
 
             // Send http request to server
-            action = "send bytes (1)";
-            uploadPolicy.displayDebug(header.toString(), 100);
-            httpDataOut.writeBytes(header.toString());
+            this.httpDataOut.writeBytes(header.toString());
         } catch (Exception e) {
-            throw new JUploadException(e, this.getClass().getName()
-                    + ".startRequest (" + action + ")");
+            throw new JUploadException(e);
         }
 
-        if (uploadPolicy.getDebugLevel() >= 80) {
-            uploadPolicy.displayDebug(
-                    "Sent to server : \n" + header.toString(), 80);
+        if (this.uploadPolicy.getDebugLevel() >= 80) {
+            this.uploadPolicy.displayDebug("=== main header (len="
+                    + header.length() + "):\n" + quoteCRLF(header.toString()),
+                    80);
+            this.uploadPolicy.displayDebug("=== main header end", 80);
         }
     }
 
@@ -477,43 +532,57 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * Construction of the head for each file.
      * 
-     * @param firstFileToUpload
-     *            The index of the first file to upload, in the
+     * @param firstFileToUpload The index of the first file to upload, in the
      *            {@link #filesToUpload} area.
-     * @param nbFilesToUpload
-     *            Number of file to upload, in the next HTTP upload request.
-     *            These files are taken from the {@link #filesToUpload} area
-     * @param bound
-     *            The String boundary between the post data in the HTTP request.
-     * 
+     * @param nbFilesToUpload Number of file to upload, in the next HTTP upload
+     *            request. These files are taken from the {@link #filesToUpload}
+     *            area
+     * @param bound The String boundary between the post data in the HTTP
+     *            request.
      * @throws JUploadException
      */
     private void setAllHead(int firstFileToUpload, int nbFilesToUpload,
             String bound) throws JUploadException {
         for (int i = 0; i < nbFilesToUpload; i++) {
-            heads[i] = filesToUpload[firstFileToUpload + i].getFileHeader(i,
-                    bound, -1);
+            this.heads[i] = this.filesToUpload[firstFileToUpload + i]
+                    .getFileHeader(i, bound, -1);
         }
     }
 
     /**
      * Construction of the tail for each file.
      * 
-     * @param firstFileToUpload
-     *            The index of the first file to upload, in the
+     * @param firstFileToUpload The index of the first file to upload, in the
      *            {@link #filesToUpload} area.
-     * @param nbFilesToUpload
-     *            Number of file to upload, in the next HTTP upload request.
-     *            These files are taken from the {@link #filesToUpload} area
-     * @param bound
-     *            Current boudnary, to apply for these tails.
+     * @param nbFilesToUpload Number of file to upload, in the next HTTP upload
+     *            request. These files are taken from the {@link #filesToUpload}
+     *            area
+     * @param bound Current boundary, to apply for these tails.
      */
     private void setAllTail(int firstFileToUpload, int nbFilesToUpload,
             String bound) {
+
+        StringBuffer chunkmd5 = new StringBuffer();
+        // boundary, POST-variable "md5sum"
+        chunkmd5.append(bound);
+        chunkmd5.append("\r\n");
+        chunkmd5.append("Content-Disposition: form-data; name=\"md5sum\"");
+        chunkmd5.append("\r\n");
+        chunkmd5.append("\r\n");
+        // Gets replaced by the real md5sum later.
+        chunkmd5.append(DUMMYMD5);
+        chunkmd5.append("\r\n");
+
         for (int i = 0; i < nbFilesToUpload; i++) {
-            tails[firstFileToUpload + i] = ("\r\n");
+            this.tails[firstFileToUpload + i] = "\r\n" + chunkmd5.toString();
         }
-        // Telling the Server we have Finished.
-        tails[firstFileToUpload + nbFilesToUpload - 1] += bound + "--\r\n";
+        // The last tail gets an additional "--" in order to tell the Server we
+        // have finished.
+        this.tails[firstFileToUpload + nbFilesToUpload - 1] += bound + "--\r\n";
+
+    }
+
+    private final String quoteCRLF(String s) {
+        return s.replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n\n");
     }
 }

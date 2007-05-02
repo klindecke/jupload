@@ -2,7 +2,6 @@ package wjhk.jupload2.gui;
 
 import java.awt.Component;
 
-import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -17,16 +16,27 @@ public class SizeRenderer extends DefaultTableCellRenderer {
      * 
      */
     private static final long serialVersionUID = -2029129064667754146L;
-    
+
     private static final double gB = 1024L * 1024L * 1024L;
+
     private static final double mB = 1024L * 1024L;
+
     private static final double kB = 1024L;
 
     private String sizeunit_gigabytes;
+
     private String sizeunit_megabytes;
+
     private String sizeunit_kilobytes;
+
     private String sizeunit_bytes;
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param uploadPolicy The policy to be used for providing the translated
+     *            unit strings.
+     */
     public SizeRenderer(UploadPolicy uploadPolicy) {
         super();
         this.sizeunit_gigabytes = uploadPolicy.getString("unitGigabytes");
@@ -34,7 +44,11 @@ public class SizeRenderer extends DefaultTableCellRenderer {
         this.sizeunit_kilobytes = uploadPolicy.getString("unitKilobytes");
         this.sizeunit_bytes = uploadPolicy.getString("unitBytes");
     }
-    
+
+    /**
+     * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable,
+     *      java.lang.Object, boolean, boolean, int, int)
+     */
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
@@ -42,7 +56,7 @@ public class SizeRenderer extends DefaultTableCellRenderer {
                 isSelected, hasFocus, row, column);
 
         if (value instanceof Long) {
-            double d = ((Long)value).doubleValue();
+            double d = ((Long) value).doubleValue();
             String unit = this.sizeunit_bytes;
             if (d >= gB) {
                 d /= gB;
@@ -54,7 +68,7 @@ public class SizeRenderer extends DefaultTableCellRenderer {
                 d /= kB;
                 unit = this.sizeunit_kilobytes;
             }
-            setValue(String.format("%1$,3.2f %2$s", d, unit));
+            setValue(String.format("%1$,3.2f %2$s", new Double(d), unit));
             super.setHorizontalAlignment(RIGHT);
         }
         return cell;
