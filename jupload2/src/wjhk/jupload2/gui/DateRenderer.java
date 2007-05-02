@@ -19,18 +19,29 @@ public class DateRenderer extends DefaultTableCellRenderer {
 
     private SimpleDateFormat df;
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param uploadPolicy The policy to be used for providing the translated
+     *            format string.
+     */
     public DateRenderer(UploadPolicy uploadPolicy) {
         super();
         this.df = new SimpleDateFormat(uploadPolicy.getString("dateformat"));
     }
 
+    /**
+     * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable,
+     *      java.lang.Object, boolean, boolean, int, int)
+     */
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
         Component cell = super.getTableCellRendererComponent(table, value,
                 isSelected, hasFocus, row, column);
 
         if (value instanceof Date)
-            setValue(df.format(value));
+            setValue(this.df.format(value));
         super.setHorizontalAlignment(RIGHT);
         return cell;
     }

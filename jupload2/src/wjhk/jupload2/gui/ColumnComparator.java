@@ -1,8 +1,6 @@
 package wjhk.jupload2.gui;
 
 import java.util.Comparator;
-import java.util.Vector;
-
 import wjhk.jupload2.filedata.DefaultFileData;
 
 /**
@@ -19,11 +17,12 @@ public class ColumnComparator implements Comparator {
         this.ascending = ascending;
     }
 
+    @SuppressWarnings("unchecked")
     public int compare(Object one, Object two) {
         if (one instanceof DefaultFileData && two instanceof DefaultFileData) {
             Object oOne;
             Object oTwo;
-            switch (index) {
+            switch (this.index) {
                 case FilePanelDataModel2.COLINDEX_NAME:
                     oOne = ((DefaultFileData) one).getFileName();
                     oTwo = ((DefaultFileData) two).getFileName();
@@ -45,7 +44,7 @@ public class ColumnComparator implements Comparator {
             }
             if (oOne instanceof Comparable && oTwo instanceof Comparable) {
                 return ((Comparable) oOne).compareTo(oTwo)
-                        * (ascending ? 1 : -1);
+                        * (this.ascending ? 1 : -1);
             }
         }
         return 0;
