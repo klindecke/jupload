@@ -446,8 +446,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // Only connect, if sock is null!!
             if (this.sock == null) {
+                // Temporary socket for SOCKS support
+                Socket tsock;
+                String host = url.getHost();
+                int port;
+
                 // Check if SSL connection is needed
                 if (url.getProtocol().equals("https")) {
+                    port = (-1 == url.getPort()) ? 443 : url.getPort();
                     SSLContext context = SSLContext.getInstance("SSL");
                     // Allow all certificates
                     context.init(null, new X509TrustManager[] {
@@ -456,21 +462,21 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     if (useProxy) {
                         if (proxy.type() == Proxy.Type.HTTP) {
                             // First establish a CONNECT, then do a normal SSL
-                            // thru
-                            // that connection.
+                            // thru that connection.
                             this.uploadPolicy.displayDebug(
-                                    "Using SSL socket, via proxy", 20);
-                            String host = url.getHost();
-                            int port = (-1 == url.getPort()) ? 443 : url
-                                    .getPort();
+                                    "Using SSL socket, via HTTP proxy", 20);
                             this.sock = context
                                     .getSocketFactory()
                                     .createSocket(
                                             HttpProxyConnect(proxy, host, port),
                                             host, port, true);
                         } else if (proxy.type() == Proxy.Type.SOCKS) {
-                            throw new ConnectException(
-                                    "SOCKS proxy not supported");
+                            this.uploadPolicy.displayDebug(
+                                    "Using SSL socket, via SOCKS proxy", 20);
+                            tsock = new Socket(proxy);
+                            tsock.connect(new InetSocketAddress(host, port));
+                            this.sock = context.getSocketFactory()
+                                    .createSocket(tsock, host, port, true);
                         } else
                             throw new ConnectException("Unkown proxy type "
                                     + proxy.type());
@@ -480,37 +486,37 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         this.uploadPolicy.displayDebug(
                                 "Using SSL socket, direct connection", 20);
                         this.sock = context.getSocketFactory().createSocket(
-                                url.getHost(),
-                                (-1 == url.getPort()) ? 443 : url.getPort());
+                                host, port);
                     }
                 } else {
                     // If we are not in SSL, just use the old code.
+                    port = (-1 == url.getPort()) ? 80 : url.getPort();
                     if (useProxy) {
                         if (proxy.type() == Proxy.Type.HTTP) {
                             InetSocketAddress sa = (InetSocketAddress) proxy
                                     .address();
-                            String host = (sa.isUnresolved()) ? sa
-                                    .getHostName() : sa.getAddress()
-                                    .getHostAddress();
-                            int port = sa.getPort();
+                            host = (sa.isUnresolved()) ? sa.getHostName() : sa
+                                    .getAddress().getHostAddress();
+                            port = sa.getPort();
                             this.uploadPolicy.displayDebug(
                                     "Using non SSL socket, proxy=" + host + ":"
                                             + port, 20);
                             this.sock = new Socket(host, port);
                         } else if (proxy.type() == Proxy.Type.SOCKS) {
-                            throw new ConnectException(
-                                    "SOCKS proxy not supported");
+                            this.uploadPolicy.displayDebug(
+                                    "Using non SSL socket, via SOCKS proxy", 20);
+                            tsock = new Socket(proxy);
+                            tsock.connect(new InetSocketAddress(host, port));
+                            this.sock = tsock;
                         } else
                             throw new ConnectException("Unkown proxy type "
                                     + proxy.type());
                     } else {
                         this.uploadPolicy.displayDebug(
                                 "Using non SSL socket, direct connection", 20);
-                        this.sock = new Socket(url.getHost(), (-1 == url
-                                .getPort()) ? 80 : url.getPort());
+                        this.sock = new Socket(host, port);
                     }
                 }
-                // ////////////////////////////////////////////////////////////////////////////////////////////////
 
                 this.httpDataOut = new DataOutputStream(
                         new BufferedOutputStream(this.sock.getOutputStream()));
