@@ -711,8 +711,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 displayDebug("Within response == true", 60);
 
                 // The message is written in english, as it is not sure that the
-                // webmaster speaks the same
-                // language as the current user.
+                // webmaster speaks the same language as the current user.
                 String query = null;
                 String action = null;
                 Socket sock = null;
