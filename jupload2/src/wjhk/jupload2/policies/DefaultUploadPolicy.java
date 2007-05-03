@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: DefaultUploadPolicy.java 95 2007-05-02 03:27:05Z
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -367,11 +369,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
             // Let's put some 'hard value', to test the applet from the
             // development tool (mine is eclipse).
 
-            // felfert: I need different values so let's make that configurable...
+            // felfert: I need different values so let's make that
+            // configurable...
             cookie = System.getProperty("debug_cookie");
             userAgent = System.getProperty("debug_agent");
-            // cookie = "cpg146_data=YTo1OntzOjI6IklEIjtzOjMyOiI5MWEyMzdiNmYwYmM0MTJjMjRiMTZlNzdiNzlmYzBjMyI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGFwIjtpOjI7czozOiJsaXYiO2E6NDp7aTowO3M6MzoiNDMzIjtpOjE7czozOiI0NDUiO2k6MjtzOjM6IjQ0NiI7aTozO3M6MzoiNDY2Ijt9fQ%3D%3D; 66f77117891c8a8654024874bc0a5d24=56357ed95576afa0d8beb558bdb6c73d";
-            // userAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.0; fr; rv:1.8.1) Gecko/20061010 Firefox/2.0";
+            // cookie =
+            // "cpg146_data=YTo1OntzOjI6IklEIjtzOjMyOiI5MWEyMzdiNmYwYmM0MTJjMjRiMTZlNzdiNzlmYzBjMyI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGFwIjtpOjI7czozOiJsaXYiO2E6NDp7aTowO3M6MzoiNDMzIjtpOjE7czozOiI0NDUiO2k6MjtzOjM6IjQ0NiI7aTozO3M6MzoiNDY2Ijt9fQ%3D%3D;
+            // 66f77117891c8a8654024874bc0a5d24=56357ed95576afa0d8beb558bdb6c73d";
+            // userAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.0; fr;
+            // rv:1.8.1) Gecko/20061010 Firefox/2.0";
         }
         // The cookies and user-agent will be added to the header sent by the
         // applet:
@@ -429,7 +435,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public boolean checkUploadSuccess(String serverOutput,
             String serverOutputBody) throws JUploadException {
-        final Pattern patternSuccess = Pattern.compile(this.stringUploadSuccess);
+        final Pattern patternSuccess = Pattern
+                .compile(this.stringUploadSuccess);
         final Pattern patternTransferEncodingChunked = Pattern.compile(
                 "^Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
         // La premi�re ligne est de la forme "HTTP/1.1 NNN Texte", o� NNN et le
@@ -441,8 +448,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             return true;
 
         // The success string should be in the http body
-        boolean uploadSuccess = patternSuccess.matcher(serverOutputBody)
-                .find();
+        boolean uploadSuccess = patternSuccess.matcher(serverOutputBody).find();
         // The transfert encoding may be present in the serverOutput (that
         // contains the http headers)
         boolean uploadTransferEncodingChunked = patternTransferEncodingChunked
@@ -455,8 +461,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throw new JUploadException(
                     "Can't find the HTTP status in serverOutput!");
 
-        int httpStatus = Integer.parseInt(matcherUploadHttpStatus
-                .group(1));
+        int httpStatus = Integer.parseInt(matcherUploadHttpStatus.group(1));
         boolean upload_200_OK = (httpStatus == 200);
 
         displayDebug("HTTP return code: " + httpStatus, 40);
@@ -479,10 +484,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
             return true;
         } else {
             // The upload is not successful: here, we know it!
-            throw new JUploadExceptionUploadFailed(
-                    getClass().getName()
-                            + ".checkUploadSuccess(): The http return code is : "
-                            + httpStatus + " (should be 200)");
+            throw new JUploadExceptionUploadFailed(getClass().getName()
+                    + ".checkUploadSuccess(): The http return code is : "
+                    + httpStatus + " (should be 200)");
         }
     }// isUploadSuccessful
 
@@ -499,19 +503,25 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     alertStr("No switch to getAfterUploadURL, because debug level is "
                             + getDebugLevel() + " (>=100)");
                 } else {
-                    // Let's change the current URL to edit names and comments,
-                    // for the selected album.
-                    // Ok, let's go and add names and comments to the newly
-                    // updated pictures.
-                    JSObject applet = JSObject.getWindow(getApplet());
-                    JSObject doc = (JSObject) applet.getMember("document");
-                    JSObject loc = (JSObject) doc.getMember("location");
-                    Object[] argsReplace = {
-                        getAfterUploadURL()
-                    };
-                    loc.call("replace", argsReplace);
+                    if (true) {
+                        // Let's change the current URL to edit names and
+                        // comments,
+                        // for the selected album.
+                        // Ok, let's go and add names and comments to the newly
+                        // updated pictures.
+                        JSObject applet = JSObject.getWindow(getApplet());
+                        JSObject doc = (JSObject) applet.getMember("document");
+                        JSObject loc = (JSObject) doc.getMember("location");
+                        Object[] argsReplace = {
+                            getAfterUploadURL()
+                        };
+                        loc.call("replace", argsReplace);
+                    } else {
+                        getApplet().getAppletContext().showDocument(
+                                new URL(getAfterUploadURL()), "_self");
+                    }
                 }
-            } catch (JSException ee) {
+            } catch (Exception ee) {
                 // Oops, no navigator. We are probably in debug mode, within
                 // eclipse for instance.
                 displayErr(ee);
@@ -621,24 +631,24 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see UploadPolicy#getString(String,String) */
     public String getString(String key, String value1) {
-        String ret = this.resourceBundle.getString(key)
-                .replaceAll("\\{1\\}", value1);
+        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
+                value1);
         return ret;
     }
 
     /** @see UploadPolicy#getString(String,String,String) */
     public String getString(String key, String value1, String value2) {
-        String ret = this.resourceBundle.getString(key)
-                .replaceAll("\\{1\\}", value1).replaceAll("\\{2\\}", value2);
+        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
+                value1).replaceAll("\\{2\\}", value2);
         return ret;
     }
 
     /** @see UploadPolicy#getString(String,String,String,String) */
     public String getString(String key, String value1, String value2,
             String value3) {
-        String ret = this.resourceBundle.getString(key)
-                .replaceAll("\\{1\\}", value1).replaceAll("\\{2\\}", value2)
-                .replaceAll("\\{3\\}", value3);
+        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
+                value1).replaceAll("\\{2\\}", value2).replaceAll("\\{3\\}",
+                value3);
         return ret;
     }
 
@@ -658,7 +668,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.filenameEncoding == null || this.filenameEncoding.equals(""))
             return fileData.getFileName();
         try {
-            return URLEncoder.encode(fileData.getFileName(), this.filenameEncoding);
+            return URLEncoder.encode(fileData.getFileName(),
+                    this.filenameEncoding);
         } catch (UnsupportedEncodingException e) {
             throw new JUploadException(e);
         }
@@ -855,7 +866,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         } else if (prop.equals(PROP_ALLOWED_FILE_EXTENSIONS)) {
             setAllowedFileExtensions(value);
         } else if (prop.equals(PROP_DEBUG_LEVEL)) {
-            setDebugLevel(UploadPolicyFactory.parseInt(value, this.debugLevel, this));
+            setDebugLevel(UploadPolicyFactory.parseInt(value, this.debugLevel,
+                    this));
         } else if (prop.equals(PROP_LANG)) {
             setAfterUploadURL(value);
         } else if (prop.equals(PROP_FILENAME_ENCODING)) {
@@ -863,11 +875,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
         } else if (prop.equals(PROP_LOOK_AND_FEEL)) {
             setLookAndFeel(value);
         } else if (prop.equals(PROP_MAX_CHUNK_SIZE)) {
-            setMaxChunkSize(UploadPolicyFactory.parseLong(value, this.maxChunkSize,
-                    this));
+            setMaxChunkSize(UploadPolicyFactory.parseLong(value,
+                    this.maxChunkSize, this));
         } else if (prop.equals(PROP_MAX_FILE_SIZE)) {
-            setMaxFileSize(UploadPolicyFactory.parseLong(value, this.maxFileSize,
-                    this));
+            setMaxFileSize(UploadPolicyFactory.parseLong(value,
+                    this.maxFileSize, this));
         } else if (prop.equals(PROP_NB_FILES_PER_REQUEST)) {
             setNbFilesPerRequest(UploadPolicyFactory.parseInt(value,
                     this.nbFilesPerRequest, this));
@@ -990,7 +1002,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Set the debug level.
      * 
      * @param debugLevel The new debuglevel.
-     * @param displayAppletParameterList Flag. If set to true, the applet's parameters are shown.
+     * @param displayAppletParameterList Flag. If set to true, the applet's
+     *            parameters are shown.
      */
     public void setDebugLevel(int debugLevel, boolean displayAppletParameterList) {
         // If the debugLevel was previously set, we inform the user of this
@@ -1043,8 +1056,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 locale = new Locale(lang);
             }
         }
-        this.resourceBundle = ResourceBundle.getBundle("wjhk.jupload2.lang.lang",
-                locale);
+        this.resourceBundle = ResourceBundle.getBundle(
+                "wjhk.jupload2.lang.lang", locale);
     }
 
     protected String getLookAndFeel() {
@@ -1273,7 +1286,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see UploadPolicy#fileFilterGetDescription() */
     public String fileFilterGetDescription() {
-        if (this.allowedFileExtensions == null || this.allowedFileExtensions.equals(""))
+        if (this.allowedFileExtensions == null
+                || this.allowedFileExtensions.equals(""))
             return null;
 
         return "JUpload file filter (" + this.allowedFileExtensions + ")";
