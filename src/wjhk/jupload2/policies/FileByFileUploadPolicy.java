@@ -43,6 +43,7 @@ import wjhk.jupload2.JUploadApplet;
  * @deprecated You can use the applet, without the uploadPolicy applet
  *             parameter, and put the nbFilesPerRequest to 1. It does the
  *             same...
+ *             
  */
 @Deprecated
 public class FileByFileUploadPolicy extends DefaultUploadPolicy {
