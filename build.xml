@@ -1,0 +1,263 @@
+<?xml version="1.0"?>
+<!--
+  $Id$
+  
+  =======================================================================
+         Ant build file FOR JUpload2
+         
+         Version $Revision$
+         
+         Donated by CrossmarX BV, Amsterdam, The Netherlands, 2007.
+  =======================================================================
+-->
+
+<project name="jupload2" default="deploy" basedir=".">
+
+	<!--
+     =======================================================================
+	    Property definitions
+     =======================================================================
+  -->
+
+	<property environment="env" />
+
+	<property name="build.sysclasspath" value="ignore" />
+
+	<!-- The use of the .ant.properties file gives the user a chance to override 
+	     without editing this file (and without typing -D each time it compiles it)
+	     We use two files here in the users homedir: .ant.properties for generic
+	     settings and ant-jupload2.properties with specifies project-specific settings
+	     and superseedes settings.
+	      -->
+	<property file="${user.home}/ant-${ant.project.name}.properties" />
+
+	<property file="${user.home}/.ant.properties" />
+
+	<property name="version" value="2.9.2RC3" />
+
+	<property name="keystore" value="${basedir}/.tmpstore" />
+
+	<property name="alias" value="jupload" />
+
+	<!-- If you leave this undefined, the password is requested
+	     interactively during build 
+	
+		<property name="storepass" value="test123" /> 
+    -->
+	
+	<property name="src.dir" value="src" />
+
+	<property name="standard.compile.excludes" value="**/*.class" />
+
+	<property name="debug" value="true" />
+
+	<property name="compilation.failonerror" value="true" />
+
+	<property name="deprecation" value="false" />
+
+	<property name="optimize" value="true" />
+
+	<property name="memoryInitialSize" value="128m" />
+
+	<property name="junit.fork" value="false" />
+
+	<!--
+    *
+    * Properties related to the source tree
+    *
+    -->
+	<property name="jupload2.package" value="wjhk" />
+
+	<property name="manifest" value="manifest" />
+
+	<!--
+    *
+    * Properties for the build area
+    *
+  -->
+	<property name="build.dir" value="build" />
+
+	<property name="build.jar_content" value="${build.dir}/jar_content" />
+
+	<!--
+	*
+	* Classpath definitions
+	*
+   -->
+	<path id="standard.class.path">
+		<pathelement location="${src.dir}" />
+		<pathelement location="${basedir}/wwwroot/plugin.jar" />
+		<pathelement location="${basedir}/wwwroot/jakarta-commons-net.jar" />
+	</path>
+
+	<!--
+===================================================================
+     Build, Compile
+===================================================================
+-->
+
+
+	<!-- Prepare the build
+    -->
+	<target name="prepare" description="Create the temporary build directories">
+		<mkdir dir="${build.dir}" />
+		<tstamp>
+			<format property="now" pattern="yyyy-MMM-dd HH:mm" locale="en" />
+		</tstamp>
+	</target>
+
+
+
+	<!-- Build, Compile
+     -->
+	<target name="build" depends="clean, compile" description="Delete class files and compile java sources.">
+	</target>
+
+	<target name="compile" depends="compile_all" />
+
+	<target name="compile_all" depends="prepare">
+		<antcall target="compile_impl">
+			<param name="includes" value="wjhk/**" />
+		</antcall>
+	</target>
+
+	<target name="compile_impl">
+		<javac srcdir="${src.dir}" debug="${debug}" failonerror="${compilation.failonerror}" deprecation="${deprecation}" optimize="${optimize}" includes="${includes}" excludes="${standard.compile.excludes}">
+			<classpath refid="standard.class.path" />
+		</javac>
+	</target>
+
+	<!--
+=================================================
+ Some Clean up targets
+=================================================
+  -->
+	<target name="clean" description="Remove all class files.">
+		<delete>
+			<fileset dir="${src.dir}">
+				<patternset>
+					<include name="**/*.class" />
+				</patternset>
+			</fileset>
+		</delete>
+		<delete dir="${src.dir}/META-INF" />
+	</target>
+
+	<target name="cleanup" description="Remove temporary build directory">
+		<delete dir="${build.dir}" />
+		<delete>
+			<fileset dir="${src.dir}" includes="manifest" />
+			<fileset dir="${src.dir}" includes="revision.properties" />
+		</delete>
+		<delete file="${basedir}/.tmpstore" />
+	</target>
+
+	<target name="javadoc">
+		<javadoc access="package" author="true" classpath="wwwroot/plugin.jar;wwwroot/jakarta-commons-net.jar" destdir="doc" doctitle="JUpload - Multiple file upload applet" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="wjhk.jupload2.policies,wjhk.jupload2.filedata,wjhk.jupload2,wjhk.jupload2.exception,wjhk.jupload2.gui,wjhk.jupload2.upload" source="1.5" sourcepath="src" splitindex="true" use="true" version="true">
+			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
+		</javadoc>
+	</target>
+
+	<!--
+ * Create wjhk.jupload.jar
+ -->
+	<target name="jar" depends="compile" description="Create unsigned wjhk.jupload.jar">
+		<echo>Creating manifest file</echo>
+		<mkdir dir="${src.dir}/META-INF" />
+		<manifest file="${src.dir}/META-INF/MANIFEST.MF">
+			<attribute name="Built-By" value="${user.name}" />
+			<attribute name="Built-Date" value="${now}" />
+			<attribute name="Implementation-Title" value="JUpload2" />
+			<attribute name="Implementation-Version" value="${version}" />
+			<attribute name="Implementation-Company" value="http://jupload.sourceforge.net/" />
+			<section name="content">
+				<attribute name="todo" value="Add more info here." />
+			</section>
+		</manifest>
+		<echo>Creating manifest seems ready</echo>
+		<jar jarfile="${build.dir}/wjhk.jupload-V${version}.jar" manifest="${src.dir}/META-INF/MANIFEST.MF">
+			<fileset dir="${src.dir}">
+				<include name="**/*.class" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="**/*.properties" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="images/**" />
+			</fileset>
+		</jar>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: srcjar                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="srcjar" depends="clean,prepare,javadoc,deploy" description="Create jupload-src.jar">
+		<jar jarfile="${build.dir}/jupload-V${version}-src.jar">
+			<fileset dir="${basedir}">
+				<include name="${src.dir}/**/*" />
+				<include name="wwwroot/**/*" />
+				<include name="doc/**/*" />
+				<include name="build.xml" />
+				<!-- eclipse stuff -->
+				<include name=".settings/*" />
+				<include name=".classpath" />
+				<include name=".project" />
+				<include name="javadoc.xml" />
+				<include name="*.jardesc" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="keystore.check">
+		<condition property="has.keystore">
+			<available file="${keystore}" />
+		</condition>
+	</target>
+
+	<target name="askpasswd" unless="storepass">
+		<input message="Please enter keystore password:" addproperty="storepass" />
+	</target>
+
+	<target name="createstore" depends="keystore.check" unless="has.keystore">
+		<property name="storepass" value="test123" />
+		<genkey alias="${alias}" validity="3600" storepass="${storepass}" keystore="${keystore}">
+			<dname>
+				<param name="CN" value="JUpload" />
+				<param name="OU" value="Testing/Demo" />
+				<param name="O" value="JUpload.SourceForge.net" />
+			</dname>
+		</genkey>
+	</target>
+
+	<target name="signedjar" depends="jar,createstore,askpasswd">
+		<signjar jar="${build.dir}/wjhk.jupload-V${version}.jar" keystore="${keystore}" storepass="${storepass}" alias="${alias}" />
+	</target>
+
+	<target name="deploy" depends="signedjar">
+		<copy file="${build.dir}/wjhk.jupload-V${version}.jar" tofile="${basedir}/wwwroot/wjhk.jupload.jar" overwrite="true" />
+	</target>
+
+	<target name="dist" depends="deploy,srcjar">
+		<echo>Distribution is ready</echo>
+	</target>
+</project>
+
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: xml
+sgml-omittag:nil
+sgml-shorttag:nil
+sgml-namecase-general:nil
+sgml-general-insert-case:lower
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+ -->
+
