@@ -141,6 +141,7 @@
 			</fileset>
 		</delete>
 		<delete dir="${src.dir}/META-INF" />
+		<delete file="${basedir}/.tmpstore" />
 	</target>
 
 	<target name="cleanup" description="Remove temporary build directory">
@@ -149,7 +150,6 @@
 			<fileset dir="${src.dir}" includes="manifest" />
 			<fileset dir="${src.dir}" includes="revision.properties" />
 		</delete>
-		<delete file="${basedir}/.tmpstore" />
 	</target>
 
 	<target name="javadoc">
@@ -233,11 +233,11 @@
 		<signjar jar="${build.dir}/wjhk.jupload-V${version}.jar" keystore="${keystore}" storepass="${storepass}" alias="${alias}" />
 	</target>
 
-	<target name="deploy" depends="signedjar">
+	<target name="deploy" depends="clean,signedjar">
 		<copy file="${build.dir}/wjhk.jupload-V${version}.jar" tofile="${basedir}/wwwroot/wjhk.jupload.jar" overwrite="true" />
 	</target>
 
-	<target name="dist" depends="deploy,srcjar">
+	<target name="dist" depends="clean,deploy,srcjar">
 		<echo>Distribution is ready</echo>
 	</target>
 </project>
