@@ -1,14 +1,29 @@
-/*
- * Created on 20 nov. 06
- */
+//
+// $Id$
+// 
+// jupload - A file upload applet.
+// Copyright 2007 The JUpload Team
+// 
+// Created: 2006-11-20
+// Creator: Etienne Gauthier
+// Last modified: $Date$
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation; either version 2 of the License, or (at your option) any later
+// version. This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details. You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
+// 675 Mass Ave, Cambridge, MA 02139, USA.
+
 package wjhk.jupload2.upload;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -77,76 +92,6 @@ class UploadFileData implements FileData {
         this.uploadPolicy = uploadPolicyParam;
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // //////////////////////////////////// PROTECTED METHODS
-    // ///////////////////////////////////////////
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Returns the header for this file, within the http multipart body.
-     * 
-     * @param fileIndex Index of the file in the array that contains all files
-     *            to upload.
-     * @param boundary The boundary that separate files in the http multipart
-     *            post body.
-     * @param chunkPart The numero of the current chunk (from 1 to n)
-     * @return The header for this file.
-     */
-    String getFileHeader(int fileIndex, String boundary,
-            @SuppressWarnings("unused")
-            int chunkPart) throws JUploadException {
-        String filenameEncoding = this.uploadPolicy.getFilenameEncoding();
-        String uploadFilename = this.uploadPolicy.getUploadFilename(
-                this.fileData, fileIndex);
-        StringBuffer sb = new StringBuffer();
-
-        // boundary, POST-variable "mimetype"
-        sb.append(boundary);
-        sb.append("\r\n");
-        sb.append("Content-Disposition: form-data; name=\"mimetype\"");
-        sb.append("\r\n");
-        sb.append("\r\n");
-        sb.append(this.fileData.getMimeType());
-        sb.append("\r\n");
-
-        // boundary.
-        sb.append(boundary);
-        sb.append("\r\n");
-
-        // Content-Disposition.
-        sb.append("Content-Disposition: form-data; name=\"").append(
-                this.uploadPolicy.getUploadName(this.fileData, fileIndex))
-                .append("\"; filename=\"");
-        if (filenameEncoding == null) {
-            sb.append(uploadFilename);
-        } else {
-            try {
-                this.uploadPolicy.displayDebug("Encoded filename: "
-                        + URLEncoder.encode(uploadFilename, filenameEncoding),
-                        99);
-                sb.append(URLEncoder.encode(uploadFilename, filenameEncoding));
-            } catch (UnsupportedEncodingException e) {
-                this.uploadPolicy
-                        .displayWarn(e.getClass().getName() + ": "
-                                + e.getMessage()
-                                + " (in UploadFileData.getFileHeader)");
-                sb.append(uploadFilename);
-            }
-        }
-        sb.append("\"\r\n");
-
-        // Line 3: Content-Type.
-        if (false) // will be a configurable e.g.: transfer-binary
-            sb.append("Content-Type: application/octet-stream");
-        else
-            sb.append("Content-Type: ").append(this.fileData.getMimeType());
-        sb.append("\r\n");
-
-        // An empty line to finish the header.
-        sb.append("\r\n");
-        return sb.toString();
-    }
-
     /**
      * Get the number of files that are still to upload. It is initialized at
      * the creation of the file, by a call to the
@@ -165,6 +110,7 @@ class UploadFileData implements FileData {
 
     /**
      * Retrieves the MD5 sum of the recently transfered chunk.
+     * 
      * @return The corresponding MD5 sum.
      */
     String getMD5() {
@@ -323,6 +269,16 @@ class UploadFileData implements FileData {
         return this.fileData.getMimeType();
     }
 
+    /** @see UploadPolicy#getUploadFilename(FileData, int) */
+    public String getUploadFilename(int index) throws JUploadException {
+        return this.uploadPolicy.getUploadFilename(this.fileData, index);
+    }
+    
+    /** @see UploadPolicy#getUploadName(FileData, int) */
+    public String getUploadName(int index) {
+        return this.uploadPolicy.getUploadName(this.fileData, index);
+    }
+    
     /** @see FileData#getUploadLength() */
     public long getUploadLength() throws JUploadException {
         long uploadLength = this.fileData.getUploadLength();

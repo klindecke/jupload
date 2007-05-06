@@ -26,12 +26,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.Socket;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -39,6 +41,9 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
 import javax.swing.JProgressBar;
+
+import netscape.javascript.JSException;
+import netscape.javascript.JSObject;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
@@ -503,8 +508,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                                             + port, 20);
                             this.sock = new Socket(host, port);
                         } else if (proxy.type() == Proxy.Type.SOCKS) {
-                            this.uploadPolicy.displayDebug(
-                                    "Using non SSL socket, via SOCKS proxy", 20);
+                            this.uploadPolicy
+                                    .displayDebug(
+                                            "Using non SSL socket, via SOCKS proxy",
+                                            20);
                             tsock = new Socket(proxy);
                             tsock.connect(new InetSocketAddress(host, port));
                             this.sock = tsock;
@@ -547,7 +554,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * Construction of a random string, to separate the uploaded files, in the
      * HTTP upload request.
      */
-    private String getRandomString() {
+    private final String getRandomString() {
         StringBuffer sbRan = new StringBuffer(11);
         String alphaNum = "1234567890abcdefghijklmnopqrstuvwxyz";
         int num;
@@ -556,6 +563,138 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             sbRan.append(alphaNum.charAt(num));
         }
         return sbRan.toString();
+    }
+
+    /**
+     * Creates a mime multipart string snippet, representing a POST variable.
+     * 
+     * @param boundary The multipart boundary to use.
+     * @param name The name of the POST variable
+     * @param value The value of the POST variable
+     * @return A StringBuffer, suitable for appending to the multipart content.
+     */
+    private final StringBuffer addPostVariable(String boundary, String name,
+            String value) {
+        StringBuffer sb = new StringBuffer();
+        return sb.append(boundary).append("\r\n").append(
+                "Content-Disposition: form-data; name=\"").append(name).append(
+                "\"\r\nContent-Transfer-Encoding: 8bit\r\n\r\n").append(value)
+                .append("\r\n");
+    }
+
+    /**
+     * Creates a mime multipart string snippet, representing a FORM. Extracts
+     * all form elements of a given HTML form and assembles a StringBuffer which
+     * contains a sequence of mime multipart messages which represent the
+     * elements of that form.
+     * 
+     * @param boundary The multipart boundary to use.
+     * @param formname The name of the form to evaluate.
+     * @return A StringBuffer, suitable for appending to the multipart content.
+     * @throws JUploadException
+     */
+    private final StringBuffer addFormVariables(String boundary, String formname)
+            throws JUploadException {
+        StringBuffer sb = new StringBuffer();
+        try {
+            JSObject win = JSObject.getWindow(this.uploadPolicy.getApplet());
+            Object o = win.eval("document." + formname + ".elements.length");
+            if (o instanceof Number) {
+                int len = ((Number) o).intValue();
+                int i;
+                for (i = 0; i < len; i++) {
+                    try {
+                        Object name = win.eval("document." + formname + "[" + i
+                                + "].name");
+                        Object value = win.eval("document." + formname + "["
+                                + i + "].value");
+                        if (name instanceof String) {
+                            if (value instanceof String) {
+                                sb.append(addPostVariable(boundary,
+                                        (String) name, (String) value));
+                            }
+                        }
+                    } catch (Exception e1) {
+                        if (e1 instanceof JSException) {
+                            this.uploadPolicy.displayDebug(
+                                    e1.getStackTrace()[1]
+                                            + ": got JSException, bailing out",
+                                    80);
+                        } else
+                            throw new JUploadException(e1);
+                        i = len;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            if (e instanceof JSException) {
+                this.uploadPolicy.displayDebug(e.getStackTrace()[1]
+                        + ": No JavaScript availabe", 80);
+            } else
+                throw new JUploadException(e);
+        }
+        return sb;
+    }
+
+    /**
+     * Returns the header for this file, within the http multipart body.
+     * 
+     * @param fileIndex Index of the file in the array that contains all files
+     *            to upload.
+     * @param boundary The boundary that separate files in the http multipart
+     *            post body.
+     * @param chunkPart The numero of the current chunk (from 1 to n)
+     * @return The header for this file.
+     */
+    private final String getFileHeader(int index, String boundary,
+            @SuppressWarnings("unused")
+            int chunkPart) throws JUploadException {
+        String filenameEncoding = this.uploadPolicy.getFilenameEncoding();
+        String mimetype = this.filesToUpload[index].getMimeType();
+        String uploadFilename = this.filesToUpload[index]
+                .getUploadFilename(index);
+        StringBuffer sb = new StringBuffer();
+
+        String form = this.uploadPolicy.getFormdata();
+        if (null != form)
+            sb.append(addFormVariables(boundary, form));
+        sb.append(addPostVariable(boundary, "mimetype", mimetype));
+
+        // boundary.
+        sb.append(boundary).append("\r\n");
+
+        // Content-Disposition.
+        sb.append("Content-Disposition: form-data; name=\"").append(
+                this.filesToUpload[index].getUploadName(index)).append(
+                "\"; filename=\"");
+        if (filenameEncoding == null) {
+            sb.append(uploadFilename);
+        } else {
+            try {
+                this.uploadPolicy.displayDebug("Encoded filename: "
+                        + URLEncoder.encode(uploadFilename, filenameEncoding),
+                        99);
+                sb.append(URLEncoder.encode(uploadFilename, filenameEncoding));
+            } catch (UnsupportedEncodingException e) {
+                this.uploadPolicy
+                        .displayWarn(e.getClass().getName() + ": "
+                                + e.getMessage()
+                                + " (in UploadFileData.getFileHeader)");
+                sb.append(uploadFilename);
+            }
+        }
+        sb.append("\"\r\n");
+
+        // Line 3: Content-Type.
+        if (false) // will be a configurable e.g.: transfer-binary
+            sb.append("Content-Type: application/octet-stream");
+        else
+            sb.append("Content-Type: ").append(mimetype);
+        sb.append("\r\n");
+
+        // An empty line to finish the header.
+        sb.append("\r\n");
+        return sb.toString();
     }
 
     /**
@@ -570,11 +709,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      *            request.
      * @throws JUploadException
      */
-    private void setAllHead(int firstFileToUpload, int nbFilesToUpload,
+    private final void setAllHead(int firstFileToUpload, int nbFilesToUpload,
             String bound) throws JUploadException {
         for (int i = 0; i < nbFilesToUpload; i++) {
-            this.heads[i] = this.filesToUpload[firstFileToUpload + i]
-                    .getFileHeader(i, bound, -1);
+            this.heads[i] = getFileHeader(firstFileToUpload + i, bound, -1);
         }
     }
 
@@ -588,22 +726,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      *            area
      * @param bound Current boundary, to apply for these tails.
      */
-    private void setAllTail(int firstFileToUpload, int nbFilesToUpload,
+    private final void setAllTail(int firstFileToUpload, int nbFilesToUpload,
             String bound) {
 
-        StringBuffer chunkmd5 = new StringBuffer();
-        // boundary, POST-variable "md5sum"
-        chunkmd5.append(bound);
-        chunkmd5.append("\r\n");
-        chunkmd5.append("Content-Disposition: form-data; name=\"md5sum\"");
-        chunkmd5.append("\r\n");
-        chunkmd5.append("\r\n");
-        // Gets replaced by the real md5sum later.
-        chunkmd5.append(DUMMYMD5);
-        chunkmd5.append("\r\n");
-
         for (int i = 0; i < nbFilesToUpload; i++) {
-            this.tails[firstFileToUpload + i] = "\r\n" + chunkmd5.toString();
+            this.tails[firstFileToUpload + i] = "\r\n"
+                    + addPostVariable(bound, "md5sum", DUMMYMD5);
         }
         // The last tail gets an additional "--" in order to tell the Server we
         // have finished.
