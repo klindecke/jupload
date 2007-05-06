@@ -1007,6 +1007,14 @@ public interface UploadPolicy {
     public void displayErr(String err);
 
     /**
+     * log an error message. Will be logged in the status bar, if defined.
+     * 
+     * @param err The error message to be displayed.
+     * @param e An exception. It's stacktrace is logged.
+     */
+    public void displayErr(String err, Exception e);
+
+    /**
      * log an info message. Will be logged in the status bar, if defined.
      * 
      * @param info The information message that will be displayed.

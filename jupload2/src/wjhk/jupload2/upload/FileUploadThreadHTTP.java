@@ -233,10 +233,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         } catch (IOException e) {
             localException = new JUploadException(e);
             this.uploadPolicy.displayErr(this.uploadPolicy
-                    .getString("errDuringUpload")
-                    + " (httpDataOut.close) ("
-                    + e.getClass()
-                    + ".doUpload()) : " + localException.getMessage());
+                    .getString("errDuringUpload"), e);
         } finally {
             this.httpDataOut = null;
         }
@@ -250,10 +247,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             if (localException != null) {
                 localException = new JUploadException(e);
                 this.uploadPolicy.displayErr(this.uploadPolicy
-                        .getString("errDuringUpload")
-                        + " (httpDataIn.close) ("
-                        + e.getClass()
-                        + ".doUpload()) : " + localException.getMessage());
+                        .getString("errDuringUpload"), localException);
             }
         } finally {
             this.httpDataIn = null;
@@ -268,11 +262,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             if (localException != null) {
                 localException = new JUploadException(e);
                 this.uploadPolicy.displayErr(this.uploadPolicy
-                        .getString("errDuringUpload")
-                        + " (sock.close)("
-                        + e.getClass()
-                        + ".doUpload()) : "
-                        + e.getMessage());
+                        .getString("errDuringUpload"), e);
             }
         } finally {
             this.sock = null;
@@ -770,22 +760,24 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // Get the query string
         String query = url.getQuery();
 
-        // Split this into parameters
-        HashMap<String, String> requestParameters = new HashMap<String, String>();
-        String[] paramPairs = query.split("&");
+        if (null != query) {
+            // Split this into parameters
+            HashMap<String, String> requestParameters = new HashMap<String, String>();
+            String[] paramPairs = query.split("&");
 
-        // Put the parameters correctly to the Hashmap
-        for (String param : paramPairs) {
-            if (param.contains("=")) {
-                requestParameters.put(param.split("=")[0], param.split("=")[1]);
+            // Put the parameters correctly to the Hashmap
+            for (String param : paramPairs) {
+                if (param.contains("=")) {
+                    requestParameters.put(param.split("=")[0],
+                            param.split("=")[1]);
+                }
             }
+
+            // Now add one multipart segment for each
+            for (String key : requestParameters.keySet())
+                formParams.append(addPostVariable(this.boundary, key,
+                        requestParameters.get(key)));
         }
-
-        // Now add one multipart segment for each
-        for (String key : requestParameters.keySet())
-            formParams.append(addPostVariable(this.boundary, key,
-                    requestParameters.get(key)));
-
         // Return the body content
         return formParams.toString();
     }
