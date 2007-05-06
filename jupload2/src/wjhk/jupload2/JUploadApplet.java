@@ -54,7 +54,7 @@ public class JUploadApplet extends Applet {
      * The version of this applet.
      */
     public final static String VERSION = "2.9.2rc4 ($Revision$)";
-    
+
     /**
      * The last modification of this applet.
      */
@@ -79,7 +79,8 @@ public class JUploadApplet extends Applet {
             this.statusArea = new JUploadTextArea(20, 20);
             this.uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
 
-            this.jUploadPanel = new JUploadPanel(this, this.statusArea, this.uploadPolicy);
+            this.jUploadPanel = new JUploadPanel(this, this.statusArea,
+                    this.uploadPolicy);
 
             this.add(this.jUploadPanel, BorderLayout.CENTER);
         } catch (final Exception e) {
@@ -99,9 +100,8 @@ public class JUploadApplet extends Applet {
     }
 
     /**
-     * Retrieves the current status area of this applet.
-     * This status area may visible or not depending on various applet
-     * parameter.
+     * Retrieves the current status area of this applet. This status area may
+     * visible or not depending on various applet parameter.
      * 
      * @return the current status area of this instance.
      * @see JUploadPanel#showOrHideStatusBar()
@@ -171,4 +171,10 @@ public class JUploadApplet extends Applet {
         this.uploadPolicy.displayDebug(debug, minDebugLevel);
     }
 
+    /**
+     * Helper function for ant build to retrieve the current version.
+     */
+    public static void main(String[] args) {
+        System.out.println(VERSION.split(" ")[0]);
+    }
 }

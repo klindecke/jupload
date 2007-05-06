@@ -33,8 +33,6 @@
 
 	<property file="${user.home}/.ant.properties" />
 
-	<property name="version" value="2.9.2RC3" />
-
 	<property name="keystore" value="${basedir}/.tmpstore" />
 
 	<property name="alias" value="jupload" />
@@ -44,7 +42,7 @@
 	
 		<property name="storepass" value="test123" /> 
     -->
-	
+
 	<property name="src.dir" value="src" />
 
 	<property name="standard.compile.excludes" value="**/*.class" />
@@ -68,7 +66,7 @@
     -->
 	<property name="jupload2.package" value="wjhk" />
 
-	<property name="manifest" value="manifest" />
+	<property name="manifest" value="${src.dir}/META-INF/MANIFEST.MF" />
 
 	<!--
     *
@@ -147,7 +145,7 @@
 	<target name="cleanup" description="Remove temporary build directory">
 		<delete dir="${build.dir}" />
 		<delete>
-			<fileset dir="${src.dir}" includes="manifest" />
+			<fileset dir="${src.dir}" includes="${manifest}" />
 			<fileset dir="${src.dir}" includes="revision.properties" />
 		</delete>
 	</target>
@@ -158,13 +156,17 @@
 		</javadoc>
 	</target>
 
+	<target name="getversion" depends="compile" unless="version">
+		<java classname="wjhk.jupload2.JUploadApplet" classpath="${src.dir}" outputproperty="version" failonerror="true" />
+	</target>
+
 	<!--
  * Create wjhk.jupload.jar
  -->
-	<target name="jar" depends="compile" description="Create unsigned wjhk.jupload.jar">
+	<target name="jar" depends="getversion" description="Create unsigned wjhk.jupload.jar">
 		<echo>Creating manifest file</echo>
 		<mkdir dir="${src.dir}/META-INF" />
-		<manifest file="${src.dir}/META-INF/MANIFEST.MF">
+		<manifest file="${manifest}">
 			<attribute name="Built-By" value="${user.name}" />
 			<attribute name="Built-Date" value="${now}" />
 			<attribute name="Implementation-Title" value="JUpload2" />
@@ -175,7 +177,7 @@
 			</section>
 		</manifest>
 		<echo>Creating manifest seems ready</echo>
-		<jar jarfile="${build.dir}/wjhk.jupload-V${version}.jar" manifest="${src.dir}/META-INF/MANIFEST.MF">
+		<jar jarfile="${build.dir}/wjhk.jupload-V${version}.jar" manifest="${manifest}">
 			<fileset dir="${src.dir}">
 				<include name="**/*.class" />
 			</fileset>
@@ -200,6 +202,7 @@
 				<include name="build.xml" />
 				<!-- eclipse stuff -->
 				<include name=".settings/*" />
+				<include name=".externalToolBuilders/*" />
 				<include name=".classpath" />
 				<include name=".project" />
 				<include name="javadoc.xml" />
