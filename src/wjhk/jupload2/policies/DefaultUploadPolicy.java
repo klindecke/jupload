@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -197,6 +199,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     private String urlToSendErrorTo = UploadPolicy.DEFAULT_URL_TO_SEND_ERROR_TO;
 
+    /**
+     * Optional name of a form (in the same document like the applet)
+     * which is used to populate POST parameters. 
+     */
+    private String formData = UploadPolicy.DEFAULT_FORMDATA;
+    
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// INTERNAL ATTRIBUTE
     // ///////////////////////////////////////////////////
@@ -301,8 +309,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // /////////////////////////////////////////////////////////////////////////////
         // get the URL where files must be posted.
-        setPostURL(UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL,
-                DEFAULT_POST_URL, this));
+        try {
+            setPostURL(UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL,
+                    DEFAULT_POST_URL, this));
+        } catch (JUploadException e1) {
+            // We assume our default is OK ;-)
+        }
 
         // /////////////////////////////////////////////////////////////////////////////
         // get the server protocol.
@@ -335,6 +347,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Get resource file.
         setLang(UploadPolicyFactory.getParameter(theApplet, PROP_LANG,
                 DEFAULT_LANG, this));
+
+        this.formData = UploadPolicyFactory.getParameter(theApplet,
+                PROP_FORMDATA, DEFAULT_FORMDATA, this);
 
         // /////////////////////////////////////////////////////////////////////////////
         // Load session data read from the navigator:
@@ -882,7 +897,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
             setNbFilesPerRequest(UploadPolicyFactory.parseInt(value,
                     this.nbFilesPerRequest, this));
         } else if (prop.equals(PROP_POST_URL)) {
-            setPostURL(value);
+            try {
+                setPostURL(value);
+            } catch (JUploadException e) {
+                displayWarn("Invalid applet parameter: " + prop
+                        + " (in DefaultUploadPolicy.setProperty)");
+            }
         } else if (prop.equals(PROP_SERVER_PROTOCOL)) {
             setServerProtocol(value);
         } else if (prop.equals(PROP_STRING_UPLOAD_SUCCESS)) {
@@ -1147,9 +1167,32 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.postURL;
     }
 
-    /** @see wjhk.jupload2.policies.UploadPolicy#setPostURL(String) */
-    public void setPostURL(String postURL) {
-        this.postURL = postURL;
+    /** @throws JUploadException 
+     * @see wjhk.jupload2.policies.UploadPolicy#setPostURL(String) */
+    public void setPostURL(String postURL) throws JUploadException {
+        // Be more forgiving about postURL:
+        // - If none is specified, use the original DocumentBase of the applet.
+        // - If a non-absolute URI (an URI without protocol and server) is
+        // specified,
+        // prefix it with "http://servername"
+        // - If a relative URI is specified, prefix it with the DocumentBase's
+        // parent
+        if (null == postURL) {
+            this.postURL = getApplet().getDocumentBase().toString();
+            return;
+        }
+        URI uri = null;
+        try {
+            uri = new URI(postURL);
+            if (null == uri.getScheme())
+                uri = getApplet().getDocumentBase().toURI().resolve(postURL);
+            if (!uri.getScheme().equals("http") && !uri.getScheme().equals("ftp")) {
+                throw new JUploadException("URI scheme " + uri.getScheme() + "not supported.");
+            }
+        } catch (URISyntaxException e) {
+            throw new JUploadException(e);
+        }
+        this.postURL = uri.toString();
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
@@ -1195,6 +1238,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @param urlToSendErrorTo the urlToSendErrorTo to set */
     protected void setUrlToSendErrorTo(String urlToSendErrorTo) {
         this.urlToSendErrorTo = urlToSendErrorTo;
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getFormdata() */
+    public String getFormdata() {
+        return this.formData;
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
