@@ -37,6 +37,7 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
@@ -386,6 +387,15 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             URL url = new URL(this.uploadPolicy.getPostURL());
 
+            // Add the chunking query params to the URL if there are any
+            if (bChunkEnabled) {
+                if (null != url.getQuery() && !"".equals(url.getQuery())) {
+                    url = new URL(url.toExternalForm() + "&" + chunkHttpParam);
+                } else {
+                    url = new URL(url.toExternalForm() + "?" + chunkHttpParam);
+                }
+            }
+
             Proxy proxy = null;
             proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
             boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
@@ -399,31 +409,25 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 // with a proxy we need the absolute URL, but only if not
                 // using SSL. (with SSL, we first use the proxy CONNECT method,
                 // and then a plain request.)
-                header.append(url.getProtocol());
-                header.append("://");
-                header.append(url.getHost());
+                header.append(url.getProtocol()).append("://").append(
+                        url.getHost());
             }
             header.append(url.getPath());
 
-            if (null != url.getQuery() && !"".equals(url.getQuery())) {
+            // Append the query params.
+            // TODO: This probably can be removed as we now
+            // have everything in POST data. However in order to be
+            // backwards-compatible, it stays here for now. So we now provide
+            // *both* GET and POST params.
+            if (null != url.getQuery() && !"".equals(url.getQuery()))
                 header.append("?").append(url.getQuery());
-                // In case we divided the current upload in chunks, we have to
-                // give some information about it
-                // to the server:
-                if (bChunkEnabled) {
-                    header.append("&").append(chunkHttpParam);
-                }
-            } else if (bChunkEnabled) {
-                header.append("?").append(chunkHttpParam);
-            }
 
             header.append(" ").append(this.uploadPolicy.getServerProtocol())
                     .append("\r\n");
+
             // Header: General
-            header.append("Host: ");
-            header.append(url.getHost());
-            header.append("\r\n");
-            header.append("Accept: */*\r\n");
+            header.append("Host: ").append(url.getHost()).append(
+                    "\r\nAccept: */*\r\n");
             if (!bChunkEnabled
                     || bLastChunk
                     || useProxy
@@ -438,16 +442,25 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 else
                     header.append("Connection: keep-alive\r\n");
             }
-            header.append("Content-Type: multipart/form-data; boundary=");
-            header.append(this.boundary.substring(2)).append("\r\n");
-            header.append("Content-Length: ").append(contentLength).append(
-                    "\r\n");
+            // Get the GET parameters from the URL and convert them to
+            // post form params
+            String formParams = getFormParamsForPostRequest(url);
+            contentLength += formParams.length();
+
+            header.append("Content-Type: multipart/form-data; boundary=")
+                    .append(this.boundary.substring(2)).append("\r\n").append(
+                            "Content-Length: ").append(contentLength).append(
+                            "\r\n");
 
             // Get specific headers for this upload.
             this.uploadPolicy.onAppendHeader(header);
 
             // Blank line (end of header)
             header.append("\r\n");
+
+            // formParams are not really part of the main header, but we add
+            // them here anyway.
+            header.append(formParams);
 
             // Only connect, if sock is null!!
             if (this.sock == null) {
@@ -741,5 +754,39 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     private final String quoteCRLF(String s) {
         return s.replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n\n");
+    }
+
+    /**
+     * Converts the parameters in GET form to post form
+     * 
+     * @param url the <code>URL</code> containing the query parameters
+     * @return the parameters in a string in the correct form for a POST request
+     */
+    private final String getFormParamsForPostRequest(final URL url) {
+
+        // Use a string buffer
+        StringBuffer formParams = new StringBuffer();
+
+        // Get the query string
+        String query = url.getQuery();
+
+        // Split this into parameters
+        HashMap<String, String> requestParameters = new HashMap<String, String>();
+        String[] paramPairs = query.split("&");
+
+        // Put the parameters correctly to the Hashmap
+        for (String param : paramPairs) {
+            if (param.contains("=")) {
+                requestParameters.put(param.split("=")[0], param.split("=")[1]);
+            }
+        }
+
+        // Now add one multipart segment for each
+        for (String key : requestParameters.keySet())
+            formParams.append(addPostVariable(this.boundary, key,
+                    requestParameters.get(key)));
+
+        // Return the body content
+        return formParams.toString();
     }
 }
