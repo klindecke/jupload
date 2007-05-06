@@ -575,6 +575,11 @@ public interface UploadPolicy {
     final static String PROP_URL_TO_SEND_ERROR_TO = "urlToSendErrorTo";
 
     /**
+     * Parameter/Property name for specifying additional form data.
+     */
+    final static String PROP_FORMDATA = "formdata";
+    
+    /**
      * Default value for parameter "afterUploadURL"
      */
     final static String DEFAULT_AFTER_UPLOAD_URL = null;
@@ -651,7 +656,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "postURL".
      */
-    final static String DEFAULT_POST_URL = "http://localhost:8080/jupload/pages/parseRequest.jsp";
+    final static String DEFAULT_POST_URL = null;
 
     /**
      * Default value for parameter "realMaxPicWidth".
@@ -693,6 +698,11 @@ public interface UploadPolicy {
      * Default value for parameter "urlToSendErrorTo".
      */
     final static String DEFAULT_URL_TO_SEND_ERROR_TO = "";
+    
+    /**
+     * Default value for parameter "formdata"
+     */
+    final static String DEFAULT_FORMDATA = null;
 
     /**
      * This method is called to create the top panel. The default implementation
@@ -852,7 +862,7 @@ public interface UploadPolicy {
      * 
      * @param postURL
      */
-    public void setPostURL(String postURL);
+    public void setPostURL(String postURL) throws JUploadException;
 
     /**
      * HTTP protocol that should be used to send the HTTP request. Currently,
@@ -932,6 +942,12 @@ public interface UploadPolicy {
      */
     public String getStringUploadSuccess();
 
+    /**
+     * Retrieve the applet's "formdata" parameter.
+     * @return The applet's formdata parameter.
+     */
+    public String getFormdata();
+    
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// miscellanneous methods
     // ////////////////////////////////////////////////
