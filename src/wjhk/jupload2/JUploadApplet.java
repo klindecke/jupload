@@ -145,9 +145,7 @@ public class JUploadApplet extends Applet {
         try {
             this.jUploadPanel.getUploadPolicy().setProperty(prop, value);
         } catch (Exception e) {
-            this.jUploadPanel.getUploadPolicy().displayErr(
-                    "setProperty (exception " + e.getClass().getName() + ") : "
-                            + e.getMessage());
+            this.jUploadPanel.getUploadPolicy().displayErr(e);
         }
     }
 

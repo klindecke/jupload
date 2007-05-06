@@ -103,6 +103,7 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
  * Main code for the applet (or frame) creation. It contains all creation for
  * necessary elements, or calls to {@link wjhk.jupload2.policies.UploadPolicy}
  * to allow easy personalization.
+ * 
  * @author William JinHua Kwong
  * @version $Revision$
  */
@@ -200,10 +201,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.fileView = new JUploadFileView(this.uploadPolicy,
                     this.fileChooser);
 
-            // This breaks usability. probably use a persistent value of a cookie
-            // later
-            //this.fileChooser.setCurrentDirectory(new File(System
-            //        .getProperty("user.dir")));
+            // TODO:
+            // This breaks usability. probably use a persistent value of a
+            // cookie later.
+            // this.fileChooser.setCurrentDirectory(new File(System
+            // .getProperty("user.dir")));
             this.fileChooser
                     .setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             this.fileChooser.setMultiSelectionEnabled(true);
@@ -221,7 +223,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private void setupTopPanel() {
 
         // -------- JButton browse --------
-        this.browseButton = new JButton(this.uploadPolicy.getString("buttonBrowse"));
+        this.browseButton = new JButton(this.uploadPolicy
+                .getString("buttonBrowse"));
         this.browseButton.setIcon(new ImageIcon(getClass().getResource(
                 "/images/explorer.gif")));
         this.browseButton.addActionListener(this);
@@ -324,10 +327,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
         if (e.getSource() instanceof Timer) {
             // timer is expired
             if (!this.fileUploadThread.isAlive()) {
-                this.uploadPolicy
-                        .displayDebug(
-                                "JUploadPanel: after !fileUploadThread.isAlive()",
-                                60);
+                this.uploadPolicy.displayDebug(
+                        "JUploadPanel: after !fileUploadThread.isAlive()", 60);
                 this.timer.stop();
                 String svrRet = this.fileUploadThread.getServerOutput();
                 Exception ex = this.fileUploadThread.getException();
@@ -433,7 +434,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
             // We request the thread to stop its job.
             this.fileUploadThread.stopUpload();
         }
-        // focus the table. This is necessary in order to enable mouse events for
+        // focus the table. This is necessary in order to enable mouse events
+        // for
         // triggering tooltips.
         this.filePanel.focusTable();
     }
@@ -460,7 +462,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * <LI>debugLevel (must be 0 or less) </DIR>
      */
     public void showOrHideStatusBar() {
-        if (this.uploadPolicy.getShowStatusBar() || this.uploadPolicy.getDebugLevel() > 0) {
+        if (this.uploadPolicy.getShowStatusBar()
+                || this.uploadPolicy.getDebugLevel() > 0) {
             // The status bar should be visible. Is it visible already?
             if (!this.isStatusAreaVisible) {
                 add(this.jStatusScrollPane, -1);
@@ -525,8 +528,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
         if (mouseEvent.isPopupTrigger()
                 && ((mouseEvent.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)) {
             if (this.jUploadPopupMenu != null) {
-                this.jUploadPopupMenu.show(mouseEvent.getComponent(), mouseEvent
-                        .getX(), mouseEvent.getY());
+                this.jUploadPopupMenu.show(mouseEvent.getComponent(),
+                        mouseEvent.getX(), mouseEvent.getY());
                 return true;
             }
         }

@@ -372,12 +372,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * Retrieve the start time of this thread.
+     * 
      * @return The time this thread was started in ms.
      */
     public final long getStartTime() {
         return this.startTime;
     }
-    
+
     /**
      * The heart of the program. This method prepare the upload, then calls
      * doUpload for each HTTP request.
@@ -484,7 +485,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
                         this.progressBar.setString(this.uploadPolicy.getString(
                                 "infoAborted", iFirstFileForThisUpload - 1));
                 } else {
-                    this.progressBar.setString("errDuringUpload");
+                    this.progressBar.setString(this.uploadPolicy
+                            .getString("errDuringUpload"));
                 }
             }
         } catch (JUploadException e) {
@@ -547,7 +549,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
         long thisChunkSize = 0;
         int firstFileToUpload = 0;
         String msg;
-        String action = "init (DefaultFileUploadThread)";
 
         if (nbFilesToUploadParam == 1) {
             msg = (firstFileToUploadParam + 1) + "/"
@@ -650,13 +651,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 clearServerOutPut();
 
                 // Ok, we've prepare the job for chunk upload. Let's do it!
-                action = "openConnection (DefaultFileUploadThread)";
                 startRequest(contentLength, bChunkEnabled, chunkPart,
                         bLastChunk);
 
                 for (int i = 0; i < nbFilesToUpload && !this.stop; i++) {
                     // Write to Server the head(4 Lines), a File and the tail.
-                    action = "send bytes (20)" + (firstFileToUpload + i);
 
                     // Let's add any file-specific header.
                     beforeFile(firstFileToUpload + i);
@@ -671,10 +670,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
                     }
 
                     // Actual upload of the file:
-                    action = "send bytes (30)" + (firstFileToUpload + i);
                     this.filesToUpload[firstFileToUpload + i].uploadFile(
                             getOutputStream(), thisChunkSize);
-                    action = "send bytes (31)" + (firstFileToUpload + i);
 
                     // If we are not in chunk mode, or if it was the last chunk,
                     // upload should be finished.
@@ -694,17 +691,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
                                             + " bytes.");
                         }
                     }
-                    action = "send bytes (40)" + (firstFileToUpload + i);
-
                     // Let's add any file-specific header.
                     afterFile(firstFileToUpload + i);
                 }
-                action = "flush";
                 getOutputStream().flush();
 
                 // Let's finish the request, and wait for the server Output, if
                 // any (not applicable in FTP)
-                action = "finishRequest";
                 finishRequest();
 
                 // We now ask to the uploadPolicy, if it was a success.
@@ -717,12 +710,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 this.uploadException = e;
                 bReturn = false;
                 this.uploadPolicy.displayErr(this.uploadPolicy
-                        .getString("errDuringUpload")
-                        + " (main | "
-                        + action
-                        + ") ("
-                        + e.getClass()
-                        + ".doUpload()) : " + e.getMessage());
+                        .getString("errDuringUpload"), e);
             } finally {
                 // We force the progressBar bar refresh
                 this.nbBytesBeforeUpdatingProgressBar = -1;
@@ -760,7 +748,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             }
         } else {
             this.uploadPolicy
-                    .displayErr(this.uploadException.toString() + "\n");
+                    .displayErr(this.uploadException);
         }
 
         return bReturn;

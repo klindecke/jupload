@@ -23,9 +23,11 @@ package wjhk.jupload2.policies;
 import java.awt.GridLayout;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URI;
@@ -200,11 +202,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String urlToSendErrorTo = UploadPolicy.DEFAULT_URL_TO_SEND_ERROR_TO;
 
     /**
-     * Optional name of a form (in the same document like the applet)
-     * which is used to populate POST parameters. 
+     * Optional name of a form (in the same document like the applet) which is
+     * used to populate POST parameters.
      */
     private String formData = UploadPolicy.DEFAULT_FORMDATA;
-    
+
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// INTERNAL ATTRIBUTE
     // ///////////////////////////////////////////////////
@@ -310,8 +312,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // /////////////////////////////////////////////////////////////////////////////
         // get the URL where files must be posted.
         try {
-            setPostURL(UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL,
-                    DEFAULT_POST_URL, this));
+            setPostURL(UploadPolicyFactory.getParameter(theApplet,
+                    PROP_POST_URL, DEFAULT_POST_URL, this));
         } catch (JUploadException e1) {
             // We assume our default is OK ;-)
         }
@@ -592,7 +594,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see UploadPolicy#displayErr(Exception)
      */
     public void displayErr(Exception e) {
-        displayErr(e.getClass().getName() + ": " + e.getLocalizedMessage());
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(bs);
+        e.printStackTrace(ps);
+        ps.close();
+        displayErr(bs.toString());
     }
 
     /**
@@ -602,10 +608,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // If debug is off, the status bar may not be visible. We switch the
         // debug to on, to be sure that some
         // information will be displayed to the user.
-        if (getDebugLevel() <= 0) {
+        if (getDebugLevel() <= 0)
             setDebugLevel(1);
-        }
         displayMsg("[ERROR] ", err);
+    }
+
+    /**
+     * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String, java.lang.Exception)
+     */
+    public void displayErr(String err, Exception e) {
+        displayErr(err);
+        displayErr(e);
     }
 
     /**
@@ -830,15 +843,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
                 } catch (Exception e) {
                     displayErr(getString("errDuringLogManagement") + " ("
-                            + action + ") (" + e.getClass() + ") : "
-                            + e.getMessage());
+                            + action + ")", e);
                 } finally {
                     try {
                         dataout.close();
                     } catch (Exception e) {
                         displayErr(getString("errDuringLogManagement")
-                                + " (dataout.close) (" + e.getClass() + ") : "
-                                + e.getMessage());
+                                + " (dataout.close)", e);
                     }
                     dataout = null;
                     try {
@@ -853,8 +864,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         sock.close();
                     } catch (Exception e) {
                         displayErr(getString("errDuringLogManagement")
-                                + " (sock.close)(" + e.getClass() + ") : "
-                                + e.getMessage());
+                                + " (sock.close)", e);
                     }
                     sock = null;
                     displayDebug("Sent to server: " + request.toString(), 100);
@@ -1167,8 +1177,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.postURL;
     }
 
-    /** @throws JUploadException 
-     * @see wjhk.jupload2.policies.UploadPolicy#setPostURL(String) */
+    /**
+     * @throws JUploadException
+     * @see wjhk.jupload2.policies.UploadPolicy#setPostURL(String)
+     */
     public void setPostURL(String postURL) throws JUploadException {
         // Be more forgiving about postURL:
         // - If none is specified, use the original DocumentBase of the applet.
@@ -1186,8 +1198,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
             uri = new URI(postURL);
             if (null == uri.getScheme())
                 uri = getApplet().getDocumentBase().toURI().resolve(postURL);
-            if (!uri.getScheme().equals("http") && !uri.getScheme().equals("ftp")) {
-                throw new JUploadException("URI scheme " + uri.getScheme() + "not supported.");
+            if (!uri.getScheme().equals("http")
+                    && !uri.getScheme().equals("ftp")) {
+                throw new JUploadException("URI scheme " + uri.getScheme()
+                        + "not supported.");
             }
         } catch (URISyntaxException e) {
             throw new JUploadException(e);
