@@ -144,8 +144,7 @@ class UploadFileData implements FileData {
                 30);
 
         // getInputStream will put a new fileInput in the inputStream attribute,
-        // or leave it unchanged if it
-        // is not null.
+        // or leave it unchanged if it is not null.
         getInputStream();
         try {
             this.digest = MessageDigest.getInstance("MD5");

@@ -26,6 +26,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -48,12 +51,10 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-
-// import sun.plugin.javascript.JSObject;
+import javax.swing.text.BadLocationException;
 
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
-
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
@@ -61,6 +62,7 @@ import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadTextArea;
+import wjhk.jupload2.upload.HttpConnect;
 
 /**
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy}
@@ -233,10 +235,26 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private ResourceBundle resourceBundle = null;
 
     /**
-     * This StringBuffer is used to store all information that could be useful,
-     * in case a problem occurs. Is content can then be sent to the webmaster.
+     * This stream is used to store all information that could be useful, in
+     * case a problem occurs. Is content can then be sent to the webmaster.
      */
-    private StringBuffer debugBufferString = new StringBuffer();
+    private PrintStream debugOut = null;
+
+    /**
+     * The actual file, used for the debug log.
+     */
+    private File debugFile;
+
+    /**
+     * This flag prevents endless repeats of opening the debug log, if that
+     * failed for some reason.
+     */
+    private boolean debugOk = true;
+
+    /**
+     * This constant defines the upper limit of lines, kept in the status area.
+     */
+    private final static int MAX_DEBUG_LINES = 1000;
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// CONSTRUCTORS
@@ -490,7 +508,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             // an info message, and expect everything is Ok.
             // FIXME The chunked encoding should be correctly handled,
             // instead of the current 'expectations' below.
-            displayInfo("The transertEncoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+            displayInfo("The Transfer-Encoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
             return true;
         } else if (upload_200_OK) {
             // This method is currently non blocking.
@@ -518,23 +536,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     alertStr("No switch to getAfterUploadURL, because debug level is "
                             + getDebugLevel() + " (>=100)");
                 } else {
-                    if (true) {
-                        // Let's change the current URL to edit names and
-                        // comments,
-                        // for the selected album.
-                        // Ok, let's go and add names and comments to the newly
-                        // updated pictures.
-                        JSObject applet = JSObject.getWindow(getApplet());
-                        JSObject doc = (JSObject) applet.getMember("document");
-                        JSObject loc = (JSObject) doc.getMember("location");
-                        Object[] argsReplace = {
-                            getAfterUploadURL()
-                        };
-                        loc.call("replace", argsReplace);
-                    } else {
-                        getApplet().getAppletContext().showDocument(
-                                new URL(getAfterUploadURL()), "_self");
-                    }
+                    // Let's change the current URL to edit names and comments,
+                    // for the selected album. Ok, let's go and add names and
+                    // comments to the newly updated pictures.
+                    // TODO: parameterize target
+                    getApplet().getAppletContext().showDocument(
+                            new URL(getAfterUploadURL()), "_self");
                 }
             } catch (Exception ee) {
                 // Oops, no navigator. We are probably in debug mode, within
@@ -614,7 +621,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String, java.lang.Exception)
+     * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
+     *      java.lang.Exception)
      */
     public void displayErr(String err, Exception e) {
         displayErr(err);
@@ -645,7 +653,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayMsg(tag, debug);
         } else {
             // Let's store all text in the debug BufferString
-            addMsgToDebugBufferString(timestamp(tag, debug));
+            addMsgToDebugLog(timestamp(tag, debug));
         }
     }
 
@@ -756,19 +764,38 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 BufferedReader datain = null;
                 StringBuffer sbHttpResponseBody = null;
                 StringBuffer request = null;
+                String line;
+                
+                // During debug output, we need to make shure that the debug
+                // log is not changed, so we set debugOk to false
+                // temporarily. -> Everything goes to stdout.
+                boolean localDebugOk = this.debugOk;
+                this.debugOk = false;
 
                 try {
+                    this.debugOut.flush();
+                    // First, calculate the size of the strings we will send.
+                    BufferedReader debugIn = new BufferedReader(new FileReader(
+                            this.debugFile));
+                    int contentLength = 0;
+                    while ((line = debugIn.readLine()) != null) {
+                        contentLength += URLEncoder.encode(line, "UTF-8")
+                                .length();
+                    }
+                    debugIn.close();
+                    debugIn = new BufferedReader(new FileReader(this.debugFile));
+                    debugIn.close();
+
                     query = "description="
                             + URLEncoder.encode(description, "UTF-8")
                             + "&log="
                             + URLEncoder
                                     .encode(
                                             "\n\nAn error occured during upload, in JUpload\n"
-                                                    + "All debug information is available below\n\n\n\n"
-                                                    + this.debugBufferString
-                                                            .toString(),
+                                                    + "All debug information is available below\n\n\n\n",
                                             "UTF-8");
                     request = new StringBuffer();
+                    contentLength += query.length();
                     URL url = new URL(this.urlToSendErrorTo);
                     request
                             .append("POST ")
@@ -783,16 +810,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             .append(
                                     "Content-type: application/x-www-form-urlencoded\r\n")
                             .append("Connection: close\r\n").append(
-                                    "Content-length: ").append(query.length())
+                                    "Content-length: ").append(contentLength)
                             .append("\r\n");
                     // Get specific headers for this upload.
                     onAppendHeader(request);
                     // Blank line (end of header)
                     request.append("\r\n").append(query);
 
-                    // If port not specified then use default http port 80.
-                    sock = new Socket(url.getHost(), (-1 == url.getPort()) ? 80
-                            : url.getPort());
+                    sock = new HttpConnect(this).Connect(url);
                     dataout = new DataOutputStream(new BufferedOutputStream(
                             sock.getOutputStream()));
                     datain = new BufferedReader(new InputStreamReader(sock
@@ -804,6 +829,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     action = "send bytes (1)";
                     dataout.writeBytes(request.toString());
                     dataout.writeBytes(query);
+                    while ((line = debugIn.readLine()) != null) {
+                        dataout.writeBytes(URLEncoder.encode(line, "UTF-8"));
+                    }
+                    debugIn.close();
+                    // We are done with the debug log, so re-enable it.
+                    this.debugOk = localDebugOk;
                     action = "flush";
                     dataout.flush();
                     action = "wait for server answer";
@@ -811,12 +842,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     boolean uploadSuccess = false;
                     boolean readingHttpBody = false;
                     sbHttpResponseBody = new StringBuffer();
-                    String line;
                     // Now, we wait for the full answer (which should mean that
-                    // the uploaded files
-                    // has been treated on the server)
+                    // the uploaded message has been treated on the server).
                     while ((line = datain.readLine()) != null) {
-
                         // Is this upload a success ?
                         action = "test success";
                         if (line.matches(strUploadSuccess)) {
@@ -842,9 +870,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     }
 
                 } catch (Exception e) {
+                    this.debugOk = localDebugOk;
                     displayErr(getString("errDuringLogManagement") + " ("
                             + action + ")", e);
                 } finally {
+                    this.debugOk = localDebugOk;
                     try {
                         dataout.close();
                     } catch (Exception e) {
@@ -1273,8 +1303,30 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg
      */
-    private void addMsgToDebugBufferString(String msg) {
-        this.debugBufferString.append(msg);
+    private void addMsgToDebugLog(String msg) {
+        // If uploading lots of chunks, the buffer gets too large, resulting in
+        // a OutOfMemoryError on the heap so we now use a temporary file for the
+        // debug log.
+        if (this.debugOk) {
+            try {
+                if (null == this.debugOut) {
+                    this.debugFile = File
+                            .createTempFile("jupload_", "_log.txt");
+                    this.debugFile.deleteOnExit();
+                    this.debugOut = new PrintStream(new FileOutputStream(
+                            this.debugFile));
+                }
+                this.debugOut.print(msg);
+            } catch (IOException e) {
+                this.debugOk = false;
+                System.err.println("IO error on debuglog "
+                        + this.debugFile.getPath()
+                        + "\nFallback to standard output.");
+                System.out.println(msg);
+            }
+        } else {
+            System.out.println(msg);
+        }
     }
 
     private final String timestamp(String tag, String s) {
@@ -1293,7 +1345,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg The message to display.
      */
-    private final void displayMsg(String tag, String msg) {
+    private synchronized void displayMsg(String tag, String msg) {
         msg = timestamp(tag, msg);
         if (this.statusArea == null) {
             System.out.println(msg);
@@ -1301,11 +1353,23 @@ public class DefaultUploadPolicy implements UploadPolicy {
             this.statusArea.append(msg);
             if (!msg.endsWith("\n"))
                 this.statusArea.append("\n");
+            int lc = this.statusArea.getLineCount();
+            if (lc > MAX_DEBUG_LINES) {
+                int end;
+                try {
+                    end = this.statusArea
+                            .getLineEndOffset(lc - MAX_DEBUG_LINES);
+                    this.statusArea.replaceRange("", 0, end);
+                } catch (BadLocationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         }
         // Let's store all text in the debug BufferString
-        addMsgToDebugBufferString(msg + "\n");
+        addMsgToDebugLog(msg + "\n");
         if (!msg.endsWith("\n"))
-            addMsgToDebugBufferString("\n");
+            addMsgToDebugLog("\n");
     }
 
     /**

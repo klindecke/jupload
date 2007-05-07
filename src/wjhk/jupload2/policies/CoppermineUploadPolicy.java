@@ -21,6 +21,7 @@
 package wjhk.jupload2.policies;
 
 import java.io.File;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,9 +31,6 @@ import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
-
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
 
 // TODO cookies handling: desc to be mve to UploadPolicy presentation.
 /**
@@ -328,25 +326,19 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                             + getDebugLevel() + " (>=100)");
                 } else {
                     // Let's display an alert box, to explain what to do to the
-                    // user: he will
-                    // be redirected to the coppermine page that allow him to
-                    // associate names
-                    // and comments to the uploaded pictures.
+                    // user: he will be redirected to the coppermine page that
+                    // allow him to associate names and comments to the uploaded
+                    // pictures.
                     alert("coppermineUploadOk");
 
                     // Let's change the current URL to edit names and comments,
-                    // for the selected album.
-                    // Ok, let's go and add names and comments to the newly
-                    // updated pictures.
-                    JSObject applet = JSObject.getWindow(getApplet());
-                    JSObject doc = (JSObject) applet.getMember("document");
-                    JSObject loc = (JSObject) doc.getMember("location");
-                    Object[] argsReplace = {
-                        editpicURL
-                    };
-                    loc.call("replace", argsReplace);
+                    // for the selected album. Ok, let's go and add names and
+                    // comments to the newly updated pictures.
+                    // TODO: parameterize target
+                    getApplet().getAppletContext().showDocument(
+                            new URL(editpicURL), "_self");
                 }
-            } catch (JSException ee) {
+            } catch (Exception ee) {
                 // Oups, no navigator. We are probably in debug mode, within
                 // eclipse for instance.
                 displayErr(ee);

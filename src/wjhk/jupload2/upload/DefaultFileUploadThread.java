@@ -138,7 +138,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * Number of bytes that must be uploaded before updating the progressBar
      * bar. See {@link #nbBytesUploaded(long)}
      */
-    private int nbBytesBeforeUpdatingProgressBar = NUM_BYTES;
+    private long nbBytesBeforeUpdatingProgressBar = NUM_BYTES;
 
     private long startTime;
 
@@ -211,7 +211,15 @@ public abstract class DefaultFileUploadThread extends Thread implements
         if (this.nbBytesBeforeUpdatingProgressBar <= 0) {
             this.nbBytesBeforeUpdatingProgressBar = NUM_BYTES;
             if (null != this.progressBar) {
-                this.progressBar.setValue((int) this.uploadedLength);
+                double done = this.uploadedLength;
+                double total = this.totalFilesLength;
+                double percent;
+                try {
+                    percent = 100.0 * done / total;
+                } catch (ArithmeticException e) {
+                    percent = 100;
+                }
+                this.progressBar.setValue((int)percent);
             }
         }
     }
@@ -239,7 +247,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         if (null != this.progressBar) {
             this.progressBar.setValue(0);
-            this.progressBar.setMaximum((int) this.totalFilesLength);
+            // Setting the maximum value of the progress bar to the total lenght
+            // of all files could easily overflow the int, so we use percent
+            // units here.
+            this.progressBar.setMaximum(100);
             this.progressBar.setString("");
         }
     }
@@ -747,8 +758,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
                         this.filesToUpload[firstFileToUpload + i]);
             }
         } else {
-            this.uploadPolicy
-                    .displayErr(this.uploadException);
+            this.uploadPolicy.displayErr(this.uploadException);
         }
 
         return bReturn;
