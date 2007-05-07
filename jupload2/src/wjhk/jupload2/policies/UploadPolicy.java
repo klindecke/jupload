@@ -93,9 +93,8 @@ import wjhk.jupload2.gui.JUploadPanel;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
  * <TD>With 0, you get the normal production output. The higher the number is,
  * the more information is displayed in the status bar. <BR>
- * Note: the whole debug messages is stored in the
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy#debugBufferString}. It can
- * be used to display more information, if needed. See also the 'webmasterMail'
+ * Note: All debug messages are stored in a temporary log file. This can be used
+ * to display more information, if needed. See also the 'webmasterMail'
  * parameter. </TD>
  * </TR>
  * <TR>
@@ -578,7 +577,7 @@ public interface UploadPolicy {
      * Parameter/Property name for specifying additional form data.
      */
     final static String PROP_FORMDATA = "formdata";
-    
+
     /**
      * Default value for parameter "afterUploadURL"
      */
@@ -698,7 +697,7 @@ public interface UploadPolicy {
      * Default value for parameter "urlToSendErrorTo".
      */
     final static String DEFAULT_URL_TO_SEND_ERROR_TO = "";
-    
+
     /**
      * Default value for parameter "formdata"
      */
@@ -944,10 +943,11 @@ public interface UploadPolicy {
 
     /**
      * Retrieve the applet's "formdata" parameter.
+     * 
      * @return The applet's formdata parameter.
      */
     public String getFormdata();
-    
+
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// miscellanneous methods
     // ////////////////////////////////////////////////

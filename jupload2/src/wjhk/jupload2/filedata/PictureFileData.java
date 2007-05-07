@@ -1,7 +1,5 @@
 //
-// $Id: PictureFileData.java 95 2007-05-02 03:27:05 +0000 (mer., 02 mai 2007)
-// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
-// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -57,7 +55,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * idea within an applet (should run within a java application) : the applet
  * runs very quickly out of memory. With pictures from my Canon EOS20D (3,5M), I
  * can only display two pictures. The third one generates an out of memory
- * error, despiste the System.finalize and System.gc I've put everywhere in the
+ * error, despite the System.finalize and System.gc I've put everywhere in the
  * code!
  * </UL>
  * 
