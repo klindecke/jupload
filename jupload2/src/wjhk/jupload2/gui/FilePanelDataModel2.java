@@ -204,7 +204,12 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @return The return instance of File.
      */
     public FileData getFileDataAt(int row) {
-        return this.rows.get(row);
+        try {
+            return this.rows.get(row);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Nothing to do
+        }
+        return null;
     }
 
     /**
@@ -294,8 +299,14 @@ class FilePanelDataModel2 extends AbstractTableModel {
      */
     public Object getValueAt(int row, int col) {
         FileData fileData = getFileDataAt(row);
+        if (null == fileData) {
+            this.uploadPolicy.displayErr("Row index out of bounds "
+                    + this.getClass().getName() + ": " + row);
+            return null;
+        }
         String colName = getColumnName(col);
-        // Don't know if it will be useful, but the switch below allows the column
+        // Don't know if it will be useful, but the switch below allows the
+        // column
         // to be in any order.
         if (colName.equals(this.COL_NAME)) {
             return fileData.getFileName();
@@ -338,6 +349,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Retrieves the default colum size of a column.
+     * 
      * @param col The index of the column to query.
      * @return the default size of the requested column.
      */
