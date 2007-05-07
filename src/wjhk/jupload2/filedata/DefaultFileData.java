@@ -77,6 +77,21 @@ public class DefaultFileData implements FileData {
      * file is the file about which this FileData contains data.
      */
     private File file;
+    
+    /**
+     * Cached file size
+     */
+    private long fileSize;
+    
+    /**
+     * Cached file directory
+     */
+    private String fileDir;
+    
+    /**
+     * Cached file modification time.
+     */
+    private Date fileModified;
 
     /**
      * Standard constructor
@@ -86,6 +101,9 @@ public class DefaultFileData implements FileData {
     public DefaultFileData(File file, UploadPolicy uploadPolicy) {
         this.file = file;
         this.uploadPolicy = uploadPolicy;
+        this.fileSize = this.file.length();
+        this.fileDir = this.file.getAbsoluteFile().getParent();
+        this.fileModified = new Date(this.file.lastModified());
 
         // Let's load the mime types list.
         if (mimeTypes == null) {
@@ -120,7 +138,7 @@ public class DefaultFileData implements FileData {
     /** @see FileData#getUploadLength() */
     @SuppressWarnings("unused")
     public long getUploadLength() throws JUploadException {
-        return this.file.length();
+        return this.fileSize;
     }
 
     /** @see FileData#afterUpload() */
@@ -151,17 +169,17 @@ public class DefaultFileData implements FileData {
 
     /** @see FileData#getFileLength() */
     public long getFileLength() {
-        return this.file.length();
+        return this.fileSize;
     }
 
     /** @see FileData#getLastModified() */
     public Date getLastModified() {
-        return new Date(this.file.lastModified());
+        return this.fileModified;
     }
 
     /** @see FileData#getDirectory() */
     public String getDirectory() {
-        return this.file.getAbsoluteFile().getParent();
+        return this.fileDir;
     }
 
     /** @see FileData#getMimeType() */
