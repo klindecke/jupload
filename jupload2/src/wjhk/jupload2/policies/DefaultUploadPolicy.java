@@ -784,7 +784,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     }
                     debugIn.close();
                     debugIn = new BufferedReader(new FileReader(this.debugFile));
-                    debugIn.close();
 
                     query = "description="
                             + URLEncoder.encode(description, "UTF-8")
@@ -822,8 +821,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             sock.getOutputStream()));
                     datain = new BufferedReader(new InputStreamReader(sock
                             .getInputStream()));
-                    // DataInputStream datain = new DataInputStream(new
-                    // BufferedInputStream(sock.getInputStream()));
 
                     // Send http request to server
                     action = "send bytes (1)";
