@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: PictureFileData.java 95 2007-05-02 03:27:05 +0000 (mer., 02 mai 2007)
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -370,8 +372,7 @@ public class PictureFileData extends DefaultFileData {
                 // smaller than the PictureDialog)
                 // bufferedImage
                 localImage = getBufferedImage(canvasWidth, canvasHeight,
-                        this.uploadPolicy
-                                .getHighQualityPreview());
+                        this.uploadPolicy.getHighQualityPreview());
                 /**
                  * getBufferedImage returns a picture of the correct size. There
                  * is no need to do the checks below. int originalWidth =
@@ -564,8 +565,8 @@ public class PictureFileData extends DefaultFileData {
                 if (this.quarterRotation != 0) {
                     double theta = Math.toRadians(90 * this.quarterRotation);
                     double translationX = 0, translationY = 0;
-                    this.uploadPolicy
-                            .displayDebug("quarter: " + this.quarterRotation, 30);
+                    this.uploadPolicy.displayDebug("quarter: "
+                            + this.quarterRotation, 30);
 
                     // quarterRotation is one of 0, 1, 2, 3 : see addRotation.
                     // If we're here : it's not 0, so it's one of 1, 2 or 3.
@@ -679,7 +680,8 @@ public class PictureFileData extends DefaultFileData {
                         "IOException (createBufferedImage) : " + e.getMessage());
             }
 
-            if (bufferedImage != null && this.uploadPolicy.getDebugLevel() >= 60) {
+            if (bufferedImage != null
+                    && this.uploadPolicy.getDebugLevel() >= 60) {
                 this.uploadPolicy.displayDebug("bufferedImage MinX ("
                         + bufferedImage + "): " + bufferedImage.getMinX(), 60);
                 this.uploadPolicy.displayDebug("bufferedImage MinY ("
@@ -783,15 +785,17 @@ public class PictureFileData extends DefaultFileData {
             }
 
             // If the image is rotated, we compare to realMaxWidth and
-            // realMaxHeight, instead of
-            // maxWidth and maxHeight. This allows to have a different picture
-            // size for rotated and
-            // not rotated pictures. See the UploadPolicy javadoc for details
+            // realMaxHeight, instead of maxWidth and maxHeight. This allows to
+            // have a different picture size for rotated and not rotated
+            // pictures. See the UploadPolicy javadoc for details
             // ... and a good reason ! ;-)
             if (this.quarterRotation == 0) {
                 maxWidth = this.uploadPolicy.getMaxWidth();
                 maxHeight = this.uploadPolicy.getMaxHeight();
             } else {
+                // A transformation occured: we take the realMaxXxx. if
+                // realMaxPicWidth is not set, the getter will return the value
+                // of maxPicWidth.
                 maxWidth = this.uploadPolicy.getRealMaxWidth();
                 maxHeight = this.uploadPolicy.getRealMaxHeight();
             }
@@ -849,8 +853,8 @@ public class PictureFileData extends DefaultFileData {
         // Do we already created the transformed file ?
         if (this.transformedPictureFile == null) {
             try {
-                this.transformedPictureFile = File
-                        .createTempFile("jupload_", ".tmp");
+                this.transformedPictureFile = File.createTempFile("jupload_",
+                        ".tmp");
                 this.transformedPictureFile.deleteOnExit();
                 tmpFileName = this.transformedPictureFile.getAbsolutePath();
                 this.uploadPolicy.displayDebug("Using temp file " + tmpFileName
@@ -869,13 +873,13 @@ public class PictureFileData extends DefaultFileData {
                 // not rotated pictures. See the UploadPolicy javadoc for
                 // details ... and a good reason ! ;-)
                 if (this.quarterRotation == 0) {
-                    bufferedImage = getBufferedImage(
-                            this.uploadPolicy.getMaxWidth(), this.uploadPolicy
-                                    .getMaxHeight(), true);
+                    bufferedImage = getBufferedImage(this.uploadPolicy
+                            .getMaxWidth(), this.uploadPolicy.getMaxHeight(),
+                            true);
                 } else {
                     bufferedImage = getBufferedImage(this.uploadPolicy
-                            .getRealMaxWidth(),
-                            this.uploadPolicy.getRealMaxHeight(), true);
+                            .getRealMaxWidth(), this.uploadPolicy
+                            .getRealMaxHeight(), true);
                 }
 
                 // Get the writer (to choose the compression quality)
@@ -961,8 +965,8 @@ public class PictureFileData extends DefaultFileData {
      */
     private void tooBigPicture() {
         // TODO Put a messageBox here.
-        this.uploadPolicy.displayWarn(this.uploadPolicy.getString("tooBigPicture",
-                getFileName()));
+        this.uploadPolicy.displayWarn(this.uploadPolicy.getString(
+                "tooBigPicture", getFileName()));
     }
 
     /**
