@@ -360,12 +360,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
             // Browse clicked
             if (null != this.fileChooser) {
                 try {
-                    if (JFileChooser.APPROVE_OPTION == this.fileChooser
-                            .showOpenDialog(new Frame())) {
+                    int ret = this.fileChooser.showOpenDialog(new Frame());
+                    if (JFileChooser.APPROVE_OPTION == ret)
                         addFiles(this.fileChooser.getSelectedFiles());
-                        // We stop any running task for the JUploadFileView
-                        this.fileView.shutdownNow();
-                    }
+                    // We stop any running task for the JUploadFileView
+                    this.fileView.shutdownNow();
                 } catch (Exception ex) {
                     this.uploadPolicy.displayErr(ex);
                 }
