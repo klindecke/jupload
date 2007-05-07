@@ -55,7 +55,7 @@ class IconWorker implements Runnable {
     Icon icon = null;
 
     /**
-     * The constructor only store the file. The background thread will call the
+     * The constructor only stores the file. The background thread will call the
      * loadIcon method.
      * 
      * @param file The file whose icon must be loaded/calculated.
