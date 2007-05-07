@@ -150,7 +150,7 @@
 		</delete>
 	</target>
 
-	<target name="javadoc">
+	<target name="javadoc" description="Generate javadoc">
 		<javadoc access="package" author="true" classpath="wwwroot/plugin.jar;wwwroot/jakarta-commons-net.jar" destdir="doc" doctitle="JUpload - Multiple file upload applet" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="wjhk.jupload2.policies,wjhk.jupload2.filedata,wjhk.jupload2,wjhk.jupload2.exception,wjhk.jupload2.gui,wjhk.jupload2.upload" source="1.5" sourcepath="src" splitindex="true" use="true" version="true">
 			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
 		</javadoc>
@@ -163,7 +163,7 @@
 	<!--
  * Create wjhk.jupload.jar
  -->
-	<target name="jar" depends="getversion" description="Create unsigned wjhk.jupload.jar">
+	<target name="jar" depends="getversion" description="Create unsigned jar in buld/">
 		<echo>Creating manifest file</echo>
 		<mkdir dir="${src.dir}/META-INF" />
 		<manifest file="${manifest}">
@@ -193,7 +193,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: srcjar                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="srcjar" depends="clean,prepare,javadoc,deploy" description="Create jupload-src.jar">
+	<target name="srcjar" depends="clean,prepare,javadoc,deploy" description="Create source jar in build/">
 		<jar jarfile="${build.dir}/jupload-V${version}-src.jar">
 			<fileset dir="${basedir}">
 				<include name="${src.dir}/**/*" />
@@ -232,15 +232,15 @@
 		</genkey>
 	</target>
 
-	<target name="signedjar" depends="jar,createstore,askpasswd">
+	<target name="signedjar" depends="jar,createstore,askpasswd" description="Create signed jar in build/">
 		<signjar jar="${build.dir}/wjhk.jupload-V${version}.jar" keystore="${keystore}" storepass="${storepass}" alias="${alias}" />
 	</target>
 
-	<target name="deploy" depends="clean,signedjar">
+	<target name="deploy" depends="clean,signedjar" description="Build and copy signed jar into wwwroot/">
 		<copy file="${build.dir}/wjhk.jupload-V${version}.jar" tofile="${basedir}/wwwroot/wjhk.jupload.jar" overwrite="true" />
 	</target>
 
-	<target name="dist" depends="clean,deploy,srcjar">
+	<target name="dist" depends="clean,deploy,srcjar" description="Make a distribution (buld and pack everything)">
 		<echo>Distribution is ready</echo>
 	</target>
 </project>
