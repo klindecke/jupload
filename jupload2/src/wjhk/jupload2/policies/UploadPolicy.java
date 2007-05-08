@@ -35,349 +35,385 @@ import wjhk.jupload2.gui.JUploadPanel;
 
 /**
  * This package contains upload policies, which allow easy configuration of the
- * applet behaviour. <BR>
- * <BR>
+ * applet behaviour. <br>
+ * <br>
  * The class {@link DefaultUploadPolicy} contains a default implementation for
- * all UploadPolicy methods. <BR>
- * <BR>
- * <A NAME="parameters">
- * <H4>Parameters</H4>
- * </A> Here is the list of all parameters available in the current package,
- * that is: available in available upload policies. These are applet parameters
- * that should be 'given' to the applet, with <PARAM> tags, as precised below in
- * the <A href="#example">example</A>. <TABLE border=1>
- * <TR>
- * <TH>Parameter name</TH>
- * <TH>Default value / <BR>
- * Implemented in</TH>
- * <TH>Description</TH>
- * </TR>
- * <TR>
- * <TD>afterUploadURL</TD>
- * <TD><I>null</I><BR>
- * since 2.9.0<BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This parameter is used by all policies. It allows the applet to change
- * the current page to another one after a successful upload. <BR>
+ * all UploadPolicy methods. <br>
+ * <br>
+ * <h4><a name="parameters">Parameters</a></h4>
+ * <!-- ATTENTION: The comment below is used by Ant build. DO NOT CHANGE!! -->
+ * <!-- ANT_COPYDOC_START -->
+ * <p>
+ * Here is the list of all parameters available in the current package, that is:
+ * available in available upload policies. These are applet parameters that
+ * should be 'given' to the applet, with <PARAM> tags, as precised below in the
+ * <a href="#example">example</a>.
+ * </p>
+ * <table border="1">
+ * <tr>
+ * <th>Parameter name</th>
+ * <th>Default value / <br>
+ * Implemented in</th>
+ * <th>Description</th>
+ * </tr>
+ * <tr>
+ * <td>afterUploadURL</td>
+ * <td><i>null</i><br>
+ * since 2.9.0<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter is used by all policies. It allows the applet to change
+ * the current page to another one after a successful upload. <br>
  * This allows, for instance, to display a page containing the file description
- * of the newly uploaded page. </TD>
- * </TR>
- * <TR>
- * <TD>allowedFileExtensions</TD>
- * <TD><I>empty string</I><BR>
- * since 2.9.0<BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This parameter allows the caller to specify a list of file extension. If
+ * of the newly uploaded page. </td>
+ * </tr>
+ * <tr>
+ * <td>allowedFileExtensions</td>
+ * <td><i>empty string</i><br>
+ * since 2.9.0<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter allows the caller to specify a list of file extension. If
  * this parameter is specified, only file with this extension can be selected in
- * the applet.<BR>
+ * the applet.<br>
  * This parameter must contains a list of extensions, in lower case, separated
- * by slashes. eg: jpg/jpeg/gif </TD>
- * </TR>
- * <TR>
- * <TD>albumId</TD>
- * <TD>-1 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</TD>
- * <TD>This parameter is only used by CoppermineUploadPolicy. So it is to be
+ * by slashes. eg: jpg/jpeg/gif </td>
+ * </tr>
+ * <tr>
+ * <td>albumId</td>
+ * <td>-1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</td>
+ * <td>This parameter is only used by CoppermineUploadPolicy. So it is to be
  * used to upload into a <a href="http://coppermine.sourceforge.net/">coppermine
  * picture gallery</a>. This parameter contains the identifier of the album,
  * where pictures should be used. See CoppermineUploadPolicy for an example.
- * <BR>
+ * <br>
  * Before upload, CoppermineUploadPolicy.{@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()}
- * checks that the albumId is correct, that is: >=1. </TD>
- * </TR>
- * <TR>
- * <TD>debugLevel</TD>
- * <TD>0 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>With 0, you get the normal production output. The higher the number is,
- * the more information is displayed in the status bar. <BR>
+ * checks that the albumId is correct, that is: >=1. </td>
+ * </tr>
+ * <tr>
+ * <td>debugLevel</td>
+ * <td>0 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>With 0, you get the normal production output. The higher the number is,
+ * the more information is displayed in the status bar. <br>
  * Note: All debug messages are stored in a temporary log file. This can be used
  * to display more information, if needed. See also the 'webmasterMail'
- * parameter. </TD>
- * </TR>
- * <TR>
- * <TD>filenameEncoding</TD>
- * <TD><I>null</I><BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>With null, the filename in the <I>Content-Disposition</I> header is not
+ * parameter. </td>
+ * </tr>
+ * <tr>
+ * <td>filenameEncoding</td>
+ * <td><i>null</i><br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>With null, the filename in the <i>Content-Disposition</i> header is not
  * encoded. If not null, the applet tries to encode this filename with the given
  * encoding. It's up to the receiver (the web site) to decode this encoding (see
- * {@link #getUploadFilename(FileData, int)}. <BR>
+ * {@link #getUploadFilename(FileData, int)}. <br>
  * Example: if the "UTF8" encoding is choosen, the PHP function urldecode can be
- * used to decode the filename. </TD>
- * </TR>
- * <TR>
- * <TD>highQualityPreview</TD>
- * <TD>false<BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>If this parameter is set to <I>true</I>, the applet will call the
+ * used to decode the filename. </td>
+ * </tr>
+ * <tr>
+ * <tr>
+ * <td>formdata</td>
+ * <td><i>null</i><br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
+ * <i>Since v2.9.2rc4</i></td>
+ * <td>With this parameter, the name of a HTML form can be specified.
+ * If the specified form exists in the same document like the applet, all
+ * all form-variables are added as POST parameters to the applet's POST request.</td>
+ * </tr>
+ * <tr>
+ * <td>highQualityPreview</td>
+ * <td>false<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>If this parameter is set to <i>true</i>, the applet will call the
  * BufferedImage.getScaledInstance(), instead of doing a basic scale
  * transformation. This consume more CPU: on a PII 500MHz, the full screen go
  * from around 5 seconds to between 12 and 20 seconds, for a picture created by
  * my EOS20D (8,5M pixels). The standard preview (above the file list) seem to
- * be displayed at the same speed, whatever is the value of this parameter. <BR>
+ * be displayed at the same speed, whatever is the value of this parameter. <br>
  * Note: when resizing is done before upload, the
  * BufferedImage.getScaledInstance() is always called, so that the uploaded
- * picture is of the best available quality. </TD>
- * </TR>
- * <TR>
- * <TD>lang</TD>
- * <TD>Navigator language <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>Should be something like <I>en</I>, <I>fr</I>... Currently only french
+ * picture is of the best available quality. </td>
+ * </tr>
+ * <tr>
+ * <td>lang</td>
+ * <td>Navigator language <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>Should be something like <i>en</i>, <i>fr</i>... Currently only french
  * and english are known from the applet. If anyone want to add another language
  * ... Please translate the wjhk.jupload2.lang.lang_en, and send it back to
- * <mailto:etienne_sf@sourceforge.net">. </TD>
- * </TR>
- * <TR>
- * <TD>lookAndFeel <BR>
- * since 2.5</TD>
- * <TD><I>empty</I><BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This allows to control the look & feel of the applet. The authorized
- * values are: <DIR>
- * <LI><I>empty</I>: uses the default look & feel. This is the same as java.
- * <LI>java: uses the java default look & feel. Same as <I>empty</I>.
- * <LI>system: uses the current system look and feel. The call will be : <BR>
+ * <mailto:etienne_sf@sourceforge.net">. </td>
+ * </tr>
+ * <tr>
+ * <td>lookAndFeel <br>
+ * since 2.5</td>
+ * <td><i>empty</i><br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This allows to control the look &amp; feel of the applet. The authorized
+ * values are:
+ * <ul>
+ * <li><i>empty</i>: uses the default look &amp; feel. This is the same as
+ * java.
+ * <li>java: uses the java default look &amp; feel. Same as <i>empty</i>.
+ * <li>system: uses the current system look and feel. The call will be : <br>
  * UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
- * <LI>Any valid String argument for UIManager.setLookAndFeel(String). </DIR>
- * </TD>
- * </TR>
- * <TR>
- * <TD>maxChunkSize<BR>
- * Since 2.7.1</TD>
- * <TD>0<BR>
- * <I>Long.MAX_VALUE</I><BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This parameters defines the maximum size of an upload. <DIR>
- * <LI>If not set, or set to a value of 0 or less, the chunk mode is disabled.
+ * <li>Any valid String argument for UIManager.setLookAndFeel(String).
+ * </ul>
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>maxChunkSize<br>
+ * Since 2.7.1</td>
+ * <td>0<br>
+ * <i>Long.MAX_VALUE</i><br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameters defines the maximum size of an upload.
+ * <ul>
+ * <li>If not set, or set to a value of 0 or less, the chunk mode is disabled.
  * That is: each file will be uploaded within being splitted in pieces.
- * <LI>If set to a value of 1 or more, the upload size will be never be more
+ * <li>If set to a value of 1 or more, the upload size will be never be more
  * than maxChunkSize. A file bigger will be split in several part of
- * <I>maxChunkSize</I> size, then the last part will contain the remaining, and
- * will probably be smaller than <I>maxChunkSize</I>. </DIR> <BR>
- * <B>How to build the server part:</B> the server will have to 'guess' that
+ * <i>maxChunkSize</i> size, then the last part will contain the remaining, and
+ * will probably be smaller than <i>maxChunkSize</i>.
+ * </ul>
+ * <br>
+ * <b>How to build the server part:</b> the server will have to 'guess' that
  * the file is splitted, and then it will have to reconstruct the uploaded file.
- * Here are the necessary informations: <DIR>
- * <LI>When a file is chunked, the <I>jupart</I> and <I>jufinal</I> parameter
+ * Here are the necessary informations:
+ * <ul>
+ * <li>When a file is chunked, the <i>jupart</i> and <i>jufinal</i> parameter
  * are given in the URL (get parameters). This identify a chunk upload. If these
  * parameters are not given, the file(s) is(are) uploaded in one piece.
- * <LI><I>jupart</I> identify the part number: from 1 to N for a file being
- * plitted in N pieces. The N-1 chunks should be <I>maxChunkSize</I> bytes
+ * <li><i>jupart</i> identify the part number: from 1 to N for a file being
+ * plitted in N pieces. The N-1 chunks should be <i>maxChunkSize</i> bytes
  * long. The last one contains the remaining of the file.
- * <LI><I>jufinal</I> is set to 0 for chunks from 1 to N-1. It is is set to 1
+ * <li><i>jufinal</i> is set to 0 for chunks from 1 to N-1. It is is set to 1
  * only for the last chunk (N, in this 'example').
- * <LI>The uploaded filename is not modified when the upload is chunked.
- * Example: upload of the file <I>bigPicture.jpeg</I>, of 4,5 Mb, with chunk of
+ * <li>The uploaded filename is not modified when the upload is chunked.
+ * Example: upload of the file <i>bigPicture.jpeg</i>, of 4,5 Mb, with chunk of
  * 2Mb. The upload is splitted in three chunk. Chunk 1 and 2 are 2Mb long. The
  * third one is 0,5Mb long. The uploaded filename for these three uploads is
- * <I>bigPicture.jpeg</I>. It's up to the server part to read the <I>jupart</I>
- * and <I>jufinal</I> get parameters, to understand that the upload is chunked.
- * <LI><B>Important:</B> The server script <U>must</U> check the resulting
+ * <i>bigPicture.jpeg</i>. It's up to the server part to read the <i>jupart</i>
+ * and <i>jufinal</i> get parameters, to understand that the upload is chunked.
+ * <li><b>Important:</b> The server script <u>must</u> check the resulting
  * filesize. If not, the client can send a file of any size, and fill the server
  * hard drive.
- * <LI>The wwwroot/pages/parseRequest.jsp is a java example of a server page
- * that can receive chunk upload. It stores each chunk is <I>filename.partN</I>
+ * <li>The wwwroot/pages/parseRequest.jsp is a java example of a server page
+ * that can receive chunk upload. It stores each chunk is <i>filename.partN</i>
  * (where N is the chunk number), then construct the final file, by
- * concatenating all parts together. </DIR> <B>Note: </B> If nbFilesPerRequest
- * is different than 1, the applet will try to upload the files until the sum of
- * their content length is less than maxChunkSize. The upload is triggered just
- * before the sum of their content length is bigger then maxChunkSize.<BR>
- * If one file is bigger than <I>maxChunkSize</I>, all previous files are
+ * concatenating all parts together.
+ * </ul>
+ * <b>Note: </b> If nbFilesPerRequest is different than 1, the applet will try
+ * to upload the files until the sum of their content length is less than
+ * maxChunkSize. The upload is triggered just before the sum of their content
+ * length is bigger then maxChunkSize.<br>
+ * If one file is bigger than <i>maxChunkSize</i>, all previous files are
  * uploaded (at once or not, depending on nbFilesPerRequest). Then the 'big'
  * file is uploaded alone, splitted in chunk. Then upload goes on, file by file
- * or not, depending on <I>nbFilesPerRequest</I>. </TD>
- * </TR>
- * <TR>
- * <TD>maxFileSize<BR>
- * Since 2.7.1</TD>
- * <TD>0<BR>
- * <I>Long.MAX_VALUE</I><BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This parameter identify the maximum size that an uploaded file may have.
+ * or not, depending on <i>nbFilesPerRequest</i>. </td>
+ * </tr>
+ * <tr>
+ * <td>maxFileSize<br>
+ * Since 2.7.1</td>
+ * <td>0<br>
+ * <i>Long.MAX_VALUE</i><br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter identify the maximum size that an uploaded file may have.
  * It prevent the user to upload too big files. It is especially important when
- * chunk upload is activated (see below <I>maxChunkSizew</I>). <DIR>
- * <LI>If <I>maxChunkSize</I> is not set, negative or 0, <I>maxFileSize</I>
+ * chunk upload is activated (see below <i>maxChunkSizew</i>).
+ * <ul>
+ * <li>If <i>maxChunkSize</i> is not set, negative or 0, <i>maxFileSize</i>
  * should be the maximum upload size of the server. In this case, it is useful
  * only to display a message when the user select a file that will be refused by
  * the server.
- * <LI>If chunk upload is activated, this parameter becomes really important:
+ * <li>If chunk upload is activated, this parameter becomes really important:
  * in this case the maximum file size of an uploaded file is ... the available
- * space on the server hard drive! (see below, <I>maxChunkSize</I>). </DIR>
- * </TD>
- * </TR>
- * <TR>
- * <TD>maxPicHeight</TD>
- * <TD>-1 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
- * <TD>This parameters allows the HTML page to control the maximum height for
+ * space on the server hard drive! (see below, <i>maxChunkSize</i>).
+ * </ul>
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>maxPicHeight</td>
+ * <td>-1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>This parameters allows the HTML page to control the maximum height for
  * pictures. If a picture is to be download, and its height is bigger, the
  * picture will be resized. The proportion between width and height of the
  * resized picture are the same as those of the original picture. If both
  * maxPicHeight and maxPicWidth are given, it can happen that the resized
  * picture has a height lesser than maxPicHeight, so that width is no more than
- * maxPicWidth. <BR>
- * <B>Precisions:</B> <BR>
+ * maxPicWidth. <br>
+ * <b>Precisions:</b> <br>
  * If this parameter value is negative, then no control is done on the picture
- * height. <BR>
+ * height. <br>
  * If the original picture is smaller than the maximum size, the picture is not
- * enlarged. <BR>
+ * enlarged. <br>
  * If the picture is resized, its other characteristics are kept (number of
  * colors, ColorModel...). The picture format is ketp, if targetPictureFormat is
  * empty. If the picture format is a destructive (like jpeg), the maximum
- * available quality is choosed. <BR>
- * <I>See also maxPicWidth, realMaxPicHeight</I> </TD>
- * </TR>
- * <TR>
- * <TD>maxPicWidth</TD>
- * <TD>-1 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
- * <TD>Same as maxPicHeight, but for the maximum width of the uploaded picture.
- * <BR>
- * <I>See also maxPicHeight, realMaxPicWidth</I> </TD>
- * </TR>
- * <TR>
- * <TD>nbFilesPerRequest</TD>
- * <TD>-1 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This allows the control of the maximal number of files that are uploaded
- * in one HTTP upload to the server. <BR>
+ * available quality is choosed. <br>
+ * <i>See also maxPicWidth, realMaxPicHeight</i> </td>
+ * </tr>
+ * <tr>
+ * <td>maxPicWidth</td>
+ * <td>-1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>Same as maxPicHeight, but for the maximum width of the uploaded picture.
+ * <br>
+ * <i>See also maxPicHeight, realMaxPicWidth</i> </td>
+ * </tr>
+ * <tr>
+ * <td>nbFilesPerRequest</td>
+ * <td>-1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This allows the control of the maximal number of files that are uploaded
+ * in one HTTP upload to the server. <br>
  * If set to -1, there is no maximum. This means that all files are uploaded in
- * the same HTTP request. <BR>
+ * the same HTTP request. <br>
  * If set to 5, for instance, and there are 6 files to upload, there will be two
  * HTTP upload request to the server : 5 files in the first one, and that last
- * file in a second HTTP request. </TD>
- * </TR>
- * <TR>
- * <TD><B>postURL</B></TD>
- * <TD><I>Mandatory</I> <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD><B> It contains the target URL toward which the files should be upload.
- * This parameter is mandatory for existing class. It may become optional in new
- * UploadPolicy, that would create this URL from other data. If this URL may
- * change during the applet execution time, you can call the setProperty applet
- * method from javascript, or create a new UploadPolicy class and either : <DIR>
- * <LI>Override the {@link wjhk.jupload2.policies.UploadPolicy#getPostURL()}
+ * file in a second HTTP request. </td>
+ * </tr>
+ * <tr>
+ * <td>postURL</td>
+ * <td>null since 1.9.2rc4, (was <i>Mandatory</i> before)<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter specifies the target URL toward which the files should be
+ * uploaded.
+ * Since version 1.9.2rc4 this parameter is not mandatory anymore. Instead,
+ * if omitted or a <i>relative</i> URL is given, the resulting URL is constructed
+ * from the applet's DocumentBaseURL. This means, that if the applet tag is
+ * dynamically constructed from a PHP script without specifying <code>postURL</code>,
+ * the <i>same</i> same script receives the subsequent POST request(s). If this
+ * URL may change during the applet execution time, you can call the setProperty
+ * applet method from javascript, or create a new UploadPolicy class and either :
+ * <ul>
+ * <li>Override the {@link wjhk.jupload2.policies.UploadPolicy#getPostURL()}
  * method, to make the postURL totaly dynamic.
- * <LI>Override the
+ * <li>Override the
  * {@link wjhk.jupload2.policies.UploadPolicy#setPostURL(String)} method, to
  * modify the postURL on the fly, when it is changed.
- * <LI>Override the
+ * <li>Override the
  * {@link wjhk.jupload2.policies.UploadPolicy#setProperty(String, String)}
  * method. The {@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes the
  * postURL when the albumID property changes.
- * <LI>Find another solution ... </DIR> <U>Note 1:</U> in HTTP, the upload is
- * done in the same user session, as the applet uses the cookies from the
- * navigator. This allows right management during upload, on the server side.<BR>
- * <U>Note 2:</U> FTP URL should looks like:
- * ftp://username:password@myhost.com:21/directory<BR>
- * <U>Note 3:</U> in FTP, you'll have to add the jakarta-commons-oro.jar and
+ * <li>Find another solution ...
+ * </ul>
+ * <u>Note 1:</u> in HTTP, the upload is done in the same user session, as the
+ * applet uses the cookies from the navigator. This allows right management
+ * during upload, on the server side.<br>
+ * <u>Note 2:</u> FTP URL should looks like:
+ * ftp://username:password@myhost.com:21/directory<br>
+ * <u>Note 3:</u> in FTP, you'll have to add the jakarta-commons-oro.jar and
  * jakarta-commons-net.jar jar files in the applet ARCHIVE tag attribute. See
  * the 'advanced_js_demo.html page for a sample. You'll have to put the two
  * files coming from the JUpload distribution in the same directory as the
- * wjhk.jupload.jar. </B> </TD>
- * </TR>
- * <TR>
- * <TD>realMaxPicHeight</TD>
- * <TD>-1 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.PictureUploadPolicy}<BR>
- * <I>Since v2.8.1</I></TD>
- * <TD>This parameters is about the same as maxPicHeight. It overrides it for
+ * wjhk.jupload.jar.</td>
+ * </tr>
+ * <tr>
+ * <td>realMaxPicHeight</td>
+ * <td>-1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}<br>
+ * <i>Since v2.8.1</i></td>
+ * <td>This parameters is about the same as maxPicHeight. It overrides it for
  * pictures that must be transformed (currentlty only when the picture is
- * rotated). <BR>
+ * rotated). <br>
  * The aim of this parameter, is to prevent the applet to resize picture, and
- * let the server do it: it will be much quicker. <BR>
- * This allows you to: <DIR>
- * <LI>Put a 'big' <I>maxPicHeight</I> (or don't provide the parameter in the
+ * let the server do it: it will be much quicker. <br>
+ * This allows you to:
+ * <ul>
+ * <li>Put a 'big' <i>maxPicHeight</i> (or don't provide the parameter in the
  * APPLET tag), and let the server resize the picture according to the real
- * maxHeight. The <I>maxPicHeight</I> will be used when the picture is not
+ * maxHeight. The <i>maxPicHeight</i> will be used when the picture is not
  * tranformed by the user.
- * <LI>Put this realMaxHeight to the real configured maxHeight. The applet will
+ * <li>Put this realMaxHeight to the real configured maxHeight. The applet will
  * then directly produce the final file, when it has to tranform the picture
- * (picture rotation, for instance). </DIR> <BR>
- * <I>See also maxPicHeight, realMaxPicWidth, maxChunkSize (to override any
- * server upload size limitation).</I> </TD>
- * </TR>
- * <TR>
- * <TD>realMaxPicWidth</TD>
- * <TD>-1 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.PictureUploadPolicy}<I>Since v2.8.1</I></TD>
- * <TD>Same as realMaxPicHeight, but for the maximum width of uploaded picture
- * that must be transformed. <BR>
- * <I>See also maxPicWidth, realMaxPicHeight</I> </TD>
- * </TR>
- * <TR>
- * <TD>serverProtocol</TD>
- * <TD>HTTP/1.1 <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This parameter allows the control of the protocol toward the server.
+ * (picture rotation, for instance).
+ * </ul>
+ * <br>
+ * <i>See also maxPicHeight, realMaxPicWidth, maxChunkSize (to override any
+ * server upload size limitation).</i> </td>
+ * </tr>
+ * <tr>
+ * <td>realMaxPicWidth</td>
+ * <td>-1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}<i>Since v2.8.1</i></td>
+ * <td>Same as realMaxPicHeight, but for the maximum width of uploaded picture
+ * that must be transformed. <br>
+ * <i>See also maxPicWidth, realMaxPicHeight</i> </td>
+ * </tr>
+ * <tr>
+ * <td>serverProtocol</td>
+ * <td>HTTP/1.1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter allows the control of the protocol toward the server.
  * Currently, only HTTP is supported, so valid values are HTTP/0.9 (not tested),
- * HTTP/1.0 and HTTP/1.1. <BR>
+ * HTTP/1.0 and HTTP/1.1. <br>
  * This parameter is really useful only in
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine
  * application also controls that the requests send within an HTTP session uses
  * the same HTTP protocol (as a protection to limit the 'steal' of session
- * cookies). </TD>
- * </TR>
- * <TR>
- * <TD>showStatusBar</TD>
- * <TD>True<BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>If given with the <I>False</I> value, the status bar will be hidden.
+ * cookies). </td>
+ * </tr>
+ * <tr>
+ * <td>showStatusBar</td>
+ * <td>True<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>If given with the <i>False</i> value, the status bar will be hidden.
  * The applet will still store all debug information in it. But the user won't
- * see it any more. If a problem occurs, the <I>urlToSendErrorTo</I> can still
- * be used to log all available information. </TD>
- * </TR>
- * <TR>
- * <TD>storeBufferedImage</TD>
- * <TD>false <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.PictureUploadPolicy}</TD>
- * <TD>This parameter indicates that the preview image on the applet is kept in
+ * see it any more. If a problem occurs, the <i>urlToSendErrorTo</i> can still
+ * be used to log all available information. </td>
+ * </tr>
+ * <tr>
+ * <td>storeBufferedImage</td>
+ * <td>false <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>This parameter indicates that the preview image on the applet is kept in
  * memory. It works really nice under eclise. But, once in the navigator, the
  * applet runs very quickly out of memory. So I add a lot of calls to
  * {@link wjhk.jupload2.filedata.PictureFileData#freeMemory(String)}, but it
  * doesn't change anything. Be careful to this parameter, and let it to the
  * default value, unless you've well tested it under all your target client
- * configurations. </TD>
- * </TR>
- * <TR>
- * <TD>stringUploadSuccess</TD>
- * <TD>empty string ("") since 2.9.0<BR>
- * (was ".* 200 OK$" before) <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>This string is a regular expression. It allows the applet to test that
+ * configurations. </td>
+ * </tr>
+ * <tr>
+ * <td>stringUploadSuccess</td>
+ * <td>empty string ("") since 2.9.0<br>
+ * (was ".* 200 OK$" before) <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This string is a regular expression. It allows the applet to test that
  * the server has accepted the upload. If this parameter is given to the applet,
  * the upload thread will try to match this regular epression to each lines
- * returned from the server.<BR>
+ * returned from the server.<br>
  * If the match is successfull once, the upload is considered to be a success.
  * If not, a {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is
- * thrown. <BR>
+ * thrown. <br>
  * The default test expression testes that the web server returns no HTTP error:
  * 200 is the return code for a successfull HTTP request. It actually means that
  * postURL is a valid URL, and that the applet was able to send a request to
  * this URL: there should be no problem with the network configuration, like
- * proxy, password proxy...). <BR>
- * <B>But</B> it doesn't mean that the uploaded files have correctly be managed
+ * proxy, password proxy...). <br>
+ * <b>But</b> it doesn't mean that the uploaded files have correctly be managed
  * by the server. For instance, the URL can be http://sourceforge.net, which, of
- * course, would not take your files into account. <BR>
+ * course, would not take your files into account. <br>
  * So, as soon as you know a regular expression that test the return from the
  * target application (and not just a techical HTTP response code), change the
  * stringUploadSuccess to this value. For instance, the
@@ -385,56 +421,63 @@ import wjhk.jupload2.gui.JUploadPanel;
  * "^SUCCESS$", as the HTTP body content of the server's answer contain just
  * this exact line. This 'success' means that the pictures have correctly be
  * added to the album, that vignettes have been generated (this I suppose),
- * etc... </TD>
- * </TR>
- * <TR>
- * <TD>targetPictureFormat</TD>
- * <TD><I>Empty String</I> <BR>
- * <BR> (<B>to be</B> implemented in
- * {@link wjhk.jupload2.policies.PictureUploadPolicy})</TD>
- * <TD>This parameter can contain any picture writer known by the JVM. For
+ * etc... </td>
+ * </tr>
+ * <tr>
+ * <td>targetPictureFormat</td>
+ * <td><i>Empty String</i> <br>
+ * <br> (<b>to be</b> implemented in
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy})</td>
+ * <td>This parameter can contain any picture writer known by the JVM. For
  * instance: jpeg, png, gif. All standard formats should be available. More
- * information can be found on the <A
- * href='http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html'>java.sun.com</A>
- * web site. </TD>
- * </TR>
- * <TR>
- * <TD><B>uploadPolicy</B></TD>
- * <TD>DefaultUploadPolicy <BR>
- * <BR>
- * see {@link wjhk.jupload2.policies.UploadPolicyFactory}</TD>
- * <TD>This parameter contains the class name for the UploadPolicy that should
+ * information can be found on the <a
+ * href="http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html">java.sun.com</a>
+ * web site. </td>
+ * </tr>
+ * <tr>
+ * <td><b>uploadPolicy</b></td>
+ * <td>DefaultUploadPolicy <br>
+ * <br>
+ * see {@link wjhk.jupload2.policies.UploadPolicyFactory}</td>
+ * <td>This parameter contains the class name for the UploadPolicy that should
  * be used. If it is not set, or if its value is unknown from
  * {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(JUploadApplet)},
- * the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used. </TD>
- * </TR>
- * <TR>
- * <TD>urlToSendErrorTo</TD>
- * <TD><I>Empty String</I> <BR>
- * <BR>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</TD>
- * <TD>If this url is given, and an upload error occurs, the applet post the
+ * the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used. </td>
+ * </tr>
+ * <tr>
+ * <td>urlToSendErrorTo</td>
+ * <td><i>Empty String</i> <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>If this url is given, and an upload error occurs, the applet post the
  * all the debug output to this address. It's up to this URL to handle this
  * mail. It is possible to just store the file, or to log the error in a
  * database, or to send a mail (like the mail.php script given with the
- * coppermine pack). <BR>
- * <U>Note:</U> Don't put a mailto link here: it won't be able to manage the
+ * coppermine pack). <br>
+ * <u>Note:</u> Don't put a mailto link here: it won't be able to manage the
  * debug output, that is too big. The maximum length of a mailto depends on the
- * navigator. With Firefox, it seems to be around 4kb. </TD>
- * </TR>
- * </TABLE> <A NAME="example">
- * <H3>HTML call example</H3>
- * </A> You'll find below an example of how to put the applet into a PHP page:
- * <BR>
- * <XMP> <APPLET NAME="JUpload" CODE="wjhk.jupload2.JUploadApplet"
- * ARCHIVE="plugins/jupload/wjhk.jupload.jar" <!-- Applet display size, on the
- * navigator page --> WIDTH="500" HEIGHT="700" <!-- The applet call some
- * javascript function, so we must allow it : --> MAYSCRIPT > <!-- Only one
- * parameter is mandatory. We don't precise the UploadPolicy, so
- * DefaultUploadPolicy is used. The applet behaves like the original JUpload.
- * (jupload v1) --> <PARAM NAME="postURL"
- * VALUE="http://some.host.com/youruploadpage.php"> Java 1.4 or higher plugin
- * required. </APPLET> </XMP>
+ * navigator. With Firefox, it seems to be around 4kb. </td>
+ * </tr>
+ * </table>
+ * <h3><a name="example">HTML call example</a></h3>
+ * <p>Below, an example of how to put the applet into a PHP page is shown:
+ * </p>
+ * <code><pre>
+ *   &lt;applet name="JUpload" code="wjhk.jupload2.JUploadApplet"
+ *     archive="plugins/jupload/wjhk.jupload.jar"
+ *     &lt;!-- Applet display size, on the navigator page --&gt;
+ *     width="500" height="700"
+ *     &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+ *     mayscript&gt;
+ *     &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+ *          DefaultUploadPolicy is used. The applet behaves like the original
+ *          JUpload. (jupload v1) --&gt;
+ *     &lt;param name="postURL" value="http://some.host.com/youruploadpage.php"&gt;
+ *     Java 1.5 or higher plugin required.
+ *   &lt;/applet&gt;
+ * </pre></code>
+ * <!-- ANT_COPYDOC_END -->
+ * <!-- ATTENTION: The comment above is used by Ant build. DO NOT CHANGE!! -->
  * 
  * @author Etienne Gauthier
  * @version $Revision$
@@ -738,7 +781,7 @@ public interface UploadPolicy {
      * This method displays the applet parameter list, according to the current
      * debugLevel. It is called by the {@link #setDebugLevel(int)} method. It
      * should be override by any subclasses, that should display its own
-     * parameters, then call <I>super.displayParameterStatus()</I>.
+     * parameters, then call <i>super.displayParameterStatus()</i>.
      */
     public void displayParameterStatus();
 
@@ -750,12 +793,12 @@ public interface UploadPolicy {
     /**
      * This allow runtime modifications of properties. With this method, you can
      * change any applet parameter after the applet initilization, with
-     * JavaScript for instance. If the applet parameters given in <I>prop</I>
+     * JavaScript for instance. If the applet parameters given in <i>prop</i>
      * is not managed by this method, a warning is displayed on the status bar.
      * 
      * @param prop The applet parameter name.
      * @param value The new value for this parameter. If the value is not valid
-     *            (for instance <I>aaa</I> for a number), a warning is
+     *            (for instance <i>aaa</i> for a number), a warning is
      *            displayed in the status bar, and the existing value is not
      *            changed.
      */
@@ -786,10 +829,10 @@ public interface UploadPolicy {
 
     /**
      * This method indicate whether or not the debug messages must be displayed.
-     * Default is no debug (0). <BR>
+     * Default is no debug (0). <br>
      * To activate the debug, add a 'debugLevel' parameter to the applet (with 1
      * to n value), or call this method. Currently, level used in the code are
-     * between 0 (no debug) and 100 (max debug). <BR>
+     * between 0 (no debug) and 100 (max debug). <br>
      * With a 0 value, no debug messages will be displayed. The
      * {@link DefaultUploadPolicy}.addMsgToDebugBufferString method stores all
      * debug output in a BufferString.
@@ -836,11 +879,11 @@ public interface UploadPolicy {
      * This function returns the number of files should be uploaded during one
      * access to the server. If negative or 0, all files are to be uploaded in
      * one HTTP request. If positive, each HTTP upload contains this number of
-     * files. The last upload request may contain less files. <BR>
+     * files. The last upload request may contain less files. <br>
      * Examples :
      * <UL>
-     * <LI>If 1 : files are uploaded file by file.
-     * <LI>If 5 : files are uploaded 5 files by 5 files. If 12 files are
+     * <li>If 1 : files are uploaded file by file.
+     * <li>If 5 : files are uploaded 5 files by 5 files. If 12 files are
      * uploaded, 3 HTTP upload are done, containing 5, 5 and 2 files.
      * </UL>
      * 
@@ -869,7 +912,7 @@ public interface UploadPolicy {
      * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine
      * control that the protocol used for each HTTP request is the same as the
      * one used during the session creation. It is used in the default policy,
-     * as it could be used elsewhere. <BR>
+     * as it could be used elsewhere. <br>
      * Default is : HTTP/1.1
      * 
      * @return The selected server protocol.
@@ -880,10 +923,10 @@ public interface UploadPolicy {
      * Indicate whether the status bar should be shown. It may be interesting to
      * hide it, as it contains no really text information. But it still is the
      * only place where is displayed the upload status (and upload error if
-     * any). <BR>
+     * any). <br>
      * Default is : true
      * 
-     * @return The current value for the <I>showStatusBar</I> applet parameter.
+     * @return The current value for the <i>showStatusBar</i> applet parameter.
      */
     public boolean getShowStatusBar();
 
@@ -915,7 +958,7 @@ public interface UploadPolicy {
 
     /**
      * Returns the current URL where error log must be posted. See <a
-     * href="#parameters>Parameters</a>
+     * href="#parameters">Parameters</a>
      * 
      * @return the urlToSendErrorTo
      */
@@ -924,17 +967,17 @@ public interface UploadPolicy {
     /**
      * Get the regular expression that will be tested against each line of the
      * server answer. If one line matches this expression, that upload is marked
-     * as successful. <BR>
+     * as successful. <br>
      * The upload works this way:
-     * <OL>
-     * <LI>Upload the selected file(s) to the server
-     * <LI>Get all the server HTTP response.
-     * <LI>The stringUploadSuccess regular expression is tested against each
+     * <ol>
+     * <li>Upload the selected file(s) to the server
+     * <li>Get all the server HTTP response.
+     * <li>The stringUploadSuccess regular expression is tested against each
      * line from the server.
-     * <LI>If the above test gives a match, the upload is marked as successful.
+     * <li>If the above test gives a match, the upload is marked as successful.
      * Else, the upload is marked as unsuccessful, and a
      * JUploadExceptionUploadFailure is thrown.
-     * </OL>
+     * </ol>
      * 
      * @return The regular expression that must be run again each line of the
      *         http answer.
@@ -956,9 +999,9 @@ public interface UploadPolicy {
     /**
      * This methods is called by the {@link JUploadFileFilter#accept(File)}. It
      * allows the current upload policy to filter files, according to any
-     * choosen applet behaviour.<BR>
+     * choosen applet behaviour.<br>
      * In the {@link DefaultUploadPolicy} upload policy, this filter is based on
-     * the applet parameter: <I>allowedFileExtensions</I>.
+     * the applet parameter: <i>allowedFileExtensions</i>.
      * 
      * @see JUploadPanel#JUploadPanel(java.awt.Container,
      *      wjhk.jupload2.gui.JUploadTextArea, UploadPolicy)
@@ -1091,10 +1134,10 @@ public interface UploadPolicy {
      * OK" indicates that the server response is techically correct. But, it may
      * be a functionnal error. For instance, the server could answer by a proper
      * HTTP page, that the user is no allowed to upload files. It's up to the
-     * uploadPolicy to check this, and answer true or false to this method. <BR>
+     * uploadPolicy to check this, and answer true or false to this method. <br>
      * This method is called once for each HTTP request toward the server. For
      * instance, if the upload is done file by file, and there are three files
-     * to upload, this method will be called three times. <BR>
+     * to upload, this method will be called three times. <br>
      * So this method is different from the
      * {@link #afterUpload(Exception, String)}, that will be called only once
      * in this case, after the three calls to the checkUploadSuccess method.
@@ -1135,12 +1178,12 @@ public interface UploadPolicy {
 
     /**
      * Retrive a local property. This allows localization. All strings are
-     * stored in the property files in the wjhk.jupload2.lang package. <BR>
-     * All occurences of <B>{1}</B> in the value (corresponding to key) are
-     * replaced by value1. <BR>
-     * Sample : <BR>
-     * Love=Oh {1}, I love you so much ... <BR>
-     * Call it by <I>getString("Love", "John Smith")</I> ... &nbsp; ;-)
+     * stored in the property files in the wjhk.jupload2.lang package. <br>
+     * All occurences of <b>{1}</b> in the value (corresponding to key) are
+     * replaced by value1. <br>
+     * Sample : <br>
+     * Love=Oh {1}, I love you so much ... <br>
+     * Call it by <i>getString("Love", "John Smith")</i> ... &nbsp; ;-)
      * 
      * @param key The key, whose associated text is to retrieve.
      * @param value1 The value, which will replace all occurence of {1}
