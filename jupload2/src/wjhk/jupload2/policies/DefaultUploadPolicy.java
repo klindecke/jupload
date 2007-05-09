@@ -1034,7 +1034,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * @see UploadPolicy#setAfterUploadURL()
+     * Set the {@link #afterUploadURL}
+     * @param afterUploadURL The URL to use.
      */
     protected void setAfterUploadURL(String afterUploadURL) {
         if (null == afterUploadURL)
