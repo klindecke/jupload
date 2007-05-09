@@ -1,4 +1,3 @@
-
 TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
 
@@ -114,7 +113,7 @@ minMemory=8M and a maxMemory=16M.
 - [Major] Add of a popup menu that allows changing the debug mode while using the applet: very useful to help
 debugging a problem on a distant server, with only a standard user access to the site. To switch the debug mode on: 
 click on the right button, while holding the CTRL down.
-- [Minor] (feature request n°1625013) Add of a new applet parameter: lookAndFeel. It allows to control the way the 
+- [Minor] (feature request nï¿½1625013) Add of a new applet parameter: lookAndFeel. It allows to control the way the 
 applet is displayed. This allow to display the applet with a java look & feel, or to use the current user's system 
 one, or any other. Please, take a look to the list of applet parameters, to use it.
 
