@@ -57,6 +57,23 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <th>Description</th>
  * </tr>
  * <tr>
+ * <td>afterUploadTarget<br>Since 2.9.2rc4</td>
+ * <td>_self<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter allows to select a specific target frame when redirecting to
+ * <code>afterUploadURL</code>. The following values are possible:<br>
+ * <ul>
+ *   <li><code>_self</code> - Show in the window and frame that contain the applet. </li>
+ *   <li><code>_parent</code> - Show in the applet's parent frame. If the applet's frame has no parent frame, acts the same as <i>_self</i>.</li>
+ *   <li><code>_top</code> - Show in the top-level frame of the applet's window. If the applet's frame is the top-level frame, acts the same as <i>_self</i>.</li>
+ *   <li><code>_blank</code> - Show in a new, unnamed top-level window. 
+ *   <li><i>name</i> - Show in the frame or window named <i>name</i>. If a target named <i>name</i> does not already exist, a new top-level window with the specified name is created, and the document is shown there.</li>
+ * </ul>
+ * See also: {@link java.applet.AppletContext#showDocument(java.net.URL, java.lang.String)}
+ * </td>
+ * </tr>
+ * <tr>
  * <td>afterUploadURL</td>
  * <td><i>null</i><br>
  * since 2.9.0<br>
@@ -64,7 +81,8 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <td>This parameter is used by all policies. It allows the applet to change
  * the current page to another one after a successful upload. <br>
  * This allows, for instance, to display a page containing the file description
- * of the newly uploaded page. </td>
+ * of the newly uploaded page.
+ * </td>
  * </tr>
  * <tr>
  * <td>allowedFileExtensions</td>
@@ -119,7 +137,7 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <td><i>null</i><br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
- * <i>Since v2.9.2rc4</i></td>
+ * <i>Since 2.9.2rc4</i></td>
  * <td>With this parameter, the name of a HTML form can be specified.
  * If the specified form exists in the same document like the applet, all
  * all form-variables are added as POST parameters to the applet's POST request.</td>
@@ -530,6 +548,11 @@ public interface UploadPolicy {
     final static String PROP_FILENAME_ENCODING = "filenameEncoding";
 
     /**
+     * Parameter/Property name for specifying additional form data.
+     */
+    final static String PROP_FORMDATA = "formdata";
+
+    /**
      * Parameter/Property name for specifying high quality previews.
      */
     final static String PROP_HIGH_QUALITY_PREVIEW = "highQualityPreview";
@@ -570,6 +593,11 @@ public interface UploadPolicy {
      * Parameter/Property name for specifying URL of the upload post request.
      */
     final static String PROP_POST_URL = "postURL";
+
+    /**
+     * Parameter/Property name for specifying URL of the upload post request.
+     */
+    final static String PROP_AFTER_UPLOAD_TARGET = "afterUploadTarget";
 
     /**
      * Parameter/Property name for specifying the real (server-side-desired)
@@ -617,9 +645,9 @@ public interface UploadPolicy {
     final static String PROP_URL_TO_SEND_ERROR_TO = "urlToSendErrorTo";
 
     /**
-     * Parameter/Property name for specifying additional form data.
+     * Default value for parameter "afterUploadTarget".
      */
-    final static String PROP_FORMDATA = "formdata";
+    final static String DEFAULT_AFTER_UPLOAD_TARGET = null;
 
     /**
      * Default value for parameter "afterUploadURL"
@@ -739,7 +767,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "urlToSendErrorTo".
      */
-    final static String DEFAULT_URL_TO_SEND_ERROR_TO = "";
+    final static String DEFAULT_URL_TO_SEND_ERROR_TO = null;
 
     /**
      * Default value for parameter "formdata"
@@ -906,6 +934,12 @@ public interface UploadPolicy {
      */
     public void setPostURL(String postURL) throws JUploadException;
 
+    /**
+     * Return the target, specified as applet parameter "afterUploadTarget"
+     * @return the specified target.
+     */
+    public String getAfterUploadTarget();
+    
     /**
      * HTTP protocol that should be used to send the HTTP request. Currently,
      * this is mainly used by

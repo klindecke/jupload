@@ -201,7 +201,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.fileView = new JUploadFileView(this.uploadPolicy,
                     this.fileChooser);
 
-            // TODO:
+            // XXX:
             // This breaks usability. probably use a persistent value of a
             // cookie later.
             // this.fileChooser.setCurrentDirectory(new File(System

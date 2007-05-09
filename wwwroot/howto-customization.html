@@ -212,6 +212,7 @@ using the creating a new policy, using the UploadPolicy interface:</p>
 
 <!-- ATTENTION: The comment below is used by Ant build. DO NOT CHANGE!! -->
 <!-- ANT_INSERTDOC_START -->
+
  <p>
  Here is the list of all parameters available in the current package, that is:
  available in available upload policies. These are applet parameters that
@@ -226,6 +227,23 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <th>Description</th>
  </tr>
  <tr>
+ <td>afterUploadTarget<br>Since 2.9.2rc4</td>
+ <td>_self<br>
+ <br>
+ <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
+ <td>This parameter allows to select a specific target frame when redirecting to
+ <code>afterUploadURL</code>. The following values are possible:<br>
+ <ul>
+   <li><code>_self</code> - Show in the window and frame that contain the applet. </li>
+   <li><code>_parent</code> - Show in the applet's parent frame. If the applet's frame has no parent frame, acts the same as <i>_self</i>.</li>
+   <li><code>_top</code> - Show in the top-level frame of the applet's window. If the applet's frame is the top-level frame, acts the same as <i>_self</i>.</li>
+   <li><code>_blank</code> - Show in a new, unnamed top-level window. 
+   <li><i>name</i> - Show in the frame or window named <i>name</i>. If a target named <i>name</i> does not already exist, a new top-level window with the specified name is created, and the document is shown there.</li>
+ </ul>
+ See also: <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/applet/AppletContext.html#showDocument(java.net.URL, java.lang.String)" title="class or interface in java.applet"><CODE>AppletContext.showDocument(java.net.URL, java.lang.String)</CODE></A>
+ </td>
+ </tr>
+ <tr>
  <td>afterUploadURL</td>
  <td><i>null</i><br>
  since 2.9.0<br>
@@ -233,7 +251,8 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <td>This parameter is used by all policies. It allows the applet to change
  the current page to another one after a successful upload. <br>
  This allows, for instance, to display a page containing the file description
- of the newly uploaded page. </td>
+ of the newly uploaded page.
+ </td>
  </tr>
  <tr>
  <td>allowedFileExtensions</td>
@@ -288,7 +307,7 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <td><i>null</i><br>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A><br>
- <i>Since v2.9.2rc4</i></td>
+ <i>Since 2.9.2rc4</i></td>
  <td>With this parameter, the name of a HTML form can be specified.
  If the specified form exists in the same document like the applet, all
  all form-variables are added as POST parameters to the applet's POST request.</td>
