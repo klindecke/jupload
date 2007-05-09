@@ -1,17 +1,16 @@
-<HTML>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>JUpload - File Upload Applet (advanced js demo)</title>
+<title>JUpload - File Upload Applet (advanced js demo)</title>
 </head>
 <body>
-<script language="javascript" src="common.js"> </script>
-
-
-
-
-<SCRIPT LANGUAGE="JavaScript">
+<script language="javascript" src="common.js" type=""> </script>
+<div align="center">
+<script language="JavaScript" type="">
 	//All managed parameters are below, with there default value :
 	postURL = "http://localhost:8080/jupload/pages/parseRequest.jsp";
-	urlToSendErrorTo = "mailto:toto@yahoo.com"; //Careful: log info will be truncated, if sent to a mailto: link.
+	urlToSendErrorTo = ""; //Careful: log info will be truncated, if sent to a mailto: link.
 	uploadPolicy = "";
 	
 	afterUploadURL = "";
@@ -177,7 +176,7 @@
 	document.writeln('</TABLE>');
 	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)">');
 	document.writeln('</FORM>');
-	document.writeln('');
+	document.writeln('<P>');
 
 	//Let's write one APPLET tag for the selected language	
 	document.writeln('<APPLET ');
@@ -201,14 +200,10 @@
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);
 	writeParam("showStatusBar", showStatusBar);
 	writeParam("stringUploadSuccess", stringUploadSuccess);
-	document.writeln('Java 1.4 or higher plugin required.');
+	document.writeln('Java 1.5 or higher plugin required.');
 	document.writeln('</APPLET>');
-</SCRIPT>
-
-
-<script language="javascript"> footer(); </script>
-
-</center>
-
- </body>
-</HTML>
+</script>
+<script language="javascript" type=""> footer(); </script>
+</div>
+</body>
+</html>

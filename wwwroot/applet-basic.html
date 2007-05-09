@@ -1,42 +1,55 @@
-<HTML>
+<html>
 <head>
-	<title>JUpload - File Upload Applet (basic mode demo)</title>
+<title>JUpload - File Upload Applet (basic mode demo)</title>
 </head>
 <body>
-<script language="javascript" src="common.js"> </script>
+<script language="javascript" src="common.js" type="text/javascript"></script>
 
-	<center>
-	<table width=640 cellpadding=7 cellspacing=0 border=0>
-		<tr><td COLSPAN=2 align=center><font face=arial size=+1 Color=red><b><U>JUpload - File Upload Applet</U></b></font></td></tr>
-		<tr height="20"></tr>
-		<tr><td COLSPAN=2 bgcolor="#3F7C98"><CENTER><FONT COLOR="#FFFFFF">The applet : default mode </FONT></CENTER></td></tr>
-		<tr><td COLSPAN=2 align=center>
-
-<APPLET  CODE="wjhk.jupload2.JUploadApplet" NAME="JUpload" ARCHIVE="wjhk.jupload.jar" WIDTH="640" HEIGHT="300" MAYSCRIPT></XMP>
-    <PARAM NAME = CODE VALUE = "wjhk.jupload2.JUploadApplet" >
-    <PARAM NAME = ARCHIVE VALUE = "wjhk.jupload.jar" >
-    <PARAM NAME="type" VALUE="application/x-java-applet;version=1.4">
-    <PARAM NAME="scriptable" VALUE="false">    
-    <PARAM NAME = "postURL" VALUE ="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value">
-    <PARAM NAME = "nbFilesPerRequest" VALUE ="2">    
-Java 1.4 or higher plugin required.
-</APPLET>
-
-			</td>
-		</tr>
-	 	<tr><td COLSPAN=2 bgcolor="#3F7C98"><CENTER><FONT COLOR="#FFFFFF">Applet Parameters</FONT></CENTER></td></tr>
-	 	<!-- tr><td COLSPAN=2 bgcolor=FFFFFF height=8> </td></tr>
-	 	<tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr -->
-	 	<tr>
-		    <td>Post URL: </td>
-		    <td BGCOLOR=FFFFFF> http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value</td>
-		</tr>
-
-
-<!-- footer -->
-		<!-- tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr -->
-		<tr><td COLSPAN=2>
-<script language="javascript"> footer(); </script>
-
- </body>
-</HTML>
+<center>
+<table width="640" cellpadding="7" cellspacing="0" border="0">
+    <tr>
+        <td colspan="2" align="center"><font face="arial" size="+1"
+            color="red"><b><u>JUpload - File Upload
+        Applet</u></b></font></td>
+    </tr>
+    <tr height="20"></tr>
+    <tr>
+        <td colspan="2" bgcolor="#3F7C98">
+        <center><font color="#FFFFFF">The applet :
+        default mode </font></center>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" align="center"><applet
+            code="wjhk.jupload2.JUploadApplet" name="JUpload"
+            archive="wjhk.jupload.jar" width="640" height="300"
+            mayscript alt="">
+            <param name="CODE" value="wjhk.jupload2.JUploadApplet">
+            <param name="ARCHIVE" value="wjhk.jupload.jar">
+            <param name="type"
+                value="application/x-java-applet;version=1.4">
+            <param name="scriptable" value="false">
+            <param name="postURL"
+                value="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value">
+            <param name="nbFilesPerRequest" value="2">
+            Java 1.5 or higher plugin required. </applet></td>
+    </tr>
+    <tr>
+        <td colspan="2" bgcolor="#3F7C98">
+        <center><font color="#FFFFFF">Applet Parameters</font></center>
+        </td>
+    </tr>
+    <tr>
+        <td>Post URL:</td>
+        <td bgcolor="FFFFFF">
+        http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value</td>
+    </tr>
+    <!-- footer -->
+    <tr>
+        <td colspan="2"><script language="javascript"
+            type="text/javascript"> footer(); </script></td>
+    </tr>
+</table>
+</center>
+</body>
+</html>
