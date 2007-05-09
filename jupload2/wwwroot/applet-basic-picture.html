@@ -1,74 +1,82 @@
-<HTML>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>JUpload - File Upload Applet (basic mode)</title>
+<title>JUpload - File Upload Applet (basic mode)</title>
 </head>
 <body>
-<script language="javascript" src="common.js"> </script>
+<script language="javascript" src="common.js" type="text/javascript"></script>
+<div align="center">
+<table width="640" cellspacing="0" border="0">
+    <tr>
+        <td colspan="2" align="center"><font face="arial" size="+1"
+            color="red"><b><u>JUpload - File Upload
+        Applet</u></b></font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="2" bgcolor="#3F7C98" align="center"><font
+            color="#FFFFFF">The applet : default mode </font></td>
+    </tr>
+    <tr>
+        <td colspan="2" align="center"><br />
 
-	<center>
-	<table width=640 cellspacing=0 border=0>
-		<tr><td COLSPAN=2 align=center><font face=arial size=+1 Color=red><b><U>JUpload - File Upload Applet</U></b></font></td></tr>
-		<tr height="20"></tr>
-		<tr><td COLSPAN=2 bgcolor="#3F7C98"><CENTER><FONT COLOR="#FFFFFF">The applet : default mode </FONT></CENTER></td></tr>
-		<tr><td COLSPAN=2 align=center><BR>
+        <applet code="wjhk.jupload2.JUploadApplet"
+            archive="wjhk.jupload.jar" width="640" height="300" alt=""
+            mayscript>
+            <param name="postURL"
+                value="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value" />
+            <param name="uploadPolicy" value="PictureUploadPolicy" />
+            <param name="nbFilesPerRequest" value="1" />
+            <!-- Optionnal, see code comments -->
+            <param name="maxPicHeight" value="900" />
+            <!-- Optionnal, see code comments -->
+            <param name="maxPicWidth" value="700" />
+            <!-- Optionnal, see code comments -->
+            <param name="debugLevel" value="0" />
+            <!-- Optionnal, see code comments --> Java 1.5 or higher
+            plugin required. </applet> <br />
+        <br />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2" class="header" bgcolor="#3F7C98">
+        <center><font color="#FFFFFF">Applet parameters</font></center>
+        </td>
+    </tr>
+    <tr>
+        <td>Post URL:</td>
+        <td>http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value</td>
+    </tr>
+    <tr>
+        <td>uploadPolicy:</td>
+        <td>PictureUploadPolicy</td>
+    </tr>
+    <tr>
+        <td>nbFilesPerRequest:</td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>maxPicHeight:</td>
+        <td>900</td>
+    </tr>
+    <tr>
+        <td>maxPicWidth:</td>
+        <td>700</td>
+    </tr>
+    <tr>
+        <td>debugLevel:</td>
+        <td>0</td>
+    </tr>
 
-<APPLET 
-		CODE    = "wjhk.jupload2.JUploadApplet" 
-		ARCHIVE = "wjhk.jupload.jar" 
-		WIDTH   = "640" 
-		HEIGHT  = "300"
-		MAYSCRIPT
-		>
-<PARAM NAME = "postURL"           VALUE ="http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value">
-<PARAM NAME = "uploadPolicy"      VALUE ="PictureUploadPolicy">
-<PARAM NAME = "nbFilesPerRequest" VALUE ="1">     <!-- Optionnal, see code comments -->
-<PARAM NAME = "maxPicHeight"      VALUE ="900">   <!-- Optionnal, see code comments -->
-<PARAM NAME = "maxPicWidth"       VALUE ="700">   <!-- Optionnal, see code comments -->
-<PARAM NAME = "debugLevel"        VALUE ="0">     <!-- Optionnal, see code comments -->
-Java 1.4 or higher plugin required.
-</APPLET>
-
-			<br><br>
-			</td>
-		</tr>
-		
-	 	<tr><td COLSPAN=2 bgcolor="#3F7C98"><CENTER><FONT COLOR="#FFFFFF">Applet mandatory parameters</FONT></CENTER></td></tr>
-	 	<!-- tr><td COLSPAN=2 bgcolor=FFFFFF height=8> </td></tr>
-	 	<tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr -->
-		<tr>
-			<td>Post URL: </td>
-			<td>http://localhost:8080/jupload/pages/parseRequest.jsp?URLParam=URL+Parameter+Value</td>
-		</tr>
-		<tr>
-			<td>uploadPolicy: </td>
-			<td>PictureUploadPolicy</td>
-		</tr>
-
-	 	<tr><td COLSPAN=2 bgcolor="#3F7C98"><CENTER><FONT COLOR="#FFFFFF">Applet optionnal parameters</FONT></CENTER></td></tr>
-	 	<!-- tr><td COLSPAN=2 bgcolor=FFFFFF height=8> </td></tr>
-	 	<tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr -->
-		<tr>
-			<td>nbFilesPerRequest: </td>
-			<td BGCOLOR=FFFFFF>1</td>
-		</tr>
-		<tr>
-			<td>maxPicHeight: </td>
-			<td BGCOLOR=FFFFFF>900</td>
-		</tr>
-		<tr>
-			<td>maxPicWidth: </td>
-			<td BGCOLOR=FFFFFF>700</td>
-		</tr>
-		<tr>
-			<td>debugLevel: </td>
-			<td BGCOLOR=FFFFFF>0</td>
-		</tr>
-
-<!-- footer -->
-		<!-- tr><td COLSPAN=2 height=1 BGCOLOR=000000></td></tr -->
-		<tr><td COLSPAN=2>
-
-<script language="javascript"> footer(); </script>
-
- </body>
-</HTML>
+    <!-- footer -->
+    <tr>
+        <td colspan="2"><script language="javascript"
+            type="text/javascript"> footer(); </script></td>
+    </tr>
+</table>
+</div>
+</body>
+</html>
