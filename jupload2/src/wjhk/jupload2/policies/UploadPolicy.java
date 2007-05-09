@@ -464,17 +464,15 @@ import wjhk.jupload2.gui.JUploadPanel;
  * </tr>
  * <tr>
  * <td>urlToSendErrorTo</td>
- * <td><i>Empty String</i> <br>
+ * <td><i>null</i> <br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>If this url is given, and an upload error occurs, the applet post the
- * all the debug output to this address. It's up to this URL to handle this
- * mail. It is possible to just store the file, or to log the error in a
+ * <td>If this url is given, and an upload error occurs, the applet posts
+ * all debug output to this address. It's up to this URL to handle this
+ * message. It is possible to just store the file, or to log the error in a
  * database, or to send a mail (like the mail.php script given with the
  * coppermine pack). <br>
- * <u>Note:</u> Don't put a mailto link here: it won't be able to manage the
- * debug output, that is too big. The maximum length of a mailto depends on the
- * navigator. With Firefox, it seems to be around 4kb. </td>
+ * <u>Note:</u> Only http and https URL schemes are supported.</td>
  * </tr>
  * </table>
  * <h3><a name="example">HTML call example</a></h3>
