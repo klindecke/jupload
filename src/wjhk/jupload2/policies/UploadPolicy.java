@@ -41,8 +41,8 @@ import wjhk.jupload2.gui.JUploadPanel;
  * all UploadPolicy methods. <br>
  * <br>
  * <h4><a name="parameters">Parameters</a></h4>
- * <!-- ATTENTION: The comment below is used by Ant build. DO NOT CHANGE!! -->
- * <!-- ANT_COPYDOC_START -->
+ * <!-- ATTENTION: The following comment is used by Ant build. DO NOT CHANGE!!
+ * --> <!-- ANT_COPYDOC_START -->
  * <p>
  * Here is the list of all parameters available in the current package, that is:
  * available in available upload policies. These are applet parameters that
@@ -57,20 +57,28 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <th>Description</th>
  * </tr>
  * <tr>
- * <td>afterUploadTarget<br>Since 2.9.2rc4</td>
+ * <td>afterUploadTarget<br>
+ * Since 2.9.2rc4</td>
  * <td>_self<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>This parameter allows to select a specific target frame when redirecting to
- * <code>afterUploadURL</code>. The following values are possible:<br>
+ * <td>This parameter allows to select a specific target frame when redirecting
+ * to <code>afterUploadURL</code>. The following values are possible:<br>
  * <ul>
- *   <li><code>_self</code> - Show in the window and frame that contain the applet. </li>
- *   <li><code>_parent</code> - Show in the applet's parent frame. If the applet's frame has no parent frame, acts the same as <i>_self</i>.</li>
- *   <li><code>_top</code> - Show in the top-level frame of the applet's window. If the applet's frame is the top-level frame, acts the same as <i>_self</i>.</li>
- *   <li><code>_blank</code> - Show in a new, unnamed top-level window. 
- *   <li><i>name</i> - Show in the frame or window named <i>name</i>. If a target named <i>name</i> does not already exist, a new top-level window with the specified name is created, and the document is shown there.</li>
+ * <li><code>_self</code> - Show in the window and frame that contain the
+ * applet. </li>
+ * <li><code>_parent</code> - Show in the applet's parent frame. If the
+ * applet's frame has no parent frame, acts the same as <i>_self</i>.</li>
+ * <li><code>_top</code> - Show in the top-level frame of the applet's
+ * window. If the applet's frame is the top-level frame, acts the same as
+ * <i>_self</i>.</li>
+ * <li><code>_blank</code> - Show in a new, unnamed top-level window.
+ * <li><i>name</i> - Show in the frame or window named <i>name</i>. If a
+ * target named <i>name</i> does not already exist, a new top-level window with
+ * the specified name is created, and the document is shown there.</li>
  * </ul>
- * See also: {@link java.applet.AppletContext#showDocument(java.net.URL, java.lang.String)}
+ * See also:
+ * {@link java.applet.AppletContext#showDocument(java.net.URL, java.lang.String)}
  * </td>
  * </tr>
  * <tr>
@@ -81,8 +89,7 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <td>This parameter is used by all policies. It allows the applet to change
  * the current page to another one after a successful upload. <br>
  * This allows, for instance, to display a page containing the file description
- * of the newly uploaded page.
- * </td>
+ * of the newly uploaded page. </td>
  * </tr>
  * <tr>
  * <td>allowedFileExtensions</td>
@@ -138,9 +145,9 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
  * <i>Since 2.9.2rc4</i></td>
- * <td>With this parameter, the name of a HTML form can be specified.
- * If the specified form exists in the same document like the applet, all
- * all form-variables are added as POST parameters to the applet's POST request.</td>
+ * <td>With this parameter, the name of a HTML form can be specified. If the
+ * specified form exists in the same document like the applet, all all
+ * form-variables are added as POST parameters to the applet's POST request.</td>
  * </tr>
  * <tr>
  * <td>highQualityPreview</td>
@@ -309,14 +316,14 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This parameter specifies the target URL toward which the files should be
- * uploaded.
- * Since version 1.9.2rc4 this parameter is not mandatory anymore. Instead,
- * if omitted or a <i>relative</i> URL is given, the resulting URL is constructed
- * from the applet's DocumentBaseURL. This means, that if the applet tag is
- * dynamically constructed from a PHP script without specifying <code>postURL</code>,
- * the <i>same</i> same script receives the subsequent POST request(s). If this
- * URL may change during the applet execution time, you can call the setProperty
- * applet method from javascript, or create a new UploadPolicy class and either :
+ * uploaded. Since version 1.9.2rc4 this parameter is not mandatory anymore.
+ * Instead, if omitted or a <i>relative</i> URL is given, the resulting URL is
+ * constructed from the applet's DocumentBaseURL. This means, that if the applet
+ * tag is dynamically constructed from a PHP script without specifying
+ * <code>postURL</code>, the <i>same</i> same script receives the subsequent
+ * POST request(s). If this URL may change during the applet execution time, you
+ * can call the setProperty applet method from javascript, or create a new
+ * UploadPolicy class and either :
  * <ul>
  * <li>Override the {@link wjhk.jupload2.policies.UploadPolicy#getPostURL()}
  * method, to make the postURL totaly dynamic.
@@ -467,33 +474,32 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <td><i>null</i> <br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>If this url is given, and an upload error occurs, the applet posts
- * all debug output to this address. It's up to this URL to handle this
- * message. It is possible to just store the file, or to log the error in a
- * database, or to send a mail (like the mail.php script given with the
- * coppermine pack). <br>
+ * <td>If this url is given, and an upload error occurs, the applet posts all
+ * debug output to this address. It's up to this URL to handle this message. It
+ * is possible to just store the file, or to log the error in a database, or to
+ * send a mail (like the mail.php script given with the coppermine pack). <br>
  * <u>Note:</u> Only http and https URL schemes are supported.</td>
  * </tr>
  * </table>
  * <h3><a name="example">HTML call example</a></h3>
- * <p>Below, an example of how to put the applet into a PHP page is shown:
+ * <p>
+ * Below, an example of how to put the applet into a PHP page is shown:
  * </p>
  * <code><pre>
- *   &lt;applet name="JUpload" code="wjhk.jupload2.JUploadApplet"
- *     archive="plugins/jupload/wjhk.jupload.jar"
+ *   &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+ *     archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
  *     &lt;!-- Applet display size, on the navigator page --&gt;
- *     width="500" height="700"
+ *     width=&quot;500&quot; height=&quot;700&quot;
  *     &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
  *     mayscript&gt;
  *     &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
  *          DefaultUploadPolicy is used. The applet behaves like the original
  *          JUpload. (jupload v1) --&gt;
- *     &lt;param name="postURL" value="http://some.host.com/youruploadpage.php"&gt;
+ *     &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
  *     Java 1.5 or higher plugin required.
  *   &lt;/applet&gt;
- * </pre></code>
- * <!-- ANT_COPYDOC_END -->
- * <!-- ATTENTION: The comment above is used by Ant build. DO NOT CHANGE!! -->
+ * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
+ * by Ant build. DO NOT CHANGE!! -->
  * 
  * @author Etienne Gauthier
  * @version $Revision$
@@ -934,10 +940,11 @@ public interface UploadPolicy {
 
     /**
      * Return the target, specified as applet parameter "afterUploadTarget"
+     * 
      * @return the specified target.
      */
     public String getAfterUploadTarget();
-    
+
     /**
      * HTTP protocol that should be used to send the HTTP request. Currently,
      * this is mainly used by
