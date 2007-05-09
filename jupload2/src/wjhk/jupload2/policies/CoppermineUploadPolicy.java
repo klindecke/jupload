@@ -334,9 +334,10 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                     // Let's change the current URL to edit names and comments,
                     // for the selected album. Ok, let's go and add names and
                     // comments to the newly updated pictures.
-                    // TODO: parameterize target
+                    String target = getAfterUploadTarget();
                     getApplet().getAppletContext().showDocument(
-                            new URL(editpicURL), "_self");
+                            new URL(editpicURL),
+                            (null == target) ? "_self" : target);
                 }
             } catch (Exception ee) {
                 // Oups, no navigator. We are probably in debug mode, within

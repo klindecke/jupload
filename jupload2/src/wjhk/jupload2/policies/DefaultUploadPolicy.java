@@ -209,6 +209,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     private String formData = UploadPolicy.DEFAULT_FORMDATA;
 
+    private String afterUploadTarget = UploadPolicy.DEFAULT_AFTER_UPLOAD_TARGET;
+
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// INTERNAL ATTRIBUTE
     // ///////////////////////////////////////////////////
@@ -329,12 +331,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // /////////////////////////////////////////////////////////////////////////////
         // get the URL where files must be posted.
-        try {
-            setPostURL(UploadPolicyFactory.getParameter(theApplet,
-                    PROP_POST_URL, DEFAULT_POST_URL, this));
-        } catch (JUploadException e1) {
-            // We assume our default is OK ;-)
-        }
+        setPostURL(UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL,
+                DEFAULT_POST_URL, this));
 
         // /////////////////////////////////////////////////////////////////////////////
         // get the server protocol.
@@ -370,6 +368,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         this.formData = UploadPolicyFactory.getParameter(theApplet,
                 PROP_FORMDATA, DEFAULT_FORMDATA, this);
+
+        this.afterUploadTarget = UploadPolicyFactory.getParameter(theApplet,
+                PROP_AFTER_UPLOAD_TARGET, DEFAULT_AFTER_UPLOAD_TARGET, this);
 
         // /////////////////////////////////////////////////////////////////////////////
         // Load session data read from the navigator:
@@ -539,9 +540,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     // Let's change the current URL to edit names and comments,
                     // for the selected album. Ok, let's go and add names and
                     // comments to the newly updated pictures.
-                    // TODO: parameterize target
+                    String target = getAfterUploadTarget();
                     getApplet().getAppletContext().showDocument(
-                            new URL(getAfterUploadURL()), "_self");
+                            new URL(getAfterUploadURL()),
+                            (null == target) ? "_self" : target);
                 }
             } catch (Exception ee) {
                 // Oops, no navigator. We are probably in debug mode, within
@@ -749,9 +751,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#sendDebugInformation(String) */
     public void sendDebugInformation(String description) {
 
-        if (this.urlToSendErrorTo.length() > 0) {
+        if (null != this.urlToSendErrorTo) {
             if (JOptionPane.showConfirmDialog(null,
-                    getString("questionSendMailOnError"), "Confirm",
+                    getString("questionSendMailOnError"), getString("Confirm"),
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                 displayDebug("Within response == true", 60);
 
@@ -765,7 +767,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 StringBuffer sbHttpResponseBody = null;
                 StringBuffer request = null;
                 String line;
-                
+
                 // During debug output, we need to make shure that the debug
                 // log is not changed, so we set debugOk to false
                 // temporarily. -> Everything goes to stdout.
@@ -779,7 +781,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             this.debugFile));
                     int contentLength = 0;
                     while ((line = debugIn.readLine()) != null) {
-                        contentLength += URLEncoder.encode(line, "UTF-8")
+                        contentLength += URLEncoder.encode(line + "\n", "UTF-8")
                                 .length();
                     }
                     debugIn.close();
@@ -827,7 +829,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     dataout.writeBytes(request.toString());
                     dataout.writeBytes(query);
                     while ((line = debugIn.readLine()) != null) {
-                        dataout.writeBytes(URLEncoder.encode(line, "UTF-8"));
+                        dataout.writeBytes(URLEncoder.encode(line + "\n", "UTF-8"));
                     }
                     debugIn.close();
                     // We are done with the debug log, so re-enable it.
@@ -919,7 +921,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             setDebugLevel(UploadPolicyFactory.parseInt(value, this.debugLevel,
                     this));
         } else if (prop.equals(PROP_LANG)) {
-            setAfterUploadURL(value);
+            setLang(value);
         } else if (prop.equals(PROP_FILENAME_ENCODING)) {
             setFilenameEncoding(value);
         } else if (prop.equals(PROP_LOOK_AND_FEEL)) {
@@ -934,12 +936,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             setNbFilesPerRequest(UploadPolicyFactory.parseInt(value,
                     this.nbFilesPerRequest, this));
         } else if (prop.equals(PROP_POST_URL)) {
-            try {
-                setPostURL(value);
-            } catch (JUploadException e) {
-                displayWarn("Invalid applet parameter: " + prop
-                        + " (in DefaultUploadPolicy.setProperty)");
-            }
+            setPostURL(value);
         } else if (prop.equals(PROP_SERVER_PROTOCOL)) {
             setServerProtocol(value);
         } else if (prop.equals(PROP_STRING_UPLOAD_SUCCESS)) {
@@ -1006,6 +1003,26 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
+    private final String normalizeURL(String url) throws JUploadException {
+        if (null == url || url.length() == 0)
+            return getApplet().getDocumentBase().toString();
+        URI uri = null;
+        try {
+            uri = new URI(url);
+            if (null == uri.getScheme())
+                uri = getApplet().getDocumentBase().toURI().resolve(url);
+            if (!uri.getScheme().equals("http")
+                    && !uri.getScheme().equals("https")
+                    && !uri.getScheme().equals("ftp")) {
+                throw new JUploadException("URI scheme " + uri.getScheme()
+                        + "not supported.");
+            }
+        } catch (URISyntaxException e) {
+            throw new JUploadException(e);
+        }
+        return uri.toString();
+    }
+
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// getters / setters
     // ///////////////////////////////////////////////////
@@ -1016,9 +1033,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.afterUploadURL;
     }
 
-    /** @param afterUploadURL the afterUploadURL to set */
+    /**
+     * @see UploadPolicy#setAfterUploadURL()
+     */
     protected void setAfterUploadURL(String afterUploadURL) {
-        this.afterUploadURL = afterUploadURL;
+        if (null == afterUploadURL)
+            return;
+        try {
+            this.afterUploadURL = normalizeURL(afterUploadURL);
+        } catch (JUploadException e) {
+            displayWarn("Invalid parameter afterUploadURL: " + afterUploadURL
+                    + " : " + e.getMessage());
+        }
     }
 
     /** @see UploadPolicy#getAllowedFileExtensions() */
@@ -1205,10 +1231,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * @throws JUploadException
      * @see wjhk.jupload2.policies.UploadPolicy#setPostURL(String)
      */
-    public void setPostURL(String postURL) throws JUploadException {
+    public void setPostURL(String postURL) {
         // Be more forgiving about postURL:
         // - If none is specified, use the original DocumentBase of the applet.
         // - If a non-absolute URI (an URI without protocol and server) is
@@ -1216,24 +1241,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // prefix it with "http://servername"
         // - If a relative URI is specified, prefix it with the DocumentBase's
         // parent
-        if (null == postURL) {
-            this.postURL = getApplet().getDocumentBase().toString();
-            return;
-        }
-        URI uri = null;
         try {
-            uri = new URI(postURL);
-            if (null == uri.getScheme())
-                uri = getApplet().getDocumentBase().toURI().resolve(postURL);
-            if (!uri.getScheme().equals("http")
-                    && !uri.getScheme().equals("ftp")) {
-                throw new JUploadException("URI scheme " + uri.getScheme()
-                        + "not supported.");
-            }
-        } catch (URISyntaxException e) {
-            throw new JUploadException(e);
+            this.postURL = normalizeURL(postURL);
+        } catch (JUploadException e) {
+            displayWarn("Invalid parameter postURL: " + postURL + " : "
+                    + e.getMessage());
         }
-        this.postURL = uri.toString();
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
@@ -1278,12 +1291,29 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @param urlToSendErrorTo the urlToSendErrorTo to set */
     protected void setUrlToSendErrorTo(String urlToSendErrorTo) {
-        this.urlToSendErrorTo = urlToSendErrorTo;
+        if (null == urlToSendErrorTo)
+            return;
+        try {
+            String tmp = normalizeURL(urlToSendErrorTo);
+            if (tmp.startsWith("ftp://")) {
+                displayWarn("Invalid parameter urlToSendErrorTo: "
+                        + urlToSendErrorTo + " : ftp scheme not supported.");
+            }
+            this.urlToSendErrorTo = tmp;
+        } catch (JUploadException e) {
+            displayWarn("Invalid parameter urlToSendErrorTo: "
+                    + urlToSendErrorTo + " : " + e.getMessage());
+        }
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getFormdata() */
     public String getFormdata() {
         return this.formData;
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getAfterUploadTarget() */
+    public String getAfterUploadTarget() {
+        return this.afterUploadTarget;
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
