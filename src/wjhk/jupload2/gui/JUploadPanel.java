@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: JUploadPanel.java 122 2007-05-09 01:58:53 +0000 (mer., 09 mai 2007)
+// felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -209,9 +210,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.fileChooser
                     .setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             this.fileChooser.setMultiSelectionEnabled(true);
+            // The file view must be set, whether or not a file filter exists
+            // for this upload policy.
+            this.fileChooser.setFileView(this.fileView);
             if (this.uploadPolicy.fileFilterGetDescription() != null) {
                 this.fileChooser.setFileFilter(this.fileFilter);
-                this.fileChooser.setFileView(this.fileView);
             }
         } catch (Exception e) {
             this.uploadPolicy.displayErr(e);
