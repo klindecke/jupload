@@ -256,7 +256,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * This constant defines the upper limit of lines, kept in the status area.
      */
-    private final static int MAX_DEBUG_LINES = 1000;
+    private final static int MAX_DEBUG_LINES = 10000;
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// CONSTRUCTORS
