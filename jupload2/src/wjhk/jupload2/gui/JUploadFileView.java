@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: JUploadFileView.java 112 2007-05-07 02:45:28 +0000 (lun., 07 mai 2007)
+// felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -74,11 +75,23 @@ class IconWorker implements Runnable {
      * @return The Icon to be displayed for this file.
      */
     Icon getIcon() {
+        this.uploadPolicy.displayDebug("In IconWorker.getIcon("
+                + this.file.getName() + ")", 90);
+        // We add the current worker to the task list.
+        /* ??  Hum, it should already be in the task list. I don't add it.
+        if (this.icon == null) {
+            this.uploadPolicy.displayDebug("   Adding " + this.file.getName()
+                    + " to the work list)", 90);
+            this.fileView.execute(this);
+        }
+        */
         return this.icon;
     }
 
     /** Get the icon from the current upload policy, for this file */
     void loadIcon() {
+        this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
+                + this.file.getName() + ")", 90);
         File dir = null;
         File parent = null;
         try {
@@ -104,7 +117,11 @@ class IconWorker implements Runnable {
                         this.fileChooser.repaint();
                     } else {
                         // We don't do it now, but we'll do it later.
-                        this.fileView.executorService.execute(this);
+                        this.uploadPolicy
+                                .displayDebug("   Adding "
+                                        + this.file.getName()
+                                        + " to the task list", 90);
+                        this.fileView.execute(this);
                     }
                 }
                 // Otherwise, one of 'parent' or 'dir' is null, we let the icon
@@ -140,7 +157,7 @@ public class JUploadFileView extends FileView {
     /** This map will contain all instances of {@link IconWorker}. */
     ConcurrentHashMap<String, IconWorker> hashMap = new ConcurrentHashMap<String, IconWorker>();
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    ExecutorService executorService = null;
 
     /**
      * Creates a new instance.
@@ -158,24 +175,46 @@ public class JUploadFileView extends FileView {
      */
     @Override
     public Icon getIcon(File file) {
-        IconWorker iconWorker = this.hashMap.get(file.getAbsolutePath());
-        if (iconWorker == null) {
-            // This file has not been loaded.
-            iconWorker = new IconWorker(this.uploadPolicy, this.fileChooser,
-                    this, file);
-            // We store it in the global Icon container.
-            this.hashMap.put(file.getAbsolutePath(), iconWorker);
-            // Then, we ask the current Thread to load its icon.
-            this.executorService.execute(iconWorker);
+        if (file.isDirectory()) {
+            //we let the JVM display the system icon for directories.
+            return null;
+        } else {
+            IconWorker iconWorker = this.hashMap.get(file.getAbsolutePath());
+            if (iconWorker == null) {
+                // This file has not been loaded.
+                iconWorker = new IconWorker(this.uploadPolicy, this.fileChooser,
+                        this, file);
+                // We store it in the global Icon container.
+                this.hashMap.put(file.getAbsolutePath(), iconWorker);
+                // Then, we ask the current Thread to load its icon.
+                execute(iconWorker);
+                //We currently have no icon to display.
+                return null;
+            } else {
+                return iconWorker.getIcon();
+            }
         }
-        return iconWorker.getIcon();
+    }
+
+    synchronized void  execute(IconWorker iconWorker) {
+        this.uploadPolicy.displayDebug("In JUploadFileView.execute for "
+                + iconWorker.file.getAbsolutePath(), 90);
+        if (executorService == null || executorService.isShutdown()) {
+            this.uploadPolicy.displayDebug("JUploadFileView.execute: creating the executorService", 90);
+            this.executorService = Executors.newSingleThreadExecutor();
+        }
+        this.executorService.execute(iconWorker);
     }
 
     /**
      * Stop all current and to come thread. To be called when the file chooser
      * is closed.
      */
-    public void shutdownNow() {
-        this.executorService.shutdownNow();
+    synchronized public void shutdownNow() {
+        if (executorService != null) {
+            this.executorService.shutdownNow();
+            this.uploadPolicy.displayDebug("JUploadFileView.shutdownNow (executorService->null)", 90);
+            this.executorService = null;
+        }
     }
 }
