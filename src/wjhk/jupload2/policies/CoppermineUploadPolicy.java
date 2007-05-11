@@ -289,7 +289,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
             // an info message, and expect everything is Ok.
             // FIXME The chunked encoding should be correctly handled, instead
             // of the current 'expectations' below.
-            displayInfo("The transertEncoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
+            displayInfo("The Transfer-Encoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
             return true;
         } else if (upload_200_OK) {
             // This method is currently non blocking.
