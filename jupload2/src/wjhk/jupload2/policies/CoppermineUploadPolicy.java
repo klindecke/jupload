@@ -218,13 +218,15 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * warning is displayed.
      * <LI>False if the previous conditions are not fullfilled. </DIR>
      * 
-     * @param serverOutput The full HTTP answer, including the http headers.
+     * @param httpStatus The HTTP response code
+     * @param httpMsg The full HTTP response message (e.g. "404 Not found").
      * @param serverOutputBody The body of the HTTP answer.
      * @return True or False, indicating if the upload is a success or not.
-     * @see UploadPolicy#checkUploadSuccess(String, String)
+     * @see UploadPolicy#checkUploadSuccess(int, String, String)
      */
     @Override
-    public boolean checkUploadSuccess(int httpStatus, String httpMsg,
+    public boolean checkUploadSuccess(int httpStatus, @SuppressWarnings("unused")
+    String httpMsg,
             String serverOutputBody) throws JUploadException {
         // The success string should be in the http body
         boolean uploadSuccess = this.patternSuccess.matcher(serverOutputBody).find();

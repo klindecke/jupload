@@ -77,6 +77,7 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
         this.uploadPolicy = uploadPolicy;
         // Creation of the menu items
         this.cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug on");
+        this.cbMenuItemDebugOnOff.setState(this.uploadPolicy.getDebugLevel() == 100);
         add(this.cbMenuItemDebugOnOff);
         this.cbMenuItemDebugOnOff.addItemListener(this);
     }
@@ -116,11 +117,45 @@ public class JUploadPanel extends JPanel implements ActionListener,
      */
     private static final long serialVersionUID = -1212601012568225757L;
 
+    private static final double gB = 1024L * 1024L * 1024L;
+
+    private static final double mB = 1024L * 1024L;
+
+    private static final double kB = 1024L;
+
+    // TODO: translation
+    private String speedunit_gb_per_second = "Gb/s";
+
+    // TODO: translation
+    private String speedunit_mb_per_second = "Mb/s";
+
+    // TODO: translation
+    private String speedunit_kb_per_second = "Kb/s";
+
+    // TODO: translation
+    private String speedunit_b_per_second = "b/s";
+
+    // TODO: translation
+    private String status_msg = "JUpload %1d%% done, Transfer rate: %2$,3.2f %3$s";
+
     /** The popup menu of the applet */
     private JUploadPopupMenu jUploadPopupMenu;
 
     // Timeout at DEFAULT_TIMEOUT milliseconds
     private final static int DEFAULT_TIMEOUT = 100;
+
+    /**
+     * The upload status (progressbar) gets updated every (DEFAULT_TIMEOUT *
+     * PROGRESS_INTERVAL) ms.
+     */
+    private final static int PROGRESS_INTERVAL = 10;
+
+    /**
+     * The counter for updating the upload status. The upload status
+     * (progressbar) gets updated every (DEFAULT_TIMEOUT * PROGRESS_INTERVAL)
+     * ms.
+     */
+    private int update_counter = 0;
 
     // ------------- VARIABLES ----------------------------------------------
     private JPanel topPanel;
@@ -329,6 +364,46 @@ public class JUploadPanel extends JPanel implements ActionListener,
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() instanceof Timer) {
             // timer is expired
+            if ((this.update_counter++ > PROGRESS_INTERVAL)
+                    || (!this.fileUploadThread.isAlive())) {
+                // Time for an update now.
+                this.update_counter = 0;
+                if (null != this.progressBar) {
+                    long duration = (System.currentTimeMillis() - this.fileUploadThread
+                            .getStartTime()) / 1000;
+                    double done = this.fileUploadThread.getUploadedLength();
+                    double total = this.fileUploadThread.getTotalLength();
+                    double percent;
+                    double cps;
+                    try {
+                        percent = 100.0 * done / total;
+                    } catch (ArithmeticException e1) {
+                        percent = 100;
+                    }
+                    try {
+                        cps = done / duration;
+                    } catch (ArithmeticException e1) {
+                        cps = done;
+                    }
+                    this.progressBar.setValue((int) percent);
+                    String unit = this.speedunit_b_per_second;
+                    if (cps >= gB) {
+                        cps /= gB;
+                        unit = this.speedunit_gb_per_second;
+                    } else if (cps >= mB) {
+                        cps /= mB;
+                        unit = this.speedunit_mb_per_second;
+                    } else if (cps >= kB) {
+                        cps /= kB;
+                        unit = this.speedunit_kb_per_second;
+                    }
+                    this.uploadPolicy.getApplet().getAppletContext()
+                            .showStatus(
+                                    String.format(this.status_msg, new Integer(
+                                            (int) percent), new Double(cps),
+                                            unit));
+                }
+            }
             if (!this.fileUploadThread.isAlive()) {
                 this.uploadPolicy.displayDebug(
                         "JUploadPanel: after !fileUploadThread.isAlive()", 60);

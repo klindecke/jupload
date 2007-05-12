@@ -43,7 +43,8 @@ public interface FileUploadThread {
     /**
      * Get the server response message.
      * 
-     * @return The String that contains the HTTP response message (e.g. "200 OK") 
+     * @return The String that contains the HTTP response message (e.g. "200
+     *         OK")
      */
     public String getResponseMsg();
 
@@ -59,14 +60,29 @@ public interface FileUploadThread {
      * server. It's up to this method to change the display on the progress bar
      * (or whatever other information displayed to the user)
      * 
-     * @param nbBytes
+     * @param nbBytes Number of bytes uploaded.
      */
     public void nbBytesUploaded(long nbBytes);
+
+    /**
+     * @return The current number of bytes, already uploaded in this thread.
+     */
+    public long getUploadedLength();
+
+    /**
+     * @return The total number of bytes, to be uploaded in this thread.
+     */
+    public long getTotalLength();
 
     /**
      * Closes the connection to the server and releases resources.
      */
     public void close();
+
+    /**
+     * @return The start time stamp of this instance.
+     */
+    public long getStartTime();
 
     /**
      * @see java.lang.Thread#isAlive()
