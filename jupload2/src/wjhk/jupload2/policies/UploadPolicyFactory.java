@@ -21,6 +21,7 @@
 package wjhk.jupload2.policies;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import wjhk.jupload2.JUploadApplet;
 
@@ -97,6 +98,15 @@ public class UploadPolicyFactory {
                 action = "newInstance";
                 uploadPolicy = (UploadPolicy) constructor.newInstance(params);
             } catch (Exception e) {
+                if (e instanceof InvocationTargetException) {
+                    // If the policy's constructor has thrown an exception,
+                    // Get that "real" exception and print its details and
+                    // stacktrace
+                    Throwable t = ((InvocationTargetException) e)
+                            .getTargetException();
+                    System.out.println("-ERROR- " + t.getMessage());
+                    t.printStackTrace();
+                }
                 System.out.println("-ERROR- " + e.getClass().getName() + " in "
                         + action + "(error message: " + e.getMessage() + ")");
                 throw e;

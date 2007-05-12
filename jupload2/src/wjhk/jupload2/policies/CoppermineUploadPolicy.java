@@ -98,7 +98,8 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * @param theApplet Identifier for the current applet. It's necessary, to
      *            read information from the navigator.
      */
-    public CoppermineUploadPolicy(JUploadApplet theApplet) {
+    public CoppermineUploadPolicy(JUploadApplet theApplet)
+            throws JUploadException {
         // Let's call our mother ! :-)
         super(theApplet);
 
@@ -147,7 +148,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      *      java.lang.String)
      */
     @Override
-    public void setProperty(String prop, String value) {
+    public void setProperty(String prop, String value) throws JUploadException {
         // The, we check the local properties.
         if (prop.equals(PROP_ALBUM_ID)) {
             this.albumId = UploadPolicyFactory.parseInt(value, 0, this);
@@ -223,23 +224,12 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * @see UploadPolicy#checkUploadSuccess(String, String)
      */
     @Override
-    public boolean checkUploadSuccess(String serverOutput,
+    public boolean checkUploadSuccess(int httpStatus, String httpMsg,
             String serverOutputBody) throws JUploadException {
-        final Pattern patternSuccess = Pattern
-                .compile(getStringUploadSuccess());
-        final Pattern patternTransferEncodingChunked = Pattern.compile(
-                "^Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
-        // La premi�re ligne est de la forme "HTTP/1.1 NNN Texte", o� NNN et le
-        // code HTTP de retour (200, 404, 500...)
-        final Pattern patternHttpStatus = Pattern.compile(
-                "HTTP[^ ]* ([^ ]*) .*", Pattern.DOTALL);
-
         // The success string should be in the http body
-        boolean uploadSuccess = patternSuccess.matcher(serverOutputBody).find();
+        boolean uploadSuccess = this.patternSuccess.matcher(serverOutputBody).find();
         // The transfert encoding may be present in the serverOutput (that
         // contains the http headers)
-        boolean uploadTransferEncodingChunked = patternTransferEncodingChunked
-                .matcher(serverOutput).find();
 
         // ///////////////////////////////////////////////////////////////////////////////////
         // Changes from the DefaultUploadPolicy code : START (1/2)
@@ -257,16 +247,6 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         // Changes from the DefaultUploadPolicy code : END (1/2)
         // ///////////////////////////////////////////////////////////////////////////////////
 
-        // And have a match, to search for the http return code (200 for Ok)
-        Matcher matcherUploadHttpStatus = patternHttpStatus
-                .matcher(serverOutput);
-        if (!matcherUploadHttpStatus.matches()) {
-            throw new JUploadException(
-                    "Can't find the HTTP status in serverOutput!");
-        }
-        int httpStatus = Integer.parseInt(matcherUploadHttpStatus.group(1));
-        boolean upload_200_OK = (httpStatus == 200);
-
         displayDebug("HTTP return code: " + httpStatus, 40);
 
         // Let's find what we should answer:
@@ -283,15 +263,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                     + ".checkUploadSuccess(): " + errorMessage);
             // Changes from the DefaultUploadPolicy code : END (2/2)
             // ///////////////////////////////////////////////////////////////////////////////////
-        } else if (uploadTransferEncodingChunked && upload_200_OK) {
-            // Hum, as the transfert encoding is chuncked, the success string
-            // may be splitted. We display
-            // an info message, and expect everything is Ok.
-            // FIXME The chunked encoding should be correctly handled, instead
-            // of the current 'expectations' below.
-            displayInfo("The Transfer-Encoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
-            return true;
-        } else if (upload_200_OK) {
+        } else if (httpStatus == 200) {
             // This method is currently non blocking.
             displayWarn("The http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
             // We raise no exception (= success)
@@ -302,7 +274,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                     + ".checkUploadSuccess(): The http return code is : "
                     + httpStatus + " (should be 200)");
         }
-    }// isUploadSuccessful
+    } // checkUploadSuccess
 
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)

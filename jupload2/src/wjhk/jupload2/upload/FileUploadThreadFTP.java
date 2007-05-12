@@ -259,7 +259,8 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
     /** @see DefaultFileUploadThread#finishRequest() */
     @Override
-    void finishRequest() {
+    int finishRequest() {
+        return 200;
         // Nothing to do
     }
 

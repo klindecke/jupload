@@ -21,6 +21,7 @@
 package wjhk.jupload2.policies;
 
 import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.exception.JUploadException;
 
 /**
  * Specialization of
@@ -51,7 +52,8 @@ public class FileByFileUploadPolicy extends DefaultUploadPolicy {
     /**
      * @param theApplet The applet on which the UploadPolicy should apply.
      */
-    public FileByFileUploadPolicy(JUploadApplet theApplet) {
+    public FileByFileUploadPolicy(JUploadApplet theApplet)
+            throws JUploadException {
         super(theApplet);
 
         setNbFilesPerRequest(1);

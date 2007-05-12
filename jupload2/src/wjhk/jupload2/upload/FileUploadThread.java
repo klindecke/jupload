@@ -41,11 +41,11 @@ public interface FileUploadThread {
     public boolean isUploadStopped();
 
     /**
-     * Get the server Output.
+     * Get the server response message.
      * 
-     * @return The StringBuffer that contains the full server HTTP response.
+     * @return The String that contains the HTTP response message (e.g. "200 OK") 
      */
-    public String getServerOutput();
+    public String getResponseMsg();
 
     /**
      * Get the exception that occurs during upload.

@@ -27,7 +27,6 @@ import javax.swing.JProgressBar;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.FileData;
-import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -87,7 +86,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     // TODO to be moved to HTTP ????
     long maxChunkSize;
-
+    
     /**
      * Maximum number of files for FTP upload.
      */
@@ -112,14 +111,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // ////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Server Output. It can then be displayed in the status bar, if debug is
-     * enabled. It is stored by {@link DefaultUploadPolicy} in a string buffer,
-     * so that all debug output can be sent to the webmaster, if an error
-     * occurs.
-     */
-    private StringBuffer sbServerOutput = new StringBuffer();
-
-    /**
      * The progressBar bar, that will indicate to the user the upload state (0
      * to 100%).
      */
@@ -142,6 +133,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     private long startTime;
 
+    /**
+     * The response message from the server, if any
+     */
+    private String responseMsg;
+    
     /**
      * Creates a new instance.
      * 
@@ -184,8 +180,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * 
      * @return The StringBuffer that contains the full server HTTP response.
      */
-    public String getServerOutput() {
-        return this.sbServerOutput.toString();
+    public String getResponseMsg() {
+        return this.responseMsg;
     }
 
     /**
@@ -306,10 +302,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * This method is called at the end of each request.
+     * @return The response status code from the server (200 == OK)
      * 
      * @see #startRequest(long, boolean, int, boolean)
      */
-    abstract void finishRequest() throws JUploadException;
+    abstract int finishRequest() throws JUploadException;
 
     /**
      * This method is called before sending the bytes corresponding to the file
@@ -355,31 +352,21 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * server application, that would be outputed, for instance, by any 'echo'
      * PHP command.
      */
-    abstract String getResponseBody() throws JUploadException;
+    abstract String getResponseBody();
+
+    /**
+     * Add a String that has been read from the server response.
+     * 
+     * @param msg The server message to be set.
+     */
+    void setResponseMsg(String msg) {
+        this.responseMsg = msg;
+    }
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// PRIVATE FUNCTIONS
     // /////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Clear the StringBuffer that contains the serverOutput. Called before each
-     * HTTP request.
-     */
-    void clearServerOutPut() {
-        this.sbServerOutput.setLength(0);
-    }
-
-    /**
-     * Add a String that has been read from the server response.
-     * 
-     * @param s
-     */
-    void addServerOutPut(String s) {
-        if (0 < this.sbServerOutput.length() || !s.equals("")) {
-            this.sbServerOutput.append(s);
-        }
-    }
 
     /**
      * Retrieve the start time of this thread.
@@ -659,7 +646,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
                     firstFileToUpload = firstFileToUploadParam;
                     nbFilesToUpload = nbFilesToUploadParam;
                 }
-                clearServerOutPut();
 
                 // Ok, we've prepare the job for chunk upload. Let's do it!
                 startRequest(contentLength, bChunkEnabled, chunkPart,
@@ -709,12 +695,12 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
                 // Let's finish the request, and wait for the server Output, if
                 // any (not applicable in FTP)
-                finishRequest();
+                int status = finishRequest();
 
                 // We now ask to the uploadPolicy, if it was a success.
                 // If not, the isUploadSuccessful should raise an exception.
                 if (!this.stop)
-                    this.uploadPolicy.checkUploadSuccess(getServerOutput(),
+                    this.uploadPolicy.checkUploadSuccess(status, getResponseMsg(),
                             getResponseBody());
 
             } catch (Exception e) {
@@ -736,10 +722,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
             if (this.uploadPolicy.getDebugLevel() > 80) {
                 this.uploadPolicy.displayDebug(
-                        "-------- Server Output Start --------", 80);
-                this.uploadPolicy.displayDebug(getServerOutput(), 80);
+                        "-------- Response Body Start --------", 80);
+                this.uploadPolicy.displayDebug(getResponseBody(), 80);
                 this.uploadPolicy.displayDebug(
-                        "--------- Server Output End ---------", 80);
+                        "--------- Response Body End ---------", 80);
             }
         } // while(!bLastChunk && uploadException==null && !stop)
 

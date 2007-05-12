@@ -23,6 +23,8 @@ package wjhk.jupload2;
 import java.applet.Applet;
 import java.awt.BorderLayout;
 
+import javax.swing.JOptionPane;
+
 import wjhk.jupload2.gui.FilePanel;
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.JUploadTextArea;
@@ -86,6 +88,11 @@ public class JUploadApplet extends Applet {
         } catch (final Exception e) {
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
+            JOptionPane
+                    .showMessageDialog(
+                            null,
+                            "Error during applet initialization!\nHave a look in your Java console.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
         }
 
     }
