@@ -37,6 +37,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+import javax.swing.JOptionPane;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
@@ -956,15 +957,17 @@ public class PictureFileData extends DefaultFileData {
     }// end of getTransformedPictureFile
 
     /**
-     * This picture is called when an OutOfMemoryError occurs. This can easily
+     * This method is called when an OutOfMemoryError occurs. This can easily
      * happen within the navigator, with big pictures: I've put a lot of
-     * freeMemory calls within the code, but they doesn't seem to work very
-     * well. When running from eclipse, the memory is freed Ok !
+     * freeMemory calls within the code, but they don't seem to work very well.
+     * When running from eclipse, the memory is freed Ok !
      */
     private void tooBigPicture() {
-        // TODO Put a messageBox here.
-        this.uploadPolicy.displayWarn(this.uploadPolicy.getString(
-                "tooBigPicture", getFileName()));
+        String msg = this.uploadPolicy
+                .getString("tooBigPicture", getFileName());
+        JOptionPane.showMessageDialog(null, msg, "Warning",
+                JOptionPane.WARNING_MESSAGE);
+        this.uploadPolicy.displayWarn(msg);
     }
 
     /**

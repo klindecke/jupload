@@ -456,10 +456,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * I can not test all possible HTTP configurations.<BR>
      * <LI>False if the previous conditions are not fullfilled. </DIR>
      * 
-     * @param serverOutput The full HTTP answer, including the http headers.
-     * @param serverOutputBody The body of the HTTP answer.
+     * @param status The HTTP response code
+     * @param msg The full HTTP response message (e.g. "404 Not found").
+     * @param body The body of the HTTP answer.
      * @return True or False, indicating if the upload is a success or not.
-     * @see UploadPolicy#checkUploadSuccess(String, String)
+     * @see UploadPolicy#checkUploadSuccess(int, String, String)
      */
     public boolean checkUploadSuccess(int status, String msg, String body)
             throws JUploadException {
@@ -1356,7 +1357,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             .getLineEndOffset(lc - MAX_DEBUG_LINES);
                     this.statusArea.replaceRange("", 0, end);
                 } catch (BadLocationException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }

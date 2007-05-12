@@ -54,15 +54,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
         FileUploadThread {
 
     // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////////// CONSTANTS ///////////////////////////////////////
-    // ////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * number of bytes to send at a time before updating progressBar bar.
-     */
-    private static final int NUM_BYTES = 4096;
-
-    // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// VARIABLES ///////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////
 
@@ -125,12 +116,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /** Current number of bytes that have been uploaded. */
     private long uploadedLength = 0;
 
-    /**
-     * Number of bytes that must be uploaded before updating the progressBar
-     * bar. See {@link #nbBytesUploaded(long)}
-     */
-    private long nbBytesBeforeUpdatingProgressBar = NUM_BYTES;
-
     private long startTime;
 
     /**
@@ -160,11 +145,20 @@ public abstract class DefaultFileUploadThread extends Thread implements
         }
     }
 
-    // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////////// PUBLIC FUNCTIONS
-    // ////////////////////////////////////////
-    // ////////////////////////////////////////////////////////////////////////////////////
-
+    /**
+     * @see wjhk.jupload2.upload.FileUploadThread#getUploadedLength()
+     */
+    public long getUploadedLength() {
+        return this.uploadedLength;
+    }
+    
+    /**
+     * @see wjhk.jupload2.upload.FileUploadThread#getTotalLength()
+     */
+    public long getTotalLength() {
+        return this.totalFilesLength;
+    }
+    
     /** @see FileUploadThread#stopUpload() */
     public void stopUpload() {
         this.stop = true;
@@ -201,23 +195,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     public void nbBytesUploaded(long nbBytes) {
         this.uploadedLength += nbBytes;
-
-        // We update the progressBar from time to time:
-        this.nbBytesBeforeUpdatingProgressBar -= nbBytes;
-        if (this.nbBytesBeforeUpdatingProgressBar <= 0) {
-            this.nbBytesBeforeUpdatingProgressBar = NUM_BYTES;
-            if (null != this.progressBar) {
-                double done = this.uploadedLength;
-                double total = this.totalFilesLength;
-                double percent;
-                try {
-                    percent = 100.0 * done / total;
-                } catch (ArithmeticException e) {
-                    percent = 100;
-                }
-                this.progressBar.setValue((int)percent);
-            }
-        }
     }
 
     /**
@@ -708,16 +685,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 bReturn = false;
                 this.uploadPolicy.displayErr(this.uploadPolicy
                         .getString("errDuringUpload"), e);
-            } finally {
-                // We force the progressBar bar refresh
-                this.nbBytesBeforeUpdatingProgressBar = -1;
-                nbBytesUploaded(0);
-
-                /*
-                 * This violates HTTP 1.1 persistent connections! try {
-                 * cleanRequest(); } catch (JUploadException e) {
-                 * uploadException = e; bReturn = false; }
-                 */
             }
 
             if (this.uploadPolicy.getDebugLevel() > 80) {

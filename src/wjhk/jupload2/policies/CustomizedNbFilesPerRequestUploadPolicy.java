@@ -1,7 +1,5 @@
 //
-// $Id: CustomizedNbFilesPerRequestUploadPolicy.java 95 2007-05-02 03:27:05Z
-// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
-// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team

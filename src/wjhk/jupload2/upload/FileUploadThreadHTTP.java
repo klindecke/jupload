@@ -331,7 +331,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     }
 
     /** @see DefaultFileUploadThread#getResponseBody() */
-    @SuppressWarnings("unused")
     @Override
     String getResponseBody() {
         return this.sbHttpResponseBody.toString();
