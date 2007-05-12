@@ -43,8 +43,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -258,6 +258,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     private final static int MAX_DEBUG_LINES = 10000;
 
+    protected Pattern patternSuccess = Pattern
+            .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS);
+
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// CONSTRUCTORS
     // ///////////////////////////////////////////////////
@@ -270,8 +273,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
      *            upload policy exists almost everywhere, this parameter allows
      *            any access to anyone on the applet... including reading the
      *            applet parameters.
+     * @throws JUploadException If an applet parameter is invalid
      */
-    public DefaultUploadPolicy(JUploadApplet theApplet) {
+    public DefaultUploadPolicy(JUploadApplet theApplet) throws JUploadException {
         // Call default constructor for all default initialization;.
         this.applet = theApplet;
         this.statusArea = theApplet.getStatusArea();
@@ -344,13 +348,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
-        // get the upload String Success. See Uploadolicy#getStringUploadSuccess
-        // It is used by Coppermine Picture Gallery (nice tool) to control that
-        // the user
-        // sending the cookie uses the same http protocol that the original
-        // connexion.
-        // Please have a look tp the UploadPolicy.serverProtocol attribute.
         setStringUploadSuccess(UploadPolicyFactory
                 .getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS,
                         DEFAULT_STRING_UPLOAD_SUCCESS, this));
@@ -457,9 +454,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * <LI>True, If previous condition is not filled, but the HTTP header
      * "HTTP(.*)200OK$" is present: the test is currently non blocking, because
      * I can not test all possible HTTP configurations.<BR>
-     * Note: If "Transfer-Encoding: chunked" is present, the body may be cut by
-     * 'strange' characters, which prevent to find the success string. Then, a
-     * warning is displayed.
      * <LI>False if the previous conditions are not fullfilled. </DIR>
      * 
      * @param serverOutput The full HTTP answer, including the http headers.
@@ -467,62 +461,30 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @return True or False, indicating if the upload is a success or not.
      * @see UploadPolicy#checkUploadSuccess(String, String)
      */
-    public boolean checkUploadSuccess(String serverOutput,
-            String serverOutputBody) throws JUploadException {
-        final Pattern patternSuccess = Pattern
-                .compile(this.stringUploadSuccess);
-        final Pattern patternTransferEncodingChunked = Pattern.compile(
-                "^Transfer-Encoding: chunked", Pattern.CASE_INSENSITIVE);
-        // La premi�re ligne est de la forme "HTTP/1.1 NNN Texte", o� NNN et le
-        // code HTTP de retour (200, 404, 500...)
-        final Pattern patternHttpStatus = Pattern.compile(
-                "HTTP[^ ]* ([^ ]*) .*", Pattern.DOTALL);
+    public boolean checkUploadSuccess(int status, String msg, String body)
+            throws JUploadException {
+        displayDebug("HTTP status: " + msg, 40);
+        if (status != 200)
+            throw new JUploadExceptionUploadFailed("Received HTTP status "
+                    + msg);
 
         if (this.stringUploadSuccess.equals(""))
+            // No chance to check the correctness of this upload. -> Assume Ok
             return true;
 
         // The success string should be in the http body
-        boolean uploadSuccess = patternSuccess.matcher(serverOutputBody).find();
-        // The transfert encoding may be present in the serverOutput (that
-        // contains the http headers)
-        boolean uploadTransferEncodingChunked = patternTransferEncodingChunked
-                .matcher(serverOutput).find();
-
-        // And have a match, to search for the http return code (200 for Ok)
-        Matcher matcherUploadHttpStatus = patternHttpStatus
-                .matcher(serverOutput);
-        if (!matcherUploadHttpStatus.matches())
-            throw new JUploadException(
-                    "Can't find the HTTP status in serverOutput!");
-
-        int httpStatus = Integer.parseInt(matcherUploadHttpStatus.group(1));
-        boolean upload_200_OK = (httpStatus == 200);
-
-        displayDebug("HTTP return code: " + httpStatus, 40);
-
-        // Let's find what we should answer:
-        if (uploadSuccess) {
+        if (this.patternSuccess.matcher(body).find())
             return true;
-        } else if (uploadTransferEncodingChunked && upload_200_OK) {
-            // Hum, as the transfert encoding is chuncked, the success
-            // string may be splitted. We display
-            // an info message, and expect everything is Ok.
-            // FIXME The chunked encoding should be correctly handled,
-            // instead of the current 'expectations' below.
-            displayInfo("The Transfer-Encoding is chunked, and http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
-            return true;
-        } else if (upload_200_OK) {
-            // This method is currently non blocking.
-            displayWarn("The http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
-            // We raise no exception (= success)
-            return true;
-        } else {
-            // The upload is not successful: here, we know it!
-            throw new JUploadExceptionUploadFailed(getClass().getName()
-                    + ".checkUploadSuccess(): The http return code is : "
-                    + httpStatus + " (should be 200)");
-        }
-    }// isUploadSuccessful
+
+        // stringUploadSuccess was defined but we did not find it.
+        // This is most certainly an error as http-status 200 does *not* refer
+        // to the correctness of the content. It merely means that the protocol
+        // handling was ok. -> throw an exception
+        throw new JUploadExceptionUploadFailed(getClass().getName()
+                + ".checkUploadSuccess(): The string \""
+                + this.stringUploadSuccess
+                + "\" was not found in the response body");
+    } // isUploadSuccessful
 
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
@@ -781,8 +743,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             this.debugFile));
                     int contentLength = 0;
                     while ((line = debugIn.readLine()) != null) {
-                        contentLength += URLEncoder.encode(line + "\n", "UTF-8")
-                                .length();
+                        contentLength += URLEncoder
+                                .encode(line + "\n", "UTF-8").length();
                     }
                     debugIn.close();
                     debugIn = new BufferedReader(new FileReader(this.debugFile));
@@ -829,7 +791,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     dataout.writeBytes(request.toString());
                     dataout.writeBytes(query);
                     while ((line = debugIn.readLine()) != null) {
-                        dataout.writeBytes(URLEncoder.encode(line + "\n", "UTF-8"));
+                        dataout.writeBytes(URLEncoder.encode(line + "\n",
+                                "UTF-8"));
                     }
                     debugIn.close();
                     // We are done with the debug log, so re-enable it.
@@ -909,10 +872,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * This method manages all applet parameters. It allows javascript to update
      * their value, for instance after the user chooses a value in a list ...
      * 
+     * @throws JUploadException
      * @see wjhk.jupload2.policies.UploadPolicy#setProperty(java.lang.String,
      *      java.lang.String)
      */
-    public void setProperty(String prop, String value) {
+    public void setProperty(String prop, String value) throws JUploadException {
         if (prop.equals(PROP_AFTER_UPLOAD_URL)) {
             setAfterUploadURL(value);
         } else if (prop.equals(PROP_ALLOWED_FILE_EXTENSIONS)) {
@@ -1015,7 +979,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     && !uri.getScheme().equals("https")
                     && !uri.getScheme().equals("ftp")) {
                 throw new JUploadException("URI scheme " + uri.getScheme()
-                        + "not supported.");
+                        + " not supported.");
             }
         } catch (URISyntaxException e) {
             throw new JUploadException(e);
@@ -1035,17 +999,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Set the {@link #afterUploadURL}
+     * 
      * @param afterUploadURL The URL to use.
+     * @throws JUploadException
      */
-    protected void setAfterUploadURL(String afterUploadURL) {
+    protected void setAfterUploadURL(String afterUploadURL)
+            throws JUploadException {
         if (null == afterUploadURL)
             return;
-        try {
-            this.afterUploadURL = normalizeURL(afterUploadURL);
-        } catch (JUploadException e) {
-            displayWarn("Invalid parameter afterUploadURL: " + afterUploadURL
-                    + " : " + e.getMessage());
-        }
+        this.afterUploadURL = normalizeURL(afterUploadURL);
     }
 
     /** @see UploadPolicy#getAllowedFileExtensions() */
@@ -1232,9 +1194,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
+     * @throws JUploadException
      * @see wjhk.jupload2.policies.UploadPolicy#setPostURL(String)
      */
-    public void setPostURL(String postURL) {
+    public void setPostURL(String postURL) throws JUploadException {
         // Be more forgiving about postURL:
         // - If none is specified, use the original DocumentBase of the applet.
         // - If a non-absolute URI (an URI without protocol and server) is
@@ -1242,12 +1205,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // prefix it with "http://servername"
         // - If a relative URI is specified, prefix it with the DocumentBase's
         // parent
-        try {
-            this.postURL = normalizeURL(postURL);
-        } catch (JUploadException e) {
-            displayWarn("Invalid parameter postURL: " + postURL + " : "
-                    + e.getMessage());
-        }
+        this.postURL = normalizeURL(postURL);
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
@@ -1280,9 +1238,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.stringUploadSuccess;
     }
 
-    /** @param stringUploadSuccess the stringUploadSuccess to set */
-    protected void setStringUploadSuccess(String stringUploadSuccess) {
+    /**
+     * @param stringUploadSuccess the stringUploadSuccess to set
+     * @throws JUploadException
+     */
+    protected void setStringUploadSuccess(String stringUploadSuccess)
+            throws JUploadException {
         this.stringUploadSuccess = stringUploadSuccess;
+        try {
+            this.patternSuccess = Pattern.compile(stringUploadSuccess);
+        } catch (PatternSyntaxException e) {
+            throw new JUploadException(
+                    "Invalid regex in parameter stringUploadSuccess");
+        }
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getUrlToSendErrorTo() */
@@ -1290,21 +1258,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.urlToSendErrorTo;
     }
 
-    /** @param urlToSendErrorTo the urlToSendErrorTo to set */
-    protected void setUrlToSendErrorTo(String urlToSendErrorTo) {
+    /**
+     * @param urlToSendErrorTo the urlToSendErrorTo to set
+     * @throws JUploadException
+     */
+    protected void setUrlToSendErrorTo(String urlToSendErrorTo)
+            throws JUploadException {
         if (null == urlToSendErrorTo)
             return;
-        try {
-            String tmp = normalizeURL(urlToSendErrorTo);
-            if (tmp.startsWith("ftp://")) {
-                displayWarn("Invalid parameter urlToSendErrorTo: "
-                        + urlToSendErrorTo + " : ftp scheme not supported.");
-            }
-            this.urlToSendErrorTo = tmp;
-        } catch (JUploadException e) {
-            displayWarn("Invalid parameter urlToSendErrorTo: "
-                    + urlToSendErrorTo + " : " + e.getMessage());
+        String tmp = normalizeURL(urlToSendErrorTo);
+        if (tmp.startsWith("ftp://")) {
+            throw new JUploadException(
+                    "urlToSendErrorTo: ftp scheme not supported.");
         }
+        this.urlToSendErrorTo = tmp;
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getFormdata() */

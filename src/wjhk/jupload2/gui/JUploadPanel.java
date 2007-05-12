@@ -333,7 +333,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 this.uploadPolicy.displayDebug(
                         "JUploadPanel: after !fileUploadThread.isAlive()", 60);
                 this.timer.stop();
-                String svrRet = this.fileUploadThread.getServerOutput();
+                String svrRet = this.fileUploadThread.getResponseMsg();
                 Exception ex = this.fileUploadThread.getException();
 
                 // Restore enable state, as the upload is finished.

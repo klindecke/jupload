@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: PictureUploadPolicy.java 95 2007-05-02 03:27:05Z
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -38,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.gui.PicturePanel;
@@ -188,7 +191,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @param theApplet Reference to the current applet. Allows access to
      *            javasript functions.
      */
-    public PictureUploadPolicy(JUploadApplet theApplet) {
+    public PictureUploadPolicy(JUploadApplet theApplet) throws JUploadException {
         super(theApplet);
 
         // Creation of the PictureFileDataPolicy, from parameters given to the
@@ -440,7 +443,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      *      java.lang.String)
      */
     @Override
-    public void setProperty(String prop, String value) {
+    public void setProperty(String prop, String value) throws JUploadException {
         // The, we check the local properties.
         if (prop.equals(PROP_STORE_BUFFERED_IMAGE)) {
             setStoreBufferedImage(UploadPolicyFactory.parseBoolean(value,

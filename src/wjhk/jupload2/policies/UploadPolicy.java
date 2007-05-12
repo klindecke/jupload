@@ -834,7 +834,7 @@ public interface UploadPolicy {
      *            displayed in the status bar, and the existing value is not
      *            changed.
      */
-    public void setProperty(String prop, String value);
+    public void setProperty(String prop, String value) throws JUploadException;
 
     /**
      * Retrieves the current value for the afterUploadURL applet parameter.
@@ -1181,17 +1181,19 @@ public interface UploadPolicy {
      * {@link #afterUpload(Exception, String)}, that will be called only once
      * in this case, after the three calls to the checkUploadSuccess method.
      * 
-     * @param serverOutput The full http response, including the http headers.
-     * @param serverOutputBody The http body part (that is: the serverOuput
-     *            without the http headers and the blank line that follow them).
+     * @param status The numeric response status (e.g. 200)
+     * @param msg The status message from the first line of the response (e.g.
+     *            "200 OK").
+     * @param body The http body part (that is: the serverOuput without the http
+     *            headers and the blank line that follow them).
      * @return true (or an exception is raised, instead of returning false).
      *         This garantees that all cases are handled: the compiler will
      *         indicate an error if the code can come to the end of the method,
      *         without finding a 'return' or a throw exception. This return code
      *         can be ignored by the caller.
      */
-    public boolean checkUploadSuccess(String serverOutput,
-            String serverOutputBody) throws JUploadException;
+    public boolean checkUploadSuccess(int status, String msg, String body)
+            throws JUploadException;
 
     /**
      * This method is called after an upload, whether it is successful or not.

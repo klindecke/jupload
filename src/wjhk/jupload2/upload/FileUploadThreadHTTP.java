@@ -33,6 +33,8 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 
@@ -51,6 +53,22 @@ import wjhk.jupload2.policies.UploadPolicy;
 public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     private final static String DUMMYMD5 = "DUMMYMD5DUMMYMD5DUMMYMD5DUMMYMD5";
+
+    private final static int CHUNKBUF_SIZE = 4096;
+
+    private final static Pattern pChunked = Pattern.compile(
+            "^Transfer-Encoding:\\s+chunked", Pattern.CASE_INSENSITIVE);
+
+    private final static Pattern pClose = Pattern.compile(
+            "^Connection:\\s+close", Pattern.CASE_INSENSITIVE);
+
+    private final static Pattern pProxyClose = Pattern.compile(
+            "^Proxy-Connection:\\s+close", Pattern.CASE_INSENSITIVE);
+
+    private final static Pattern pHttpStatus = Pattern.compile(
+            "^HTTP/\\d\\.\\d\\s+((\\d+)\\s+.*)$");
+
+    private final char chunkbuf[] = new char[CHUNKBUF_SIZE];
 
     /**
      * http boundary, for the posting multipart post.
@@ -231,9 +249,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     }
 
     @Override
-    void finishRequest() throws JUploadException {
+    int finishRequest() throws JUploadException {
         boolean readingHttpBody = false;
         boolean gotClose = false;
+        boolean gotChunked = false;
+        int status = 0;
         String line;
 
         this.sbHttpResponseBody = new StringBuffer();
@@ -243,26 +263,62 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // This helps the server to speed up with it's response.
             if (this.stop)
                 this.sock.shutdownOutput();
+
             // && is evaluated from left to right so !stop must come first!
             while (!this.stop && (line = this.httpDataIn.readLine()) != null) {
-                this.addServerOutPut(line);
-                this.addServerOutPut("\n");
 
                 // Store the http body
                 if (readingHttpBody) {
+                    if (gotChunked) {
+                        // Handle a single chunk of the response
+                        int len = Integer.parseInt(line, 16);
+                        if (len == 0)
+                            // we are finished with the body
+                            break;
+                        while (len > 0) {
+                            int rlen = (len > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
+                                    : len;
+                            int ofs = 0;
+                            if (rlen > 0) {
+                                while (rlen > 0) {
+                                    int res = this.httpDataIn.read(
+                                            this.chunkbuf, ofs, rlen);
+                                    if (res < 0)
+                                        throw new JUploadException("read error");
+                                    rlen -= res;
+                                    ofs += len;
+                                }
+                                if (rlen > 0)
+                                    throw new JUploadException("read error");
+                            }
+                            this.sbHttpResponseBody.append(this.chunkbuf);
+                        }
+                        // If we got here, only the chunk's trailing CRLF is
+                        // left.
+                        line = this.httpDataIn.readLine();
+                    }
                     this.sbHttpResponseBody.append(line).append("\n");
                 } else {
-                    if (line.matches("^Connection:\\sclose"))
+                    if (status == 0) {
+                        Matcher m = pHttpStatus.matcher(line);
+                        if (m.matches()) {
+                            status = Integer.parseInt(m.group(2));
+                            setResponseMsg(m.group(1));
+                        }
+                    }
+                    if (pClose.matcher(line).matches())
                         gotClose = true;
-                    if (line.matches("^Proxy-Connection:\\sclose"))
+                    if (pProxyClose.matcher(line).matches())
                         gotClose = true;
+                    if (pChunked.matcher(line).matches())
+                        gotChunked = true;
                 }
                 if (line.length() == 0) {
                     // Next lines will be the http body (or perhaps we already
                     // are in the body, but it's Ok anyway)
                     readingHttpBody = true;
                 }
-            }// while
+            } // while
 
             if (gotClose) {
                 // RFC 2868, section 8.1.2.1
@@ -271,12 +327,13 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         } catch (Exception e) {
             throw new JUploadException(e);
         }
+        return status;
     }
 
     /** @see DefaultFileUploadThread#getResponseBody() */
     @SuppressWarnings("unused")
     @Override
-    String getResponseBody() throws JUploadException {
+    String getResponseBody() {
         return this.sbHttpResponseBody.toString();
     }
 
@@ -378,7 +435,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // Only connect, if sock is null!!
             if (this.sock == null) {
-                this.sock = new HttpConnect(this.uploadPolicy).Connect(url, proxy);
+                this.sock = new HttpConnect(this.uploadPolicy).Connect(url,
+                        proxy);
                 this.httpDataOut = new DataOutputStream(
                         new BufferedOutputStream(this.sock.getOutputStream()));
                 this.httpDataIn = new BufferedReader(new InputStreamReader(
@@ -455,6 +513,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             Object o = win.eval("document." + formname + ".elements.length");
             if (o instanceof Number) {
                 int len = ((Number) o).intValue();
+                if (len <= 0) {
+                    this.uploadPolicy.displayWarn("The specified form \""
+                            + formname + "\" does not contain any elements.");
+                }
                 int i;
                 for (i = 0; i < len; i++) {
                     try {
@@ -479,6 +541,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         i = len;
                     }
                 }
+            } else {
+                this.uploadPolicy.displayWarn("The specified form \""
+                        + formname + "\" could not be found.");
             }
         } catch (Exception e) {
             if (e instanceof JSException) {
