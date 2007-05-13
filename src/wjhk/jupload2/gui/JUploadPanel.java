@@ -1,6 +1,5 @@
 //
-// $Id: JUploadPanel.java 122 2007-05-09 01:58:53 +0000 (mer., 09 mai 2007)
-// felfert $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -77,7 +76,8 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
         this.uploadPolicy = uploadPolicy;
         // Creation of the menu items
         this.cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug on");
-        this.cbMenuItemDebugOnOff.setState(this.uploadPolicy.getDebugLevel() == 100);
+        this.cbMenuItemDebugOnOff
+                .setState(this.uploadPolicy.getDebugLevel() == 100);
         add(this.cbMenuItemDebugOnOff);
         this.cbMenuItemDebugOnOff.addItemListener(this);
     }
@@ -136,7 +136,16 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private String speedunit_b_per_second = "b/s";
 
     // TODO: translation
-    private String status_msg = "JUpload %1d%% done, Transfer rate: %2$,3.2f %3$s";
+    private String timefmt_hms = "%1$dh, %2$d min. and %3$d sec.";
+
+    // TODO: translation
+    private String timefmt_ms = "%1$d min. and %2$d sec.";
+
+    // TODO: translation
+    private String timefmt_s = "%1$d seconds";
+
+    // TODO: translation
+    private String status_msg = "JUpload %1$d%% done, Transfer rate: %2$,3.2f %3$s, ETA: %4$s";
 
     /** The popup menu of the applet */
     private JUploadPopupMenu jUploadPopupMenu;
@@ -375,6 +384,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     double total = this.fileUploadThread.getTotalLength();
                     double percent;
                     double cps;
+                    long remaining;
+                    String eta;
                     try {
                         percent = 100.0 * done / total;
                     } catch (ArithmeticException e1) {
@@ -384,6 +395,22 @@ public class JUploadPanel extends JPanel implements ActionListener,
                         cps = done / duration;
                     } catch (ArithmeticException e1) {
                         cps = done;
+                    }
+                    try {
+                        remaining = (long) ((total - done) / cps);
+                        if (remaining > 3600) {
+                            eta = String.format(this.timefmt_hms, new Long(
+                                    remaining / 3600), new Long(
+                                    (remaining / 60) % 60), new Long(
+                                    remaining % 60));
+                        } else if (remaining > 60) {
+                            eta = String.format(this.timefmt_ms, new Long(
+                                    remaining / 60), new Long(remaining % 60));
+                        } else
+                            eta = String.format(this.timefmt_s, new Long(
+                                    remaining));
+                    } catch (ArithmeticException e1) {
+                        eta = "unknown";
                     }
                     this.progressBar.setValue((int) percent);
                     String unit = this.speedunit_b_per_second;
@@ -401,7 +428,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                             .showStatus(
                                     String.format(this.status_msg, new Integer(
                                             (int) percent), new Double(cps),
-                                            unit));
+                                            unit, eta));
                 }
             }
             if (!this.fileUploadThread.isAlive()) {
@@ -429,6 +456,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 this.uploadButton.setEnabled(haveFiles);
                 this.removeButton.setEnabled(haveFiles);
                 this.removeAllButton.setEnabled(haveFiles);
+
+                this.uploadPolicy.getApplet().getAppletContext().showStatus("");
 
             }
             return;
