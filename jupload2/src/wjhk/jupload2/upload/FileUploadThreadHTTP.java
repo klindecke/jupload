@@ -284,7 +284,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             if (rlen > 0) {
                                 while (ofs < rlen) {
                                     int res = this.httpDataIn.read(
-                                            this.chunkbuf, ofs, rlen);
+                                            this.chunkbuf, ofs, rlen - ofs);
                                     if (res < 0)
                                         throw new JUploadException("read error");
                                     len -= res;
