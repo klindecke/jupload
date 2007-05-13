@@ -65,8 +65,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     private final static Pattern pProxyClose = Pattern.compile(
             "^Proxy-Connection:\\s+close", Pattern.CASE_INSENSITIVE);
 
-    private final static Pattern pHttpStatus = Pattern.compile(
-            "^HTTP/\\d\\.\\d\\s+((\\d+)\\s+.*)$");
+    private final static Pattern pHttpStatus = Pattern
+            .compile("^HTTP/\\d\\.\\d\\s+((\\d+)\\s+.*)$");
 
     private final char chunkbuf[] = new char[CHUNKBUF_SIZE];
 
@@ -272,6 +272,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     if (gotChunked) {
                         // Handle a single chunk of the response
                         int len = Integer.parseInt(line, 16);
+                        this.uploadPolicy.displayDebug("Chunk: " + line
+                                + " dec: " + len, 80);
                         if (len == 0)
                             // we are finished with the body
                             break;
@@ -280,43 +282,57 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                                     : len;
                             int ofs = 0;
                             if (rlen > 0) {
-                                while (rlen > 0) {
+                                while (ofs < rlen) {
                                     int res = this.httpDataIn.read(
                                             this.chunkbuf, ofs, rlen);
                                     if (res < 0)
                                         throw new JUploadException("read error");
-                                    rlen -= res;
-                                    ofs += len;
+                                    len -= res;
+                                    ofs += res;
                                 }
-                                if (rlen > 0)
-                                    throw new JUploadException("read error");
+                                if (ofs < rlen)
+                                    throw new JUploadException("read error 2");
+                                if (rlen < CHUNKBUF_SIZE)
+                                    this.sbHttpResponseBody
+                                            .append(String.copyValueOf(
+                                                    this.chunkbuf, 0, rlen));
+                                else
+                                    this.sbHttpResponseBody
+                                            .append(this.chunkbuf);
                             }
-                            this.sbHttpResponseBody.append(this.chunkbuf);
                         }
                         // If we got here, only the chunk's trailing CRLF is
                         // left.
                         line = this.httpDataIn.readLine();
-                    }
-                    this.sbHttpResponseBody.append(line).append("\n");
+                    } else
+                        this.sbHttpResponseBody.append(line).append("\n");
                 } else {
                     if (status == 0) {
+                        this.uploadPolicy.displayDebug(
+                                "-------- Response Headers Start --------", 80);
                         Matcher m = pHttpStatus.matcher(line);
                         if (m.matches()) {
                             status = Integer.parseInt(m.group(2));
                             setResponseMsg(m.group(1));
-                        }
+                        } else
+                            throw new JUploadException(
+                                    "HTTP response did not begin with status line.");
                     }
+                    this.uploadPolicy.displayDebug(line, 80);
                     if (pClose.matcher(line).matches())
                         gotClose = true;
                     if (pProxyClose.matcher(line).matches())
                         gotClose = true;
                     if (pChunked.matcher(line).matches())
                         gotChunked = true;
-                }
-                if (line.length() == 0) {
-                    // Next lines will be the http body (or perhaps we already
-                    // are in the body, but it's Ok anyway)
-                    readingHttpBody = true;
+                    if (line.length() == 0) {
+                        // Next lines will be the http body (or perhaps we
+                        // already
+                        // are in the body, but it's Ok anyway)
+                        readingHttpBody = true;
+                        this.uploadPolicy.displayDebug(
+                                "--------- Response Headers End ---------", 80);
+                    }
                 }
             } // while
 
@@ -324,6 +340,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 // RFC 2868, section 8.1.2.1
                 cleanRequest();
             }
+        } catch (JUploadException e) {
+            throw e;
         } catch (Exception e) {
             throw new JUploadException(e);
         }
