@@ -416,8 +416,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Header: General
             header.append("Host: ").append(url.getHost()).append(
                     "\r\nAccept: */*\r\n");
-            if (!bChunkEnabled
-                    || bLastChunk
+            
+            // Seems like the Keep-alive doesn't work properly.
+            header.append("Connection: close\r\n");
+            
+            /*
+             * Etienne: the code following this is commented: it prevents the chunk management to work properly
+           if ( !bChunkEnabled
+                    ||  bLastChunk
                     || useProxy
                     || !this.uploadPolicy.getServerProtocol()
                             .equals("HTTP/1.1")) {
@@ -430,6 +436,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 else
                     header.append("Connection: keep-alive\r\n");
             }
+            */ 
+
             // Get the GET parameters from the URL and convert them to
             // post form params
             String formParams = getFormParamsForPostRequest(url);
