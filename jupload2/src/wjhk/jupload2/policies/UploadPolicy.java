@@ -121,7 +121,7 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>With 0, you get the normal production output. The higher the number is,
- * the more information is displayed in the status bar. <br>
+ * the more information is displayed in the log window. <br>
  * Note: All debug messages are stored in a temporary log file. This can be used
  * to display more information, if needed. See also the 'webmasterMail'
  * parameter. </td>
@@ -400,7 +400,7 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <td>True<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>If given with the <i>False</i> value, the status bar will be hidden.
+ * <td>If given with the <i>False</i> value, the log window will be hidden.
  * The applet will still store all debug information in it. But the user won't
  * see it any more. If a problem occurs, the <i>urlToSendErrorTo</i> can still
  * be used to log all available information. </td>
@@ -621,10 +621,10 @@ public interface UploadPolicy {
     final static String PROP_SERVER_PROTOCOL = "serverProtocol";
 
     /**
-     * Parameter/Property name for specifying if the statusbar should be
+     * Parameter/Property name for specifying if the log window should be
      * visible.
      */
-    final static String PROP_SHOW_STATUSBAR = "showStatusBar";
+    final static String PROP_SHOW_LOGWINDOW = "showStatusBar";
 
     /**
      * Parameter/Property name for specifying if the pattern that indicates
@@ -750,7 +750,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "showStatusBar".
      */
-    final static boolean DEFAULT_SHOW_STATUSBAR = true;
+    final static boolean DEFAULT_SHOW_LOGWINDOW = true;
 
     /**
      * Default value for parameter "stringUploadSuccess". Note: was ".* 200 OK$"
@@ -826,12 +826,12 @@ public interface UploadPolicy {
      * This allow runtime modifications of properties. With this method, you can
      * change any applet parameter after the applet initilization, with
      * JavaScript for instance. If the applet parameters given in <i>prop</i>
-     * is not managed by this method, a warning is displayed on the status bar.
+     * is not managed by this method, a warning is displayed in the log window.
      * 
      * @param prop The applet parameter name.
      * @param value The new value for this parameter. If the value is not valid
      *            (for instance <i>aaa</i> for a number), a warning is
-     *            displayed in the status bar, and the existing value is not
+     *            displayed in the log window, and the existing value is not
      *            changed.
      */
     public void setProperty(String prop, String value) throws JUploadException;
@@ -959,15 +959,14 @@ public interface UploadPolicy {
     public String getServerProtocol();
 
     /**
-     * Indicate whether the status bar should be shown. It may be interesting to
-     * hide it, as it contains no really text information. But it still is the
-     * only place where is displayed the upload status (and upload error if
-     * any). <br>
+     * Indicate whether the log window should be shown. It may be convenient to
+     * hide it, as it contains mostly debug information. But it still is the
+     * only place where possible errors and warnings are shown.<br>
      * Default is : true
      * 
      * @return The current value for the <i>showStatusBar</i> applet parameter.
      */
-    public boolean getShowStatusBar();
+    public boolean getShowLogWindow();
 
     /**
      * Get the original name of the file on the disk. This function can encode
@@ -1074,22 +1073,22 @@ public interface UploadPolicy {
     public void sendDebugInformation(String reason);
 
     /**
-     * log an error message, based on an exception. Will be logged in the status
-     * bar, if defined.
+     * log an error message, based on an exception. Will be logged in the log
+     * window, if defined.
      * 
      * @param e The exception to report
      */
     public void displayErr(Exception e);
 
     /**
-     * log an error message. Will be logged in the status bar, if defined.
+     * log an error message. Will be logged in the log window, if defined.
      * 
      * @param err The erreur message to be displayed.
      */
     public void displayErr(String err);
 
     /**
-     * log an error message. Will be logged in the status bar, if defined.
+     * log an error message. Will be logged in the log window, if defined.
      * 
      * @param err The error message to be displayed.
      * @param e An exception. It's stacktrace is logged.
@@ -1097,21 +1096,21 @@ public interface UploadPolicy {
     public void displayErr(String err, Exception e);
 
     /**
-     * log an info message. Will be logged in the status bar, if defined.
+     * log an info message. Will be logged in the log window, if defined.
      * 
      * @param info The information message that will be displayed.
      */
     public void displayInfo(String info);
 
     /**
-     * log a warning message. Will be logged in the status bar, if defined.
+     * log a warning message. Will be logged in the log window, if defined.
      * 
      * @param warn The warning message that will be displayed.
      */
     public void displayWarn(String warn);
 
     /**
-     * log a debug message. Will be logged in the status bar, if defined.
+     * log a debug message. Will be logged in the log window, if defined.
      * 
      * @param debug The message to display.
      * @param minDebugLevel If the current debug level is superior or equals to

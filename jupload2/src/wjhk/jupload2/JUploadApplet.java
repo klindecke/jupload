@@ -66,7 +66,7 @@ public class JUploadApplet extends Applet {
 
     private JUploadPanel jUploadPanel = null;
 
-    private JUploadTextArea statusArea = null;
+    private JUploadTextArea logWindow = null;
 
     /**
      * @see java.applet.Applet#init()
@@ -78,10 +78,10 @@ public class JUploadApplet extends Applet {
             this.setLayout(new BorderLayout());
 
             // Creation of the Panel, containing all GUI objects for upload.
-            this.statusArea = new JUploadTextArea(20, 20);
+            this.logWindow = new JUploadTextArea(20, 20);
             this.uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
 
-            this.jUploadPanel = new JUploadPanel(this, this.statusArea,
+            this.jUploadPanel = new JUploadPanel(this, this.logWindow,
                     this.uploadPolicy);
 
             this.add(this.jUploadPanel, BorderLayout.CENTER);
@@ -107,14 +107,14 @@ public class JUploadApplet extends Applet {
     }
 
     /**
-     * Retrieves the current status area of this applet. This status area may
+     * Retrieves the current log window of this applet. This log window may
      * visible or not depending on various applet parameter.
      * 
-     * @return the current status area of this instance.
-     * @see JUploadPanel#showOrHideStatusBar()
+     * @return the current log window of this instance.
+     * @see JUploadPanel#showOrHideLogWindow()
      */
-    public JUploadTextArea getStatusArea() {
-        return this.statusArea;
+    public JUploadTextArea getLogWindow() {
+        return this.logWindow;
     }
 
     /**
