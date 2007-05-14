@@ -376,7 +376,8 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <td>realMaxPicWidth</td>
  * <td>-1 <br>
  * <br>
- * {@link wjhk.jupload2.policies.PictureUploadPolicy}<i>Since v2.8.1</i></td>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}<br>
+ * <i>Since v2.8.1</i></td>
  * <td>Same as realMaxPicHeight, but for the maximum width of uploaded picture
  * that must be transformed. <br>
  * <i>See also maxPicWidth, realMaxPicHeight</i> </td>
@@ -417,6 +418,25 @@ import wjhk.jupload2.gui.JUploadPanel;
  * doesn't change anything. Be careful to this parameter, and let it to the
  * default value, unless you've well tested it under all your target client
  * configurations. </td>
+ * </tr>
+ * <tr>
+ * <td>stringUploadError</td>
+ * <td>empty string ("") [if using DefaultUploadPolicy]<br>
+ * "ERROR (.*)" [if using CopperminUploadPolicy]<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
+ * Since 2.9.2rc4</td>
+ * <td>This string is a regular expression. It allows the applet to test that
+ * the server has detected an error in the upload. If this parameter is given
+ * to the applet, the upload thread will try to match this regular epression
+ * to each line of the server response <b>body</b>.<br>
+ * If the match is successfull once, the upload is considered to have failed.
+ * and {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is
+ * thrown. If the expression contains a hunt-group, the matching contents of
+ * that group is reported to the user. For example: If you specify "ERROR: (.*)"
+ * here, if the server response contains the line "ERROR: md5sum check failed",
+ * the string "md5sum check failed" is used for the exception message.
+ * </td>
  * </tr>
  * <tr>
  * <td>stringUploadSuccess</td>
@@ -628,6 +648,12 @@ public interface UploadPolicy {
 
     /**
      * Parameter/Property name for specifying if the pattern that indicates
+     * an error in the server's response-body.
+     */
+    final static String PROP_STRING_UPLOAD_ERROR = "stringUploadError";
+
+    /**
+     * Parameter/Property name for specifying if the pattern that indicates
      * success in the server's response-body.
      */
     final static String PROP_STRING_UPLOAD_SUCCESS = "stringUploadSuccess";
@@ -753,6 +779,12 @@ public interface UploadPolicy {
     final static boolean DEFAULT_SHOW_LOGWINDOW = true;
 
     /**
+     * Default value for parameter "stringUploadError".
+     * @since 2.9.2rc4
+     */
+    final static String DEFAULT_STRING_UPLOAD_ERROR = "";
+
+    /**
      * Default value for parameter "stringUploadSuccess". Note: was ".* 200 OK$"
      * before 2.9.0
      */
@@ -775,6 +807,7 @@ public interface UploadPolicy {
 
     /**
      * Default value for parameter "formdata"
+     * @since 2.9.2rc4
      */
     final static String DEFAULT_FORMDATA = null;
 
@@ -1002,6 +1035,16 @@ public interface UploadPolicy {
      */
     public String getUrlToSendErrorTo();
 
+    /**
+     * Retrieve the regular expression that will be tested against each line of the
+     * server answer. If one line matches this expression, that upload is marked
+     * as failed. <br>
+     * 
+     * @return The regular expression that must be run again each line of the
+     *         http answer.
+     */
+    public String getStringUploadError();
+    
     /**
      * Get the regular expression that will be tested against each line of the
      * server answer. If one line matches this expression, that upload is marked

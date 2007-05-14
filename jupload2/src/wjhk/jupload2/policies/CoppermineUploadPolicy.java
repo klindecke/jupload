@@ -22,12 +22,9 @@ package wjhk.jupload2.policies;
 
 import java.io.File;
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
-import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
@@ -102,6 +99,9 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
             throws JUploadException {
         // Let's call our mother ! :-)
         super(theApplet);
+        // Use our own default for stringUploadError
+        setStringUploadError(UploadPolicyFactory.getParameter(theApplet,
+                PROP_STRING_UPLOAD_ERROR, "ERROR: (.*)", this));
 
         // Let's read the albumId from the applet parameter. It can be unset,
         // but the user must then choose
@@ -174,7 +174,9 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         // Note: if the postURL (given to the applet) doesn't need any
         // parameter, it's necessary to add a dummy one,
         // so that the line below generates a valid URL.
-        return super.getPostURL() + "&album=" + this.albumId;
+        String postURL = super.getPostURL();
+        return postURL + (postURL.contains("?") ? "&" : "?") + "album="
+                + this.albumId;
     }
 
     /**
@@ -203,80 +205,6 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         // Default : Let's ask the mother.
         return super.isUploadReady();
     }
-
-    /**
-     * The default behaviour (see {@link DefaultUploadPolicy}) is to check that
-     * the stringUploadSuccess applet parameter is present in the request. The
-     * return is : <DIR>
-     * <LI>True, if the stringUploadSuccess string is present in the
-     * serverOutputBody.
-     * <LI>True, If previous condition is not filled, but the HTTP header
-     * "HTTP(.*)200OK$" is present: the test is currently non blocking, because
-     * I can not test all possible HTTP configurations.<BR>
-     * Note: If "Transfer-Encoding: chunked" is present, the body may be cut by
-     * 'strange' characters, which prevent to find the success string. Then, a
-     * warning is displayed.
-     * <LI>False if the previous conditions are not fullfilled. </DIR>
-     * 
-     * @param httpStatus The HTTP response code
-     * @param httpMsg The full HTTP response message (e.g. "404 Not found").
-     * @param serverOutputBody The body of the HTTP answer.
-     * @return True or False, indicating if the upload is a success or not.
-     * @see UploadPolicy#checkUploadSuccess(int, String, String)
-     */
-    @Override
-    public boolean checkUploadSuccess(int httpStatus, @SuppressWarnings("unused")
-    String httpMsg,
-            String serverOutputBody) throws JUploadException {
-        // The success string should be in the http body
-        boolean uploadSuccess = this.patternSuccess.matcher(serverOutputBody).find();
-        // The transfert encoding may be present in the serverOutput (that
-        // contains the http headers)
-
-        // ///////////////////////////////////////////////////////////////////////////////////
-        // Changes from the DefaultUploadPolicy code : START (1/2)
-        final Pattern patternError = Pattern.compile("ERROR: (.*)");
-        Matcher matcherError = patternError.matcher(serverOutputBody);
-        String errorMessage = null;
-        if (matcherError.find()) {
-            try {
-                errorMessage = matcherError.group(1);
-            } catch (IndexOutOfBoundsException e) {
-                // Too bad, the RegExp didn't find any error message.
-                errorMessage = "An error occurs during upload (but the applet couldn't find the error message)";
-            }
-        }
-        // Changes from the DefaultUploadPolicy code : END (1/2)
-        // ///////////////////////////////////////////////////////////////////////////////////
-
-        displayDebug("HTTP return code: " + httpStatus, 40);
-
-        // Let's find what we should answer:
-        if (uploadSuccess) {
-            // Everything is Ok, we leave here.
-            return true;
-            // ///////////////////////////////////////////////////////////////////////////////////
-            // Changes from the DefaultUploadPolicy code : START (2/2)
-        } else if (errorMessage != null) {
-            if (errorMessage.equals("")) {
-                errorMessage = "An unknown error occurs during upload.";
-            }
-            throw new JUploadExceptionUploadFailed(getClass().getName()
-                    + ".checkUploadSuccess(): " + errorMessage);
-            // Changes from the DefaultUploadPolicy code : END (2/2)
-            // ///////////////////////////////////////////////////////////////////////////////////
-        } else if (httpStatus == 200) {
-            // This method is currently non blocking.
-            displayWarn("The http upload is technically Ok, but the success string was not found. Suspicion is that upload was Ok...let's go on");
-            // We raise no exception (= success)
-            return true;
-        } else {
-            // The upload is not successful: here, we know it!
-            throw new JUploadExceptionUploadFailed(getClass().getName()
-                    + ".checkUploadSuccess(): The http return code is : "
-                    + httpStatus + " (should be 200)");
-        }
-    } // checkUploadSuccess
 
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)

@@ -364,7 +364,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
     final public void run() {
         boolean bUploadOk = true;
 
-        this.startTime = System.currentTimeMillis();
+        // this inhibits status-update (progress bar and status bar)
+        // from within the timer loop.
+        this.startTime = 0;
+
         this.uploadedLength = 0;
         this.totalFilesLength = 0;
 
@@ -376,6 +379,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
             // Prepare upload, for all files to be uploaded.
             beforeUpload();
+            this.startTime = System.currentTimeMillis();
             beforeRequest(0, this.filesToUpload.length);
 
             // Let's go through all files.
