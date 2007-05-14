@@ -303,7 +303,7 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
  <td>With 0, you get the normal production output. The higher the number is,
- the more information is displayed in the status bar. <br>
+ the more information is displayed in the log window. <br>
  Note: All debug messages are stored in a temporary log file. This can be used
  to display more information, if needed. See also the 'webmasterMail'
  parameter. </td>
@@ -558,7 +558,8 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <td>realMaxPicWidth</td>
  <td>-1 <br>
  <br>
- <a href="doc/wjhk/jupload2/policies/PictureUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>PictureUploadPolicy</CODE></A><i>Since v2.8.1</i></td>
+ <a href="doc/wjhk/jupload2/policies/PictureUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>PictureUploadPolicy</CODE></A><br>
+ <i>Since v2.8.1</i></td>
  <td>Same as realMaxPicHeight, but for the maximum width of uploaded picture
  that must be transformed. <br>
  <i>See also maxPicWidth, realMaxPicHeight</i> </td>
@@ -582,7 +583,7 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <td>True<br>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
- <td>If given with the <i>False</i> value, the status bar will be hidden.
+ <td>If given with the <i>False</i> value, the log window will be hidden.
  The applet will still store all debug information in it. But the user won't
  see it any more. If a problem occurs, the <i>urlToSendErrorTo</i> can still
  be used to log all available information. </td>
@@ -599,6 +600,25 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  doesn't change anything. Be careful to this parameter, and let it to the
  default value, unless you've well tested it under all your target client
  configurations. </td>
+ </tr>
+ <tr>
+ <td>stringUploadError</td>
+ <td>empty string ("") [if using DefaultUploadPolicy]<br>
+ "ERROR (.*)" [if using CopperminUploadPolicy]<br>
+ <br>
+ <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A><br>
+ Since 2.9.2rc4</td>
+ <td>This string is a regular expression. It allows the applet to test that
+ the server has detected an error in the upload. If this parameter is given
+ to the applet, the upload thread will try to match this regular epression
+ to each line of the server response <b>body</b>.<br>
+ If the match is successfull once, the upload is considered to have failed.
+ and <a href="doc/wjhk/jupload2/exception/JUploadExceptionUploadFailed.html" title="class in wjhk.jupload2.exception"><CODE>JUploadExceptionUploadFailed</CODE></A> is
+ thrown. If the expression contains a hunt-group, the matching contents of
+ that group is reported to the user. For example: If you specify "ERROR: (.*)"
+ here, if the server response contains the line "ERROR: md5sum check failed",
+ the string "md5sum check failed" is used for the exception message.
+ </td>
  </tr>
  <tr>
  <td>stringUploadSuccess</td>

@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -188,6 +189,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String serverProtocol = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
 
     /**
+     * @see UploadPolicy#getStringUploadError()
+     */
+    private String stringUploadError = UploadPolicy.DEFAULT_STRING_UPLOAD_ERROR;
+
+    /**
      * @see UploadPolicy#getStringUploadSuccess()
      */
     private String stringUploadSuccess = UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS;
@@ -260,6 +266,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     protected Pattern patternSuccess = Pattern
             .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS);
+
+    protected Pattern patternError = Pattern
+            .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_ERROR);
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// CONSTRUCTORS
@@ -347,6 +356,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Please have a look tp the UploadPolicy.serverProtocol attribute.
         setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
+
+        setStringUploadError(UploadPolicyFactory.getParameter(theApplet,
+                PROP_STRING_UPLOAD_ERROR, DEFAULT_STRING_UPLOAD_ERROR, this));
 
         setStringUploadSuccess(UploadPolicyFactory
                 .getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS,
@@ -469,6 +481,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throw new JUploadExceptionUploadFailed("Received HTTP status "
                     + msg);
 
+        if (!this.stringUploadError.equals("")) {
+            Matcher m = this.patternError.matcher(body);
+            if (m.find()) {
+                String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
+                if (m.groupCount() > 0) {
+                    errmsg = m.group(1);
+                    if (errmsg.equals(""))
+                        errmsg = "An unknown error occurs during upload.";
+                }
+                throw new JUploadExceptionUploadFailed(getClass().getName()
+                        + ".checkUploadSuccess(): " + errmsg);
+            }
+        }
+
         if (this.stringUploadSuccess.equals(""))
             // No chance to check the correctness of this upload. -> Assume Ok
             return true;
@@ -485,7 +511,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 + ".checkUploadSuccess(): The string \""
                 + this.stringUploadSuccess
                 + "\" was not found in the response body");
-    } // isUploadSuccessful
+    } // checkUploadSuccess
 
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
@@ -964,6 +990,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayDebug("serverProtocol: " + this.serverProtocol, 20);
             displayDebug("showLogWindow: " + getShowLogWindow(), 20);
             displayDebug("stringUploadSuccess: " + this.stringUploadSuccess, 20);
+            displayDebug("stringUploadError: " + this.stringUploadError, 20);
             displayDebug("urlToSendErrorTo: " + this.urlToSendErrorTo, 20);
         }
     }
@@ -1234,9 +1261,29 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
+    /** @see wjhk.jupload2.policies.UploadPolicy#getStringUploadError() */
+    public String getStringUploadError() {
+        return this.stringUploadError;
+    }
+
     /** @see wjhk.jupload2.policies.UploadPolicy#getStringUploadSuccess() */
     public String getStringUploadSuccess() {
         return this.stringUploadSuccess;
+    }
+
+    /**
+     * @param stringUploadError the stringUploadError to set
+     * @throws JUploadException
+     */
+    protected void setStringUploadError(String stringUploadError)
+            throws JUploadException {
+        this.stringUploadError = stringUploadError;
+        try {
+            this.patternError = Pattern.compile(stringUploadError);
+        } catch (PatternSyntaxException e) {
+            throw new JUploadException(
+                    "Invalid regex in parameter stringUploadError");
+        }
     }
 
     /**
@@ -1353,8 +1400,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             if (lc > MAX_DEBUG_LINES) {
                 int end;
                 try {
-                    end = this.logWindow
-                            .getLineEndOffset(lc - MAX_DEBUG_LINES);
+                    end = this.logWindow.getLineEndOffset(lc - MAX_DEBUG_LINES);
                     this.logWindow.replaceRange("", 0, end);
                 } catch (BadLocationException e) {
                     e.printStackTrace();

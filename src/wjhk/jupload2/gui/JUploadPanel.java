@@ -376,7 +376,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     || (!this.fileUploadThread.isAlive())) {
                 // Time for an update now.
                 this.update_counter = 0;
-                if (null != this.progressBar) {
+                if (null != this.progressBar
+                        && (this.fileUploadThread.getStartTime() != 0)) {
                     long duration = (System.currentTimeMillis() - this.fileUploadThread
                             .getStartTime()) / 1000;
                     double done = this.fileUploadThread.getUploadedLength();
@@ -561,8 +562,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     /**
      * This methods show or hides the logWindow, depending on the following
-     * applet parameters. The following conditions must be met, to hide the
-     * log window: <DIR>
+     * applet parameters. The following conditions must be met, to hide the log
+     * window: <DIR>
      * <LI>showLogWindow (must be False)
      * <LI>debugLevel (must be 0 or less) </DIR>
      */
