@@ -123,13 +123,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String allowedFileExtensions = UploadPolicy.DEFAULT_ALLOWED_FILE_EXTENSIONS;
 
     /**
-     * Indicate whether the status bar is shown or not to the user. In all cases
+     * Indicate whether the log window is shown or not to the user. In all cases
      * it remains in memory, and stores all debug information. This allows a log
      * information, in case of an error occurs.
      * 
      * @see #urlToSendErrorTo
      */
-    private boolean showStatusBar = UploadPolicy.DEFAULT_SHOW_STATUSBAR;
+    private boolean showLogWindow = UploadPolicy.DEFAULT_SHOW_LOGWINDOW;
 
     /**
      * The current debug level.
@@ -229,7 +229,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @see #displayMsg(String)
      */
-    private JUploadTextArea statusArea = null;
+    private JUploadTextArea logWindow = null;
 
     /**
      * The resourceBundle contains all localized String (and others ??)
@@ -254,7 +254,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private boolean debugOk = true;
 
     /**
-     * This constant defines the upper limit of lines, kept in the status area.
+     * This constant defines the upper limit of lines, kept in the log window.
      */
     private final static int MAX_DEBUG_LINES = 10000;
 
@@ -278,7 +278,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public DefaultUploadPolicy(JUploadApplet theApplet) throws JUploadException {
         // Call default constructor for all default initialization;.
         this.applet = theApplet;
-        this.statusArea = theApplet.getStatusArea();
+        this.logWindow = theApplet.getLogWindow();
 
         // ////////////////////////////////////////////////////////////////////////////
         // get the afterUploadURL applet parameter.
@@ -292,14 +292,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 this));
 
         // ////////////////////////////////////////////////////////////////////////////
-        // get the showStatusBar applet parameter.
-        setShowStatusBar(UploadPolicyFactory.getParameter(theApplet,
-                PROP_SHOW_STATUSBAR, DEFAULT_SHOW_STATUSBAR, this));
+        // get the showLogWindow applet parameter.
+        setShowLogWindow(UploadPolicyFactory.getParameter(theApplet,
+                PROP_SHOW_LOGWINDOW, DEFAULT_SHOW_LOGWINDOW, this));
 
         // ////////////////////////////////////////////////////////////////////////////
         // get the debug level. This control the level of debug messages that
         // are written
-        // in the status area (see displayDebugMessage). In all cases, the full
+        // in the log window (see displayDebugMessage). In all cases, the full
         // output
         // is written in the debugBufferString (see also urlToSendErrorTo)
         setDebugLevel(UploadPolicyFactory.getParameter(theApplet,
@@ -577,7 +577,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see UploadPolicy#displayErr(String)
      */
     public void displayErr(String err) {
-        // If debug is off, the status bar may not be visible. We switch the
+        // If debug is off, the log window may not be visible. We switch the
         // debug to on, to be sure that some
         // information will be displayed to the user.
         if (getDebugLevel() <= 0)
@@ -962,7 +962,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayDebug("nbFilesPerRequest: " + this.nbFilesPerRequest, 20);
             displayDebug("postURL: " + this.postURL, 20);
             displayDebug("serverProtocol: " + this.serverProtocol, 20);
-            displayDebug("showStatusBar: " + getShowStatusBar(), 20);
+            displayDebug("showLogWindow: " + getShowLogWindow(), 20);
             displayDebug("stringUploadSuccess: " + this.stringUploadSuccess, 20);
             displayDebug("urlToSendErrorTo: " + this.urlToSendErrorTo, 20);
         }
@@ -1058,10 +1058,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
         this.debugLevel = debugLevel;
 
-        // The status bar may become visible or hidden, depending on the current
+        // The log window may become visible or hidden, depending on the current
         // debug level.
         if (getApplet().getUploadPanel() != null) {
-            getApplet().getUploadPanel().showOrHideStatusBar();
+            getApplet().getUploadPanel().showOrHideLogWindow();
 
             // Let's display the current applet parameters.
             if (displayAppletParameterList) {
@@ -1220,17 +1220,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
-    public boolean getShowStatusBar() {
-        return this.showStatusBar;
+    public boolean getShowLogWindow() {
+        return this.showLogWindow;
     }
 
-    /** @param showStatusBar the new showStatusBar value */
-    protected void setShowStatusBar(boolean showStatusBar) {
-        this.showStatusBar = showStatusBar;
-        // The status bar may become visible or hidden, depending on this
+    /** @param showLogWindow the new showLogWindow value */
+    protected void setShowLogWindow(boolean showLogWindow) {
+        this.showLogWindow = showLogWindow;
+        // The log window may become visible or hidden, depending on this
         // parameter.
         if (getApplet().getUploadPanel() != null) {
-            getApplet().getUploadPanel().showOrHideStatusBar();
+            getApplet().getUploadPanel().showOrHideLogWindow();
         }
     }
 
@@ -1336,26 +1336,26 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Displays a message. If the statusArea panel is set, the message is
+     * Displays a message. If the logWindow panel is set, the message is
      * displayed on it. If not, the System.out.println function is used.
      * 
      * @param msg The message to display.
      */
     private synchronized void displayMsg(String tag, String msg) {
         msg = timestamp(tag, msg);
-        if (this.statusArea == null) {
+        if (this.logWindow == null) {
             System.out.println(msg);
         } else {
-            this.statusArea.append(msg);
+            this.logWindow.append(msg);
             if (!msg.endsWith("\n"))
-                this.statusArea.append("\n");
-            int lc = this.statusArea.getLineCount();
+                this.logWindow.append("\n");
+            int lc = this.logWindow.getLineCount();
             if (lc > MAX_DEBUG_LINES) {
                 int end;
                 try {
-                    end = this.statusArea
+                    end = this.logWindow
                             .getLineEndOffset(lc - MAX_DEBUG_LINES);
-                    this.statusArea.replaceRange("", 0, end);
+                    this.logWindow.replaceRange("", 0, end);
                 } catch (BadLocationException e) {
                     e.printStackTrace();
                 }

@@ -185,11 +185,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     private JProgressBar progressBar = null;
 
-    private JScrollPane jStatusScrollPane = null;
+    private JScrollPane jLogWindowPane = null;
 
-    private JUploadTextArea statusArea = null;
+    private JUploadTextArea logWindow = null;
 
-    private boolean isStatusAreaVisible = false;
+    private boolean isLogWindowVisible = false;
 
     private Timer timer = null;
 
@@ -208,7 +208,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * 
      * @param containerParam The container, where all GUI elements are to be
      *            created.
-     * @param statusParam The status area that should already have been created.
+     * @param logWindow The log window that should already have been created.
      *            This allows putting text into it, before the effective
      *            creation of the layout.
      * @param uploadPolicyParam The current UploadPolicy. Null if a new one must
@@ -216,14 +216,14 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @see UploadPolicyFactory#getUploadPolicy(wjhk.jupload2.JUploadApplet)
      */
     public JUploadPanel(@SuppressWarnings("unused")
-    Container containerParam, JUploadTextArea statusParam,
+    Container containerParam, JUploadTextArea logWindow,
             UploadPolicy uploadPolicyParam) throws Exception {
-        this.statusArea = statusParam;
+        this.logWindow = logWindow;
         this.uploadPolicy = uploadPolicyParam;
         this.jUploadPopupMenu = new JUploadPopupMenu(this.uploadPolicy);
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        statusParam.addMouseListener(this);
+        logWindow.addMouseListener(this);
 
         // Setup Top Panel
         setupTopPanel();
@@ -236,8 +236,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // Setup Progress Panel.
         setupProgressPanel(this.uploadButton, this.progressBar, this.stopButton);
 
-        // Setup Status Area.
-        setupStatus();
+        // Setup logging window.
+        setupLogWindow();
 
         // Setup File Chooser.
         try {
@@ -343,18 +343,17 @@ public class JUploadPanel extends JPanel implements ActionListener,
         this.add(this.progressPanel);
     }
 
-    private void setupStatus() {
-        this.jStatusScrollPane = new JScrollPane();
-        this.jStatusScrollPane
+    private void setupLogWindow() {
+        this.jLogWindowPane = new JScrollPane();
+        this.jLogWindowPane
                 .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        this.jStatusScrollPane
+        this.jLogWindowPane
                 .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        this.jStatusScrollPane.getViewport().add(this.statusArea);
+        this.jLogWindowPane.getViewport().add(this.logWindow);
 
-        // See viewStatusBar
-        showOrHideStatusBar();
-        // this.add(jStatusScrollPane);
+        showOrHideLogWindow();
+        // this.add(jLogWindowPane);
     }
 
     // ----------------------------------------------------------------------
@@ -561,27 +560,27 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     /**
-     * This methods show or hides the statusArea, depending on the following
+     * This methods show or hides the logWindow, depending on the following
      * applet parameters. The following conditions must be met, to hide the
-     * status area: <DIR>
-     * <LI>showStatusBar (must be False)
+     * log window: <DIR>
+     * <LI>showLogWindow (must be False)
      * <LI>debugLevel (must be 0 or less) </DIR>
      */
-    public void showOrHideStatusBar() {
-        if (this.uploadPolicy.getShowStatusBar()
+    public void showOrHideLogWindow() {
+        if (this.uploadPolicy.getShowLogWindow()
                 || this.uploadPolicy.getDebugLevel() > 0) {
-            // The status bar should be visible. Is it visible already?
-            if (!this.isStatusAreaVisible) {
-                add(this.jStatusScrollPane, -1);
-                this.isStatusAreaVisible = true;
+            // The log window should be visible. Is it visible already?
+            if (!this.isLogWindowVisible) {
+                add(this.jLogWindowPane, -1);
+                this.isLogWindowVisible = true;
                 // Let's recalculate the component display
                 validate();
             }
         } else {
             // It should be hidden.
-            if (this.isStatusAreaVisible) {
-                remove(this.jStatusScrollPane);
-                this.isStatusAreaVisible = false;
+            if (this.isLogWindowVisible) {
+                remove(this.jLogWindowPane);
+                this.isLogWindowVisible = false;
                 // Let's recalculate the component display
                 validate();
             }
