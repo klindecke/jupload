@@ -25,6 +25,7 @@ import java.io.File;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
@@ -826,6 +827,21 @@ public interface UploadPolicy {
     public JPanel createTopPanel(JButton browse, JButton remove,
             JButton removeAll, JPanel mainPanel);
 
+    /**
+     * This method is called to create the progress panel. The default implementation
+     * is defined in
+     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createProgressPanel(JProgressBar, JButton, JButton, JPanel)}.
+     * 
+     * @param progressBar The default progress bar.
+     * @param uploadButton The default upload button.
+     * @param stopButton The default stop button.
+     * @param mainPanel The panel that contains all objects. It can be used to
+     *            change the cursor (to a WAIT_CURSOR for instance).
+     * @return the topPanel, that will be displayed on the top of the Applet.
+     */
+    public JPanel createProgressPanel(JProgressBar progressBar, 
+                JButton uploadButton, JButton stopButton, JPanel mainPanel);
+    
     /**
      * This methods creates a new FileData instance (or one of its inherited
      * classes), and return it to the caller.

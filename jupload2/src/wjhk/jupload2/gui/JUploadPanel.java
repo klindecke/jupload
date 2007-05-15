@@ -302,8 +302,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private void setupProgressPanel(JButton jbUpload, JProgressBar jpbProgress,
             JButton jbStop) {
         this.progressPanel = new JPanel();
-        this.progressPanel.setLayout(new BoxLayout(this.progressPanel,
-                BoxLayout.X_AXIS));
 
         // -------- JButton upload --------
         if (null == jbUpload) {
@@ -316,7 +314,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.uploadButton.setEnabled(false);
         this.uploadButton.addActionListener(this);
-        this.progressPanel.add(this.uploadButton);
 
         // -------- JProgressBar progress --------
         if (null == jpbProgress) {
@@ -325,7 +322,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         } else {
             this.progressBar = jpbProgress;
         }
-        this.progressPanel.add(this.progressBar);
 
         // -------- JButton stop --------
         if (null == jbStop) {
@@ -338,8 +334,9 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.stopButton.setEnabled(false);
         this.stopButton.addActionListener(this);
-        this.progressPanel.add(this.stopButton);
 
+        this.progressPanel = this.uploadPolicy.createProgressPanel(
+                this.progressBar, this.uploadButton, this.stopButton, this);
         this.add(this.progressPanel);
     }
 

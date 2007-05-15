@@ -20,6 +20,7 @@
 
 package wjhk.jupload2.policies;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -47,10 +48,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 
@@ -490,14 +493,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     if (errmsg.equals(""))
                         errmsg = "An unknown error occurs during upload.";
                 }
-                //Let's display the error message to the user.
+                // Let's display the error message to the user.
                 alertStr(errmsg);
-                
+
                 throw new JUploadExceptionUploadFailed(getClass().getName()
                         + ".checkUploadSuccess(): " + errmsg);
-            } else {
-                displayDebug("No error message found in HTTP response body", 50);
             }
+            displayDebug("No error message found in HTTP response body", 50);
         }
 
         if (this.stringUploadSuccess.equals(""))
@@ -586,10 +588,33 @@ public class DefaultUploadPolicy implements UploadPolicy {
             JButton removeAll, @SuppressWarnings("unused")
             JPanel mainPanel) {
         JPanel jPanel = new JPanel();
-        jPanel.setLayout(new GridLayout(1, 3));
+
+        jPanel.setLayout(new GridLayout(1, 3, 10, 5));
+        jPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         jPanel.add(browse);
         jPanel.add(removeAll);
         jPanel.add(remove);
+
+        // mainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+
+        return jPanel;
+    }
+
+    /**
+     * @see wjhk.jupload2.policies.UploadPolicy#createProgressPanel(javax.swing.JProgressBar,
+     *      javax.swing.JButton, javax.swing.JButton, javax.swing.JPanel)
+     */
+    public JPanel createProgressPanel(JProgressBar progressBar,
+            JButton uploadButton, JButton stopButton,
+            @SuppressWarnings("unused")
+            JPanel mainPanel) {
+        JPanel jPanel = new JPanel();
+
+        jPanel.setLayout(new BorderLayout(10, 0));
+        jPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        jPanel.add(uploadButton, BorderLayout.LINE_START);
+        jPanel.add(progressBar, BorderLayout.CENTER);
+        jPanel.add(stopButton, BorderLayout.LINE_END);
         return jPanel;
     }
 

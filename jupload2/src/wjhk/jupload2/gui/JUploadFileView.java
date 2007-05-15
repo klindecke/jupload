@@ -78,13 +78,12 @@ class IconWorker implements Runnable {
         this.uploadPolicy.displayDebug("In IconWorker.getIcon("
                 + this.file.getName() + ")", 90);
         // We add the current worker to the task list.
-        /* ??  Hum, it should already be in the task list. I don't add it.
-        if (this.icon == null) {
-            this.uploadPolicy.displayDebug("   Adding " + this.file.getName()
-                    + " to the work list)", 90);
-            this.fileView.execute(this);
-        }
-        */
+        /*
+         * ?? Hum, it should already be in the task list. I don't add it. if
+         * (this.icon == null) { this.uploadPolicy.displayDebug(" Adding " +
+         * this.file.getName() + " to the work list)", 90);
+         * this.fileView.execute(this); }
+         */
         return this.icon;
     }
 
@@ -176,31 +175,32 @@ public class JUploadFileView extends FileView {
     @Override
     public Icon getIcon(File file) {
         if (file.isDirectory()) {
-            //we let the JVM display the system icon for directories.
+            // we let the JVM display the system icon for directories.
             return null;
-        } else {
-            IconWorker iconWorker = this.hashMap.get(file.getAbsolutePath());
-            if (iconWorker == null) {
-                // This file has not been loaded.
-                iconWorker = new IconWorker(this.uploadPolicy, this.fileChooser,
-                        this, file);
-                // We store it in the global Icon container.
-                this.hashMap.put(file.getAbsolutePath(), iconWorker);
-                // Then, we ask the current Thread to load its icon.
-                execute(iconWorker);
-                //We currently have no icon to display.
-                return null;
-            } else {
-                return iconWorker.getIcon();
-            }
         }
+        IconWorker iconWorker = this.hashMap.get(file.getAbsolutePath());
+        if (iconWorker == null) {
+            // This file has not been loaded.
+            iconWorker = new IconWorker(this.uploadPolicy, this.fileChooser,
+                    this, file);
+            // We store it in the global Icon container.
+            this.hashMap.put(file.getAbsolutePath(), iconWorker);
+            // Then, we ask the current Thread to load its icon.
+            execute(iconWorker);
+            // We currently have no icon to display.
+            return null;
+        }
+        return iconWorker.getIcon();
     }
 
-    synchronized void  execute(IconWorker iconWorker) {
+    synchronized void execute(IconWorker iconWorker) {
         this.uploadPolicy.displayDebug("In JUploadFileView.execute for "
                 + iconWorker.file.getAbsolutePath(), 90);
-        if (executorService == null || executorService.isShutdown()) {
-            this.uploadPolicy.displayDebug("JUploadFileView.execute: creating the executorService", 90);
+        if (this.executorService == null || this.executorService.isShutdown()) {
+            this.uploadPolicy
+                    .displayDebug(
+                            "JUploadFileView.execute: creating the executorService",
+                            90);
             this.executorService = Executors.newSingleThreadExecutor();
         }
         this.executorService.execute(iconWorker);
@@ -211,9 +211,10 @@ public class JUploadFileView extends FileView {
      * is closed.
      */
     synchronized public void shutdownNow() {
-        if (executorService != null) {
+        if (this.executorService != null) {
             this.executorService.shutdownNow();
-            this.uploadPolicy.displayDebug("JUploadFileView.shutdownNow (executorService->null)", 90);
+            this.uploadPolicy.displayDebug(
+                    "JUploadFileView.shutdownNow (executorService->null)", 90);
             this.executorService = null;
         }
     }
