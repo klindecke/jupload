@@ -490,8 +490,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     if (errmsg.equals(""))
                         errmsg = "An unknown error occurs during upload.";
                 }
+                //Let's display the error message to the user.
+                alertStr(errmsg);
+                
                 throw new JUploadExceptionUploadFailed(getClass().getName()
                         + ".checkUploadSuccess(): " + errmsg);
+            } else {
+                displayDebug("No error message found in HTTP response body", 50);
             }
         }
 
