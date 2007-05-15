@@ -22,6 +22,7 @@ package wjhk.jupload2.policies;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.SystemColor;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -595,7 +596,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         jPanel.add(removeAll);
         jPanel.add(remove);
 
-        // mainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        mainPanel.setBorder(BorderFactory.createLineBorder(SystemColor.controlDkShadow));
 
         return jPanel;
     }
