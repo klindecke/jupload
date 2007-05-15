@@ -35,6 +35,7 @@ function footer() {
   document.writeln("        </td>");
   document.writeln("       </tr>");
   document.writeln("       <tr><td colspan=3><hr size=1 noshade width=100%></td></tr>");
+  document.writeln("       <tr><td colspan=3><b>Note</b>: This demo is updated automatically from the SVN repository.<br />Therefore, this demo may contain features which are <b>not yet</b> available from regular downloads!</td></tr>");
   document.writeln("      </table>");
   document.writeln("  </center>");
 }
