@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: FileUploadThreadHTTP.java 144 2007-05-14 08:44:19 +0000 (lun., 14 mai
+// 2007) etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -304,8 +305,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         // If we got here, only the chunk's trailing CRLF is
                         // left.
                         line = this.httpDataIn.readLine();
-                    } else
-                        this.sbHttpResponseBody.append(line).append("\n");
+                    } else {
+                        // Not chunked. The return is supposed to be encoded in UTF-8.
+                        this.sbHttpResponseBody.append(new String(line.getBytes(), "UTF-8")).append("\n");
+                    }
                 } else {
                     if (status == 0) {
                         this.uploadPolicy.displayDebug(
@@ -416,27 +419,20 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Header: General
             header.append("Host: ").append(url.getHost()).append(
                     "\r\nAccept: */*\r\n");
-            
+
             // Seems like the Keep-alive doesn't work properly.
             header.append("Connection: close\r\n");
-            
+
             /*
-             * Etienne: the code following this is commented: it prevents the chunk management to work properly
-           if ( !bChunkEnabled
-                    ||  bLastChunk
-                    || useProxy
-                    || !this.uploadPolicy.getServerProtocol()
-                            .equals("HTTP/1.1")) {
-                // RFC 2086, section 19.7.1
-                header.append("Connection: close\r\n");
-            } else {
-                header.append("Keep-Alive: 300\r\n");
-                if (useProxy)
-                    header.append("Proxy-Connection: keep-alive\r\n");
-                else
-                    header.append("Connection: keep-alive\r\n");
-            }
-            */ 
+             * Etienne: the code following this is commented: it prevents the
+             * chunk management to work properly if ( !bChunkEnabled ||
+             * bLastChunk || useProxy || !this.uploadPolicy.getServerProtocol()
+             * .equals("HTTP/1.1")) { // RFC 2086, section 19.7.1
+             * header.append("Connection: close\r\n"); } else {
+             * header.append("Keep-Alive: 300\r\n"); if (useProxy)
+             * header.append("Proxy-Connection: keep-alive\r\n"); else
+             * header.append("Connection: keep-alive\r\n"); }
+             */
 
             // Get the GET parameters from the URL and convert them to
             // post form params
