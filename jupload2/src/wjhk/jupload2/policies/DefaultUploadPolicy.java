@@ -491,8 +491,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
                 if (m.groupCount() > 0) {
                     errmsg = m.group(1);
-                    if (errmsg.equals(""))
+                    if (errmsg.equals("")) {
                         errmsg = "An unknown error occurs during upload.";
+                    }
                 }
                 // Let's display the error message to the user.
                 alertStr(errmsg);
