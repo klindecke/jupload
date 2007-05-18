@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.awt.SystemColor;
 import java.io.File;
 import java.io.IOException;
 
@@ -36,6 +37,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.BorderFactory;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
@@ -273,7 +275,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
         // The button bar
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(5, 1));
+        buttonPanel.setLayout(new GridLayout(5, 1, 5, 5));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
         buttonPanel.add(browse);
         buttonPanel.add(this.rotateLeftButton);
         buttonPanel.add(this.rotateRightButton);
@@ -283,6 +286,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         // The preview PicturePanel
         JPanel pPanel = new JPanel();
         pPanel.setLayout(new GridLayout(1, 1));
+        pPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 10));
+
         this.picturePanel = new PicturePanel(mainPanel, true, this);
         pPanel.add(this.picturePanel);
 
@@ -291,7 +296,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         topPanel.setLayout(new GridLayout(1, 2));
         topPanel.add(buttonPanel);
         topPanel.add(pPanel);
-
+        
+        mainPanel.setBorder(BorderFactory.createLineBorder(SystemColor.controlDkShadow));
+        
         return topPanel;
     }// createTopPanel
 
