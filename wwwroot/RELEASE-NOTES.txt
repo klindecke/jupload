@@ -2,6 +2,13 @@ TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
 
 
+V3.0.0rc1
+
+Translations:
+- [Danish] Add of the Danish translation, thanks to Jeppe Bundsgaard.
+- [Russian] Russian translation has been given by TO BE COMPLETED.
+
+
 V2.9.2
 
 Changes:
