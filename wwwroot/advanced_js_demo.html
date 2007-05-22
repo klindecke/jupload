@@ -176,10 +176,12 @@
 	document.writeln('</TABLE>');
 	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)">');
 	document.writeln('</FORM>');
-	document.writeln('<P>');
 
 	//Let's write one APPLET tag for the selected language	
-	document.writeln('<APPLET ');
+	document.writeln('<P><B>Caution:</B> The upload will work only if a valid postURL parameter is given. '
+		+ 'By default, postURL points to localhost:8080. <BR>That can be a Tomcat server, where the wwwroot webapp of '
+		+ 'jupload is deployed.</P>');
+	document.writeln('<P><APPLET ');
 	document.writeln('	CODE    = "wjhk.jupload2.JUploadApplet" ');
 	document.writeln('	ARCHIVE = "wjhk.jupload.jar, jakarta-commons-oro.jar, jakarta-commons-net.jar" ');
 	document.writeln('	WIDTH   = "640" ');
