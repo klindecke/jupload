@@ -481,6 +481,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public void displayParameterStatus() {
         super.displayParameterStatus();
 
+        displayDebug("======= Parameters managed by " + this.getClass().getName(),
+                20);
         if (this.maxWidth != DEFAULT_MAX_WIDTH
                 || this.maxHeight != DEFAULT_MAX_HEIGHT) {
             displayDebug(PROP_MAX_WIDTH + " : " + this.maxWidth + ", "
@@ -497,6 +499,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 + this.storeBufferedImage, 20);
         displayDebug(PROP_TARGET_PICTURE_FORMAT + " : "
                 + this.targetPictureFormat, 20);
+        displayDebug("", 20);
     }
 
     /**
