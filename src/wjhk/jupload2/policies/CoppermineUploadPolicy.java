@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: CoppermineUploadPolicy.java 143 2007-05-14 02:07:27 +0000 (lun., 14 mai
+// 2007) felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -247,6 +248,17 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                 displayErr(ee);
             }
         }
+    }
+
+    /** @see DefaultUploadPolicy#displayParameterStatus() */
+    @Override
+    public void displayParameterStatus() {
+        super.displayParameterStatus();
+
+        displayDebug("======= Parameters managed by " + this.getClass().getName(),
+                20);
+        displayDebug(PROP_ALBUM_ID + " : " + this.albumId, 20);
+        displayDebug("", 20);
     }
 
 }

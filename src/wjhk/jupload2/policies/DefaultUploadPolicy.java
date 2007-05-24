@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: DefaultUploadPolicy.java 152 2007-05-16 16:34:42 +0000 (mer., 16 mai
+// 2007) etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -264,6 +265,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private boolean debugOk = true;
 
     /**
+     * cookie is the value of the javascript <I>document.cookie</I> property.
+     */
+    private String cookie = null;
+
+    /**
+     * userAgent is the value of the javascript <I>navigator.userAgent</I>
+     * property.
+     */
+    private String userAgent = null;
+
+    /**
      * This constant defines the upper limit of lines, kept in the log window.
      */
     private final static int MAX_DEBUG_LINES = 10000;
@@ -388,15 +400,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // /////////////////////////////////////////////////////////////////////////////
         // Load session data read from the navigator:
         // - cookies.
-        // - User-Agent : re
+        // - User-Agent : useful, as the server will then see a post request
+        // coming from the same navigator.
         //
-        // cookie is the value of the javascript <I>document.cookie</I>
-        // property.
-        String cookie = null;
-        // userAgent is the value of the javascript <I>navigator.userAgent</I>
-        // property.
-        String userAgent = null;
-
         try {
             // Test, to avoid a crash under linux
             JSObject applet = JSObject.getWindow(getApplet());
@@ -420,11 +426,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
             // configurable...
             cookie = System.getProperty("debug_cookie");
             userAgent = System.getProperty("debug_agent");
-            // cookie =
-            // "cpg146_data=YTo1OntzOjI6IklEIjtzOjMyOiI5MWEyMzdiNmYwYmM0MTJjMjRiMTZlNzdiNzlmYzBjMyI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGFwIjtpOjI7czozOiJsaXYiO2E6NDp7aTowO3M6MzoiNDMzIjtpOjE7czozOiI0NDUiO2k6MjtzOjM6IjQ0NiI7aTozO3M6MzoiNDY2Ijt9fQ%3D%3D;
-            // 66f77117891c8a8654024874bc0a5d24=56357ed95576afa0d8beb558bdb6c73d";
-            // userAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.0; fr;
-            // rv:1.8.1) Gecko/20061010 Firefox/2.0";
+            /*
+             * Exemple of parameter when calling the JVM:
+             * -Ddebug_cookie="Cookie:
+             * cpg146_data=YTo0OntzOjI6IklEIjtzOjMyOiJhZGU3MWIxZmU4OTZjNThhZjQ5N2FiY2ZiNmFlZTUzOCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGl2IjthOjI6e2k6MDtOO2k6MTtzOjQ6IjE0ODgiO319;
+             * cpg143_data=YTozOntzOjI6IklEIjtzOjMyOiI4NjhhNmQ4ZmNlY2IwMTc5YTJiNmZlMGY3YWQzNThkNSI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO30%3D;
+             * 8387c97d1f683b758a67a0473b586126=5ed998846fec70d6d2f73971b9cbbf0b;
+             * b1d7468cf1b317c97c7c284f6bb14ff8=587b82a7abb3d2aca134742b1df9acf7"
+             * -Ddebug_agent="userAgent: Mozilla/5.0 (Windows; U; Windows NT
+             * 5.0; fr; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"
+             */
         }
         // The cookies and user-agent will be added to the header sent by the
         // applet:
@@ -597,7 +608,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         jPanel.add(removeAll);
         jPanel.add(remove);
 
-        mainPanel.setBorder(BorderFactory.createLineBorder(SystemColor.controlDkShadow));
+        mainPanel.setBorder(BorderFactory
+                .createLineBorder(SystemColor.controlDkShadow));
 
         return jPanel;
     }
@@ -987,14 +999,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayDebug(
                     "=======================================================================",
                     20);
+            displayDebug("======= Parameters managed by "
+                    + this.getClass().getName(), 20);
             // /////////////////////////////////////////////////////////////////////////////
             // Let's display some information to the user, about the received
             // parameters.
             displayInfo("JUpload applet, version " + JUploadApplet.VERSION
                     + " (" + JUploadApplet.LAST_MODIFIED
                     + "), available at http://jupload.sourceforge.net/");
-            displayDebug("Java version  : "
-                    + System.getProperty("java.version"), 20);
+            displayDebug("Java version: " + System.getProperty("java.version"),
+                    20);
+            displayDebug("Cookie: " + cookie, 20);
+            displayDebug("userAgent: " + userAgent, 20);
 
             displayDebug("List of all applet parameters:", 20);
             displayDebug("  language: "
@@ -1024,6 +1040,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayDebug("stringUploadSuccess: " + this.stringUploadSuccess, 20);
             displayDebug("stringUploadError: " + this.stringUploadError, 20);
             displayDebug("urlToSendErrorTo: " + this.urlToSendErrorTo, 20);
+            displayDebug("", 20);
         }
     }
 
