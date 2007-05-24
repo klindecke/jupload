@@ -312,7 +312,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                                 new String(line.getBytes(), "UTF-8")).append(
                                 "\n");
                     }
-                } else {
+                } else { // readingHttpBody is false
                     if (status == 0) {
                         this.uploadPolicy.displayDebug(
                                 "-------- Response Headers Start --------", 80);
@@ -320,9 +320,13 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         if (m.matches()) {
                             status = Integer.parseInt(m.group(2));
                             setResponseMsg(m.group(1));
-                        } else
+                        } else {
+                            // We first display the wrong line.
+                            this.uploadPolicy.displayDebug(line, 80);
+                            // Then, we throw the exception.
                             throw new JUploadException(
                                     "HTTP response did not begin with status line.");
+                        }
                     }
                     this.uploadPolicy.displayDebug(line, 80);
                     if (pClose.matcher(line).matches())
