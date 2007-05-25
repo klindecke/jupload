@@ -999,8 +999,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayDebug(
                     "=======================================================================",
                     20);
-            displayDebug("======= Parameters managed by "
-                    + this.getClass().getName(), 20);
+            displayDebug("======= Parameters managed by DefaultUploadPolicy",
+                    20);
             // /////////////////////////////////////////////////////////////////////////////
             // Let's display some information to the user, about the received
             // parameters.
