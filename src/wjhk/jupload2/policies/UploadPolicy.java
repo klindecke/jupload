@@ -385,12 +385,14 @@ import wjhk.jupload2.gui.JUploadPanel;
  * </tr>
  * <tr>
  * <td>serverProtocol</td>
- * <td>HTTP/1.1 <br>
+ * <td>null since 2.9.2rc4<br>(before: "HTTP/1.1")<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This parameter allows the control of the protocol toward the server.
  * Currently, only HTTP is supported, so valid values are HTTP/0.9 (not tested),
- * HTTP/1.0 and HTTP/1.1. <br>
+ * HTTP/1.0 and HTTP/1.1. Since version 2.9.2rc4, the default is <i>null</i>,
+ * introducing a new facility of automatically adjusting the protocol according to
+ * the server response.<br>
  * This parameter is really useful only in
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine
  * application also controls that the requests send within an HTTP session uses
@@ -772,7 +774,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "serverProtocol".
      */
-    final static String DEFAULT_SERVER_PROTOCOL = "HTTP/1.1";
+    final static String DEFAULT_SERVER_PROTOCOL = null;
 
     /**
      * Default value for parameter "showStatusBar".

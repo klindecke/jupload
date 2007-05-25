@@ -538,8 +538,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.fileUploadThread.stopUpload();
         }
         // focus the table. This is necessary in order to enable mouse events
-        // for
-        // triggering tooltips.
+        // for triggering tooltips.
         this.filePanel.focusTable();
     }
 

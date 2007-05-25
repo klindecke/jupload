@@ -40,6 +40,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
@@ -230,6 +232,56 @@ public class HttpConnect {
             IOException, URISyntaxException {
         Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
         return Connect(url, proxy);
+    }
+
+    /**
+     * Retrieve the protocol to be used for the postURL of the current policy.
+     * This method issues a HEAD request to the postURL and then examines the
+     * protocol version returned in the response.
+     * 
+     * @return The string, describing the protocol (e.g. "HTTP/1.1")
+     * @throws ConnectException if anything goes wrong.
+     */
+    public String getProtocol() throws ConnectException {
+        try {
+            URL url = new URL(this.uploadPolicy.getPostURL());
+            Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
+            boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
+            boolean useSSL = url.getProtocol().equals("https");
+            Socket s = Connect(url, proxy);
+            BufferedReader in = new BufferedReader(new InputStreamReader(s
+                    .getInputStream()));
+            StringBuffer req = new StringBuffer();
+            req.append("HEAD ");
+            if (useProxy && (!useSSL)) {
+                // with a proxy we need the absolute URL, but only if not
+                // using SSL. (with SSL, we first use the proxy CONNECT method,
+                // and then a plain request.)
+                req.append(url.getProtocol()).append("://").append(
+                        url.getHost());
+            }
+            req.append(url.getPath());
+            /*
+             * if (null != url.getQuery() && !"".equals(url.getQuery()))
+             * req.append("?").append(url.getQuery());
+             */
+            req.append(" ").append("HTTP/1.1").append("\r\n");
+            req.append("Host: ").append(url.getHost()).append("\r\n");
+            req.append("Connection: close\r\n\r\n");
+            s.getOutputStream().write(req.toString().getBytes());
+            s.shutdownOutput();
+            String line = in.readLine();
+            s.close();
+            Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s.*").matcher(line);
+            if (!m.matches())
+                throw new ConnectException("HEAD response: " + line);
+            this.uploadPolicy.displayDebug("HEAD response: " + line, 40);
+            return m.group(1);
+        } catch (Exception e) {
+            if (e instanceof ConnectException)
+                throw (ConnectException) e;
+            throw new ConnectException(e.toString());
+        }
     }
 
     /**
