@@ -314,6 +314,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     }
                 } else { // readingHttpBody is false
                     if (status == 0) {
+                        // Just a test: try to ignore empty line here.
+                        if (line.equals("")) {
+                            this.uploadPolicy
+                                    .displayDebug(
+                                            "Ignoring 1 empty line while waiting for resonse status line",
+                                            80);
+                            continue;
+                        }
                         this.uploadPolicy.displayDebug(
                                 "-------- Response Headers Start --------", 80);
                         Matcher m = pHttpStatus.matcher(line);
@@ -427,21 +435,26 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             header.append("Host: ").append(url.getHost()).append(
                     "\r\nAccept: */*\r\n");
 
-            // Seems like the Keep-alive doesn't work properly.
-            // header.append("Connection: close\r\n");
-
-            if (!bChunkEnabled
-                    || bLastChunk
-                    || useProxy
-                    || !this.uploadPolicy.getServerProtocol()
-                            .equals("HTTP/1.1")) { // RFC 2086, section 19.7.1
+            // Seems like the Keep-alive doesn't work properly, at least on my
+            // local dev (Etienne).
+            // TODO: This test should be based on an applet parameter.
+            boolean bUseKeepAlive = false;
+            if (!bUseKeepAlive) {
                 header.append("Connection: close\r\n");
             } else {
-                header.append("Keep-Alive: 300\r\n");
-                if (useProxy)
-                    header.append("Proxy-Connection: keep-alive\r\n");
-                else
-                    header.append("Connection: keep-alive\r\n");
+                if (!bChunkEnabled
+                        || bLastChunk
+                        || useProxy
+                        || !this.uploadPolicy.getServerProtocol().equals(
+                                "HTTP/1.1")) { // RFC 2086, section 19.7.1
+                    header.append("Connection: close\r\n");
+                } else {
+                    header.append("Keep-Alive: 300\r\n");
+                    if (useProxy)
+                        header.append("Proxy-Connection: keep-alive\r\n");
+                    else
+                        header.append("Connection: keep-alive\r\n");
+                }
             }
 
             // Get the GET parameters from the URL and convert them to
