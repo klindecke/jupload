@@ -4,9 +4,25 @@ TODO list:
 
 V3.0.0rc1
 
+
+Changes:
+- [Code] Use of the SVN source repository (replace the CVS)
+- [Code] General code restructuration, due to the new comer: Fritz. Thanks to him.
+- [Major] The applet can now properly read response body, when it is chunked by the web server. This allows to correctly
+search for the success and error strings in this body.
+- [Major] It's possible to use client certificate with the applet.
+
+
+New applet parameters:
+- [formdata] Allows to upload form data from the current web page, along with the
+file upload
+- [afterUploadTarget] Allows the redirection after a successfull upload, to occur toward another frame or window
+- [stringUploadError] Allows search an error message in the response body of the upload.
+
+
 Translations:
 - [Danish] Add of the Danish translation, thanks to Jeppe Bundsgaard.
-- [Russian] Russian translation has been given by TO BE COMPLETED.
+- [Russian] Russian translation has been given by Max Turanskiy.
 
 
 V2.9.2
