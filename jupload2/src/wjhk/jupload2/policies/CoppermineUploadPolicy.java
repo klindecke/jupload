@@ -255,8 +255,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     public void displayParameterStatus() {
         super.displayParameterStatus();
 
-        displayDebug("======= Parameters managed by " + this.getClass().getName(),
-                20);
+        displayDebug("======= Parameters managed by CoppermineUploadPolicy", 20);
         displayDebug(PROP_ALBUM_ID + " : " + this.albumId, 20);
         displayDebug("", 20);
     }

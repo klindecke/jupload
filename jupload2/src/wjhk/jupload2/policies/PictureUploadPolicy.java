@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: PictureUploadPolicy.java 167 2007-05-24 08:32:02 +0000 (jeu., 24 mai
+// 2007) etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -296,9 +297,10 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         topPanel.setLayout(new GridLayout(1, 2));
         topPanel.add(buttonPanel);
         topPanel.add(pPanel);
-        
-        mainPanel.setBorder(BorderFactory.createLineBorder(SystemColor.controlDkShadow));
-        
+
+        mainPanel.setBorder(BorderFactory
+                .createLineBorder(SystemColor.controlDkShadow));
+
         return topPanel;
     }// createTopPanel
 
@@ -481,8 +483,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public void displayParameterStatus() {
         super.displayParameterStatus();
 
-        displayDebug("======= Parameters managed by " + this.getClass().getName(),
-                20);
+        displayDebug("======= Parameters managed by PictureUploadPolicy", 20);
         if (this.maxWidth != DEFAULT_MAX_WIDTH
                 || this.maxHeight != DEFAULT_MAX_HEIGHT) {
             displayDebug(PROP_MAX_WIDTH + " : " + this.maxWidth + ", "
