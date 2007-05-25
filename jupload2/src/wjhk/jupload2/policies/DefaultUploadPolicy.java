@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -222,6 +223,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     private String afterUploadTarget = UploadPolicy.DEFAULT_AFTER_UPLOAD_TARGET;
 
+    private final static String CRLF = System.getProperty("line.separator");
+
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// INTERNAL ATTRIBUTE
     // ///////////////////////////////////////////////////
@@ -256,7 +259,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * The actual file, used for the debug log.
      */
-    private File debugFile;
+    private File debugFile = null;
 
     /**
      * This flag prevents endless repeats of opening the debug log, if that
@@ -1290,8 +1293,21 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.serverProtocol;
     }
 
-    /** @param serverProtocol the serverProtocol to set */
-    protected void setServerProtocol(String serverProtocol) {
+    /**
+     * @param serverProtocol the serverProtocol to set
+     * @throws JUploadException
+     */
+    protected void setServerProtocol(String serverProtocol)
+            throws JUploadException {
+        if (null == serverProtocol) {
+            if (null == this.postURL)
+                throw new JUploadException("postURL not set");
+            try {
+                this.serverProtocol = new HttpConnect(this).getProtocol();
+            } catch (ConnectException e) {
+                throw new JUploadException(e);
+            }
+        }
         this.serverProtocol = serverProtocol;
     }
 
@@ -1387,6 +1403,25 @@ public class DefaultUploadPolicy implements UploadPolicy {
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * Delete the current log. (called upon applet termination)
+     */
+    public void deleteLog() {
+        System.out.println("Deleting log");
+        try {
+            if (null != this.debugOut) {
+                this.debugOut.close();
+                this.debugOut = null;
+            }
+            if (null != this.debugFile) {
+                this.debugFile.delete();
+                this.debugFile = null;
+            }
+        } catch (Exception e) {
+            // nothing to do
+        }
+    }
+
+    /**
      * This methods allows the applet to store all messages (debug, warning,
      * info, errors...) into a StringBuffer. If any problem occurs, the whole
      * output (displayed or not by the displayDebug, for instance) can be stored
@@ -1402,13 +1437,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.debugOk) {
             try {
                 if (null == this.debugOut) {
+                    this.getApplet().registerUnload(this, "deleteLog");
                     this.debugFile = File
                             .createTempFile("jupload_", "_log.txt");
-                    this.debugFile.deleteOnExit();
                     this.debugOut = new PrintStream(new FileOutputStream(
                             this.debugFile));
                 }
-                this.debugOut.print(msg);
+                boolean endsLF = msg.endsWith("\n");
+                msg = msg.replaceAll("\n", CRLF);
+                if (endsLF)
+                    this.debugOut.print(msg);
+                else
+                    this.debugOut.println(msg);
             } catch (IOException e) {
                 this.debugOk = false;
                 System.err.println("IO error on debuglog "
@@ -1456,10 +1496,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 }
             }
         }
-        // Let's store all text in the debug BufferString
-        addMsgToDebugLog(msg + "\n");
-        if (!msg.endsWith("\n"))
-            addMsgToDebugLog("\n");
+        // Let's store all text in the debug logfile
+        addMsgToDebugLog(msg);
     }
 
     /**

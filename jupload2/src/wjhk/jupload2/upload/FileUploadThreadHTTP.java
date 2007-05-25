@@ -272,7 +272,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 if (readingHttpBody) {
                     if (gotChunked) {
                         // Handle a single chunk of the response
-                        int len = Integer.parseInt(line, 16);
+                        int len = Integer.parseInt(line.replaceFirst(";.*", "").trim(), 16);
                         this.uploadPolicy.displayDebug("Chunk: " + line
                                 + " dec: " + len, 80);
                         if (len == 0)

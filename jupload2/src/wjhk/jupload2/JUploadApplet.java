@@ -22,6 +22,10 @@ package wjhk.jupload2;
 
 import java.applet.Applet;
 import java.awt.BorderLayout;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
@@ -67,6 +71,30 @@ public class JUploadApplet extends Applet {
     private JUploadPanel jUploadPanel = null;
 
     private JUploadTextArea logWindow = null;
+
+    private class Callback {
+        private String m;
+
+        private Object o;
+
+        Callback(Object o, String m) {
+            this.o = o;
+            this.m = m;
+        }
+
+        void invoke() throws IllegalArgumentException, IllegalAccessException,
+                InvocationTargetException, SecurityException {
+            Object args[] = {};
+            Method methods[] = this.o.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].getName().equals(this.m)) {
+                    methods[i].invoke(this.o, args);
+                }
+            }
+        }
+    }
+
+    private Vector<Callback> unloadCallbacks = new Vector<Callback>();
 
     /**
      * @see java.applet.Applet#init()
@@ -174,6 +202,46 @@ public class JUploadApplet extends Applet {
     /** @see UploadPolicy#displayDebug(String, int) */
     public void displayDebug(String debug, int minDebugLevel) {
         this.uploadPolicy.displayDebug(debug, minDebugLevel);
+    }
+
+    /**
+     * Register a callback to be executed during applet termination.
+     * 
+     * @param o The Object instance to be registered
+     * @param m The Method of that object to be registered. The method must be
+     *            of type void and must not take any parameters and must be
+     *            public.
+     */
+    public void registerUnload(Object o, String method) {
+        this.unloadCallbacks.add(new Callback(o, method));
+    }
+
+    private void runUnload() {
+        Iterator<Callback> i = this.unloadCallbacks.iterator();
+        while (i.hasNext()) {
+            try {
+                i.next().invoke();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        this.unloadCallbacks.clear();
+    }
+
+    /**
+     * @see java.applet.Applet#stop()
+     */
+    @Override
+    public void stop() {
+        runUnload();
+    }
+
+    /**
+     * @see java.applet.Applet#destroy()
+     */
+    @Override
+    public void destroy() {
+        runUnload();
     }
 
     /**
