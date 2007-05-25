@@ -208,8 +208,8 @@ public class JUploadApplet extends Applet {
      * Register a callback to be executed during applet termination.
      * 
      * @param o The Object instance to be registered
-     * @param m The Method of that object to be registered. The method must be
-     *            of type void and must not take any parameters and must be
+     * @param method The Method of that object to be registered. The method must
+     *            be of type void and must not take any parameters and must be
      *            public.
      */
     public void registerUnload(Object o, String method) {
