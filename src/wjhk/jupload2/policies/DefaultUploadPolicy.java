@@ -127,6 +127,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * Contains the allowedFileExtensions applet paramater.
      */
+    private boolean allowHttpPersistent = UploadPolicy.DEFAULT_ALLOW_HTTP_PERSISTENT;
+
+    /**
+     * Contains the allowedFileExtensions applet paramater.
+     */
     private String allowedFileExtensions = UploadPolicy.DEFAULT_ALLOWED_FILE_EXTENSIONS;
 
     /**
@@ -319,6 +324,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 PROP_ALLOWED_FILE_EXTENSIONS, DEFAULT_ALLOWED_FILE_EXTENSIONS,
                 this));
 
+        setAllowHttpPersistent(UploadPolicyFactory
+                .getParameter(theApplet, PROP_ALLOW_HTTP_PERSISTENT,
+                        DEFAULT_ALLOW_HTTP_PERSISTENT, this));
+
         // ////////////////////////////////////////////////////////////////////////////
         // get the showLogWindow applet parameter.
         setShowLogWindow(UploadPolicyFactory.getParameter(theApplet,
@@ -410,13 +419,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
             // Test, to avoid a crash under linux
             JSObject applet = JSObject.getWindow(getApplet());
             JSObject doc = (JSObject) applet.getMember("document");
-            cookie = (String) doc.getMember("cookie");
+            this.cookie = (String) doc.getMember("cookie");
 
             JSObject nav = (JSObject) applet.getMember("navigator");
-            userAgent = (String) nav.getMember("userAgent");
+            this.userAgent = (String) nav.getMember("userAgent");
 
-            displayDebug("cookie: " + cookie, 10);
-            displayDebug("userAgent: " + userAgent, 10);
+            displayDebug("cookie: " + this.cookie, 10);
+            displayDebug("userAgent: " + this.userAgent, 10);
         } catch (JSException e) {
             displayWarn("JSException (" + e.getClass() + ": " + e.getMessage()
                     + ") in DefaultUploadPolicy, trying default values.");
@@ -427,8 +436,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
             // felfert: I need different values so let's make that
             // configurable...
-            cookie = System.getProperty("debug_cookie");
-            userAgent = System.getProperty("debug_agent");
+            this.cookie = System.getProperty("debug_cookie");
+            this.userAgent = System.getProperty("debug_agent");
             /*
              * Exemple of parameter when calling the JVM:
              * -Ddebug_cookie="Cookie:
@@ -442,10 +451,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
         // The cookies and user-agent will be added to the header sent by the
         // applet:
-        if (cookie != null)
-            addHeader("Cookie: " + cookie);
-        if (userAgent != null)
-            addHeader("User-Agent: " + userAgent);
+        if (this.cookie != null)
+            addHeader("Cookie: " + this.cookie);
+        if (this.userAgent != null)
+            addHeader("User-Agent: " + this.userAgent);
 
         // We let the UploadPolicyFactory call the displayParameterStatus
         // method, so that the
@@ -953,6 +962,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public void setProperty(String prop, String value) throws JUploadException {
         if (prop.equals(PROP_AFTER_UPLOAD_URL)) {
             setAfterUploadURL(value);
+        } else if (prop.equals(PROP_ALLOW_HTTP_PERSISTENT)) {
+            setAllowHttpPersistent(Boolean.parseBoolean(value));
         } else if (prop.equals(PROP_ALLOWED_FILE_EXTENSIONS)) {
             setAllowedFileExtensions(value);
         } else if (prop.equals(PROP_DEBUG_LEVEL)) {
@@ -1012,8 +1023,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     + "), available at http://jupload.sourceforge.net/");
             displayDebug("Java version: " + System.getProperty("java.version"),
                     20);
-            displayDebug("Cookie: " + cookie, 20);
-            displayDebug("userAgent: " + userAgent, 20);
+            displayDebug("Cookie: " + this.cookie, 20);
+            displayDebug("userAgent: " + this.userAgent, 20);
 
             displayDebug("List of all applet parameters:", 20);
             displayDebug("  language: "
@@ -1090,6 +1101,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.afterUploadURL = normalizeURL(afterUploadURL);
     }
 
+    /**
+     * @see wjhk.jupload2.policies.UploadPolicy#getAllowHttpPersistent()
+     */
+    public boolean getAllowHttpPersistent() {
+        return this.allowHttpPersistent;
+    }
+
     /** @see UploadPolicy#getAllowedFileExtensions() */
     public String getAllowedFileExtensions() {
         return this.allowedFileExtensions;
@@ -1105,6 +1123,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     + allowedFileExtensions.toLowerCase()
                     + (allowedFileExtensions.endsWith("/") ? "" : "/");
         }
+    }
+
+    protected void setAllowHttpPersistent(boolean value) {
+        this.allowHttpPersistent = value;
     }
 
     /** @see UploadPolicy#getApplet() */
