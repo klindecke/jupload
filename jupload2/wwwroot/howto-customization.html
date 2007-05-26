@@ -274,6 +274,16 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  of the newly uploaded page. </td>
  </tr>
  <tr>
+ <td>allowHttpPersistent</td>
+ <td><i>true</i><br>
+ since 3.0.0rc1<br>
+ <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
+ <td>This parameter allows to switch off persistent HTTP connections which are
+ enabled by default (and the protocol version allows it). Currently, we encountered
+ problems with persistent connections when testing on a windows box using a loopback
+ interface only.</td>
+ </tr>
+ <tr>
  <td>allowedFileExtensions</td>
  <td><i>empty string</i><br>
  since 2.9.0<br>

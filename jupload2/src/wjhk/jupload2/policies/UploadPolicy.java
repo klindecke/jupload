@@ -93,6 +93,16 @@ import wjhk.jupload2.gui.JUploadPanel;
  * of the newly uploaded page. </td>
  * </tr>
  * <tr>
+ * <td>allowHttpPersistent</td>
+ * <td><i>true</i><br>
+ * since 3.0.0rc1<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter allows to switch off persistent HTTP connections which are
+ * enabled by default (and the protocol version allows it). Currently, we encountered
+ * problems with persistent connections when testing on a windows box using a loopback
+ * interface only.</td>
+ * </tr>
+ * <tr>
  * <td>allowedFileExtensions</td>
  * <td><i>empty string</i><br>
  * since 2.9.0<br>
@@ -543,6 +553,11 @@ public interface UploadPolicy {
     final static String PROP_AFTER_UPLOAD_URL = "afterUploadURL";
 
     /**
+     * Parameter/Property name for allowing persistent HTTP connections.
+     */
+    final static String PROP_ALLOW_HTTP_PERSISTENT = "allowHttpPersistent";
+
+    /**
      * Parameter/Property name for specifying the allowed file extensions
      */
     final static String PROP_ALLOWED_FILE_EXTENSIONS = "allowedFileExtensions";
@@ -686,6 +701,11 @@ public interface UploadPolicy {
      * Default value for parameter "afterUploadURL"
      */
     final static String DEFAULT_AFTER_UPLOAD_URL = null;
+
+    /**
+     * Default value for parameter "allowHttpPersisten".
+     */
+    final static boolean DEFAULT_ALLOW_HTTP_PERSISTENT = true;
 
     /**
      * Default value for parameter "allowedFileExtensions".
@@ -893,6 +913,13 @@ public interface UploadPolicy {
      * @return The current value for he afterUploadURL applet parameter.
      */
     public String getAfterUploadURL();
+
+    /**
+     * Retrieves the current value for allowHttpPersistent
+     * 
+     * @return Current value for allowHttpPersistent
+     */
+    public boolean getAllowHttpPersistent();
 
     /**
      * Retrieves the current value for allowedFileExtensions *

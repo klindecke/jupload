@@ -437,9 +437,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // Seems like the Keep-alive doesn't work properly, at least on my
             // local dev (Etienne).
-            // TODO: This test should be based on an applet parameter.
-            boolean bUseKeepAlive = false;
-            if (!bUseKeepAlive) {
+            if (!this.uploadPolicy.getAllowHttpPersistent()) {
                 header.append("Connection: close\r\n");
             } else {
                 if (!bChunkEnabled

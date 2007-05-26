@@ -1,24 +1,83 @@
 TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
+- Use client certificate with the applet.
 
 
 V3.0.0rc1
 
-
 Changes:
 - [Code] Use of the SVN source repository (replace the CVS)
 - [Code] General code restructuration, due to the new comer: Fritz. Thanks to him.
-- [Major] The applet can now properly read response body, when it is chunked by the web server. This allows to correctly
-search for the success and error strings in this body.
-- [Major] It's possible to use client certificate with the applet.
+- [Code] Added common GPL comment in all sources.
+- [Code] Use system properties for cookie and user-agent in debug mode.
+- [Code] Added ant buld.xml conributed by Matthijs Lambooy and tweaked/extended
+  "dist" and related targets for signing the jar. Added an internal target
+  "customhowto" which generates wwwroot/howto-customization.html automatically.
 
+- [Fix] Corrected content-length calculation of multipart message.
+- [Fix] After uploading, enable file-specific buttons only if there are still files
+  to handle.
+- [Fix] Speed up column sorting of the upload table by caching some data.
+- [Fix] An ArrayIndexOutOfBounds exception could be thrown, when trying to
+  access some file data (from within an AWT update event) which is already deleted.
+- [Fix] fileView was not shutdown in some cases.
+- [Fix] picture would not always be resized, when realMaxPicWidth and/or
+  realMaxPicHeight would be give as applet parameters.
+- [Fix] Calculate and use a percent value for setting the progress bar. Without that,
+  if the total size of the upload exceeds 2^31 - 1 bytes the progress bar does not work.
+- [Fix] Chunk decoding now allows training chunk-extensions and additional whitespace.
+- [Fix] The "album" parameter was not alway appended correctly in CoppermineUploadPolicy.
+
+- [Feature] Added POST form fields "md5sum" and "mimetype". md5sum contains the MD5
+  checksum of every transfered chunk. This makes it easier to detect upload errors
+  on the server side. mimetype always contains the real mimetype of the transfered
+  file (as detected locally). (The mime-type in the form data header may change to
+  application/octet-stream in order to guarantee 8bit-transparent transmission in
+  the future.)
+- [Feature] Implemented HTTP- and SOCKS-proxy support.
+- [Feature] Parameter postURL can now be relative or even be omitted. The new default
+  null results in using the DocumentBaseURL of the applet.
+- [Feature] The chunk parameters are now provided as both GET *and* POST variables.
+  The GET variables are still there because we don't want to break
+  backwards-compatibility.
+- [Feature] Use generic java.applet.AppletContext.showDocument instead of JS bridge
+  for redirection (reduces code size).
+- [Feature] Applet parameters "postURL", "afterUploadURL" and "urlToSendErrorTo" now
+  accept relative URLs. Furthermore, URLs are checked (syntactically) during applet
+  startup.
+- [Feature] Changed the status-update (progressbar) method. It now gets updated from
+  within the ActionPerformed in JUploadPanel when the timer expires - regardless of
+  the amount of bytes transferred.
+- [Feature] Added a textual status message which gets shown in the Browser's statusbar.
+  In order to view this in IE, the security settings must allow modification of the
+  status line.
+- [Feature] Applied layout patches from Ben M. <bovinator@users.sf.net>.
+- [Feature] The error message, read from the server response body, is now decoded
+  from UTF-8. To do: check that the content-type is actually UTF-8, and document that.
+- [Feature] Better display of applet parameters, when entering in debug mode.
+- [Feature] Added automatic method for getting HTTP protocol version. The applet
+  parameter "serverProtocol" now defaults to null. If null, the version is determined
+  automatically by issuing a HEAD request to the postURL and examining the returned
+  response.
+- [Feature] In order to save memory, the debug log (used fore eventually submit a
+  bug report to the webmaster) is now written to a temporary file.
+
+- [Major] The applet can now properly read response body, when it is chunked by the
+  web server. This allows to correctly search for the success and error strings in
+  this body.
+- [Major] The minimum java version is now 1.5
 
 New applet parameters:
 - [formdata] Allows to upload form data from the current web page, along with the
-file upload
-- [afterUploadTarget] Allows the redirection after a successfull upload, to occur toward another frame or window
+  file upload. Note, that the data from the referred form are *always* transmitted
+  in the POST request along with the file - even if the referenced form has a
+  method="get" attribute in the HTML code.
+- [afterUploadTarget] Allows the redirection after a successfull upload, to occur
+  toward another frame or window.
 - [stringUploadError] Allows search an error message in the response body of the upload.
-
+- [allowHttpPersistent] Allows switching off persistent HTTP connections (Keep-Alive)
+  which are enabled by default. Currently, we encountered problems with persistent
+  connections when testing on a windows box using a loopback interface only.
 
 Translations:
 - [Danish] Add of the Danish translation, thanks to Jeppe Bundsgaard.
