@@ -272,7 +272,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 if (readingHttpBody) {
                     if (gotChunked) {
                         // Handle a single chunk of the response
-                        int len = Integer.parseInt(line.replaceFirst(";.*", "").trim(), 16);
+                        int len = Integer.parseInt(line.replaceFirst(";.*", "")
+                                .trim(), 16);
                         this.uploadPolicy.displayDebug("Chunk: " + line
                                 + " dec: " + len, 80);
                         if (len == 0)
@@ -315,6 +316,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 } else { // readingHttpBody is false
                     if (status == 0) {
                         // Just a test: try to ignore empty line here.
+                        // TODO get rid of this test.
                         if (line.equals("")) {
                             this.uploadPolicy
                                     .displayDebug(
