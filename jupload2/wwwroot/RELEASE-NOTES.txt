@@ -3,11 +3,16 @@ TODO list:
 - Use client certificate with the applet.
 
 
-V3.0.0rc1
+V3.0.0
+
+Fritz Elfert joined the dev team: we are now two active developpers!  ;-)
+That's probably enough, as we want the applet to remain as small as possible.
+
+Fritz is responsasible for most changes in this version.
 
 Changes:
 - [Code] Use of the SVN source repository (replace the CVS)
-- [Code] General code restructuration, due to the new comer: Fritz. Thanks to him.
+- [Code] General code restructuration, thanks to Fritz.
 - [Code] Added common GPL comment in all sources.
 - [Code] Use system properties for cookie and user-agent in debug mode.
 - [Code] Added ant buld.xml conributed by Matthijs Lambooy and tweaked/extended
@@ -61,6 +66,7 @@ Changes:
   response.
 - [Feature] In order to save memory, the debug log (used fore eventually submit a
   bug report to the webmaster) is now written to a temporary file.
+- [Feature] In Picture mode, the icon now represents the picture contained in the file.
 
 - [Major] The applet can now properly read response body, when it is chunked by the
   web server. This allows to correctly search for the success and error strings in
