@@ -1319,18 +1319,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @param serverProtocol the serverProtocol to set
      * @throws JUploadException
      */
-    protected void setServerProtocol(String serverProtocol)
+    protected void setServerProtocol(String value)
             throws JUploadException {
-        if (null == serverProtocol) {
+        if (null == value || value.equals("")) {
             if (null == this.postURL)
                 throw new JUploadException("postURL not set");
             try {
-                this.serverProtocol = new HttpConnect(this).getProtocol();
+                value = new HttpConnect(this).getProtocol();
             } catch (ConnectException e) {
                 throw new JUploadException(e);
             }
         }
-        this.serverProtocol = serverProtocol;
+        this.serverProtocol = value;
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
