@@ -2,6 +2,9 @@ TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
 - Use client certificate with the applet.
 
+V3.0.1
+- [Fix] Automatic detection of the HTTP protocol was not called when the applet parameter
+  "serverProtocol" was specified with an empty string.
 
 V3.0.0
 
