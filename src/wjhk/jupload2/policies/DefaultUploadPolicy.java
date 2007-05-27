@@ -1316,7 +1316,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * @param serverProtocol the serverProtocol to set
+     * @param value the serverProtocol to set
      * @throws JUploadException
      */
     protected void setServerProtocol(String value)
