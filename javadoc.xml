@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="javadoc">
-    <target name="javadoc">
-        <javadoc access="package" author="true" classpath="wwwroot/plugin.jar;wwwroot/jakarta-commons-net.jar" destdir="doc" doctitle="JUpload - Multiple file upload applet" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="wjhk.jupload2.policies,wjhk.jupload2.filedata,wjhk.jupload2,wjhk.jupload2.exception,wjhk.jupload2.gui,wjhk.jupload2.upload" source="1.5" sourcepath="src" splitindex="true" use="true" version="true">
-            <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
-        </javadoc>
-    </target>
-</project>

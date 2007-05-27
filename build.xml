@@ -253,6 +253,8 @@
 		<jar jarfile="${build.dir}/jupload-V${version}-src.jar">
 			<fileset dir="${basedir}">
 				<include name="${src.dir}/**/*" />
+				<exclude name="${src.dir}/**/*.class" />
+				<exclude name="${src.dir}/META-INF" />
 				<include name="wwwroot/**/*" />
 				<include name="doc/**/*" />
 				<include name="build.xml" />
