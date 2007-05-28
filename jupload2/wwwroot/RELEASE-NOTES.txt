@@ -5,6 +5,7 @@ TODO list:
 V3.0.1
 - [Fix] Automatic detection of the HTTP protocol was not called when the applet parameter
   "serverProtocol" was specified with an empty string.
+- [Fix] Release are now compiled with 1.5 JVM
 
 V3.0.0
 
