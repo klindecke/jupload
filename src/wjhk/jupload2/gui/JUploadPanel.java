@@ -36,6 +36,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
@@ -187,6 +188,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     private JScrollPane jLogWindowPane = null;
 
+    private JLabel statusLabel = null;
+
     private JUploadTextArea logWindow = null;
 
     private boolean isLogWindowVisible = false;
@@ -235,6 +238,9 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         // Setup Progress Panel.
         setupProgressPanel(this.uploadButton, this.progressBar, this.stopButton);
+
+        // Setup status bar
+        setupStatusBar();
 
         // Setup logging window.
         setupLogWindow();
@@ -353,6 +359,13 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // this.add(jLogWindowPane);
     }
 
+    private void setupStatusBar() {
+        this.statusLabel = new JLabel(" ");
+        JPanel p = this.uploadPolicy.createStatusBar(this.statusLabel, this);
+        if (null != p)
+            this.add(p);
+    }
+
     // ----------------------------------------------------------------------
     protected void addFiles(File[] f) {
         this.filePanel.addFiles(f);
@@ -421,11 +434,12 @@ public class JUploadPanel extends JPanel implements ActionListener,
                         cps /= kB;
                         unit = this.speedunit_kb_per_second;
                     }
+                    String status = String.format(this.status_msg,
+                            new Integer((int) percent), new Double(cps), unit,
+                            eta);
+                    this.statusLabel.setText(status);
                     this.uploadPolicy.getApplet().getAppletContext()
-                            .showStatus(
-                                    String.format(this.status_msg, new Integer(
-                                            (int) percent), new Double(cps),
-                                            unit, eta));
+                            .showStatus(status);
                 }
             }
             if (!this.fileUploadThread.isAlive()) {
@@ -455,6 +469,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 this.removeAllButton.setEnabled(haveFiles);
 
                 this.uploadPolicy.getApplet().getAppletContext().showStatus("");
+                this.statusLabel.setText(" ");
 
             }
             return;

@@ -54,10 +54,12 @@ import java.util.regex.PatternSyntaxException;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
 import javax.swing.text.BadLocationException;
 
 import netscape.javascript.JSException;
@@ -142,6 +144,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see #urlToSendErrorTo
      */
     private boolean showLogWindow = UploadPolicy.DEFAULT_SHOW_LOGWINDOW;
+
+    private boolean showStatusbar = UploadPolicy.DEFAULT_SHOW_STATUSBAR;
 
     /**
      * The current debug level.
@@ -328,8 +332,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 .getParameter(theApplet, PROP_ALLOW_HTTP_PERSISTENT,
                         DEFAULT_ALLOW_HTTP_PERSISTENT, this));
 
-        // ////////////////////////////////////////////////////////////////////////////
-        // get the showLogWindow applet parameter.
+        setShowStatusbar(UploadPolicyFactory.getParameter(theApplet,
+                PROP_SHOW_STATUSBAR, DEFAULT_SHOW_STATUSBAR, this));
+
         setShowLogWindow(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SHOW_LOGWINDOW, DEFAULT_SHOW_LOGWINDOW, this));
 
@@ -642,6 +647,22 @@ public class DefaultUploadPolicy implements UploadPolicy {
         jPanel.add(progressBar, BorderLayout.CENTER);
         jPanel.add(stopButton, BorderLayout.LINE_END);
         return jPanel;
+    }
+
+    /**
+     * @see wjhk.jupload2.policies.UploadPolicy#createStatusBar(javax.swing.JLabel,
+     *      javax.swing.JPanel)
+     */
+    public JPanel createStatusBar(JLabel content, @SuppressWarnings("unused")
+    JPanel mainPanel) {
+        if (this.showStatusbar) {
+            JPanel pstatus = new JPanel();
+            pstatus.setLayout(new BorderLayout());
+            pstatus.add(content, BorderLayout.CENTER);
+            pstatus.setBorder(new BevelBorder(BevelBorder.LOWERED));
+            return pstatus;
+        }
+        return null;
     }
 
     /**
@@ -1319,8 +1340,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @param value the serverProtocol to set
      * @throws JUploadException
      */
-    protected void setServerProtocol(String value)
-            throws JUploadException {
+    protected void setServerProtocol(String value) throws JUploadException {
         if (null == value || value.equals("")) {
             if (null == this.postURL)
                 throw new JUploadException("postURL not set");
@@ -1333,7 +1353,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.serverProtocol = value;
     }
 
-    /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
+    /** @see wjhk.jupload2.policies.UploadPolicy#getShowLogWindow() */
     public boolean getShowLogWindow() {
         return this.showLogWindow;
     }
@@ -1346,6 +1366,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (getApplet().getUploadPanel() != null) {
             getApplet().getUploadPanel().showOrHideLogWindow();
         }
+    }
+
+    /** @param show the new showStatusbar value */
+    protected void setShowStatusbar(boolean show) {
+        this.showStatusbar = show;
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getStringUploadError() */

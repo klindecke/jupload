@@ -74,10 +74,17 @@ package wjhk.jupload2;
 
 import java.applet.Applet;
 
+/**
+ * 
+ * @author etienne_sf
+ */
 public class EmptyApplet extends Applet {
 	
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * 
+	 */
 	public EmptyApplet() {
 		//We do ...  an empty constructor ...   ;-)
 	}

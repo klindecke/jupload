@@ -278,10 +278,10 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <td><i>true</i><br>
  since 3.0.0rc1<br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
- <td>This parameter allows to switch off persistent HTTP connections which are
- enabled by default (and the protocol version allows it). Currently, we encountered
- problems with persistent connections when testing on a windows box using a loopback
- interface only.</td>
+ <td>This parameter allows to switch off persistent HTTP connections which
+ are enabled by default (and the protocol version allows it). Currently, we
+ encountered problems with persistent connections when testing on a windows
+ box using a loopback interface only.</td>
  </tr>
  <tr>
  <td>allowedFileExtensions</td>
@@ -576,14 +576,15 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  </tr>
  <tr>
  <td>serverProtocol</td>
- <td>null since 2.9.2rc4<br>(before: "HTTP/1.1")<br>
+ <td>null since 2.9.2rc4<br>
+ (before: "HTTP/1.1")<br>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
  <td>This parameter allows the control of the protocol toward the server.
  Currently, only HTTP is supported, so valid values are HTTP/0.9 (not tested),
  HTTP/1.0 and HTTP/1.1. Since version 2.9.2rc4, the default is <i>null</i>,
- introducing a new facility of automatically adjusting the protocol according to
- the server response.<br>
+ introducing a new facility of automatically adjusting the protocol according
+ to the server response.<br>
  This parameter is really useful only in
  <a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>CoppermineUploadPolicy</CODE></A>, as the coppermine
  application also controls that the requests send within an HTTP session uses
@@ -591,14 +592,28 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  cookies). </td>
  </tr>
  <tr>
- <td>showStatusBar</td>
+ <td>showLogWindow<br>
+ Since 3.0.2</td>
  <td>True<br>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
- <td>If given with the <i>False</i> value, the log window will be hidden.
- The applet will still store all debug information in it. But the user won't
- see it any more. If a problem occurs, the <i>urlToSendErrorTo</i> can still
- be used to log all available information. </td>
+ <td>This parameter was formerly known as <i>showStatusBar</i> which now has
+ a different purpose. If given with the <i>False</i> value, the log window
+ will be hidden. The applet will still store all debug information in it. But
+ the user won't see it any more. If a problem occurs, the <i>urlToSendErrorTo</i>
+ can still be used to log all available information. </td>
+ </tr>
+ <tr>
+ <td>showStatusBar</td>
+ <td>True<br>
+ <br>
+ New meaning since 3.0.2<br>
+ <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
+ <td>This parameter controls if the status bar is shown in the applet. If
+ shown, the stausbar provides information about the current transfer speed and
+ estimated time of completion. Before version 3.0.2, this parameter was used
+ to control visibility of the log window. This is now controlled by
+ <i>showLogWindow</i>.</td>
  </tr>
  <tr>
  <td>storeBufferedImage</td>
@@ -621,16 +636,15 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A><br>
  Since 2.9.2rc4</td>
  <td>This string is a regular expression. It allows the applet to test that
- the server has detected an error in the upload. If this parameter is given
- to the applet, the upload thread will try to match this regular epression
- to each line of the server response <b>body</b>.<br>
+ the server has detected an error in the upload. If this parameter is given to
+ the applet, the upload thread will try to match this regular epression to
+ each line of the server response <b>body</b>.<br>
  If the match is successfull once, the upload is considered to have failed.
- and <a href="doc/wjhk/jupload2/exception/JUploadExceptionUploadFailed.html" title="class in wjhk.jupload2.exception"><CODE>JUploadExceptionUploadFailed</CODE></A> is
- thrown. If the expression contains a hunt-group, the matching contents of
- that group is reported to the user. For example: If you specify "ERROR: (.*)"
- here, if the server response contains the line "ERROR: md5sum check failed",
- the string "md5sum check failed" is used for the exception message.
- </td>
+ and <a href="doc/wjhk/jupload2/exception/JUploadExceptionUploadFailed.html" title="class in wjhk.jupload2.exception"><CODE>JUploadExceptionUploadFailed</CODE></A> is thrown.
+ If the expression contains a hunt-group, the matching contents of that group
+ is reported to the user. For example: If you specify "ERROR: (.*)" here, if
+ the server response contains the line "ERROR: md5sum check failed", the
+ string "md5sum check failed" is used for the exception message. </td>
  </tr>
  <tr>
  <td>stringUploadSuccess</td>
