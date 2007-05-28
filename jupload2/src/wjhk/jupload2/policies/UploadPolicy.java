@@ -24,6 +24,7 @@ import java.io.File;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
@@ -97,10 +98,10 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <td><i>true</i><br>
  * since 3.0.0rc1<br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>This parameter allows to switch off persistent HTTP connections which are
- * enabled by default (and the protocol version allows it). Currently, we encountered
- * problems with persistent connections when testing on a windows box using a loopback
- * interface only.</td>
+ * <td>This parameter allows to switch off persistent HTTP connections which
+ * are enabled by default (and the protocol version allows it). Currently, we
+ * encountered problems with persistent connections when testing on a windows
+ * box using a loopback interface only.</td>
  * </tr>
  * <tr>
  * <td>allowedFileExtensions</td>
@@ -395,14 +396,15 @@ import wjhk.jupload2.gui.JUploadPanel;
  * </tr>
  * <tr>
  * <td>serverProtocol</td>
- * <td>null since 2.9.2rc4<br>(before: "HTTP/1.1")<br>
+ * <td>null since 2.9.2rc4<br>
+ * (before: "HTTP/1.1")<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This parameter allows the control of the protocol toward the server.
  * Currently, only HTTP is supported, so valid values are HTTP/0.9 (not tested),
  * HTTP/1.0 and HTTP/1.1. Since version 2.9.2rc4, the default is <i>null</i>,
- * introducing a new facility of automatically adjusting the protocol according to
- * the server response.<br>
+ * introducing a new facility of automatically adjusting the protocol according
+ * to the server response.<br>
  * This parameter is really useful only in
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine
  * application also controls that the requests send within an HTTP session uses
@@ -410,14 +412,28 @@ import wjhk.jupload2.gui.JUploadPanel;
  * cookies). </td>
  * </tr>
  * <tr>
- * <td>showStatusBar</td>
+ * <td>showLogWindow<br>
+ * Since 3.0.2</td>
  * <td>True<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>If given with the <i>False</i> value, the log window will be hidden.
- * The applet will still store all debug information in it. But the user won't
- * see it any more. If a problem occurs, the <i>urlToSendErrorTo</i> can still
- * be used to log all available information. </td>
+ * <td>This parameter was formerly known as <i>showStatusBar</i> which now has
+ * a different purpose. If given with the <i>False</i> value, the log window
+ * will be hidden. The applet will still store all debug information in it. But
+ * the user won't see it any more. If a problem occurs, the <i>urlToSendErrorTo</i>
+ * can still be used to log all available information. </td>
+ * </tr>
+ * <tr>
+ * <td>showStatusBar</td>
+ * <td>True<br>
+ * <br>
+ * New meaning since 3.0.2<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter controls if the status bar is shown in the applet. If
+ * shown, the stausbar provides information about the current transfer speed and
+ * estimated time of completion. Before version 3.0.2, this parameter was used
+ * to control visibility of the log window. This is now controlled by
+ * <i>showLogWindow</i>.</td>
  * </tr>
  * <tr>
  * <td>storeBufferedImage</td>
@@ -440,16 +456,15 @@ import wjhk.jupload2.gui.JUploadPanel;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
  * Since 2.9.2rc4</td>
  * <td>This string is a regular expression. It allows the applet to test that
- * the server has detected an error in the upload. If this parameter is given
- * to the applet, the upload thread will try to match this regular epression
- * to each line of the server response <b>body</b>.<br>
+ * the server has detected an error in the upload. If this parameter is given to
+ * the applet, the upload thread will try to match this regular epression to
+ * each line of the server response <b>body</b>.<br>
  * If the match is successfull once, the upload is considered to have failed.
- * and {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is
- * thrown. If the expression contains a hunt-group, the matching contents of
- * that group is reported to the user. For example: If you specify "ERROR: (.*)"
- * here, if the server response contains the line "ERROR: md5sum check failed",
- * the string "md5sum check failed" is used for the exception message.
- * </td>
+ * and {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
+ * If the expression contains a hunt-group, the matching contents of that group
+ * is reported to the user. For example: If you specify "ERROR: (.*)" here, if
+ * the server response contains the line "ERROR: md5sum check failed", the
+ * string "md5sum check failed" is used for the exception message. </td>
  * </tr>
  * <tr>
  * <td>stringUploadSuccess</td>
@@ -662,11 +677,17 @@ public interface UploadPolicy {
      * Parameter/Property name for specifying if the log window should be
      * visible.
      */
-    final static String PROP_SHOW_LOGWINDOW = "showStatusBar";
+    final static String PROP_SHOW_LOGWINDOW = "showLogWindow";
 
     /**
-     * Parameter/Property name for specifying if the pattern that indicates
-     * an error in the server's response-body.
+     * Parameter/Property name for specifying if the status bar should be
+     * visible.
+     */
+    final static String PROP_SHOW_STATUSBAR = "showStatusbar";
+
+    /**
+     * Parameter/Property name for specifying if the pattern that indicates an
+     * error in the server's response-body.
      */
     final static String PROP_STRING_UPLOAD_ERROR = "stringUploadError";
 
@@ -797,12 +818,18 @@ public interface UploadPolicy {
     final static String DEFAULT_SERVER_PROTOCOL = null;
 
     /**
-     * Default value for parameter "showStatusBar".
+     * Default value for parameter "showLogWindow".
      */
     final static boolean DEFAULT_SHOW_LOGWINDOW = true;
 
     /**
+     * Default value for parameter "showStatusBar".
+     */
+    final static boolean DEFAULT_SHOW_STATUSBAR = true;
+
+    /**
      * Default value for parameter "stringUploadError".
+     * 
      * @since 2.9.2rc4
      */
     final static String DEFAULT_STRING_UPLOAD_ERROR = "";
@@ -830,6 +857,7 @@ public interface UploadPolicy {
 
     /**
      * Default value for parameter "formdata"
+     * 
      * @since 2.9.2rc4
      */
     final static String DEFAULT_FORMDATA = null;
@@ -850,8 +878,8 @@ public interface UploadPolicy {
             JButton removeAll, JPanel mainPanel);
 
     /**
-     * This method is called to create the progress panel. The default implementation
-     * is defined in
+     * This method is called to create the progress panel. The default
+     * implementation is defined in
      * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createProgressPanel(JProgressBar, JButton, JButton, JPanel)}.
      * 
      * @param progressBar The default progress bar.
@@ -861,9 +889,21 @@ public interface UploadPolicy {
      *            change the cursor (to a WAIT_CURSOR for instance).
      * @return the topPanel, that will be displayed on the top of the Applet.
      */
-    public JPanel createProgressPanel(JProgressBar progressBar, 
-                JButton uploadButton, JButton stopButton, JPanel mainPanel);
-    
+    public JPanel createProgressPanel(JProgressBar progressBar,
+            JButton uploadButton, JButton stopButton, JPanel mainPanel);
+
+    /**
+     * This method is used to create a new status bar. The default
+     * implementation is defined in
+     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createStatusBar(JLabel, JPanel)}.
+     * 
+     * @param statusContent The status bar content
+     * @param mainPanel The panel that contains all objects. It can be used to
+     *            change the cursor (to a WAIT_CURSOR for instance).
+     * @return the topPanel, that will be displayed on the top of the Applet.
+     */
+    public JPanel createStatusBar(JLabel statusContent, JPanel mainPanel);
+
     /**
      * This methods creates a new FileData instance (or one of its inherited
      * classes), and return it to the caller.
@@ -1081,15 +1121,15 @@ public interface UploadPolicy {
     public String getUrlToSendErrorTo();
 
     /**
-     * Retrieve the regular expression that will be tested against each line of the
-     * server answer. If one line matches this expression, that upload is marked
-     * as failed. <br>
+     * Retrieve the regular expression that will be tested against each line of
+     * the server answer. If one line matches this expression, that upload is
+     * marked as failed. <br>
      * 
      * @return The regular expression that must be run again each line of the
      *         http answer.
      */
     public String getStringUploadError();
-    
+
     /**
      * Get the regular expression that will be tested against each line of the
      * server answer. If one line matches this expression, that upload is marked

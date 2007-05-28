@@ -59,7 +59,7 @@ public class JUploadApplet extends Applet {
     /**
      * The version of this applet.
      */
-    public final static String VERSION = "3.0.1 ($Revision$)";
+    public final static String VERSION = "3.0.2b1 ($Revision$)";
 
     /**
      * The last modification of this applet.

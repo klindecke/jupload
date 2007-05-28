@@ -75,8 +75,6 @@
   -->
 	<property name="build.dir" value="build" />
 
-	<property name="build.jar_content" value="${build.dir}/jar_content" />
-
 	<!--
 	*
 	* Classpath definitions
