@@ -422,11 +422,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
         //
         try {
             // Test, to avoid a crash under linux
-            JSObject applet = JSObject.getWindow(getApplet());
-            JSObject doc = (JSObject) applet.getMember("document");
+            JSObject awin = JSObject.getWindow(getApplet());
+            JSObject doc = (JSObject) awin.getMember("document");
             this.cookie = (String) doc.getMember("cookie");
 
-            JSObject nav = (JSObject) applet.getMember("navigator");
+            JSObject nav = (JSObject) awin.getMember("navigator");
             this.userAgent = (String) nav.getMember("userAgent");
 
             displayDebug("cookie: " + this.cookie, 10);
