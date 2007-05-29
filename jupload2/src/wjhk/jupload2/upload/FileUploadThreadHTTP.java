@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLSocket;
 import javax.swing.JProgressBar;
 
 import netscape.javascript.JSException;
@@ -262,7 +263,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // If the user requested abort, we are not going to send
             // anymore, so shutdown the outgoing half of the socket.
             // This helps the server to speed up with it's response.
-            if (this.stop)
+            if (this.stop && !(this.sock instanceof SSLSocket))
                 this.sock.shutdownOutput();
 
             // && is evaluated from left to right so !stop must come first!
@@ -524,15 +525,15 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * Creates a mime multipart string snippet, representing a POST variable.
      * 
-     * @param boundary The multipart boundary to use.
+     * @param bound The multipart boundary to use.
      * @param name The name of the POST variable
      * @param value The value of the POST variable
      * @return A StringBuffer, suitable for appending to the multipart content.
      */
-    private final StringBuffer addPostVariable(String boundary, String name,
+    private final StringBuffer addPostVariable(String bound, String name,
             String value) {
         StringBuffer sb = new StringBuffer();
-        return sb.append(boundary).append("\r\n").append(
+        return sb.append(bound).append("\r\n").append(
                 "Content-Disposition: form-data; name=\"").append(name).append(
                 "\"\r\nContent-Transfer-Encoding: 8bit\r\n\r\n").append(value)
                 .append("\r\n");
@@ -544,12 +545,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * contains a sequence of mime multipart messages which represent the
      * elements of that form.
      * 
-     * @param boundary The multipart boundary to use.
+     * @param bound The multipart boundary to use.
      * @param formname The name of the form to evaluate.
      * @return A StringBuffer, suitable for appending to the multipart content.
      * @throws JUploadException
      */
-    private final StringBuffer addFormVariables(String boundary, String formname)
+    private final StringBuffer addFormVariables(String bound, String formname)
             throws JUploadException {
         StringBuffer sb = new StringBuffer();
         try {
@@ -568,10 +569,25 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                                 + "].name");
                         Object value = win.eval("document." + formname + "["
                                 + i + "].value");
+                        Object etype = win.eval("document." + formname + "["
+                                + i + "].type");
+                        if (etype instanceof String) {
+                            String t = (String)etype;
+                            if (t.equals("checkbox") || t.equals("radio")) {
+                                Object on = win.eval("document." + formname
+                                        + "[" + i + "].checked");
+                                if (on instanceof Boolean) {
+                                    // Skip unchecked checkboxes and radiobuttons
+                                    if (!((Boolean)on).booleanValue())
+                                        continue;
+                                }
+
+                            }
+                        }
                         if (name instanceof String) {
                             if (value instanceof String) {
-                                sb.append(addPostVariable(boundary,
-                                        (String) name, (String) value));
+                                sb.append(addPostVariable(bound, (String) name,
+                                        (String) value));
                             }
                         }
                     } catch (Exception e1) {
@@ -604,12 +620,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * 
      * @param fileIndex Index of the file in the array that contains all files
      *            to upload.
-     * @param boundary The boundary that separate files in the http multipart
-     *            post body.
+     * @param bound The boundary that separate files in the http multipart post
+     *            body.
      * @param chunkPart The numero of the current chunk (from 1 to n)
      * @return The header for this file.
      */
-    private final String getFileHeader(int index, String boundary,
+    private final String getFileHeader(int index, String bound,
             @SuppressWarnings("unused")
             int chunkPart) throws JUploadException {
         String filenameEncoding = this.uploadPolicy.getFilenameEncoding();
@@ -620,11 +636,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         String form = this.uploadPolicy.getFormdata();
         if (null != form)
-            sb.append(addFormVariables(boundary, form));
-        sb.append(addPostVariable(boundary, "mimetype", mimetype));
+            sb.append(addFormVariables(bound, form));
+        sb.append(addPostVariable(bound, "mimetype", mimetype));
 
         // boundary.
-        sb.append(boundary).append("\r\n");
+        sb.append(bound).append("\r\n");
 
         // Content-Disposition.
         sb.append("Content-Disposition: form-data; name=\"").append(
