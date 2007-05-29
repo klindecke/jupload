@@ -94,6 +94,19 @@ import wjhk.jupload2.gui.JUploadPanel;
  * of the newly uploaded page. </td>
  * </tr>
  * <tr>
+ * <td>albumId</td>
+ * <td>-1 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</td>
+ * <td>This parameter is only used by CoppermineUploadPolicy. So it is to be
+ * used to upload into a <a href="http://coppermine.sourceforge.net/">coppermine
+ * picture gallery</a>. This parameter contains the identifier of the album,
+ * where pictures should be used. See CoppermineUploadPolicy for an example.
+ * <br>
+ * Before upload, CoppermineUploadPolicy.{@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()}
+ * checks that the albumId is correct, that is: >=1. </td>
+ * </tr>
+ * <tr>
  * <td>allowHttpPersistent</td>
  * <td><i>true</i><br>
  * since 3.0.0rc1<br>
@@ -113,19 +126,6 @@ import wjhk.jupload2.gui.JUploadPanel;
  * the applet.<br>
  * This parameter must contains a list of extensions, in lower case, separated
  * by slashes. eg: jpg/jpeg/gif </td>
- * </tr>
- * <tr>
- * <td>albumId</td>
- * <td>-1 <br>
- * <br>
- * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}</td>
- * <td>This parameter is only used by CoppermineUploadPolicy. So it is to be
- * used to upload into a <a href="http://coppermine.sourceforge.net/">coppermine
- * picture gallery</a>. This parameter contains the identifier of the album,
- * where pictures should be used. See CoppermineUploadPolicy for an example.
- * <br>
- * Before upload, CoppermineUploadPolicy.{@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()}
- * checks that the albumId is correct, that is: >=1. </td>
  * </tr>
  * <tr>
  * <td>debugLevel</td>
