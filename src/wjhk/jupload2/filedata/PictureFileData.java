@@ -167,7 +167,7 @@ public class PictureFileData extends DefaultFileData {
      * For this class, the UploadPolicy is a PictureUploadPolicy, or one class
      * that inherits from it.
      */
-    PictureUploadPolicy uploadPolicy;
+    PictureUploadPolicy policy;
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -178,7 +178,7 @@ public class PictureFileData extends DefaultFileData {
      */
     public PictureFileData(File file, PictureUploadPolicy uploadPolicy) {
         super(file, uploadPolicy);
-        this.uploadPolicy = (PictureUploadPolicy) super.uploadPolicy;
+        this.policy = (PictureUploadPolicy) super.uploadPolicy;
         this.storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
 
         String fileExtension = getFileExtension();
@@ -371,7 +371,7 @@ public class PictureFileData extends DefaultFileData {
                 // smaller than the PictureDialog)
                 // bufferedImage
                 localImage = getBufferedImage(canvasWidth, canvasHeight,
-                        this.uploadPolicy.getHighQualityPreview());
+                        this.policy.getHighQualityPreview());
                 /**
                  * getBufferedImage returns a picture of the correct size. There
                  * is no need to do the checks below. int originalWidth =
@@ -725,10 +725,10 @@ public class PictureFileData extends DefaultFileData {
 
             // Second : the picture format is the same ?
             if (this.hasToTransformPicture == null
-                    && this.uploadPolicy.getTargetPictureFormat() != null) {
+                    && this.policy.getTargetPictureFormat() != null) {
                 // A target format is positionned: is it the same as the current
                 // file format ?
-                String target = this.uploadPolicy.getTargetPictureFormat()
+                String target = this.policy.getTargetPictureFormat()
                         .toLowerCase();
                 String ext = getFileExtension().toLowerCase();
 
@@ -738,7 +738,7 @@ public class PictureFileData extends DefaultFileData {
                     ext = "jpeg";
 
                 if (!target.equals(ext)) {
-                    this.uploadPolicy
+                    this.policy
                             .displayDebug(
                                     getFileName()
                                             + " : hasToTransformPicture = true (targetPictureFormat)",
@@ -789,14 +789,14 @@ public class PictureFileData extends DefaultFileData {
             // pictures. See the UploadPolicy javadoc for details
             // ... and a good reason ! ;-)
             if (this.quarterRotation == 0) {
-                maxWidth = this.uploadPolicy.getMaxWidth();
-                maxHeight = this.uploadPolicy.getMaxHeight();
+                maxWidth = this.policy.getMaxWidth();
+                maxHeight = this.policy.getMaxHeight();
             } else {
                 // A transformation occured: we take the realMaxXxx. if
                 // realMaxPicWidth is not set, the getter will return the value
                 // of maxPicWidth.
-                maxWidth = this.uploadPolicy.getRealMaxWidth();
-                maxHeight = this.uploadPolicy.getRealMaxHeight();
+                maxWidth = this.policy.getRealMaxWidth();
+                maxHeight = this.policy.getRealMaxHeight();
             }
 
             // Ok, let's check if we would obtain a width superior to the given
@@ -859,9 +859,9 @@ public class PictureFileData extends DefaultFileData {
                 this.uploadPolicy.displayDebug("Using temp file " + tmpFileName
                         + " for " + getFileName(), 50);
 
-                String localPictureFormat = (this.uploadPolicy
+                String localPictureFormat = (this.policy
                         .getTargetPictureFormat() == null) ? getFileExtension()
-                        : this.uploadPolicy.getTargetPictureFormat();
+                        : this.policy.getTargetPictureFormat();
 
                 // Prepare (if not already done) the bufferedImage.
 
@@ -872,12 +872,12 @@ public class PictureFileData extends DefaultFileData {
                 // not rotated pictures. See the UploadPolicy javadoc for
                 // details ... and a good reason ! ;-)
                 if (this.quarterRotation == 0) {
-                    bufferedImage = getBufferedImage(this.uploadPolicy
-                            .getMaxWidth(), this.uploadPolicy.getMaxHeight(),
+                    bufferedImage = getBufferedImage(this.policy
+                            .getMaxWidth(), this.policy.getMaxHeight(),
                             true);
                 } else {
-                    bufferedImage = getBufferedImage(this.uploadPolicy
-                            .getRealMaxWidth(), this.uploadPolicy
+                    bufferedImage = getBufferedImage(this.policy
+                            .getRealMaxWidth(), this.policy
                             .getRealMaxHeight(), true);
                 }
 
