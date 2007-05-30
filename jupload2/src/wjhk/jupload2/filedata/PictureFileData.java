@@ -118,9 +118,9 @@ public class PictureFileData extends DefaultFileData {
      * {@link #addRotation(int)} method.
      * <UL>
      * <LI>0 means no rotation.
-     * <LI>1 means a rotation of 90° clockwise (word = Ok ??).
-     * <LI>2 means a rotation of 180°.
-     * <LI>3 means a rotation of 90° counterclockwise (word = Ok ??).
+     * <LI>1 means a rotation of 90ï¿½ clockwise (word = Ok ??).
+     * <LI>2 means a rotation of 180ï¿½.
+     * <LI>3 means a rotation of 90ï¿½ counterclockwise (word = Ok ??).
      * </UL>
      */
     int quarterRotation = 0;
@@ -898,9 +898,13 @@ public class PictureFileData extends DefaultFileData {
                     // iwp.setCompressionQuality(values[values.length - 1]);
 
                     //
-                    this.uploadPolicy.displayDebug(
-                            "ImageWriter1 (used), CompressionQuality="
-                                    + iwp.getCompressionQuality(), 95);
+                    try {
+                        this.uploadPolicy.displayDebug(
+                                "ImageWriter1 (used), CompressionQuality="
+                                        + iwp.getCompressionQuality(), 95);
+                    } catch (UnsupportedOperationException e) {
+                        // compression not supported
+                    }
 
                     // Let's create the picture file.
                     FileImageOutputStream output = new FileImageOutputStream(
