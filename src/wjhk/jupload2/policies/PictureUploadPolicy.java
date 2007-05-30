@@ -511,18 +511,26 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public Icon fileViewGetIcon(File file) {
         ImageIcon imageIcon = null;
-        displayDebug("In PictureUploadPolicy.fileViewGetIcon for "
-                + file.getName(), 100);
-        try {
-            // First, we load the picture
-            BufferedImage image = ImageIO.read(file);
-            BufferedImage resized = resizePicture(image, 20, 20, false, this);
-            imageIcon = new ImageIcon(resized);
+        if (null != file) {
+            displayDebug("In PictureUploadPolicy.fileViewGetIcon for "
+                    + file.getName(), 100);
+            try {
+                // First, we load the picture
+                BufferedImage image = ImageIO.read(file);
+                if (null != image) {
+                    BufferedImage resized = resizePicture(image, 20, 20, false,
+                            this);
+                    imageIcon = new ImageIcon(resized);
 
-            // Runtime.getRuntime().gc();
-            displayDebug("freeMemory: " + Runtime.getRuntime().freeMemory(), 80);
-        } catch (IOException e) {
-            displayErr(e);
+                    // Runtime.getRuntime().gc();
+                    displayDebug("freeMemory: "
+                            + Runtime.getRuntime().freeMemory(), 80);
+                }
+            } catch (IllegalArgumentException e) {
+                // ignore
+            } catch (IOException e) {
+                displayErr(e);
+            }
         }
         return imageIcon;
     }
