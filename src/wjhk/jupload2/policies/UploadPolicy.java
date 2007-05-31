@@ -436,6 +436,49 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <i>showLogWindow</i>.</td>
  * </tr>
  * <tr>
+ * <td>sslVerifyCert<br>Since 3.0.2b1</td>
+ * <td>none<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>With this parameter, the handling of certificates when using SSL can be
+ * configured. There are 4 possible settings:<br>
+ * <ul>
+ * <li><i>none</i> (default): Any server cert is accepted, not client cert is
+ * used.</li>
+ * <li><i>server</i>: The server cert is verified against the local truststore
+ * and if that fails, a dialog pops up which asks the user if the certificate
+ * shall be accepted permanently, just for the current session or not at all
+ * (Just like any browser would do).</li>
+ * <li><i>client</i>: A user-certificate (which must be available in the local
+ * keystore) is used to perform client-authentication.</li>
+ * <li><i>strict</i>: The combination of <i>client</i> and <i>server</i>.</li>
+ * </ul>
+ * <p>
+ * The location of the local truststore and keystore uses the normal JRE
+ * conventions. This means, that the system truststore is used for verifying
+ * server certs (usually in $JAVA_HOME/lib/security/cacerts) unless either the
+ * system property <i>javax.net.ssl.trusStore</i> specifies another location or
+ * a file <b>.truststore</b> exists in the user's home directory. If the user
+ * decides to permanently accept an untrusted certificate, the file
+ * <b>.truststore</b> in the user's home directory is written. The default
+ * keystore (for client certificates) is the file <b>.keystore</b> in the user's
+ * home directory. This can be overridden by setting the system property
+ * <i>javax.net.ssl.keyStore</i>. If the name of the keystore ends in <b>.p12</b>,
+ * it is assumed that the keystore is in <b>PKCS12</b> format, otherwise the
+ * default format as specified in the JRE security-configuration is used.
+ * <p>
+ * <b>Important Note:</b>
+ * <p>
+ * At the time of this writing, a <i>serious</i> bug exists in apache 2.0.x
+ * which prevents POST requests when SSL renegotiation is about to happen.
+ * Renegotiation is triggered by a location-based (or directory-based) change of
+ * the SSLVerifyClient directive in apache. Therefore you <b>can not</b>
+ * protect a sub-area of an otherwise unprotected SSL server. You can circumvent
+ * that by setting up a virtualhost which is configured to perform SSL client
+ * verification <b>for the complete</b> virtualhost. It is the understanding of
+ * the author, that this bug has been fixed for apache 2.2. However the author
+ * did not verify that.</td>
+ * </tr>
+ * <tr>
  * <td>storeBufferedImage</td>
  * <td>false <br>
  * <br>
@@ -686,6 +729,12 @@ public interface UploadPolicy {
     final static String PROP_SHOW_STATUSBAR = "showStatusbar";
 
     /**
+     * Parameter/Property name for specifying how certificates are handled when
+     * uploading via SSL.
+     */
+    final static String PROP_SSL_VERIFY_CERT = "sslVerifyCert";
+
+    /**
      * Parameter/Property name for specifying if the pattern that indicates an
      * error in the server's response-body.
      */
@@ -826,6 +875,11 @@ public interface UploadPolicy {
      * Default value for parameter "showStatusBar".
      */
     final static boolean DEFAULT_SHOW_STATUSBAR = true;
+
+    /**
+     * Default value for parameter "sslVerifyCert"
+     */
+    final static String DEFAULT_SSL_VERIFY_CERT = "none";
 
     /**
      * Default value for parameter "stringUploadError".
@@ -1075,6 +1129,13 @@ public interface UploadPolicy {
      * @return The selected server protocol.
      */
     public String getServerProtocol();
+
+    /**
+     * Retrieves SSL verification mode.
+     * 
+     * @return The current SSL verification mode.
+     */
+    public int getSslVerifyCert();
 
     /**
      * Indicate whether the log window should be shown. It may be convenient to
