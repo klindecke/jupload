@@ -4,12 +4,21 @@ TODO list:
 
 V3.0.2b1
 
+- [Change] showStatusBar renamed to showLogWindow (see below)
 - [Feature] Added a status bar. This changes the semantics of the applet parameter
 "showStatusBar": Before, "showStatusBar" was used to control the visibility of the log
 window, Now, "showStatusBar" does what it's name suggests: It controls the visibility
 of the status bar. If shown, the status bar provides useful information during transfer:
 The current transfer speed and the estimated time of completion. The visibility of the
 log window is now controlled by the new parameter "showLogWindow".
+- [Picture] Picture resized by the applet are now smaller than before (better for the web). Will
+be even smaller in next versions.
+- [Fix] Resizing of PNG pictures now works.
+- [Fix] Better error handling in picture handling.
+
+Translation:
+- [Turkish] Add of the Turquish translation, thanks to 
+
 
 V3.0.1
 - [Fix] Automatic detection of the HTTP protocol was not called when the applet parameter
