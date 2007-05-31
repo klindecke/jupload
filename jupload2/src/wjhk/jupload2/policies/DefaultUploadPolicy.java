@@ -72,6 +72,7 @@ import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.upload.HttpConnect;
+import wjhk.jupload2.upload.InteractiveTrustManager;
 
 /**
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy}
@@ -232,6 +233,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     private String afterUploadTarget = UploadPolicy.DEFAULT_AFTER_UPLOAD_TARGET;
 
+    private int sslVerifyCert = InteractiveTrustManager.NONE;
+
     private final static String CRLF = System.getProperty("line.separator");
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,6 +320,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.applet = theApplet;
         this.logWindow = theApplet.getLogWindow();
 
+        // This must be set before any URL's because these might trigger an
+        // connection attempt.
+        setSslVerifyCert(UploadPolicyFactory
+                .getParameter(theApplet, PROP_SSL_VERIFY_CERT,
+                        DEFAULT_SSL_VERIFY_CERT, this));
+
         // ////////////////////////////////////////////////////////////////////////////
         // get the afterUploadURL applet parameter.
         setAfterUploadURL(UploadPolicyFactory.getParameter(theApplet,
@@ -380,13 +389,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setPostURL(UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL,
                 DEFAULT_POST_URL, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
-        // get the server protocol.
-        // It is used by Coppermine Picture Gallery (nice tool) to control that
-        // the user
-        // sending the cookie uses the same http protocol that the original
-        // connexion.
-        // Please have a look tp the UploadPolicy.serverProtocol attribute.
         setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
 
@@ -1011,6 +1013,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
             setServerProtocol(value);
         } else if (prop.equals(PROP_STRING_UPLOAD_SUCCESS)) {
             setStringUploadSuccess(value);
+        } else if (prop.equals(PROP_SSL_VERIFY_CERT)) {
+            setSslVerifyCert(value);
         } else if (prop.equals(PROP_URL_TO_SEND_ERROR_TO)) {
             setUrlToSendErrorTo(value);
         } else {
@@ -1366,6 +1370,29 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (getApplet().getUploadPanel() != null) {
             getApplet().getUploadPanel().showOrHideLogWindow();
         }
+    }
+
+    /**
+     * @see wjhk.jupload2.policies.UploadPolicy#getSslVerifyCert()
+     */
+    public int getSslVerifyCert() {
+        return this.sslVerifyCert;
+    }
+
+    protected void setSslVerifyCert(String mode) throws JUploadException {
+        int val = -1;
+        if (mode.toLowerCase().equals("none"))
+            val = InteractiveTrustManager.NONE;
+        if (mode.toLowerCase().equals("server"))
+            val = InteractiveTrustManager.SERVER;
+        if (mode.toLowerCase().equals("client"))
+            val = InteractiveTrustManager.CLIENT;
+        if (mode.toLowerCase().equals("strict"))
+            val = InteractiveTrustManager.STRICT;
+        if (val == -1)
+            throw new JUploadException("Invalid parameter sslVerifyCert ("
+                    + mode + ")");
+        this.sslVerifyCert = val;
     }
 
     /** @param show the new showStatusbar value */

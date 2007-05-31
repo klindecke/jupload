@@ -274,6 +274,19 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  of the newly uploaded page. </td>
  </tr>
  <tr>
+ <td>albumId</td>
+ <td>-1 <br>
+ <br>
+ <a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>CoppermineUploadPolicy</CODE></A></td>
+ <td>This parameter is only used by CoppermineUploadPolicy. So it is to be
+ used to upload into a <a href="http://coppermine.sourceforge.net/">coppermine
+ picture gallery</a>. This parameter contains the identifier of the album,
+ where pictures should be used. See CoppermineUploadPolicy for an example.
+ <br>
+ Before upload, CoppermineUploadPolicy.<a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html#isUploadReady()"><CODE>CoppermineUploadPolicy.isUploadReady()</CODE></A>
+ checks that the albumId is correct, that is: >=1. </td>
+ </tr>
+ <tr>
  <td>allowHttpPersistent</td>
  <td><i>true</i><br>
  since 3.0.0rc1<br>
@@ -293,19 +306,6 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  the applet.<br>
  This parameter must contains a list of extensions, in lower case, separated
  by slashes. eg: jpg/jpeg/gif </td>
- </tr>
- <tr>
- <td>albumId</td>
- <td>-1 <br>
- <br>
- <a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>CoppermineUploadPolicy</CODE></A></td>
- <td>This parameter is only used by CoppermineUploadPolicy. So it is to be
- used to upload into a <a href="http://coppermine.sourceforge.net/">coppermine
- picture gallery</a>. This parameter contains the identifier of the album,
- where pictures should be used. See CoppermineUploadPolicy for an example.
- <br>
- Before upload, CoppermineUploadPolicy.<a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html#isUploadReady()"><CODE>CoppermineUploadPolicy.isUploadReady()</CODE></A>
- checks that the albumId is correct, that is: >=1. </td>
  </tr>
  <tr>
  <td>debugLevel</td>
@@ -614,6 +614,49 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  estimated time of completion. Before version 3.0.2, this parameter was used
  to control visibility of the log window. This is now controlled by
  <i>showLogWindow</i>.</td>
+ </tr>
+ <tr>
+ <td>sslVerifyCert<br>Since 3.0.2b1</td>
+ <td>none<br>
+ <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
+ <td>With this parameter, the handling of certificates when using SSL can be
+ configured. There are 4 possible settings:<br>
+ <ul>
+ <li><i>none</i> (default): Any server cert is accepted, not client cert is
+ used.</li>
+ <li><i>server</i>: The server cert is verified against the local truststore
+ and if that fails, a dialog pops up which asks the user if the certificate
+ shall be accepted permanently, just for the current session or not at all
+ (Just like any browser would do).</li>
+ <li><i>client</i>: A user-certificate (which must be available in the local
+ keystore) is used to perform client-authentication.</li>
+ <li><i>strict</i>: The combination of <i>client</i> and <i>server</i>.</li>
+ </ul>
+ <p>
+ The location of the local truststore and keystore uses the normal JRE
+ conventions. This means, that the system truststore is used for verifying
+ server certs (usually in $JAVA_HOME/lib/security/cacerts) unless either the
+ system property <i>javax.net.ssl.trusStore</i> specifies another location or
+ a file <b>.truststore</b> exists in the user's home directory. If the user
+ decides to permanently accept an untrusted certificate, the file
+ <b>.truststore</b> in the user's home directory is written. The default
+ keystore (for client certificates) is the file <b>.keystore</b> in the user's
+ home directory. This can be overridden by setting the system property
+ <i>javax.net.ssl.keyStore</i>. If the name of the keystore ends in <b>.p12</b>,
+ it is assumed that the keystore is in <b>PKCS12</b> format, otherwise the
+ default format as specified in the JRE security-configuration is used.
+ <p>
+ <b>Important Note:</b>
+ <p>
+ At the time of this writing, a <i>serious</i> bug exists in apache 2.0.x
+ which prevents POST requests when SSL renegotiation is about to happen.
+ Renegotiation is triggered by a location-based (or directory-based) change of
+ the SSLVerifyClient directive in apache. Therefore you <b>can not</b>
+ protect a sub-area of an otherwise unprotected SSL server. You can circumvent
+ that by setting up a virtualhost which is configured to perform SSL client
+ verification <b>for the complete</b> virtualhost. It is the understanding of
+ the author, that this bug has been fixed for apache 2.2. However the author
+ did not verify that.</td>
  </tr>
  <tr>
  <td>storeBufferedImage</td>

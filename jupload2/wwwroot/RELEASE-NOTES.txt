@@ -15,6 +15,9 @@ log window is now controlled by the new parameter "showLogWindow".
 be even smaller in next versions.
 - [Fix] Resizing of PNG pictures now works.
 - [Fix] Better error handling in picture handling.
+- [Feature] Working verification of server certificates and cert-based
+client-authentication. Configurable by a new parameter sslVerifyCert. See
+howto-customization.html for more info.
 
 Translation:
 - [Turkish] Add of the Turquish translation, thanks to 
