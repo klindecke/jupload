@@ -155,7 +155,7 @@ public class PictureFileData extends DefaultFileData {
     private long uploadLength = -1;
 
     /**
-     * hasToTransformPicture indicates whether the tranform should be
+     * hasToTransformPicture indicates whether the picture should be
      * transformed. Null if unknown. This can happen (for instance) if no calcul
      * where done (during initialization), or after rotating the picture back to
      * the original orientation. <BR>
@@ -167,11 +167,11 @@ public class PictureFileData extends DefaultFileData {
     /**
      * For this class, the UploadPolicy is a PictureUploadPolicy, or one class
      * that inherits from it.
+     * 
+     * @Override
      */
-    PictureUploadPolicy uploadPolicy;
-
+    // PictureUploadPolicy uploadPolicy;
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Standard constructor: needs a PictureFileDataPolicy.
      * 
@@ -179,7 +179,8 @@ public class PictureFileData extends DefaultFileData {
      */
     public PictureFileData(File file, PictureUploadPolicy uploadPolicy) {
         super(file, uploadPolicy);
-        this.uploadPolicy = (PictureUploadPolicy) super.uploadPolicy;
+        // EGR Should be useless
+        // this.uploadPolicy = (PictureUploadPolicy) super.uploadPolicy;
         this.storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
 
         String fileExtension = getFileExtension();
@@ -372,7 +373,8 @@ public class PictureFileData extends DefaultFileData {
                 // smaller than the PictureDialog)
                 // bufferedImage
                 localImage = getBufferedImage(canvasWidth, canvasHeight,
-                        this.uploadPolicy.getHighQualityPreview());
+                        ((PictureUploadPolicy) this.uploadPolicy)
+                                .getHighQualityPreview());
                 /**
                  * getBufferedImage returns a picture of the correct size. There
                  * is no need to do the checks below. int originalWidth =
@@ -605,10 +607,16 @@ public class PictureFileData extends DefaultFileData {
                                 (int) (this.originalHeight * scale),
                                 Image.SCALE_SMOOTH);
                         img.flush();
+
+                        // the localBufferedImage may be 'unknwon'. 
+                        int localImageType = localBufferedImage.getType();
+                        if (localImageType == BufferedImage.TYPE_CUSTOM) {
+                            localImageType = BufferedImage.TYPE_INT_BGR;
+                        }
                         localBufferedImage = new BufferedImage(
                                 (int) (this.originalWidth * scale),
                                 (int) (this.originalHeight * scale),
-                                localBufferedImage.getType());
+                                localImageType);
                         localBufferedImage.getGraphics().drawImage(img, 0, 0,
                                 null);
                         localBufferedImage.flush();
@@ -675,9 +683,9 @@ public class PictureFileData extends DefaultFileData {
                 localBufferedImage = null;
                 transform = null;
                 freeMemory("end of getBufferedImage");
-            } catch (IOException e) {
-                throw new JUploadException(
-                        "IOException (createBufferedImage) : " + e.getMessage());
+            } catch (Exception e) {
+                throw new JUploadException(e.getClass().getName()
+                        + " (createBufferedImage) : " + e.getMessage());
             }
 
             if (bufferedImage != null
@@ -726,11 +734,12 @@ public class PictureFileData extends DefaultFileData {
 
             // Second : the picture format is the same ?
             if (this.hasToTransformPicture == null
-                    && this.uploadPolicy.getTargetPictureFormat() != null) {
+                    && ((PictureUploadPolicy) this.uploadPolicy)
+                            .getTargetPictureFormat() != null) {
                 // A target format is positionned: is it the same as the current
                 // file format ?
-                String target = this.uploadPolicy.getTargetPictureFormat()
-                        .toLowerCase();
+                String target = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getTargetPictureFormat().toLowerCase();
                 String ext = getFileExtension().toLowerCase();
 
                 if (target.equals("jpg"))
@@ -790,14 +799,18 @@ public class PictureFileData extends DefaultFileData {
             // pictures. See the UploadPolicy javadoc for details
             // ... and a good reason ! ;-)
             if (this.quarterRotation == 0) {
-                maxWidth = this.uploadPolicy.getMaxWidth();
-                maxHeight = this.uploadPolicy.getMaxHeight();
+                maxWidth = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getMaxWidth();
+                maxHeight = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getMaxHeight();
             } else {
                 // A transformation occured: we take the realMaxXxx. if
                 // realMaxPicWidth is not set, the getter will return the value
                 // of maxPicWidth.
-                maxWidth = this.uploadPolicy.getRealMaxWidth();
-                maxHeight = this.uploadPolicy.getRealMaxHeight();
+                maxWidth = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getRealMaxWidth();
+                maxHeight = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getRealMaxHeight();
             }
 
             // Ok, let's check if we would obtain a width superior to the given
@@ -860,9 +873,10 @@ public class PictureFileData extends DefaultFileData {
                 this.uploadPolicy.displayDebug("Using temp file " + tmpFileName
                         + " for " + getFileName(), 50);
 
-                String localPictureFormat = (this.uploadPolicy
+                String localPictureFormat = (((PictureUploadPolicy) this.uploadPolicy)
                         .getTargetPictureFormat() == null) ? getFileExtension()
-                        : this.uploadPolicy.getTargetPictureFormat();
+                        : ((PictureUploadPolicy) this.uploadPolicy)
+                                .getTargetPictureFormat();
 
                 // Prepare (if not already done) the bufferedImage.
 
@@ -873,13 +887,17 @@ public class PictureFileData extends DefaultFileData {
                 // not rotated pictures. See the UploadPolicy javadoc for
                 // details ... and a good reason ! ;-)
                 if (this.quarterRotation == 0) {
-                    bufferedImage = getBufferedImage(this.uploadPolicy
-                            .getMaxWidth(), this.uploadPolicy.getMaxHeight(),
-                            true);
+                    bufferedImage = getBufferedImage(
+                            ((PictureUploadPolicy) this.uploadPolicy)
+                                    .getMaxWidth(),
+                            ((PictureUploadPolicy) this.uploadPolicy)
+                                    .getMaxHeight(), true);
                 } else {
-                    bufferedImage = getBufferedImage(this.uploadPolicy
-                            .getRealMaxWidth(), this.uploadPolicy
-                            .getRealMaxHeight(), true);
+                    bufferedImage = getBufferedImage(
+                            ((PictureUploadPolicy) this.uploadPolicy)
+                                    .getRealMaxWidth(),
+                            ((PictureUploadPolicy) this.uploadPolicy)
+                                    .getRealMaxHeight(), true);
                 }
 
                 // Get the writer (to choose the compression quality)
@@ -892,18 +910,19 @@ public class PictureFileData extends DefaultFileData {
                     // Remove the lower compression, and take the default one.
                     // This will create smaller resized pictures.
                     // Better for web use.
-                    // iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    // float values[] = iwp.getCompressionQualityValues();
+                    //iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    //float values[] = iwp.getCompressionQualityValues();
                     // Let's select the best available quality.
-                    // iwp.setCompressionQuality(values[values.length - 1]);
+                    //iwp.setCompressionQuality(values[values.length - 1]);
 
                     //
                     try {
                         this.uploadPolicy.displayDebug(
                                 "ImageWriter1 (used), CompressionQuality="
                                         + iwp.getCompressionQuality(), 95);
-                    } catch (UnsupportedOperationException e) {
-                        // compression not supported
+                    } catch (Exception e) {
+                        // compression not supported. May trigger several
+                        // different errors.
                     }
 
                     // Let's create the picture file.
@@ -935,7 +954,7 @@ public class PictureFileData extends DefaultFileData {
                 }
                 this.uploadPolicy.displayDebug("transformedPictureFile : "
                         + this.transformedPictureFile.getName(), 30);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 // We mask any exception that occurs within this method. The
                 // called method should raise
                 // JUploadException, so their exceptions won't be catched here.
