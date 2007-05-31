@@ -320,6 +320,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.applet = theApplet;
         this.logWindow = theApplet.getLogWindow();
 
+        // Force the look and feel of the current system. This must be the very first
+        // parameter to be set, because during initialization, dialogs can appear.
+        setLookAndFeel(UploadPolicyFactory.getParameter(theApplet,
+                PROP_LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL, this));
+
         // This must be set before any URL's because these might trigger an
         // connection attempt.
         setSslVerifyCert(UploadPolicyFactory
@@ -362,10 +367,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // the URLEncoder.encode method.
         setFilenameEncoding(UploadPolicyFactory.getParameter(theApplet,
                 PROP_FILENAME_ENCODING, DEFAULT_FILENAME_ENCODING, this));
-
-        // Force the look and feel of the current system.
-        setLookAndFeel(UploadPolicyFactory.getParameter(theApplet,
-                PROP_LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL, this));
 
         // /////////////////////////////////////////////////////////////////////////////
         // get the maximum number of files to upload in one HTTP request.

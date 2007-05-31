@@ -54,6 +54,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -374,8 +375,15 @@ public class InteractiveTrustManager implements X509TrustManager,
         StringBuffer msg = new StringBuffer();
         msg.append("<html><head>");
         msg.append("<style type=\"text/css\">\n");
-        msg
-                .append("td, th, p, body { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; }\n");
+        msg.append("td, th, p, body { ");
+        msg.append("font-family: Arial, Helvetica, sans-serif; ");
+        msg.append("font-size: 12pt; ");
+        // PLAF hassle. The PLAF renders controls with different text colors, but
+        // does not set SystemColor.controlText. So we create a dummy button and
+        // retrieve its text color.
+        Integer ii = new Integer(
+                new JButton(".").getForeground().getRGB() & 0x00ffffff);
+        msg.append("color: ").append(String.format("#%06x", ii)).append(" }\n");
         msg.append("th { text-align: left; }\n");
         msg.append("td { margin-left: 20; }\n");
         msg.append(".err { color: red; }\n");
