@@ -916,13 +916,15 @@ public class PictureFileData extends DefaultFileData {
                     ImageWriter writer = (ImageWriter) iter.next();
                     ImageWriteParam iwp = writer.getDefaultWriteParam();
 
-                    // Remove the lower compression, and take the default one.
-                    // This will create smaller resized pictures.
-                    // Better for web use.
-                    // iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    // float values[] = iwp.getCompressionQualityValues();
-                    // Let's select the best available quality.
-                    // iwp.setCompressionQuality(values[values.length - 1]);
+                    // For jpeg pictures, we force the compression level.
+                    if (localPictureFormat.equalsIgnoreCase("jpg")
+                            || localPictureFormat.equalsIgnoreCase("jpeg")) {
+                        iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                        // Let's select a good compromise between picture size
+                        // and quality.
+                        // TODO: create a new applet parameter here.
+                        iwp.setCompressionQuality((float) 0.8);
+                    }
 
                     //
                     try {
@@ -930,8 +932,9 @@ public class PictureFileData extends DefaultFileData {
                                 "ImageWriter1 (used), CompressionQuality="
                                         + iwp.getCompressionQuality(), 95);
                     } catch (Exception e) {
-                        // compression not supported. May trigger several
-                        // different errors.
+                        // If we come here, compression is not supported for
+                        // this picture format. May trigger several different
+                        // errors. We ignore them.
                     }
 
                     // Let's create the picture file.
