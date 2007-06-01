@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: UploadPolicy.java 206 2007-05-29 08:19:53 +0000 (mar., 29 mai 2007)
+// etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -321,6 +322,18 @@ import wjhk.jupload2.gui.JUploadPanel;
  * If set to 5, for instance, and there are 6 files to upload, there will be two
  * HTTP upload request to the server : 5 files in the first one, and that last
  * file in a second HTTP request. </td>
+ * </tr>
+ * <tr>
+ * <td>pictureCompressionQuality</td>
+ * <td><i>0.8</i><br>
+ * since 3.1.0<br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>This parameter controls the picture compression quality, when writing
+ * the picture file. 1 means high quality picture, but big files. 0 means poor
+ * quality pictures, but small files. 0.8 is a good compromise for the web.<br>
+ * It is different from the highQualityPreview, which controls the way picture
+ * are resized in memory.<br>
+ * This parameter is currently applied only to jpg (and jpeg) pictures.</td>
  * </tr>
  * <tr>
  * <td>postURL</td>
@@ -697,6 +710,12 @@ public interface UploadPolicy {
     final static String PROP_NB_FILES_PER_REQUEST = "nbFilesPerRequest";
 
     /**
+     * Parameter/Property name for specifying compression of the written picture
+     * file, if any.
+     */
+    final static String PROP_PICTURE_COMPRESSION_QUALITY = "pictureCompressionQuality";
+
+    /**
      * Parameter/Property name for specifying URL of the upload post request.
      */
     final static String PROP_POST_URL = "postURL";
@@ -852,6 +871,11 @@ public interface UploadPolicy {
      * CoppermineUploadPolicy forces it to 1.
      */
     final static int DEFAULT_NB_FILES_PER_REQUEST = -1;
+
+    /**
+     * Default value for parameter "pictureCompressionQuality".
+     */
+    final static float DEFAULT_PICTURE_COMPRESSION_QUALITY = (float) 0.8;
 
     /**
      * Default value for parameter "postURL".
