@@ -186,6 +186,28 @@ public class UploadPolicyFactory {
      * 
      * @return the parameter value, or the default, if the system is not set.
      */
+    static public float getParameter(JUploadApplet theApplet, String key,
+            float def, UploadPolicy uploadPolicy) {
+        String paramStr;
+        String paramDef = Float.toString(def);
+
+        // First, read the parameter as a String
+        if (theApplet == null) {
+            paramStr = System.getProperty(key) != null ? System
+                    .getProperty(key) : paramDef;
+        } else {
+            paramStr = theApplet.getParameter(key) != null ? theApplet
+                    .getParameter(key) : paramDef;
+        }
+
+        return parseFloat(paramStr, def, uploadPolicy);
+    }
+
+    /**
+     * Get a String parameter value from applet properties or System properties.
+     * 
+     * @return the parameter value, or the default, if the system is not set.
+     */
     static public long getParameter(JUploadApplet theApplet, String key,
             long def, UploadPolicy uploadPolicy) {
         String paramStr;
@@ -243,6 +265,29 @@ public class UploadPolicyFactory {
             ret = def;
             if (uploadPolicy != null) {
                 uploadPolicy.displayWarn("Invalid int value: " + value
+                        + ", using default value: " + def);
+            }
+        }
+
+        return ret;
+    }
+
+    /**
+     * This function try to parse value as a float number. If value is not a correct float, def is returned.
+     * 
+     * @param value
+     * @param def
+     * @return The float value of value, or def if value is not valid.
+     */
+    static public float parseFloat(String value, float def, UploadPolicy uploadPolicy) {
+        float ret = def;
+        // Then, parse it as an integer.
+        try {
+            ret = Float.parseFloat(value);
+        } catch (NumberFormatException e) {
+            ret = def;
+            if (uploadPolicy != null) {
+                uploadPolicy.displayWarn("Invalid float value: " + value
                         + ", using default value: " + def);
             }
         }
