@@ -249,10 +249,7 @@ public class PictureFileData extends DefaultFileData {
                 //
                 // We don't transform it. We clean the file, if it has been
                 // created.
-                if (this.transformedPictureFile != null) {
-                    this.transformedPictureFile.delete();
-                }
-                this.transformedPictureFile = null;
+                deleteTransformedPictureFile();
                 //
                 tooBigPicture();
             }
@@ -326,8 +323,7 @@ public class PictureFileData extends DefaultFileData {
             if (this.uploadPolicy.getDebugLevel() >= 100) {
                 this.uploadPolicy.displayWarn("Temporary file not deleted");
             } else {
-                this.transformedPictureFile.delete();
-                this.transformedPictureFile = null;
+                deleteTransformedPictureFile();
                 this.uploadLength = -1;
             }
         }
@@ -608,7 +604,7 @@ public class PictureFileData extends DefaultFileData {
                                 Image.SCALE_SMOOTH);
                         img.flush();
 
-                        // the localBufferedImage may be 'unknwon'. 
+                        // the localBufferedImage may be 'unknwon'.
                         int localImageType = localBufferedImage.getType();
                         if (localImageType == BufferedImage.TYPE_CUSTOM) {
                             localImageType = BufferedImage.TYPE_INT_BGR;
@@ -851,6 +847,18 @@ public class PictureFileData extends DefaultFileData {
     }// end of hasToTransformPicture
 
     /**
+     * File.deleteOnExit() is pretty unreliable, especially in applets.
+     * Therefore the applet provides a callback which is executed during applet
+     * termination. This method performs the actual cleanup.
+     */
+    public void deleteTransformedPictureFile() {
+        if (null != this.transformedPictureFile) {
+            this.transformedPictureFile.delete();
+            this.transformedPictureFile = null;
+        }
+    }
+
+    /**
      * Creation of a temporary file, that contains the transformed picture. For
      * instance, it can be resized or rotated. This method doesn't throw
      * exception when there is an IOException within its procedure. If an
@@ -860,7 +868,7 @@ public class PictureFileData extends DefaultFileData {
      * Note: any JUploadException thrown by a method called within
      * getTransformedPictureFile() will be thrown within this method.
      */
-    private File getTransformedPictureFile() throws JUploadException {
+    private File getTransformedPictureFile() {
         BufferedImage bufferedImage = null;
         String tmpFileName = null;
         // Do we already created the transformed file ?
@@ -868,7 +876,8 @@ public class PictureFileData extends DefaultFileData {
             try {
                 this.transformedPictureFile = File.createTempFile("jupload_",
                         ".tmp");
-                this.transformedPictureFile.deleteOnExit();
+                this.uploadPolicy.getApplet().registerUnload(this,
+                        "deleteTransformedPictureFile");
                 tmpFileName = this.transformedPictureFile.getAbsolutePath();
                 this.uploadPolicy.displayDebug("Using temp file " + tmpFileName
                         + " for " + getFileName(), 50);
@@ -910,10 +919,10 @@ public class PictureFileData extends DefaultFileData {
                     // Remove the lower compression, and take the default one.
                     // This will create smaller resized pictures.
                     // Better for web use.
-                    //iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    //float values[] = iwp.getCompressionQualityValues();
+                    // iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    // float values[] = iwp.getCompressionQualityValues();
                     // Let's select the best available quality.
-                    //iwp.setCompressionQuality(values[values.length - 1]);
+                    // iwp.setCompressionQuality(values[values.length - 1]);
 
                     //
                     try {

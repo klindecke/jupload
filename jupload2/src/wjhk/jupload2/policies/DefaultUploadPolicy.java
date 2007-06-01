@@ -1481,7 +1481,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Delete the current log. (called upon applet termination)
      */
     public void deleteLog() {
-        System.out.println("Deleting log");
         try {
             if (null != this.debugOut) {
                 this.debugOut.close();
