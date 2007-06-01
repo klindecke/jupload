@@ -158,6 +158,14 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     private int maxHeight = -1;
 
     /**
+     * Used to control the compression of a jpeg written file, after
+     * transforming a picture.
+     * 
+     * @see UploadPolicy#PROP_PICTURE_COMPRESSION_QUALITY
+     */
+    private float pictureCompressionQuality = UploadPolicy.DEFAULT_PICTURE_COMPRESSION_QUALITY;
+
+    /**
      * @see UploadPolicy
      */
     private int realMaxWidth = -1;
@@ -203,6 +211,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT, this));
         setMaxWidth(UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH,
                 DEFAULT_MAX_WIDTH, this));
+        setPictureCompressionQuality(UploadPolicyFactory.getParameter(theApplet, PROP_PICTURE_COMPRESSION_QUALITY,
+                DEFAULT_PICTURE_COMPRESSION_QUALITY, this));
         setRealMaxHeight(UploadPolicyFactory.getParameter(theApplet,
                 PROP_REAL_MAX_HEIGHT, DEFAULT_REAL_MAX_HEIGHT, this));
         setRealMaxWidth(UploadPolicyFactory.getParameter(theApplet,
@@ -391,6 +401,22 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /** @param maxWidth the maxWidth to set */
     void setMaxWidth(int maxWidth) {
         this.maxWidth = maxWidth;
+    }
+
+    /**
+     * @see #pictureCompressionQuality
+     * @return The current value for picture compression.
+     */
+    public float gePictureCompressionQuality() {
+        return this.pictureCompressionQuality;
+    }
+
+    /**
+     * @see #pictureCompressionQuality
+     * @param pictureCompressionQuality The new value for picture compression.
+     */
+    void setPictureCompressionQuality(float pictureCompressionQuality) {
+        this.pictureCompressionQuality = pictureCompressionQuality;
     }
 
     /**
