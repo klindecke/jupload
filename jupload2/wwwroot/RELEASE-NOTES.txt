@@ -20,7 +20,7 @@ client-authentication. Configurable by a new parameter sslVerifyCert. See
 howto-customization.html for more info.
 
 Translation:
-- [Turkish] Add of the Turquish translation, thanks to 
+- [Turkish] Add of the Turquish translation, thanks to Gunay Mazmanoglu
 
 
 V3.0.1
