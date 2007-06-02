@@ -320,16 +320,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.applet = theApplet;
         this.logWindow = theApplet.getLogWindow();
 
-        // Force the look and feel of the current system. This must be the very first
-        // parameter to be set, because during initialization, dialogs can appear.
+        // Force the look and feel of the current system. This must be the very
+        // first
+        // parameter to be set, because during initialization, dialogs can
+        // appear.
         setLookAndFeel(UploadPolicyFactory.getParameter(theApplet,
                 PROP_LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL, this));
 
         // This must be set before any URL's because these might trigger an
         // connection attempt.
-        setSslVerifyCert(UploadPolicyFactory
-                .getParameter(theApplet, PROP_SSL_VERIFY_CERT,
-                        DEFAULT_SSL_VERIFY_CERT, this));
+        setSslVerifyCert(UploadPolicyFactory.getParameter(theApplet,
+                PROP_SSL_VERIFY_CERT, DEFAULT_SSL_VERIFY_CERT, this));
 
         // ////////////////////////////////////////////////////////////////////////////
         // get the afterUploadURL applet parameter.
@@ -1352,7 +1353,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
             try {
                 value = new HttpConnect(this).getProtocol();
             } catch (ConnectException e) {
-                throw new JUploadException(e);
+                // If we throw an error here, we prevent the applet to start.
+                // throw new JUploadException(e);
+                displayErr(e);
+                //Let's try with default value.
+                value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
             }
         }
         this.serverProtocol = value;
