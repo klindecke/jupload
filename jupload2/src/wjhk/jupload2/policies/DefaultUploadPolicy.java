@@ -1352,7 +1352,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 throw new JUploadException("postURL not set");
             try {
                 value = new HttpConnect(this).getProtocol();
-            } catch (ConnectException e) {
+            } catch (Exception e) {
                 // If we throw an error here, we prevent the applet to start.
                 // throw new JUploadException(e);
                 displayErr(e);
