@@ -118,9 +118,9 @@ public class PictureFileData extends DefaultFileData {
      * {@link #addRotation(int)} method.
      * <UL>
      * <LI>0 means no rotation.
-     * <LI>1 means a rotation of 90ï¿½ clockwise (word = Ok ??).
-     * <LI>2 means a rotation of 180ï¿½.
-     * <LI>3 means a rotation of 90ï¿½ counterclockwise (word = Ok ??).
+     * <LI>1 means a rotation of 90° clockwise (word = Ok ??).
+     * <LI>2 means a rotation of 180°.
+     * <LI>3 means a rotation of 900 counterclockwise (word = Ok ??).
      * </UL>
      */
     int quarterRotation = 0;
@@ -922,8 +922,9 @@ public class PictureFileData extends DefaultFileData {
                         iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                         // Let's select a good compromise between picture size
                         // and quality.
-                        // TODO: create a new applet parameter here.
-                        iwp.setCompressionQuality((float) 0.8);
+                        iwp
+                                .setCompressionQuality(((PictureUploadPolicy) this.uploadPolicy)
+                                        .getPictureCompressionQuality());
                     }
 
                     //
@@ -933,8 +934,10 @@ public class PictureFileData extends DefaultFileData {
                                         + iwp.getCompressionQuality(), 95);
                     } catch (Exception e) {
                         // If we come here, compression is not supported for
-                        // this picture format. May trigger several different
-                        // errors. We ignore them.
+                        // this picture format, or parameters are not explicit
+                        // mode, or ... (etc). May trigger several different
+                        // errors. We just ignore them: this par of code is only
+                        // to write some debug info.
                     }
 
                     // Let's create the picture file.
