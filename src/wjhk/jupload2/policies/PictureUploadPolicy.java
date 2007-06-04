@@ -407,7 +407,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @see #pictureCompressionQuality
      * @return The current value for picture compression.
      */
-    public float gePictureCompressionQuality() {
+    public float getPictureCompressionQuality() {
         return this.pictureCompressionQuality;
     }
 
