@@ -638,6 +638,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         if (null != form)
             sb.append(addFormVariables(bound, form));
         sb.append(addPostVariable(bound, "mimetype", mimetype));
+        sb.append(addPostVariable(bound, "pathinfo", this.filesToUpload[index].getDirectory()));
 
         // boundary.
         sb.append(bound).append("\r\n");
