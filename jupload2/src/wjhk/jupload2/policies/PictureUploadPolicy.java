@@ -510,6 +510,10 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         super.displayParameterStatus();
 
         displayDebug("======= Parameters managed by PictureUploadPolicy", 20);
+        displayDebug(PROP_HIGH_QUALITY_PREVIEW + " : "
+                + this.highQualityPreview, 20);
+        displayDebug(PROP_PICTURE_COMPRESSION_QUALITY + " : "
+                + getPictureCompressionQuality(), 20);
         if (this.maxWidth != DEFAULT_MAX_WIDTH
                 || this.maxHeight != DEFAULT_MAX_HEIGHT) {
             displayDebug(PROP_MAX_WIDTH + " : " + this.maxWidth + ", "
@@ -520,8 +524,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
             displayDebug(PROP_REAL_MAX_WIDTH + " : " + this.realMaxWidth + ", "
                     + PROP_REAL_MAX_HEIGHT + " : " + this.realMaxHeight, 20);
         }
-        displayDebug(PROP_HIGH_QUALITY_PREVIEW + " : "
-                + this.highQualityPreview, 20);
         displayDebug(PROP_STORE_BUFFERED_IMAGE + " : "
                 + this.storeBufferedImage, 20);
         displayDebug(PROP_TARGET_PICTURE_FORMAT + " : "
