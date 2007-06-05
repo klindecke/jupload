@@ -895,7 +895,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "serverProtocol".
      */
-    final static String DEFAULT_SERVER_PROTOCOL = "HTTP/1.1";
+    final static String DEFAULT_SERVER_PROTOCOL = null;
 
     /**
      * Default value for parameter "showLogWindow".

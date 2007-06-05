@@ -1347,16 +1347,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     protected void setServerProtocol(String value) throws JUploadException {
         if (null == value || value.equals("")) {
-            if (null == this.postURL)
+            if (null == this.postURL || this.postURL.equals(""))
                 throw new JUploadException("postURL not set");
             try {
                 value = new HttpConnect(this).getProtocol();
             } catch (Exception e) {
                 // If we throw an error here, we prevent the applet to start.
-                // throw new JUploadException(e);
-                displayErr(e);
+                throw new JUploadException(e);
+                // displayErr(e);
                 //Let's try with default value.
-                value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
+                //value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
             }
         }
         this.serverProtocol = value;
