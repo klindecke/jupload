@@ -503,6 +503,18 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  file in a second HTTP request. </td>
  </tr>
  <tr>
+ <td>pictureCompressionQuality</td>
+ <td><i>0.8</i><br>
+ since 3.1.0<br>
+ <a href="doc/wjhk/jupload2/policies/PictureUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>PictureUploadPolicy</CODE></A></td>
+ <td>This parameter controls the picture compression quality, when writing
+ the picture file. 1 means high quality picture, but big files. 0 means poor
+ quality pictures, but small files. 0.8 is a good compromise for the web.<br>
+ It is different from the highQualityPreview, which controls the way picture
+ are resized in memory.<br>
+ This parameter is currently applied only to jpg (and jpeg) pictures.</td>
+ </tr>
+ <tr>
  <td>postURL</td>
  <td>null since 1.9.2rc4, (was <i>Mandatory</i> before)<br>
  <br>
