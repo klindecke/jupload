@@ -56,7 +56,7 @@
 	<property name="optimize" value="true" />
 
 	<property name="svn.use.javahl" value="true" />
-	
+
 	<!--
     *
     * Properties related to the source tree
@@ -190,12 +190,15 @@
 
 	<target name="-version_java">
 		<svn javahl="${svn.use.javahl}">
-			<status path="${src.dir}" revisionProperty="svn.rev" />
+			<status path="${src.dir}"
+			        revisionProperty="svn.rev"
+			        lastChangedDateProperty="svn.date" />
 		</svn>
 		<echo file="${src.dir}/wjhk/jupload2/JUploadSvnRevision.java">
 			package wjhk.jupload2;
 			class JUploadSvnRevision {
 				final static String REVISION = "${svn.rev}";
+				final static String LASTCHANGED = "${svn.date}";
 			}
 		</echo>
 	</target>
