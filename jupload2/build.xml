@@ -282,6 +282,8 @@
 				<include name="wwwroot/**/*" />
 				<include name="doc/**/*" />
 				<include name="build.xml" />
+				<!-- svn-ant stuff -->
+				<include name="lib/**/*" />
 				<!-- eclipse stuff -->
 				<include name=".settings/*" />
 				<include name=".externalToolBuilders/*" />
