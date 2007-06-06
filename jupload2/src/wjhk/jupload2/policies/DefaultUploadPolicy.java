@@ -278,9 +278,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     private boolean debugOk = true;
 
-    /**
-     * cookie is the value of the javascript <I>document.cookie</I> property.
-     */
+    /** cookie is the value of the javascript <I>document.cookie</I> property. */
     private String cookie = null;
 
     /**
@@ -294,15 +292,25 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     private final static int MAX_DEBUG_LINES = 10000;
 
+    /**
+     * The regexp pattern that is used to find the success string in the HTTP
+     * response. If found, the upload is considered to be a success: it has been
+     * accepted by the remote server and the remote appication.
+     */
     protected Pattern patternSuccess = Pattern
             .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS);
 
+    /**
+     * Same as {@link #patternSuccess}, but for the error message. If found,
+     * then the upload was accepted by the remote HTTP server, but rejected by
+     * the remote application. This pattern should also find the error message
+     * in the first matching string.
+     */
     protected Pattern patternError = Pattern
             .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_ERROR);
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// CONSTRUCTORS
-    // ///////////////////////////////////////////////////
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -320,8 +328,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.logWindow = theApplet.getLogWindow();
 
         // Force the look and feel of the current system. This must be the very
-        // first
-        // parameter to be set, because during initialization, dialogs can
+        // first parameter to be set, because during initialization, dialogs can
         // appear.
         setLookAndFeel(UploadPolicyFactory.getParameter(theApplet,
                 PROP_LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL, this));
@@ -331,12 +338,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setSslVerifyCert(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SSL_VERIFY_CERT, DEFAULT_SSL_VERIFY_CERT, this));
 
-        // ////////////////////////////////////////////////////////////////////////////
         // get the afterUploadURL applet parameter.
         setAfterUploadURL(UploadPolicyFactory.getParameter(theApplet,
                 PROP_AFTER_UPLOAD_URL, DEFAULT_AFTER_UPLOAD_URL, this));
 
-        // ////////////////////////////////////////////////////////////////////////////
         // get the allowedFileExtensions applet parameter
         setAllowedFileExtensions(UploadPolicyFactory.getParameter(theApplet,
                 PROP_ALLOWED_FILE_EXTENSIONS, DEFAULT_ALLOWED_FILE_EXTENSIONS,
@@ -352,40 +357,31 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setShowLogWindow(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SHOW_LOGWINDOW, DEFAULT_SHOW_LOGWINDOW, this));
 
-        // ////////////////////////////////////////////////////////////////////////////
         // get the debug level. This control the level of debug messages that
-        // are written
-        // in the log window (see displayDebugMessage). In all cases, the full
-        // output
-        // is written in the debugBufferString (see also urlToSendErrorTo)
+        // are written in the log window (see displayDebugMessage). In all
+        // cases, the full output is written in the debugBufferString (see also
+        // urlToSendErrorTo)
         setDebugLevel(UploadPolicyFactory.getParameter(theApplet,
                 PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL, this), false);
 
-        // ////////////////////////////////////////////////////////////////////////////
         // get the filenameEncoding. If not null, it should be a valid argument
-        // for
-        // the URLEncoder.encode method.
+        // for the URLEncoder.encode method.
         setFilenameEncoding(UploadPolicyFactory.getParameter(theApplet,
                 PROP_FILENAME_ENCODING, DEFAULT_FILENAME_ENCODING, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
         // get the maximum number of files to upload in one HTTP request.
         setNbFilesPerRequest(UploadPolicyFactory.getParameter(theApplet,
                 PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
         // get the maximum size of a file on one HTTP request (indicate if the
-        // file
-        // must be splitted before upload, see UploadPolicy comment).
+        // file must be splitted before upload, see UploadPolicy comment).
         setMaxChunkSize(UploadPolicyFactory.getParameter(theApplet,
                 PROP_MAX_CHUNK_SIZE, DEFAULT_MAX_CHUNK_SIZE, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
         // get the maximum size of an uploaded file.
         setMaxFileSize(UploadPolicyFactory.getParameter(theApplet,
                 PROP_MAX_FILE_SIZE, DEFAULT_MAX_FILE_SIZE, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
         // get the URL where files must be posted.
         setPostURL(UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL,
                 DEFAULT_POST_URL, this));
@@ -400,13 +396,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 .getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS,
                         DEFAULT_STRING_UPLOAD_SUCCESS, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
         // get the URL where the full debug output can be sent when an error
         // occurs.
         setUrlToSendErrorTo(UploadPolicyFactory.getParameter(theApplet,
                 PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO, this));
 
-        // /////////////////////////////////////////////////////////////////////////////
         // Get resource file.
         setLang(UploadPolicyFactory.getParameter(theApplet, PROP_LANG,
                 DEFAULT_LANG, this));
@@ -465,15 +459,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
             addHeader("User-Agent: " + this.userAgent);
 
         // We let the UploadPolicyFactory call the displayParameterStatus
-        // method, so that the
-        // initialization is finished, including for classes which inherit from
-        // DefaultUploadPolicy.
+        // method, so that the initialization is finished, including for classes
+        // which inherit from DefaultUploadPolicy.
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// UploadPolicy methods
-    // ///////////////////////////////////////////////////
     // //////////////////////////////////////////////////////////////////////////////////////////////
+
     // getters and setters are sorted below
 
     /**
@@ -1355,8 +1348,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 // If we throw an error here, we prevent the applet to start.
                 throw new JUploadException(e);
                 // displayErr(e);
-                //Let's try with default value.
-                //value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
+                // Let's try with default value.
+                // value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
             }
         }
         this.serverProtocol = value;
@@ -1478,7 +1471,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// Internal methods
-    // ///////////////////////////////////////////////////
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -1632,5 +1624,4 @@ public class DefaultUploadPolicy implements UploadPolicy {
     File file) {
         return null;
     }
-
 }
