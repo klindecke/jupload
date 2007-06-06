@@ -55,10 +55,8 @@
 
 	<property name="optimize" value="true" />
 
-	<property name="memoryInitialSize" value="128m" />
-
-	<property name="junit.fork" value="false" />
-
+	<property name="svn.use.javahl" value="true" />
+	
 	<!--
     *
     * Properties related to the source tree
@@ -85,6 +83,17 @@
 		<pathelement location="${basedir}/wwwroot/plugin.jar" />
 		<pathelement location="${basedir}/wwwroot/jakarta-commons-net.jar" />
 	</path>
+
+	<!-- path to the svnant libraries. -->
+	<path id="svnant.classpath">
+		<fileset dir="${basedir}/lib/svn-ant">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- load the svn task -->
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml"
+	         classpathref="svnant.classpath" />
 
 	<!--
 ===================================================================
@@ -113,7 +122,7 @@
 
 	<target name="compile" depends="compile_all" />
 
-	<target name="compile_all" depends="prepare">
+	<target name="compile_all" depends="prepare,-version_java">
 		<antcall target="compile_impl">
 			<param name="includes" value="wjhk/**" />
 		</antcall>
@@ -179,7 +188,19 @@
 		</fixcrlf>
 	</target>
 
-	<target name="getversion" depends="compile" unless="version">
+	<target name="-version_java">
+		<svn javahl="${svn.use.javahl}">
+			<status path="${src.dir}" revisionProperty="svn.rev" />
+		</svn>
+		<echo file="${src.dir}/wjhk/jupload2/JUploadSvnRevision.java">
+			package wjhk.jupload2;
+			class JUploadSvnRevision {
+				final static String REVISION = "${svn.rev}";
+			}
+		</echo>
+	</target>
+
+	<target name="-getversion" depends="compile" unless="version">
 		<java classname="wjhk.jupload2.JUploadApplet"
 		      classpath="${src.dir}"
 		      outputproperty="version"
@@ -190,7 +211,7 @@
  * Create wjhk.jupload.jar
  -->
 	<target name="jar"
-	        depends="getversion"
+	        depends="-getversion"
 	        description="Create unsigned jar in buld/">
 		<echo>Creating manifest file</echo>
 		<mkdir dir="${src.dir}/META-INF" />
@@ -220,7 +241,9 @@
 		</jar>
 	</target>
 
-	<target name="customhowto" depends="javadoc">
+	<target name="customhowto"
+	        depends="javadoc"
+	        description="Creates the howto-customization.html">
 		<copy file="${basedir}/doc/wjhk/jupload2/policies/UploadPolicy.html"
 		      tofile="${build.dir}/tmpdoc.html" />
 		<echo>Extracting parameter section from javadoc of JUloadPolicy class</echo>
@@ -267,18 +290,18 @@
 		</jar>
 	</target>
 
-	<target name="keystore.check">
+	<target name="-keystore.check">
 		<condition property="has.keystore">
 			<available file="${keystore}" />
 		</condition>
 	</target>
 
-	<target name="askpasswd" unless="storepass">
+	<target name="-askpasswd" unless="storepass">
 		<input message="Please enter keystore password:"
 		       addproperty="storepass" />
 	</target>
 
-	<target name="createstore" depends="keystore.check" unless="has.keystore">
+	<target name="-createstore" depends="-keystore.check" unless="has.keystore">
 		<property name="storepass" value="test123" />
 		<genkey alias="${alias}"
 		        validity="3600"
@@ -293,7 +316,7 @@
 	</target>
 
 	<target name="signedjar"
-	        depends="jar,createstore,askpasswd"
+	        depends="jar,-createstore,-askpasswd"
 	        description="Create signed jar in build/">
 		<signjar jar="${build.dir}/wjhk.jupload-V${version}.jar"
 		         keystore="${keystore}"
