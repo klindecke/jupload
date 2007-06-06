@@ -195,6 +195,8 @@
 			        lastChangedDateProperty="svn.date" />
 		</svn>
 		<echo file="${src.dir}/wjhk/jupload2/JUploadSvnRevision.java">
+			// WARNING - This file is auto-generated
+			// ANY CHANGES WILL BE OVERWRITTEN BY THE BUILD-PROCESS!
 			package wjhk.jupload2;
 			class JUploadSvnRevision {
 				final static String REVISION = "${svn.rev}";
