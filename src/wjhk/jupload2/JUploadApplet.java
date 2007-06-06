@@ -59,12 +59,12 @@ public class JUploadApplet extends Applet {
     /**
      * The version of this applet.
      */
-    public final static String VERSION = "3.0.2b2 ($Revision$)";
+    public final static String VERSION = "3.0.2b2 [SVN-Rev: " + JUploadSvnRevision.REVISION + "]";
 
     /**
      * The last modification of this applet.
      */
-    public final static String LAST_MODIFIED = "$Date$";
+    public final static String LAST_MODIFIED = JUploadSvnRevision.LASTCHANGED;
 
     private UploadPolicy uploadPolicy = null;
 
