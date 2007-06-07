@@ -7,10 +7,30 @@ V3.0.2b2
 another JavaScript. In order to do so, afterUploadURL has to start with the string
 "javascript:". If that is the case, the remainder of the string is evaluated as
 JavaScript-expression in the context of the current document.
+- [Feature] New POST variables "pathinfo" and "relpathinfo":
+  pathinfo simply contains the absolute path of the containing directory of the
+  transferred file in native format (Slashes vs. Backslashes depend on the users OS).
+  relpathinfo contains a path relative to a "virtual root" which was determined when the
+  user had added (or dropped) a directory. Example:
+  Suppose the following hierarchy:
+    /foo/bar/a/
+               1.jpg
+               2.jpg
+               3.jpg
+    /foo/bar/b/
+               4.jpg
+               5.jpg
+               6.jpg
+  If the user now adds the directory "bar", then during upload, for the files [123].jpg,
+  relpathinfo would be "bar/a" and for the files [456].jpg, relpathinfo would be "bar/b".
+  This info can now be used on the server side in order to reconstruct whole directory
+  trees. This info is in native format as well (Slashes vs. Backslashes depend on the
+  users OS).
 - [Fix] Optimized the class-loading in UploadPolicyFactory: If the parameter
 uploadPolicy is unqualified (contains no dots), then it is prefixed with
 "wjhk.jupload2.policies." before trying the first Class.forName(). This eliminates an
 usually unsuccessful try of loading the plain class file.
+
 V3.0.2b1
 
 - [Change] showStatusBar renamed to showLogWindow (see below)
