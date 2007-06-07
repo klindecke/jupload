@@ -70,17 +70,25 @@ public class UploadPolicyFactory {
             try {
                 action = uploadPolicyStr;
                 Class uploadPolicyClass = null;
-                try {
-                    uploadPolicyClass = Class.forName(uploadPolicyStr);
-                } catch (ClassNotFoundException e1) {
-                    // Hum, let's try to prefix the policy name by the default
-                    // package
+                // Our default is "DefaultUploadPolicy", (without prefix)
+                // so we try the prefixed variant first. But only, if the
+                // user had specified an unqualified classname.
+                if (!uploadPolicyStr.contains(".")) {
                     try {
                         uploadPolicyClass = Class
-                                .forName("wjhk.jupload2.policies."
-                                        + uploadPolicyStr);
+                        .forName("wjhk.jupload2.policies."
+                            + uploadPolicyStr);
+                    } catch (ClassNotFoundException e1) {
+                        uploadPolicyClass = null;
+                    }
+                }
+                if (null == uploadPolicyClass) {
+                    // Let's try without the prefix
+                    try {
+                        uploadPolicyClass = Class.forName(uploadPolicyStr);
                     } catch (ClassNotFoundException e2) {
                         // Too bad, we don't know how to create this class.
+                        // Fall back to builtin default.
                         usingDefaultUploadPolicy = true;
                         uploadPolicyClass = Class
                                 .forName("wjhk.jupload2.policies.DefaultUploadPolicy");
