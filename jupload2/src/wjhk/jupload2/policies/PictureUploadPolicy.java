@@ -44,6 +44,7 @@ import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
+import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.PicturePanel;
 
 /**
@@ -211,7 +212,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT, this));
         setMaxWidth(UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH,
                 DEFAULT_MAX_WIDTH, this));
-        setPictureCompressionQuality(UploadPolicyFactory.getParameter(theApplet, PROP_PICTURE_COMPRESSION_QUALITY,
+        setPictureCompressionQuality(UploadPolicyFactory.getParameter(
+                theApplet, PROP_PICTURE_COMPRESSION_QUALITY,
                 DEFAULT_PICTURE_COMPRESSION_QUALITY, this));
         setRealMaxHeight(UploadPolicyFactory.getParameter(theApplet,
                 PROP_REAL_MAX_HEIGHT, DEFAULT_REAL_MAX_HEIGHT, this));
@@ -540,22 +542,18 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public Icon fileViewGetIcon(File file) {
         ImageIcon imageIcon = null;
         if (null != file) {
-            displayDebug("In PictureUploadPolicy.fileViewGetIcon for "
-                    + file.getName(), 100);
             try {
                 // First, we load the picture
                 BufferedImage image = ImageIO.read(file);
                 if (null != image) {
-                    BufferedImage resized = resizePicture(image, 20, 20, false,
-                            this);
+                    BufferedImage resized = resizePicture(image,
+                            JUploadFileView.ICON_SIZE,
+                            JUploadFileView.ICON_SIZE, false, this);
                     imageIcon = new ImageIcon(resized);
-
-                    // Runtime.getRuntime().gc();
-                    displayDebug("freeMemory: "
-                            + Runtime.getRuntime().freeMemory(), 80);
                 }
             } catch (IllegalArgumentException e) {
-                // ignore
+                // ignore, but still displays a warning.
+                displayWarn(e.getClass().getName() + ": " + e.getMessage());
             } catch (IOException e) {
                 displayErr(e);
             }

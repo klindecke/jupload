@@ -21,24 +21,69 @@
 
 package wjhk.jupload2.gui;
 
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileView;
 
 import wjhk.jupload2.policies.UploadPolicy;
 
+// //////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////// local class: JUploadFileView
+// //////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * The IconWorker class loads a icon from a file. It's called from a backup
  * thread created by the JUploadFileView class. This allows to load/calculate
  * icons in background. This prevent the applet to be freezed while icons are
- * loading.
+ * loading. <BR>
+ * Instances of this class can have the following status, in this order: <DIR>
+ * <LI>STATUS_NOT_LOADED: This icon is not loaded, and its loading is not
+ * requested. This status is the default one, on creation.
+ * <LI>STATUS_TO_BE_LOADED: This icon is on the list of icon to load. This
+ * status is written by the {@link JUploadFileView#execute(IconWorker)} method.
+ * <LI>STATUS_LOADING: Indicates the the {@link IconWorker#loadIcon()} has been
+ * called, but is not finished.
+ * <LI>STATUS_LOADED: The icon is loaded, and ready to be displayed.
+ * <LI>STATUS_ERROR_WHILE_LOADING: Too bad, the applet could not load the icon.
+ * It won't be tried again. </DIR>
  */
 class IconWorker implements Runnable {
+
+    /** Indicates that an error occurs, during the icon creation */
+    final static int STATUS_ERROR_WHILE_LOADING = -1;
+
+    /** Indicates that the icon for this file has been loaded */
+    final static int STATUS_LOADED = 1;
+
+    /**
+     * Indicated that the creation of the icon for this file has started. But it
+     * is not ready yet.
+     */
+    final static int STATUS_LOADING = 2;
+
+    /**
+     * Indicates the loading of the icon for this file has been requested, but
+     * has not started yet.
+     */
+    final static int STATUS_TO_BE_LOADED = 3;
+
+    /**
+     * Indicates the loading of the icon for this file is not currently
+     * requested. The loading may have been requested, then cancelled, for
+     * instance of the user changes the current directory or closes the file
+     * chooser.
+     */
+    final static int STATUS_NOT_LOADED = 4;
 
     /** The current upload policy */
     UploadPolicy uploadPolicy = null;
@@ -54,6 +99,9 @@ class IconWorker implements Runnable {
 
     /** The icon for this file. */
     Icon icon = null;
+
+    /** Current loading status for this worker */
+    int status = STATUS_NOT_LOADED;
 
     /**
      * The constructor only stores the file. The background thread will call the
@@ -75,62 +123,44 @@ class IconWorker implements Runnable {
      * @return The Icon to be displayed for this file.
      */
     Icon getIcon() {
-        this.uploadPolicy.displayDebug("In IconWorker.getIcon("
-                + this.file.getName() + ")", 90);
-        // We add the current worker to the task list.
-        /*
-         * ?? Hum, it should already be in the task list. I don't add it. if
-         * (this.icon == null) { this.uploadPolicy.displayDebug(" Adding " +
-         * this.file.getName() + " to the work list)", 90);
-         * this.fileView.execute(this); }
-         */
-        return this.icon;
-    }
+        // this.uploadPolicy.displayDebug("In IconWorker.getIcon("
+        // + this.file.getAbsolutePath() + ")", 90);
 
-    /** Get the icon from the current upload policy, for this file */
+        switch (status) {
+            case STATUS_LOADED:
+                return this.icon;
+            case STATUS_NOT_LOADED:
+                // ?? This picture should not be in this state. Perhaps the user
+                // changes of directory, then went bak to it.
+                // We ask again to calculate its icon.
+                this.fileView.execute(this);
+                return null;
+            default:
+                return null;
+        }// switch
+    }// getIcon
+
+    /**
+     * Get the icon from the current upload policy, for this file. This methods
+     * does something only if the current status for the icon is
+     * {@link #STATUS_TO_BE_LOADED}. If not, this method does nothing.
+     */
     void loadIcon() {
-        this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
-                + this.file.getName() + ")", 90);
-        File dir = null;
-        File parent = null;
-        try {
-            // Maybe it has already been loaded.
-            if (this.icon == null && !this.file.isDirectory()) {
-                // Maybe the current directory changed. In this case, we
-                // postpone the loading of this icon.
-                dir = this.fileChooser.getCurrentDirectory();
-                parent = this.file.getParentFile();
-                // If dir and parent are null, they are equals, we calculate the
-                // icon
-                if (parent == null && dir == null) {
-                    this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
-                    this.fileChooser.repaint();
-                } else if (parent != null) {
-                    if (dir.getAbsolutePath().equals(parent.getAbsolutePath())
-                            || dir.isDirectory()) {
-                        // If it's a directory, we instantly calculate the icon.
-                        // The icon has not yet be loaded, and the user is still
-                        // in this directory. Let's load the icon.
-                        this.icon = this.uploadPolicy
-                                .fileViewGetIcon(this.file);
-                        this.fileChooser.repaint();
-                    } else {
-                        // We don't do it now, but we'll do it later.
-                        this.uploadPolicy
-                                .displayDebug("   Adding "
-                                        + this.file.getName()
-                                        + " to the task list", 90);
-                        this.fileView.execute(this);
-                    }
-                }
-                // Otherwise, one of 'parent' or 'dir' is null, we let the icon
-                // to null.
-            }
-        } catch (NullPointerException e) {
-            // No action, we mask the error
-            this.uploadPolicy.displayWarn(e.getClass().getName()
-                    + " in IconWorker.loadIcon. dir: " + dir + ", parent: "
-                    + parent);
+        if (this.status == STATUS_TO_BE_LOADED) {
+            status = STATUS_LOADING;
+            this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
+                    + this.file.getName() + ")", 90);
+
+            // try {
+            this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
+            this.fileChooser.repaint();
+            /*
+             * } catch (NullPointerException e) { // No action, we mask the
+             * error status = STATUS_ERROR_WHILE_LOADING;
+             * this.uploadPolicy.displayWarn(e.getClass().getName() + " in
+             * IconWorker.loadIcon for: " + this.file.getAbsolutePath()); }
+             */
+            status = STATUS_LOADED;
         }
     }
 
@@ -140,12 +170,16 @@ class IconWorker implements Runnable {
     }
 }
 
+// //////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////// JUploadFileView
+// //////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * This class provides the icon view for the file selector.
  * 
  * @author Etienne Gauthier
  */
-public class JUploadFileView extends FileView {
+public class JUploadFileView extends FileView implements PropertyChangeListener {
 
     /** The current upload policy. */
     UploadPolicy uploadPolicy = null;
@@ -156,7 +190,23 @@ public class JUploadFileView extends FileView {
     /** This map will contain all instances of {@link IconWorker}. */
     ConcurrentHashMap<String, IconWorker> hashMap = new ConcurrentHashMap<String, IconWorker>();
 
+    /**
+     * This executor will crate icons from files, one at a time. It is used to
+     * create these icon asynchroneously.
+     * 
+     * @see #execute(IconWorker)
+     */
     ExecutorService executorService = null;
+
+    /**
+     * Temporary constant: will be replaced by an applet parameter.
+     */
+    public final static int ICON_SIZE = 30;
+
+    /**
+     * An empty icon, having the good file size.
+     */
+    Icon emptyIcon = null;
 
     /**
      * Creates a new instance.
@@ -167,6 +217,10 @@ public class JUploadFileView extends FileView {
     public JUploadFileView(UploadPolicy uploadPolicy, JFileChooser fileChooser) {
         this.uploadPolicy = uploadPolicy;
         this.fileChooser = fileChooser;
+        this.fileChooser.addPropertyChangeListener(this);
+
+        emptyIcon = new ImageIcon(new BufferedImage(ICON_SIZE, ICON_SIZE,
+                BufferedImage.TYPE_INT_ARGB_PRE));
     }
 
     /**
@@ -175,7 +229,7 @@ public class JUploadFileView extends FileView {
     @Override
     public Icon getIcon(File file) {
         if (file.isDirectory()) {
-            // we let the JVM display the system icon for directories.
+            // We let the JVM display the system icon for directories.
             return null;
         }
         IconWorker iconWorker = this.hashMap.get(file.getAbsolutePath());
@@ -185,16 +239,18 @@ public class JUploadFileView extends FileView {
                     this, file);
             // We store it in the global Icon container.
             this.hashMap.put(file.getAbsolutePath(), iconWorker);
-            // Then, we ask the current Thread to load its icon.
+            // Then, we ask the current Thread to load its icon. It will be done
+            // later.
             execute(iconWorker);
             // We currently have no icon to display.
             return null;
         }
-        return iconWorker.getIcon();
+        // Ok, let's take the icon.
+        return iconWorker.getIcon() == null ? emptyIcon : iconWorker.getIcon();
     }
 
     synchronized void execute(IconWorker iconWorker) {
-        this.uploadPolicy.displayDebug("In JUploadFileView.execute for "
+        this.uploadPolicy.displayDebug("[JUploadFileView.execute] Adding "
                 + iconWorker.file.getAbsolutePath(), 90);
         if (this.executorService == null || this.executorService.isShutdown()) {
             this.uploadPolicy
@@ -204,18 +260,54 @@ public class JUploadFileView extends FileView {
             this.executorService = Executors.newSingleThreadExecutor();
         }
         this.executorService.execute(iconWorker);
+        iconWorker.status = IconWorker.STATUS_TO_BE_LOADED;
     }
 
     /**
      * Stop all current and to come thread. To be called when the file chooser
      * is closed.
      */
-    synchronized public void shutdownNow() {
+    public void shutdownNow() {
         if (this.executorService != null) {
+            stopRunningJobs();
+
             this.executorService.shutdownNow();
-            this.uploadPolicy.displayDebug(
-                    "JUploadFileView.shutdownNow (executorService->null)", 90);
             this.executorService = null;
+        }
+    }
+
+    /**
+     * Lazily mark all jobs as not done. No particular thread management.
+     */
+    private void stopRunningJobs() {
+        uploadPolicy.displayDebug("Shutting down all IconWorker running jobs",
+                50);
+        Enumeration e = hashMap.elements();
+        IconWorker iw = null;
+        while (e.hasMoreElements()) {
+            iw = (IconWorker) e.nextElement();
+            if (iw.status == IconWorker.STATUS_TO_BE_LOADED) {
+                uploadPolicy.displayDebug("   Shutting down "
+                        + iw.file.getAbsolutePath(), 50);
+                iw.status = IconWorker.STATUS_NOT_LOADED;
+            }
+        }
+    }
+
+    /**
+     * Waiting for JFileChooser events. Currently managed:
+     * DIRECTORY_CHANGED_PROPERTY, to stop the to be loaded icons.
+     */
+    public void propertyChange(PropertyChangeEvent e) {
+        String prop = e.getPropertyName();
+        // If the directory changed, don't show an image.
+        if (JFileChooser.DIRECTORY_CHANGED_PROPERTY.equals(prop)) {
+            // We stops all running job. If the user gets back to this
+            // directory, the non calculated icons will be added to the job
+            // list.
+            uploadPolicy
+                    .displayDebug("[JUploadFileView] Directory changed", 80);
+            stopRunningJobs();
         }
     }
 }
