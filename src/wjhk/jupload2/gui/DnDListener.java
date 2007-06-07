@@ -29,6 +29,7 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -86,7 +87,15 @@ public class DnDListener implements DropTargetListener {
             try {
                 List fileList = (List) e.getTransferable().getTransferData(
                         DataFlavor.javaFileListFlavor);
-                this.uploadPanel.addFiles((File[]) fileList.toArray(), null);
+                // this.uploadPanel.addFiles((File[]) fileList.toArray(), null);
+                Iterator i = fileList.iterator();
+                while (i.hasNext()) {
+                    File []f = {(File)i.next()};
+                    if (f[0].isDirectory())
+                        this.uploadPanel.addFiles(f, f[0].getParentFile());
+                    else
+                        this.uploadPanel.addFiles(f, null);
+                }
                 e.getDropTargetContext().dropComplete(true);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
