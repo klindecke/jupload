@@ -271,7 +271,13 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <td>This parameter is used by all policies. It allows the applet to change
  the current page to another one after a successful upload. <br>
  This allows, for instance, to display a page containing the file description
- of the newly uploaded page. </td>
+ of the newly uploaded page. Since version 3.0.2b2, you can specify a
+ JavaScript expression instead of a plain URL:<br>
+ If the value of afterUploadURL starts with the string "javascript:", the
+ remainder of the string is evaluated as JavaScript expression in the current
+ document context. For example: If afterUloadURL is<br>
+ <code>"alert('Thanks for the upload');"</code>,</br> then after a
+ successful upload, a messagebox would pop up.</td>
  </tr>
  <tr>
  <td>albumId</td>

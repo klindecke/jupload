@@ -553,19 +553,25 @@ public class DefaultUploadPolicy implements UploadPolicy {
     String serverOutput) {
         // If there was no error, and afterUploadURL is defined, let's try to go
         // to this URL.
-        if (e == null && getAfterUploadURL() != null) {
+        String url = getAfterUploadURL();
+        if (e == null && url != null) {
             try {
+                String target = getAfterUploadTarget();
                 if (getDebugLevel() >= 100) {
                     alertStr("No switch to getAfterUploadURL, because debug level is "
                             + getDebugLevel() + " (>=100)");
                 } else {
-                    // Let's change the current URL to edit names and comments,
-                    // for the selected album. Ok, let's go and add names and
-                    // comments to the newly updated pictures.
-                    String target = getAfterUploadTarget();
-                    getApplet().getAppletContext().showDocument(
-                            new URL(getAfterUploadURL()),
-                            (null == target) ? "_self" : target);
+                    if (url.toLowerCase().startsWith("javascript:")) {
+                        // A JavaScript expression was specified. Execute it.
+                        JSObject.getWindow(getApplet()).eval(url.substring(11));
+                    } else {
+                        // Let's change the current URL to edit names and
+                        // comments, for the selected album. Ok, let's go and
+                        // add names and comments to the newly updated pictures.
+                        getApplet().getAppletContext().showDocument(
+                                new URL(url),
+                                (null == target) ? "_self" : target);
+                    }
                 }
             } catch (Exception ee) {
                 // Oops, no navigator. We are probably in debug mode, within
@@ -1117,7 +1123,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throws JUploadException {
         if (null == afterUploadURL)
             return;
-        this.afterUploadURL = normalizeURL(afterUploadURL);
+        if (afterUploadURL.toLowerCase().startsWith("javascript:")) {
+            this.afterUploadURL = afterUploadURL;
+        } else
+            this.afterUploadURL = normalizeURL(afterUploadURL);
     }
 
     /**

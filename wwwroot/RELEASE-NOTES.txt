@@ -2,6 +2,15 @@ TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
 - Use client certificate with the applet.
 
+V3.0.2b2
+- [Feature] afterUploadURL can now be used to execute JavaScript instead of showing
+another JavaScript. In order to do so, afterUploadURL has to start with the string
+"javascript:". If that is the case, the remainder of the string is evaluated as
+JavaScript-expression in the context of the current document.
+- [Fix] Optimized the class-loading in UploadPolicyFactory: If the parameter
+uploadPolicy is unqualified (contains no dots), then it is prefixed with
+"wjhk.jupload2.policies." before trying the first Class.forName(). This eliminates an
+usually unsuccessful try of loading the plain class file.
 V3.0.2b1
 
 - [Change] showStatusBar renamed to showLogWindow (see below)
