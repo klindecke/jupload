@@ -118,12 +118,12 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * @see #onSelectFile(FileData)
      */
     @Override
-    public FileData createFileData(File file) {
-        PictureFileData pfd = new PictureFileData(file, this);
+    public FileData createFileData(File file, File root) {
+        PictureFileData pfd = new PictureFileData(file, root, this);
         if (pfd.isPicture()) {
             return pfd;
         }
-        return new DefaultFileData(file, this);
+        return new DefaultFileData(file, root, this);
     }
 
     /**

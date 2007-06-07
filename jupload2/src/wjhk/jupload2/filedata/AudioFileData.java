@@ -52,8 +52,8 @@ public class AudioFileData extends DefaultFileData {
      * @param file The file to use as data source.
      * @param uploadPolicy The upload policy to apply.
      */
-    public AudioFileData(File file, UploadPolicy uploadPolicy) {
-        super(file, uploadPolicy);
+    public AudioFileData(File file, File root, UploadPolicy uploadPolicy) {
+        super(file, root, uploadPolicy);
     }
 
 }

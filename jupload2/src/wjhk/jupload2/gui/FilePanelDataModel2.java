@@ -166,8 +166,9 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * Add a file to the panel (at the end of the list)
      * 
      * @param file
+     * @param root
      */
-    public void addFile(File file) {
+    public void addFile(File file, File root) {
         if (contains(file)) {
             this.uploadPolicy.displayWarn("File " + file.getName()
                     + " already exists");
@@ -178,7 +179,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
             // - The reference to this newly FileData, or null if an error
             // occurs (for instance: invalid file content,
             // according to the current upload policy).
-            FileData df = this.uploadPolicy.createFileData(file);
+            FileData df = this.uploadPolicy.createFileData(file, root);
             if (df != null) {
                 // The file is Ok, let's add it.
                 this.rows.add(df);

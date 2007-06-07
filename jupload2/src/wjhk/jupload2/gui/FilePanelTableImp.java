@@ -77,35 +77,35 @@ public class FilePanelTableImp extends Panel implements FilePanel {
     }
 
     /**
-     * @see wjhk.jupload2.gui.FilePanel#addFiles(java.io.File[])
+     * @see wjhk.jupload2.gui.FilePanel#addFiles(java.io.File[],java.io.File)
      */
-    public final void addFiles(File[] f) {
+    public final void addFiles(File[] f, File root) {
         if (null != f) {
             for (int i = 0; i < f.length; i++) {
-                addDirectoryFiles(f[i]);
+                addDirectoryFiles(f[i], root);
             }
         }
     }
 
-    private final void addDirectoryFiles(File f) {
+    private final void addDirectoryFiles(File f, File root) {
         if (!f.isDirectory()) {
-            addFileOnly(f);
+            addFileOnly(f, root);
         } else {
             File[] dirFiles = f.listFiles();
             for (int i = 0; i < dirFiles.length; i++) {
                 if (dirFiles[i].isDirectory()) {
-                    addDirectoryFiles(dirFiles[i]);
+                    addDirectoryFiles(dirFiles[i], root);
                 } else {
-                    addFileOnly(dirFiles[i]);
+                    addFileOnly(dirFiles[i], root);
                 }
             }
         }
     }
 
-    private final void addFileOnly(File f) {
+    private final void addFileOnly(File f, File root) {
         // Make sure we don't select the same file twice.
         if (!this.model.contains(f)) {
-            this.model.addFile(f);
+            this.model.addFile(f, root);
         }
     }
 

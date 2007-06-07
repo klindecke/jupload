@@ -118,8 +118,8 @@ public class PictureFileData extends DefaultFileData {
      * {@link #addRotation(int)} method.
      * <UL>
      * <LI>0 means no rotation.
-     * <LI>1 means a rotation of 90° clockwise (word = Ok ??).
-     * <LI>2 means a rotation of 180°.
+     * <LI>1 means a rotation of 90ï¿½ clockwise (word = Ok ??).
+     * <LI>2 means a rotation of 180ï¿½.
      * <LI>3 means a rotation of 900 counterclockwise (word = Ok ??).
      * </UL>
      */
@@ -177,8 +177,8 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @param file The files which data are to be handled by this instance.
      */
-    public PictureFileData(File file, PictureUploadPolicy uploadPolicy) {
-        super(file, uploadPolicy);
+    public PictureFileData(File file, File root, PictureUploadPolicy uploadPolicy) {
+        super(file, root, uploadPolicy);
         // EGR Should be useless
         // this.uploadPolicy = (PictureUploadPolicy) super.uploadPolicy;
         this.storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();

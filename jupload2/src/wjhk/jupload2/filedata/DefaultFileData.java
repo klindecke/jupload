@@ -77,17 +77,22 @@ public class DefaultFileData implements FileData {
      * file is the file about which this FileData contains data.
      */
     private File file;
-    
+
     /**
      * Cached file size
      */
     private long fileSize;
-    
+
     /**
      * Cached file directory
      */
     private String fileDir;
-    
+
+    /**
+     * cached root of this file
+     */
+    private String fileRoot = "";
+
     /**
      * Cached file modification time.
      */
@@ -98,12 +103,14 @@ public class DefaultFileData implements FileData {
      * 
      * @param file The file whose data this instance will give.
      */
-    public DefaultFileData(File file, UploadPolicy uploadPolicy) {
+    public DefaultFileData(File file, File root, UploadPolicy uploadPolicy) {
         this.file = file;
         this.uploadPolicy = uploadPolicy;
         this.fileSize = this.file.length();
         this.fileDir = this.file.getAbsoluteFile().getParent();
         this.fileModified = new Date(this.file.lastModified());
+        if (null != root)
+            this.fileRoot = root.getAbsolutePath();
 
         // Let's load the mime types list.
         if (mimeTypes == null) {
@@ -195,5 +202,15 @@ public class DefaultFileData implements FileData {
     /** @see FileData#getFile() */
     public File getFile() {
         return this.file;
+    }
+
+    /**
+     * @see wjhk.jupload2.filedata.FileData#getRelativeDir()
+     */
+    public String getRelativeDir() {
+        if (null != this.fileRoot && (!this.fileRoot.equals(""))
+                && (this.fileDir.startsWith(this.fileRoot)))
+            return this.fileDir.substring(this.fileRoot.length() + 1);
+        return "";
     }
 }

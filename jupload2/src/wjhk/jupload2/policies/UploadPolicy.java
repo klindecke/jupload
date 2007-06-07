@@ -1002,14 +1002,15 @@ public interface UploadPolicy {
      * @param file The file used to create the FileData instance. This method is
      *            called once for each file selected by the user, even if the
      *            user added several files in one 'shot'.
+     * @param root An optional toplevel directory of a hierarchy (can be null).
      * @return A FileData instance. The exact class depends on the
      *         currentUploadPolicy. Can be null, if the policy performs checks,
      *         and the given file is not Ok for these controls. See
-     *         {@link PictureUploadPolicy#createFileData(File)} for an example.
+     *         {@link PictureUploadPolicy#createFileData(File,File)} for an example.
      *         It's up to the upload policy to display a message to inform the
      *         user that this file won't be added to the file list.
      */
-    public FileData createFileData(File file);
+    public FileData createFileData(File file, File root);
 
     /**
      * This method displays the applet parameter list, according to the current
