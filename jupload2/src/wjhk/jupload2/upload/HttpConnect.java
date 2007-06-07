@@ -28,6 +28,7 @@ package wjhk.jupload2.upload;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -258,14 +259,22 @@ public class HttpConnect {
         req.append(" ").append("HTTP/1.1").append("\r\n");
         req.append("Host: ").append(url.getHost()).append("\r\n");
         req.append("Connection: close\r\n\r\n");
-        s.getOutputStream().write(req.toString().getBytes());
+        OutputStream os = s.getOutputStream();
+        os.write(req.toString().getBytes());
+        os.close();
         if (!(s instanceof SSLSocket))
             s.shutdownOutput();
         String line = in.readLine();
         s.close();
+        if (null == line) {
+            this.uploadPolicy.displayErr("EMPTY HEAD response");
+            return "HTTP/1.1";
+        }
         Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s.*").matcher(line);
-        if (!m.matches())
-            throw new ConnectException("HEAD response: " + line);
+        if (!m.matches()) {
+            this.uploadPolicy.displayErr("Unexpected HEAD response: '" + line + "'");
+            return "HTTP/1.1";
+        }
         this.uploadPolicy.displayDebug("HEAD response: " + line, 40);
         return m.group(1);
     }
