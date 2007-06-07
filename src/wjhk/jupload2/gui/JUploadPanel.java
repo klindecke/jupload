@@ -172,11 +172,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     private JButton browseButton, removeButton, removeAllButton;
 
-    private JFileChooser fileChooser = null;
-
-    private JUploadFileFilter fileFilter = null;
-
-    private JUploadFileView fileView = null;
+    private JUploadFileChooser fileChooser = null;
 
     private FilePanel filePanel = null;
 
@@ -247,25 +243,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         // Setup File Chooser.
         try {
-            this.fileChooser = new JFileChooser();
-            this.fileFilter = new JUploadFileFilter(this.uploadPolicy);
-            this.fileView = new JUploadFileView(this.uploadPolicy,
-                    this.fileChooser);
-
-            // XXX:
-            // This breaks usability. probably use a persistent value of a
-            // cookie later.
-            // this.fileChooser.setCurrentDirectory(new File(System
-            // .getProperty("user.dir")));
-            this.fileChooser
-                    .setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            this.fileChooser.setMultiSelectionEnabled(true);
-            // The file view must be set, whether or not a file filter exists
-            // for this upload policy.
-            this.fileChooser.setFileView(this.fileView);
-            if (this.uploadPolicy.fileFilterGetDescription() != null) {
-                this.fileChooser.setFileFilter(this.fileFilter);
-            }
+            this.fileChooser = new JUploadFileChooser(uploadPolicyParam);
         } catch (Exception e) {
             this.uploadPolicy.displayErr(e);
         }
@@ -483,7 +461,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     if (JFileChooser.APPROVE_OPTION == ret)
                         addFiles(this.fileChooser.getSelectedFiles());
                     // We stop any running task for the JUploadFileView
-                    this.fileView.shutdownNow();
+                    this.fileChooser.shutdownNow();
                 } catch (Exception ex) {
                     this.uploadPolicy.displayErr(ex);
                 }
