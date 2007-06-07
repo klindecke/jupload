@@ -296,4 +296,10 @@ class UploadFileData implements FileData {
         return uploadLength;
     }
 
+    /**
+     * @see wjhk.jupload2.filedata.FileData#getRelativeDir()
+     */
+    public String getRelativeDir() {
+        return this.fileData.getRelativeDir();
+    }
 }

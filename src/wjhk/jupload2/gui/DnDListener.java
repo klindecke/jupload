@@ -86,7 +86,7 @@ public class DnDListener implements DropTargetListener {
             try {
                 List fileList = (List) e.getTransferable().getTransferData(
                         DataFlavor.javaFileListFlavor);
-                this.uploadPanel.addFiles((File[]) fileList.toArray());
+                this.uploadPanel.addFiles((File[]) fileList.toArray(), null);
                 e.getDropTargetContext().dropComplete(true);
             } catch (IOException ioe) {
                 ioe.printStackTrace();

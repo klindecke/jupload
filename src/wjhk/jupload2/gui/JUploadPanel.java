@@ -345,8 +345,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     // ----------------------------------------------------------------------
-    protected void addFiles(File[] f) {
-        this.filePanel.addFiles(f);
+    protected void addFiles(File[] f, File root) {
+        this.filePanel.addFiles(f, root);
         if (0 < this.filePanel.getFilesLength()) {
             this.removeButton.setEnabled(true);
             this.removeAllButton.setEnabled(true);
@@ -412,9 +412,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
                         cps /= kB;
                         unit = this.speedunit_kb_per_second;
                     }
-                    String status = String.format(this.status_msg,
-                            new Integer((int) percent), new Double(cps), unit,
-                            eta);
+                    String status = String.format(this.status_msg, new Integer(
+                            (int) percent), new Double(cps), unit, eta);
                     this.statusLabel.setText(status);
                     this.uploadPolicy.getApplet().getAppletContext()
                             .showStatus(status);
@@ -459,7 +458,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 try {
                     int ret = this.fileChooser.showOpenDialog(new Frame());
                     if (JFileChooser.APPROVE_OPTION == ret)
-                        addFiles(this.fileChooser.getSelectedFiles());
+                        addFiles(this.fileChooser.getSelectedFiles(),
+                                this.fileChooser.getCurrentDirectory());
                     // We stop any running task for the JUploadFileView
                     this.fileChooser.shutdownNow();
                 } catch (Exception ex) {

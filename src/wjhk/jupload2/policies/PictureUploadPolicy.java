@@ -240,11 +240,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      *            file).
      * @return An instance of {@link PictureFileData} or null if file is not a
      *         picture.
-     * @see wjhk.jupload2.policies.UploadPolicy#createFileData(File)
+     * @see wjhk.jupload2.policies.UploadPolicy#createFileData(File,File)
      */
     @Override
-    public FileData createFileData(File file) {
-        PictureFileData pfd = new PictureFileData(file, this);
+    public FileData createFileData(File file, File root) {
+        PictureFileData pfd = new PictureFileData(file, root, this);
         if (pfd.isPicture()) {
             return pfd;
         }

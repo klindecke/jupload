@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: FileData.java 95 2007-05-02 03:27:05Z
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -38,7 +40,7 @@ import wjhk.jupload2.upload.FileUploadThread;
  * interface. The {@link  PictureFileData} contains another implementation of
  * this interface, adapted to manage pictures (rotation, resizing...). <BR>
  * The instance of FileData is created by the
- * {@link UploadPolicy#createFileData(File)} method. This method can be
+ * {@link UploadPolicy#createFileData(File, File)} method. This method can be
  * overrided in a new upoad policy, to create an instance of another FileData.
  * See {@link  PictureFileData} for an example of that.
  * 
@@ -78,8 +80,7 @@ public interface FileData {
     /**
      * This function creates an InputStream from this file. The
      * {@link FileUploadThread} class then reads bytes from it and transfers
-     * them to the webserver. The caller is responsible for closing this
-     * stream.
+     * them to the webserver. The caller is responsible for closing this stream.
      * 
      * @return An InputStream, representing this instance.
      */
@@ -131,5 +132,13 @@ public interface FileData {
      * @return the File instance associated with this row.
      */
     public File getFile();
+
+    /**
+     * Retrieves the path of this file relative to it's root dir
+     * 
+     * @return This instance's relative path or an empty string if it was not
+     *         created using a root parameter.
+     */
+    public String getRelativeDir();
 
 }

@@ -601,10 +601,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * The DefaultUpload accepts all file types: we just return an instance of
      * FileData, without any test.
      * 
-     * @see UploadPolicy#createFileData(File)
+     * @see UploadPolicy#createFileData(File, File)
      */
-    public FileData createFileData(File file) {
-        return new DefaultFileData(file, this);
+    public FileData createFileData(File file, File root) {
+        return new DefaultFileData(file, root, this);
     }
 
     /**

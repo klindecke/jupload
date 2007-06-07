@@ -32,8 +32,9 @@ public interface FilePanel {
      * Add multiple files to this panel.
      * 
      * @param f An array of files to add.
+     * @param root The toplevel of a directory hierarchy to add
      */
-    public void addFiles(File[] f);
+    public void addFiles(File[] f, File root);
 
     /**
      * Retrieve all currently stored files.
