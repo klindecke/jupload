@@ -209,8 +209,12 @@ public class DefaultFileData implements FileData {
      */
     public String getRelativeDir() {
         if (null != this.fileRoot && (!this.fileRoot.equals(""))
-                && (this.fileDir.startsWith(this.fileRoot)))
-            return this.fileDir.substring(this.fileRoot.length() + 1);
+                && (this.fileDir.startsWith(this.fileRoot))) {
+            int skip = this.fileRoot.length();
+            if (!this.fileRoot.endsWith(File.separator))
+                skip++;
+            return this.fileDir.substring(skip);
+        }
         return "";
     }
 }
