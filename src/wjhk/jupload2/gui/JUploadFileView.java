@@ -126,7 +126,7 @@ class IconWorker implements Runnable {
         // this.uploadPolicy.displayDebug("In IconWorker.getIcon("
         // + this.file.getAbsolutePath() + ")", 90);
 
-        switch (status) {
+        switch (this.status) {
             case STATUS_LOADED:
                 return this.icon;
             case STATUS_NOT_LOADED:
@@ -147,7 +147,7 @@ class IconWorker implements Runnable {
      */
     void loadIcon() {
         if (this.status == STATUS_TO_BE_LOADED) {
-            status = STATUS_LOADING;
+            this.status = STATUS_LOADING;
             this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
                     + this.file.getName() + ")", 90);
 
@@ -160,7 +160,7 @@ class IconWorker implements Runnable {
              * this.uploadPolicy.displayWarn(e.getClass().getName() + " in
              * IconWorker.loadIcon for: " + this.file.getAbsolutePath()); }
              */
-            status = STATUS_LOADED;
+            this.status = STATUS_LOADED;
         }
     }
 
@@ -219,7 +219,7 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
         this.fileChooser = fileChooser;
         this.fileChooser.addPropertyChangeListener(this);
 
-        emptyIcon = new ImageIcon(new BufferedImage(ICON_SIZE, ICON_SIZE,
+        this.emptyIcon = new ImageIcon(new BufferedImage(ICON_SIZE, ICON_SIZE,
                 BufferedImage.TYPE_INT_ARGB_PRE));
     }
 
@@ -246,7 +246,8 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
             return null;
         }
         // Ok, let's take the icon.
-        return iconWorker.getIcon() == null ? emptyIcon : iconWorker.getIcon();
+        return iconWorker.getIcon() == null ? this.emptyIcon : iconWorker
+                .getIcon();
     }
 
     synchronized void execute(IconWorker iconWorker) {
@@ -280,14 +281,14 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
      * Lazily mark all jobs as not done. No particular thread management.
      */
     private void stopRunningJobs() {
-        uploadPolicy.displayDebug("Shutting down all IconWorker running jobs",
-                50);
-        Enumeration e = hashMap.elements();
+        this.uploadPolicy.displayDebug(
+                "Shutting down all IconWorker running jobs", 50);
+        Enumeration e = this.hashMap.elements();
         IconWorker iw = null;
         while (e.hasMoreElements()) {
             iw = (IconWorker) e.nextElement();
             if (iw.status == IconWorker.STATUS_TO_BE_LOADED) {
-                uploadPolicy.displayDebug("   Shutting down "
+                this.uploadPolicy.displayDebug("   Shutting down "
                         + iw.file.getAbsolutePath(), 50);
                 iw.status = IconWorker.STATUS_NOT_LOADED;
             }
@@ -305,8 +306,8 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
             // We stops all running job. If the user gets back to this
             // directory, the non calculated icons will be added to the job
             // list.
-            uploadPolicy
-                    .displayDebug("[JUploadFileView] Directory changed", 80);
+            this.uploadPolicy.displayDebug(
+                    "[JUploadFileView] Directory changed", 80);
             stopRunningJobs();
         }
     }
