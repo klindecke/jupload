@@ -261,7 +261,7 @@ public class HttpConnect {
         req.append("Connection: close\r\n\r\n");
         OutputStream os = s.getOutputStream();
         os.write(req.toString().getBytes());
-        os.close();
+        os.flush();
         if (!(s instanceof SSLSocket))
             s.shutdownOutput();
         String line = in.readLine();
