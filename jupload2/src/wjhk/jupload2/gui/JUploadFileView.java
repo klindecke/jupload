@@ -201,7 +201,7 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
     /**
      * Temporary constant: will be replaced by an applet parameter.
      */
-    public final static int ICON_SIZE = 30;
+    public final static int ICON_SIZE = 20;
 
     /**
      * An empty icon, having the good file size.
