@@ -213,7 +213,8 @@ public class DefaultFileData implements FileData {
             int skip = this.fileRoot.length();
             if (!this.fileRoot.endsWith(File.separator))
                 skip++;
-            return this.fileDir.substring(skip);
+            if ((skip >= 0) && (skip < this.fileDir.length()))
+                return this.fileDir.substring(skip);
         }
         return "";
     }
