@@ -572,13 +572,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         Object etype = win.eval("document." + formname + "["
                                 + i + "].type");
                         if (etype instanceof String) {
-                            String t = (String)etype;
+                            String t = (String) etype;
                             if (t.equals("checkbox") || t.equals("radio")) {
                                 Object on = win.eval("document." + formname
                                         + "[" + i + "].checked");
                                 if (on instanceof Boolean) {
-                                    // Skip unchecked checkboxes and radiobuttons
-                                    if (!((Boolean)on).booleanValue())
+                                    // Skip unchecked checkboxes and
+                                    // radiobuttons
+                                    if (!((Boolean) on).booleanValue())
                                         continue;
                                 }
 
@@ -637,9 +638,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         String form = this.uploadPolicy.getFormdata();
         if (null != form)
             sb.append(addFormVariables(bound, form));
-        sb.append(addPostVariable(bound, "mimetype", mimetype));
-        sb.append(addPostVariable(bound, "pathinfo", this.filesToUpload[index].getDirectory()));
-        sb.append(addPostVariable(bound, "relpathinfo", this.filesToUpload[index].getRelativeDir()));
+        sb.append(addPostVariable(bound, "mimetype[]", mimetype));
+        sb.append(addPostVariable(bound, "pathinfo[]", this.filesToUpload[index]
+                .getDirectory()));
+        sb.append(addPostVariable(bound, "relpathinfo[]",
+                this.filesToUpload[index].getRelativeDir()));
 
         // boundary.
         sb.append(bound).append("\r\n");
@@ -712,7 +715,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         for (int i = 0; i < nbFilesToUpload; i++) {
             this.tails[firstFileToUpload + i] = "\r\n"
-                    + addPostVariable(bound, "md5sum", DUMMYMD5);
+                    + addPostVariable(bound, "md5sum[]", DUMMYMD5);
         }
         // The last tail gets an additional "--" in order to tell the Server we
         // have finished.

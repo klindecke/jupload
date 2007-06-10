@@ -3,6 +3,9 @@ TODO list:
 - Use client certificate with the applet.
 
 V3.0.2b2
+- [Fix] renamed POST variables "md5sum", "mimetype", "pathinfo" and "relpathinfo" to
+"md5sum[]", "mimetype[]", "pathinfo[]" and "relpathinfo[]" in order to make them
+work with multi-file-posts and php.
 - [Feature] afterUploadURL can now be used to execute JavaScript instead of showing
 another JavaScript. In order to do so, afterUploadURL has to start with the string
 "javascript:". If that is the case, the remainder of the string is evaluated as
