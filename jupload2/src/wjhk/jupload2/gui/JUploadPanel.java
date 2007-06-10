@@ -45,6 +45,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 import wjhk.jupload2.upload.FileUploadThread;
@@ -338,7 +339,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     private void setupStatusBar() {
-        this.statusLabel = new JLabel(" ");
+        this.statusLabel = new JLabel("JUpload V" + JUploadApplet.VERSION);
         JPanel p = this.uploadPolicy.createStatusBar(this.statusLabel, this);
         if (null != p)
             this.add(p);

@@ -301,7 +301,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
     public Object getValueAt(int row, int col) {
         FileData fileData = getFileDataAt(row);
         if (null == fileData) {
-            this.uploadPolicy.displayErr("Row index out of bounds "
+            this.uploadPolicy.displayWarn("Row index out of bounds "
                     + this.getClass().getName() + ": " + row);
             return null;
         }
