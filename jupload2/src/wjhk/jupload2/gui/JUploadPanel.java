@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: JUploadPanel.java 269 2007-06-10 21:12:43 +0000 (dim., 10 juin 2007)
+// felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -145,9 +146,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     // TODO: translation
     private String timefmt_s = "%1$d seconds";
-
-    // TODO: translation
-    private String status_msg = "JUpload %1$d%% done, Transfer rate: %2$,3.2f %3$s, ETA: %4$s";
 
     /** The popup menu of the applet */
     private JUploadPopupMenu jUploadPopupMenu;
@@ -413,8 +411,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
                         cps /= kB;
                         unit = this.speedunit_kb_per_second;
                     }
-                    String status = String.format(this.status_msg, new Integer(
-                            (int) percent), new Double(cps), unit, eta);
+
+                    String status = uploadPolicy
+                            .getString("uploadStatus", String.format("%1$d%%",
+                                    new Integer((int) percent)), String.format(
+                                    "%1$,3.2f", new Double(cps)), unit, eta);
                     this.statusLabel.setText(status);
                     this.uploadPolicy.getApplet().getAppletContext()
                             .showStatus(status);

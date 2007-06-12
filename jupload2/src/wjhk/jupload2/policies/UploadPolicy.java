@@ -603,18 +603,18 @@ import wjhk.jupload2.gui.JUploadPanel;
  * Below, an example of how to put the applet into a PHP page is shown:
  * </p>
  * <code><pre>
- *   &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
- *     archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
- *     &lt;!-- Applet display size, on the navigator page --&gt;
- *     width=&quot;500&quot; height=&quot;700&quot;
- *     &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
- *     mayscript&gt;
- *     &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
- *          DefaultUploadPolicy is used. The applet behaves like the original
- *          JUpload. (jupload v1) --&gt;
- *     &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
- *     Java 1.5 or higher plugin required.
- *   &lt;/applet&gt;
+ *    &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+ *      archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+ *      &lt;!-- Applet display size, on the navigator page --&gt;
+ *      width=&quot;500&quot; height=&quot;700&quot;
+ *      &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+ *      mayscript&gt;
+ *      &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+ *           DefaultUploadPolicy is used. The applet behaves like the original
+ *           JUpload. (jupload v1) --&gt;
+ *      &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+ *      Java 1.5 or higher plugin required.
+ *    &lt;/applet&gt;
  * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
  * by Ant build. DO NOT CHANGE!! -->
  * 
@@ -1006,9 +1006,9 @@ public interface UploadPolicy {
      * @return A FileData instance. The exact class depends on the
      *         currentUploadPolicy. Can be null, if the policy performs checks,
      *         and the given file is not Ok for these controls. See
-     *         {@link PictureUploadPolicy#createFileData(File,File)} for an example.
-     *         It's up to the upload policy to display a message to inform the
-     *         user that this file won't be added to the file list.
+     *         {@link PictureUploadPolicy#createFileData(File,File)} for an
+     *         example. It's up to the upload policy to display a message to
+     *         inform the user that this file won't be added to the file list.
      */
     public FileData createFileData(File file, File root);
 
@@ -1482,6 +1482,20 @@ public interface UploadPolicy {
      */
     public String getString(String key, String value1, String value2,
             String value3);
+
+    /**
+     * Same as {@link #getString(String, String)}, for three parameters.
+     * 
+     * @param key The key, whose associated text is to retrieve.
+     * @param value1 The first value, which will replace all occurence of {1}
+     * @param value2 The second value, which will replace all occurence of {2}
+     * @param value3 The third value, which will replace all occurence of {3}
+     * @param value4 The fourth value, which will replace all occurence of {4}
+     * @return The associated text.
+     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
+     */
+    public String getString(String key, String value1, String value2,
+            String value3, String value4);
 
     /**
      * Same as {@link #getString(String,String)}, but the given value is an

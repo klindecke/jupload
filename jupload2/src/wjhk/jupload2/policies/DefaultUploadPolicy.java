@@ -756,6 +756,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return ret;
     }
 
+    /** @see UploadPolicy#getString(String,String,String,String,String) */
+    public String getString(String key, String value1, String value2,
+            String value3, String value4) {
+        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
+                value1).replaceAll("\\{2\\}", value2).replaceAll("\\{3\\}",
+                value3).replaceAll("\\{4\\}", value4);
+        return ret;
+    }
+
     /**
      * @see UploadPolicy#getString(String,int)
      */
