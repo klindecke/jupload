@@ -9,11 +9,15 @@
 <div align="center"><script language="JavaScript"
     type="text/javascript">
 	//All managed parameters are below, with there default value :
+	appletWidth = "640";
+	appletHeight = "300";
+
 	postURL = "http://jupload.sourceforge.net/upload_dummy.php";
 	urlToSendErrorTo = ""; //Careful: log info will be truncated, if sent to a mailto: link.
 	uploadPolicy = "";
 	
 	afterUploadURL = "";
+	allowHttpPersistent = "";
 	filenameEncoding = "";
 	highQualityPreview = "";
 	lang = "";
@@ -94,6 +98,15 @@
 		case "afterUploadURL":
 			afterUploadURL = val;
 			break;
+		case "allowHttpPersistent":
+			allowHttpPersistent = val;
+			break;
+		case "appletHeight":
+			appletHeight = val;
+			break;
+		case "appletWidth":
+			appletWidth = val;
+			break;
 		case "debugLevel":
 			debugLevel = val;
 			break;
@@ -148,15 +161,26 @@
 		array = reParam.exec(query);
 	}//while
 
+	if (appletWidth=="") {
+		appletWidth = "640";
+	}
+	if (appletHeight=="") {
+		appletHeight = "300";
+	}
 
 	//First the form, with default values given by the query parameters.
 	document.writeln('<H3>Enter Jupload parameters</H3>');
 	document.writeln('<FORM>');
 	document.writeln('<TABLE BORDER=0>');
 	document.writeln('<TR><TD><TABLE>');
+	
+	writeInputText("appletHeight", appletHeight, "");
+	writeInputText("appletWidth", appletWidth, "");
+
 	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList, '');
 	writeInputText("postURL", postURL, " (you can now put https URL here)");
 	writeInputText("afterUploadURL", afterUploadURL, "");
+	writeInputText("allowHttpPersistent", allowHttpPersistent, "");
 	writeInputText("debugLevel", debugLevel, "");
 	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"], '');	
 	writeInputSelect("lang", lang, langList, 'Japanese needs specific JRE extension');
@@ -184,12 +208,13 @@
 	document.writeln('<P><APPLET ');
 	document.writeln('	CODE    = "wjhk.jupload2.JUploadApplet" ');
 	document.writeln('	ARCHIVE = "wjhk.jupload.jar, jakarta-commons-oro.jar, jakarta-commons-net.jar" ');
-	document.writeln('	WIDTH   = "640" ');
-	document.writeln('	HEIGHT  = "300"');
+	document.writeln('	WIDTH   = "' + appletWidth + '" ');
+	document.writeln('	HEIGHT  = "' + appletHeight + '"');
 	document.writeln('	MAYSCRIPT >');
 	writeParam("postURL", postURL);
 	writeParam("uploadPolicy", uploadPolicy);
 	writeParam("afterUploadURL", afterUploadURL);
+	writeParam("allowHttpPersistent", allowHttpPersistent);
 	writeParam("debugLevel", debugLevel);
 	writeParam("filenameEncoding", filenameEncoding);
 	writeParam("lang", lang);
