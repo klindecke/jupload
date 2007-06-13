@@ -507,7 +507,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug("HTTP status: " + msg, 40);
         if (status != 200)
             throw new JUploadExceptionUploadFailed("Received HTTP status "
-                    + msg);
+                    + msg + "(status=" + status + ")");
 
         if (!this.stringUploadError.equals("")) {
             Matcher m = this.patternError.matcher(body);
@@ -1067,8 +1067,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     + this.resourceBundle.getLocale().getCountry(), 20);
 
             displayDebug("afterUploadURL: " + getAfterUploadURL(), 20);
-            displayDebug("  allowedFileExtensions: "
-                    + getAllowedFileExtensions(), 20);
+            displayDebug("allowHttpPersistent: " + getAllowHttpPersistent(), 20);
+            displayDebug(
+                    "allowedFileExtensions: " + getAllowedFileExtensions(), 20);
             displayDebug("debug: " + this.debugLevel, 1);
             displayDebug("filenameEncoding: " + this.filenameEncoding, 20);
             displayDebug("lang: " + this.lang, 20);
