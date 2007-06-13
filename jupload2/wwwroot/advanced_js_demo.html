@@ -30,6 +30,7 @@
 	debugLevel = "";
 	serverProtocol = "";
 	showStatusBar = "";
+	stringUploadError = "";
 	stringUploadSuccess = "";
 	
 	//Some parameters can only be choosen from an existing list:
@@ -146,6 +147,9 @@
 		case "showStatusBar":
 			showStatusBar = val;
 			break;
+		case "stringUploadError":
+			stringUploadError = val;
+			break;
 		case "stringUploadSuccess":
 			stringUploadSuccess = val;
 			break;
@@ -193,6 +197,7 @@
 	writeInputText("maxPicHeight", maxPicHeight, "");
 	writeInputText("maxPicWidth", maxPicWidth, "");
 	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
+	writeInputText("stringUploadError", stringUploadError, "");
 	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
 	writeInputText("showStatusBar", showStatusBar, "");
 	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
@@ -226,6 +231,7 @@
 	writeParam("maxPicWidth", maxPicWidth);
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);
 	writeParam("showStatusBar", showStatusBar);
+	writeParam("stringUploadError", stringUploadError);
 	writeParam("stringUploadSuccess", stringUploadSuccess);
 	document.writeln('Java 1.5 or higher plugin required.');
 	document.writeln('</APPLET>');
