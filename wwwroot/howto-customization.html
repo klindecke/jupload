@@ -277,7 +277,22 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  remainder of the string is evaluated as JavaScript expression in the current
  document context. For example: If afterUloadURL is<br>
  <code>"alert('Thanks for the upload');"</code>,</br> then after a
- successful upload, a messagebox would pop up.</td>
+ successful upload, a messagebox would pop up. Since 3.0.2b3 there are now
+ three placeholders available which can be used as parameters in function
+ calls:
+ <ul>
+ <li><code>%success%</code> is replaced by <b>true</b> or <b>false</b>
+ depending on upload success.
+ <li><code>%msg%</code> is replaced by an unquoted string, containing the
+ error message received from the server (if any). Inside that string, all
+ occurances of the single-quote character (hex 27) are quoted by backslashes.
+ <li><code>%body%</code> is replaced by an unquoted string, containing the
+ complete response body. Inside that string, all occurances of the
+ single-quote character (hex 27) are quoted by backslashes.
+ </ul>
+ So if you set afterUloadURL to <code>"alert('%body%');"</code>, then the
+ resulting message box would show the body content of the last server
+ response.</td>
  </tr>
  <tr>
  <td>albumId</td>
@@ -782,18 +797,18 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  Below, an example of how to put the applet into a PHP page is shown:
  </p>
  <code><pre>
-   &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
-     archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
-     &lt;!-- Applet display size, on the navigator page --&gt;
-     width=&quot;500&quot; height=&quot;700&quot;
-     &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
-     mayscript&gt;
-     &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
-          DefaultUploadPolicy is used. The applet behaves like the original
-          JUpload. (jupload v1) --&gt;
-     &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
-     Java 1.5 or higher plugin required.
-   &lt;/applet&gt;
+    &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+      archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+      &lt;!-- Applet display size, on the navigator page --&gt;
+      width=&quot;500&quot; height=&quot;700&quot;
+      &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+      mayscript&gt;
+      &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+           DefaultUploadPolicy is used. The applet behaves like the original
+           JUpload. (jupload v1) --&gt;
+      &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+      Java 1.5 or higher plugin required.
+    &lt;/applet&gt;
  </pre></code> <!-- ANT_INSERTDOC_END -->
 <!-- ATTENTION: The previous comment is used by Ant build. DO NOT CHANGE!! -->
 <p></p>
