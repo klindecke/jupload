@@ -146,21 +146,22 @@ class IconWorker implements Runnable {
      * {@link #STATUS_TO_BE_LOADED}. If not, this method does nothing.
      */
     void loadIcon() {
-        if (this.status == STATUS_TO_BE_LOADED) {
-            this.status = STATUS_LOADING;
-            this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
-                    + this.file.getName() + ")", 90);
-
-            // try {
-            this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
-            this.fileChooser.repaint();
-            /*
-             * } catch (NullPointerException e) { // No action, we mask the
-             * error status = STATUS_ERROR_WHILE_LOADING;
-             * this.uploadPolicy.displayWarn(e.getClass().getName() + " in
-             * IconWorker.loadIcon for: " + this.file.getAbsolutePath()); }
-             */
-            this.status = STATUS_LOADED;
+        try {
+            if (this.status == STATUS_TO_BE_LOADED) {
+                this.status = STATUS_LOADING;
+                this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
+                        + this.file.getName() + ")", 90);
+    
+                this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
+                this.fileChooser.repaint(0);
+    
+                this.status = STATUS_LOADED;
+                //A try to minimize memory footprint 
+                Runtime.getRuntime().gc();
+            }
+        } catch (OutOfMemoryError e) {
+            uploadPolicy.displayWarn("OutOfMemoryError in IconWorker.loadIcon()");
+            this.status = STATUS_ERROR_WHILE_LOADING;
         }
     }
 
@@ -223,33 +224,6 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
                 BufferedImage.TYPE_INT_ARGB_PRE));
     }
 
-    /**
-     * @see javax.swing.filechooser.FileView#getIcon(java.io.File)
-     */
-    @Override
-    public Icon getIcon(File file) {
-        if (file.isDirectory()) {
-            // We let the JVM display the system icon for directories.
-            return null;
-        }
-        IconWorker iconWorker = this.hashMap.get(file.getAbsolutePath());
-        if (iconWorker == null) {
-            // This file has not been loaded.
-            iconWorker = new IconWorker(this.uploadPolicy, this.fileChooser,
-                    this, file);
-            // We store it in the global Icon container.
-            this.hashMap.put(file.getAbsolutePath(), iconWorker);
-            // Then, we ask the current Thread to load its icon. It will be done
-            // later.
-            execute(iconWorker);
-            // We currently have no icon to display.
-            return null;
-        }
-        // Ok, let's take the icon.
-        return iconWorker.getIcon() == null ? this.emptyIcon : iconWorker
-                .getIcon();
-    }
-
     synchronized void execute(IconWorker iconWorker) {
         this.uploadPolicy.displayDebug("[JUploadFileView.execute] Adding "
                 + iconWorker.file.getAbsolutePath(), 90);
@@ -268,7 +242,7 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
      * Stop all current and to come thread. To be called when the file chooser
      * is closed.
      */
-    public void shutdownNow() {
+    synchronized public void shutdownNow() {
         if (this.executorService != null) {
             stopRunningJobs();
 
@@ -310,5 +284,59 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
                     "[JUploadFileView] Directory changed", 80);
             stopRunningJobs();
         }
+    }
+
+    // ///////////////////////////////////////////////////////////////////////:
+    // /////////////////////// Methods from the FileView class
+    // ///////////////////////////////////////////////////////////////////////:
+
+    /** #see {@link javax.swing.filechooser.FileView#getDescription(File))} */
+    @Override
+    public String getDescription(File f) {
+        return null; // let the L&F FileView figure this out
+    }
+
+    /**
+     * @see javax.swing.filechooser.FileView#getIcon(java.io.File)
+     */
+    @Override
+    public Icon getIcon(File file) {
+        if (file.isDirectory()) {
+            // We let the L&F display the system icon for directories.
+            return null;
+        }
+        IconWorker iconWorker = this.hashMap.get(file.getAbsolutePath());
+        if (iconWorker == null) {
+            // This file has not been loaded.
+            iconWorker = new IconWorker(this.uploadPolicy, this.fileChooser,
+                    this, file);
+            // We store it in the global Icon container.
+            this.hashMap.put(file.getAbsolutePath(), iconWorker);
+            // Then, we ask the current Thread to load its icon. It will be done
+            // later.
+            execute(iconWorker);
+            // We currently have no icon to display.
+            return null;
+        }
+        // Ok, let's take the icon.
+        return iconWorker.getIcon();
+    }
+
+    /** #see {@link javax.swing.filechooser.FileView#getName(File)} */
+    @Override
+    public String getName(File f) {
+        return null; // let the L&F FileView figure this out
+    }
+
+    /** #see {@link javax.swing.filechooser.FileView#getTypeDescription(File)} */
+    @Override
+    public String getTypeDescription(File f) {
+        return null; // let the L&F FileView figure this out
+    }
+
+    /** #see {@link javax.swing.filechooser.FileView#isTraversable(File)} */
+    @Override
+    public Boolean isTraversable(File f) {
+        return null; // let the L&F FileView figure this out
     }
 }
