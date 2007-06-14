@@ -98,7 +98,22 @@ import wjhk.jupload2.gui.JUploadPanel;
  * remainder of the string is evaluated as JavaScript expression in the current
  * document context. For example: If afterUloadURL is<br>
  * <code>"alert('Thanks for the upload');"</code>,</br> then after a
- * successful upload, a messagebox would pop up.</td>
+ * successful upload, a messagebox would pop up. Since 3.0.2b3 there are now
+ * three placeholders available which can be used as parameters in function
+ * calls:
+ * <ul>
+ * <li><code>%success%</code> is replaced by <b>true</b> or <b>false</b>
+ * depending on upload success.
+ * <li><code>%msg%</code> is replaced by an unquoted string, containing the
+ * error message received from the server (if any). Inside that string, all
+ * occurances of the single-quote character (hex 27) are quoted by backslashes.
+ * <li><code>%body%</code> is replaced by an unquoted string, containing the
+ * complete response body. Inside that string, all occurances of the
+ * single-quote character (hex 27) are quoted by backslashes.
+ * </ul>
+ * So if you set afterUloadURL to <code>"alert('%body%');"</code>, then the
+ * resulting message box would show the body content of the last server
+ * response.</td>
  * </tr>
  * <tr>
  * <td>albumId</td>

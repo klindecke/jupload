@@ -1,6 +1,13 @@
 TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
-- Use client certificate with the applet.
+
+V3.0.2b3
+- [Fix] HTTP response handling was broken. We now use raw byte I/O and apply
+charset conversion in one single step at the end of the response. Use
+Content-Length, if available. Use charset attribute of the Content-Type header.
+if available.
+- [Feature] Added placeholders for javascript in afterUploadURL:
+%success%, %msg% and %body. See howto-customization.html for a detailed description.
 
 V3.0.2b2
 - [Fix] renamed POST variables "md5sum", "mimetype", "pathinfo" and "relpathinfo" to
