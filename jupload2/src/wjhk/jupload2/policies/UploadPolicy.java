@@ -1536,4 +1536,19 @@ public interface UploadPolicy {
      *            to property_str. This allows to have dynamic localized text.
      */
     public void alert(String key, String arg1);
+
+    /**
+     * Retrieve the body of the last server response.
+     * 
+     * @return The string containing the last server response (body);
+     */
+    public String getLastResponseBody();
+
+    /**
+     * Retrieve the status/error message of the last server response.
+     * 
+     * @return The string containing either the last server status or (if the
+     *         error regex matches, the parsed error message.
+     */
+    public String getLastResponseMessage();
 }

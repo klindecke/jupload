@@ -232,6 +232,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     private String afterUploadTarget = UploadPolicy.DEFAULT_AFTER_UPLOAD_TARGET;
 
+    private String lastResponseBody = null;
+
+    private String lastResponseMessage = null;
+
     private int sslVerifyCert = InteractiveTrustManager.NONE;
 
     private final static String CRLF = System.getProperty("line.separator");
@@ -504,10 +508,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public boolean checkUploadSuccess(int status, String msg, String body)
             throws JUploadException {
+        this.lastResponseBody = body;
+        this.lastResponseMessage = msg;
         displayDebug("HTTP status: " + msg, 40);
         if (status != 200)
             throw new JUploadExceptionUploadFailed("Received HTTP status "
-                    + msg + "(status=" + status + ")");
+                    + msg);
 
         if (!this.stringUploadError.equals("")) {
             Matcher m = this.patternError.matcher(body);
@@ -521,6 +527,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 }
                 // Let's display the error message to the user.
                 alertStr(errmsg);
+                this.lastResponseMessage = errmsg;
 
                 throw new JUploadExceptionUploadFailed(getClass().getName()
                         + ".checkUploadSuccess(): " + errmsg);
@@ -546,6 +553,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 + "\" was not found in the response body");
     } // checkUploadSuccess
 
+    private String jsString(String s) {
+        return "'" + s.replaceAll("'", "\\'") + "'";
+    }
+
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
      */
@@ -554,20 +565,33 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // If there was no error, and afterUploadURL is defined, let's try to go
         // to this URL.
         String url = getAfterUploadURL();
-        if (e == null && url != null) {
+        if (url != null) {
             try {
-                String target = getAfterUploadTarget();
-                if (getDebugLevel() >= 100) {
-                    alertStr("No switch to getAfterUploadURL, because debug level is "
-                            + getDebugLevel() + " (>=100)");
-                } else {
-                    if (url.toLowerCase().startsWith("javascript:")) {
-                        // A JavaScript expression was specified. Execute it.
-                        JSObject.getWindow(getApplet()).eval(url.substring(11));
+                if (url.toLowerCase().startsWith("javascript:")) {
+                    // A JavaScript expression was specified. Execute it.
+                    String expr = url.substring(11);
+                    if (expr.contains("%msg%"))
+                        expr = expr.replaceAll("%msg%",
+                                jsString(getLastResponseMessage()));
+                    if (expr.contains("%body%"))
+                        expr = expr.replaceAll("%body%",
+                                jsString(getLastResponseBody()));
+                    if (expr.contains("%success%"))
+                        expr = expr.replaceAll("%success%",
+                                (null == e) ? "true" : "false");
+                    JSObject.getWindow(getApplet()).eval(expr);
+                    return;
+                }
+                if (null != e) {
+                    String target = getAfterUploadTarget();
+                    if (getDebugLevel() >= 100) {
+                        alertStr("No switch to getAfterUploadURL, because debug level is "
+                                + getDebugLevel() + " (>=100)");
                     } else {
                         // Let's change the current URL to edit names and
-                        // comments, for the selected album. Ok, let's go and
-                        // add names and comments to the newly updated pictures.
+                        // comments, for the selected album. Ok, let's go
+                        // and add names and comments to the newly updated
+                        // pictures.
                         getApplet().getAppletContext().showDocument(
                                 new URL(url),
                                 (null == target) ? "_self" : target);
@@ -1642,5 +1666,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public Icon fileViewGetIcon(@SuppressWarnings("unused")
     File file) {
         return null;
+    }
+
+    /**
+     * @see wjhk.jupload2.policies.UploadPolicy#getLastResponseBody()
+     */
+    public String getLastResponseBody() {
+        return (null != this.lastResponseBody) ? this.lastResponseBody : "";
+    }
+
+    /**
+     * @see wjhk.jupload2.policies.UploadPolicy#getLastResponseMessage()
+     */
+    public String getLastResponseMessage() {
+        return (null != this.lastResponseMessage) ? this.lastResponseMessage
+                : "";
     }
 }
