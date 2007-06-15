@@ -582,7 +582,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     JSObject.getWindow(getApplet()).eval(expr);
                     return;
                 }
-                if (null != e) {
+                if (null == e) {
                     String target = getAfterUploadTarget();
                     if (getDebugLevel() >= 100) {
                         alertStr("No switch to getAfterUploadURL, because debug level is "
