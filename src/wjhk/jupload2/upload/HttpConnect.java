@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: HttpConnect.java 259 2007-06-07 14:18:23 +0000 (jeu., 07 juin 2007)
+// felfert $
 //
 // jupload - A file upload applet.
 //
@@ -49,6 +50,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 
+import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -235,7 +237,8 @@ public class HttpConnect {
     public String getProtocol() throws URISyntaxException,
             KeyManagementException, NoSuchAlgorithmException,
             UnknownHostException, KeyStoreException, CertificateException,
-            IllegalArgumentException, UnrecoverableKeyException, IOException {
+            IllegalArgumentException, UnrecoverableKeyException, IOException,
+            JUploadException {
         URL url = new URL(this.uploadPolicy.getPostURL());
         Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
         boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
@@ -270,13 +273,60 @@ public class HttpConnect {
             this.uploadPolicy.displayErr("EMPTY HEAD response");
             return "HTTP/1.1";
         }
-        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s.*").matcher(line);
+        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(\\d*)\\s.*").matcher(
+                line);
         if (!m.matches()) {
-            this.uploadPolicy.displayErr("Unexpected HEAD response: '" + line + "'");
+            this.uploadPolicy.displayErr("Unexpected HEAD response: '" + line
+                    + "'");
             return "HTTP/1.1";
         }
+        // ////////////////////////////////////////////////////
+        // The line received is valid, let's analyse it.
+
+        // First: do we need some kind of authentication:
+        int httpStatus = 0;
+        try {
+            httpStatus = Integer.parseInt(m.group(2));
+        } catch (NumberFormatException e) {
+            this.uploadPolicy
+                    .displayErr("NumberFormatException when reading the HTTP response code in HTTPConnect.getProtocol ("
+                            + m.group(2) + ")");
+            // Let's transmit the error...
+            throw new JUploadException(e);
+        }
+        // Let's manage some particular return code
+        switch (httpStatus) {
+            case 401:
+                manageServerAuthentication();
+                break;
+            case 407:
+                manageProxyAuthentication();
+                break;
+        }
+
+        // Ok, let's go.
         this.uploadPolicy.displayDebug("HEAD response: " + line, 40);
         return m.group(1);
+    }// getProtocol()
+
+    /**
+     * Manage the basic authentication (and the digest authentication) to the
+     * server.
+     */
+    private void manageServerAuthentication() {
+        // TODO: Do something here ...
+        uploadPolicy
+                .displayWarn("HTTP status 401 (authentication needed) is not currently implemented in JUpload");
+    }
+
+    /**
+     * Manage the basic authentication (and the digest authentication) to the
+     * server.
+     */
+    private void manageProxyAuthentication() {
+        // TODO: Do something here ...
+        uploadPolicy
+                .displayWarn("HTTP status 407 (proxy authentication needed) is not currently implemented in JUpload");
     }
 
     /**
