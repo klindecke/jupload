@@ -116,6 +116,7 @@ public class JUploadApplet extends Applet {
         } catch (final Exception e) {
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
+            //TODO Translate this sentence
             JOptionPane
                     .showMessageDialog(
                             null,
