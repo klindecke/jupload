@@ -273,7 +273,7 @@ public class HttpConnect {
             this.uploadPolicy.displayErr("EMPTY HEAD response");
             return "HTTP/1.1";
         }
-        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(\\d*)\\s.*").matcher(
+        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(\\d+)\\s.*").matcher(
                 line);
         if (!m.matches()) {
             this.uploadPolicy.displayErr("Unexpected HEAD response: '" + line
