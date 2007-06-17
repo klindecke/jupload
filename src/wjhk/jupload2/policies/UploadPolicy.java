@@ -1,6 +1,5 @@
 //
-// $Id: UploadPolicy.java 206 2007-05-29 08:19:53 +0000 (mar., 29 mai 2007)
-// etienne_sf $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -1459,70 +1458,6 @@ public interface UploadPolicy {
     public String getString(String key);
 
     /**
-     * Retrive a local property. This allows localization. All strings are
-     * stored in the property files in the wjhk.jupload2.lang package. <br>
-     * All occurences of <b>{1}</b> in the value (corresponding to key) are
-     * replaced by value1. <br>
-     * Sample : <br>
-     * Love=Oh {1}, I love you so much ... <br>
-     * Call it by <i>getString("Love", "John Smith")</i> ... &nbsp; ;-)
-     * 
-     * @param key The key, whose associated text is to retrieve.
-     * @param value1 The value, which will replace all occurence of {1}
-     * @return The associated text.
-     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
-     */
-    public String getString(String key, String value1);
-
-    /**
-     * Same as {@link #getString(String, String)}, for two parameters.
-     * 
-     * @param key The key, whose associated text is to retrieve.
-     * @param value1 The first value, which will replace all occurence of {1}
-     * @param value2 The second value, which will replace all occurence of {2}
-     * @return The associated text.
-     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
-     */
-    public String getString(String key, String value1, String value2);
-
-    /**
-     * Same as {@link #getString(String, String)}, for three parameters.
-     * 
-     * @param key The key, whose associated text is to retrieve.
-     * @param value1 The first value, which will replace all occurence of {1}
-     * @param value2 The second value, which will replace all occurence of {2}
-     * @param value3 The third value, which will replace all occurence of {3}
-     * @return The associated text.
-     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
-     */
-    public String getString(String key, String value1, String value2,
-            String value3);
-
-    /**
-     * Same as {@link #getString(String, String)}, for three parameters.
-     * 
-     * @param key The key, whose associated text is to retrieve.
-     * @param value1 The first value, which will replace all occurence of {1}
-     * @param value2 The second value, which will replace all occurence of {2}
-     * @param value3 The third value, which will replace all occurence of {3}
-     * @param value4 The fourth value, which will replace all occurence of {4}
-     * @return The associated text.
-     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
-     */
-    public String getString(String key, String value1, String value2,
-            String value3, String value4);
-
-    /**
-     * Same as {@link #getString(String,String)}, but the given value is an
-     * integer.
-     * 
-     * @param key The key, whose associated text is to retrieve.
-     * @param value1 The value, which will replace all occurence of {1}
-     * @return The associated text.
-     */
-    public String getString(String key, int value1);
-
-    /**
      * alert displays a MessageBox with a unique 'Ok' button, like the
      * javascript alert function.
      * 
@@ -1540,17 +1475,6 @@ public interface UploadPolicy {
      * @see #alert(String)
      */
     void alertStr(String str);
-
-    /**
-     * alert displays a MessageBox with a unique 'Ok' button, like the
-     * javascript alert function.
-     * 
-     * @param key The string identifying the text to display, depending on the
-     *            current language.
-     * @param arg1 A string that will replace all {1} in the text corresponding
-     *            to property_str. This allows to have dynamic localized text.
-     */
-    public void alert(String key, String arg1);
 
     /**
      * Retrieve the body of the last server response.

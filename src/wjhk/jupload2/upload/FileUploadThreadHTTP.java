@@ -1,6 +1,5 @@
 //
-// $Id: FileUploadThreadHTTP.java 144 2007-05-14 08:44:19 +0000 (lun., 14 mai
-// 2007) etienne_sf $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -486,9 +485,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     m = pContentTypeCs.matcher(line);
                     if (m.matches())
                         charset = m.group(1);
-                    //m = pSetCookie.matcher(line);
-                    //if (m.matches())
-                    //    this.cookies.parseCookieHeader(m.group(1));
+                    m = pSetCookie.matcher(line);
+                    if (m.matches())
+                        this.cookies.parseCookieHeader(m.group(1));
                     if (line.length() == 0) {
                         // Next lines will be the http body (or perhaps we
                         // already are in the body, but it's Ok anyway)

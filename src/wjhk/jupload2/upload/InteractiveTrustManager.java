@@ -61,6 +61,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
+import wjhk.jupload2.policies.UploadPolicy;
+
 /**
  * An implementation of {@link javax.net.ssl.X509TrustManager} which can operate
  * in different modes. If mode is {@link #NONE}, then any server certificate is
@@ -97,6 +99,8 @@ public class InteractiveTrustManager implements X509TrustManager,
      */
     public final static int STRICT = SERVER + CLIENT;
 
+    private UploadPolicy uploadPolicy;
+
     private int mode = STRICT;
 
     private String hostname;
@@ -131,15 +135,16 @@ public class InteractiveTrustManager implements X509TrustManager,
 
     private String getPassword(String storename) {
         JPasswordField pwf = new JPasswordField(16);
-        JLabel l = new JLabel(storename + " password:");
+        JLabel l = new JLabel(String.format(this.uploadPolicy
+                .getString("itm_prompt_pass"), storename));
         l.setLabelFor(pwf);
         JPanel p = new JPanel(new BorderLayout(10, 0));
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         p.add(l, BorderLayout.LINE_START);
         p.add(pwf, BorderLayout.LINE_END);
-        int res = JOptionPane.showConfirmDialog(null, p, "Enter " + storename
-                + " password", JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE);
+        int res = JOptionPane.showConfirmDialog(null, p, String.format(
+                this.uploadPolicy.getString("itm_title_pass"), storename),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (res == JOptionPane.OK_OPTION)
             return new String(pwf.getPassword());
         return null;
@@ -168,18 +173,19 @@ public class InteractiveTrustManager implements X509TrustManager,
     /**
      * Create a new instance.
      * 
-     * @param mode The desired mode of this instance.
+     * @param p The UploadPolicy to use for this instance.
      * @param passwd An optional password for the truststore.
      * @throws NoSuchAlgorithmException
      * @throws KeyStoreException
      * @throws CertificateException
      * @throws UnrecoverableKeyException
      */
-    public InteractiveTrustManager(int mode, String hostname, String passwd)
-            throws NoSuchAlgorithmException, KeyStoreException,
+    public InteractiveTrustManager(UploadPolicy p, String hostname,
+            String passwd) throws NoSuchAlgorithmException, KeyStoreException,
             CertificateException, IllegalArgumentException,
             UnrecoverableKeyException {
-        this.mode = mode;
+        this.mode = p.getSslVerifyCert();
+        this.uploadPolicy = p;
         if ((this.mode & SERVER) != 0) {
             if (null == passwd)
                 // The default password as distributed by Sun.
@@ -215,7 +221,8 @@ public class InteractiveTrustManager implements X509TrustManager,
                                 .getMessage()
                                 .equals(
                                         "Keystore was tampered with, or password was incorrect")) {
-                            passwd = getPassword("Truststore");
+                            passwd = getPassword(this.uploadPolicy
+                                    .getString("itm_tstore"));
                             if (null != passwd)
                                 continue;
                         }
@@ -325,32 +332,38 @@ public class InteractiveTrustManager implements X509TrustManager,
             String kv[] = tok.split("=", 2);
             if (kv.length == 2) {
                 if (kv[0].equals("C"))
-                    ret.append("<tr><td>Country:</td><td>").append(kv[1])
-                            .append("</td></tr>\n");
+                    ret.append("<tr><td>)").append(
+                            this.uploadPolicy.getString("itm_cert_C")).append(
+                            "</td></tr>\n");
                 if (kv[0].equals("CN")) {
                     boolean ok = true;
                     if (null != cn)
                         ok = cn.equals(kv[1]);
-                    ret.append("<tr><td>Common name:</td><td");
+                    ret.append("<tr><td>").append(
+                            this.uploadPolicy.getString("itm_cert_CN")).append(
+                            "</td><td");
                     ret.append(ok ? ">" : " class=\"err\">").append(kv[1])
                             .append("</td></tr>\n");
                     if (!ok)
-                        reason
-                                .add("The certificate common name does not match the hostname ("
-                                        + cn + ")");
+                        reason.add(String.format(this.uploadPolicy
+                                .getString("itm_reason_cnmatch"), cn));
                 }
                 if (kv[0].equals("L"))
-                    ret.append("<tr><td>Locality:</td><td>").append(kv[1])
-                            .append("</td></tr>\n");
+                    ret.append("<tr><td>").append(
+                            this.uploadPolicy.getString("itm_cert_L")).append(
+                            "</td><td>").append(kv[1]).append("</td></tr>\n");
                 if (kv[0].equals("ST"))
-                    ret.append("<tr><td>State or province:</td><td>").append(
-                            kv[1]).append("</td></tr>\n");
+                    ret.append("<tr><td>").append(
+                            this.uploadPolicy.getString("itm_cert_ST")).append(
+                            "</td><td>").append(kv[1]).append("</td></tr>\n");
                 if (kv[0].equals("O"))
-                    ret.append("<tr><td>Organization:</td><td>").append(kv[1])
-                            .append("</td></tr>\n");
+                    ret.append("<tr><td>").append(
+                            this.uploadPolicy.getString("itm_cert_O")).append(
+                            "</td><td>").append(kv[1]).append("</td></tr>\n");
                 if (kv[0].equals("OU"))
-                    ret.append("<tr><td>Organizational unit:</td><td>").append(
-                            kv[1]).append("</td></tr>\n");
+                    ret.append("<tr><td>").append(
+                            this.uploadPolicy.getString("itm_cert_OU")).append(
+                            "</td><td>").append(kv[1]).append("</td></tr>\n");
             }
         }
         return ret.toString();
@@ -361,15 +374,15 @@ public class InteractiveTrustManager implements X509TrustManager,
         boolean expired = false;
         boolean notyet = false;
         Vector<String> reason = new Vector<String>();
-        reason.add("Certificate issuer is not trusted.");
+        reason.add(this.uploadPolicy.getString("itm_reason_itrust"));
         try {
             c.checkValidity();
         } catch (CertificateExpiredException e1) {
             expired = true;
-            reason.add("The certificate is expired.");
+            reason.add(this.uploadPolicy.getString("itm_reason_expired"));
         } catch (CertificateNotYetValidException e2) {
             notyet = true;
-            reason.add("The certificate is not yet valid.");
+            reason.add(this.uploadPolicy.getString("itm_reason_notyet"));
         }
 
         StringBuffer msg = new StringBuffer();
@@ -378,7 +391,8 @@ public class InteractiveTrustManager implements X509TrustManager,
         msg.append("td, th, p, body { ");
         msg.append("font-family: Arial, Helvetica, sans-serif; ");
         msg.append("font-size: 12pt; ");
-        // PLAF hassle. The PLAF renders controls with different text colors, but
+        // PLAF hassle. The PLAF renders controls with different text colors,
+        // but
         // does not set SystemColor.controlText. So we create a dummy button and
         // retrieve its text color.
         Integer ii = new Integer(
@@ -389,23 +403,34 @@ public class InteractiveTrustManager implements X509TrustManager,
         msg.append(".err { color: red; }\n");
         msg.append("</style>\n");
         msg.append("</head><body>");
-        msg
-                .append("<h3>The certificate, presented by the server could not be verified.</h3>");
-        msg.append("<h4>Certificate details:</h4>");
+        msg.append("<h3>").append(
+                this.uploadPolicy.getString("itm_fail_verify")).append("</h3>");
+        msg.append("<h4>").append(
+                this.uploadPolicy.getString("itm_cert_details"))
+                .append("</h4>");
         msg.append("<table>");
-        msg.append("<tr><th colspan=2>Subject:</th></tr>");
+        msg.append("<tr><th colspan=2>").append(
+                this.uploadPolicy.getString("itm_cert_subject")).append(
+                "</th></tr>");
         msg.append(formatDN(c.getSubjectX500Principal().getName(),
                 this.hostname, reason));
-        msg.append("<tr><td>Not before:</td>");
+        msg.append("<tr><td>").append(
+                this.uploadPolicy.getString("itm_cert_nbefore"))
+                .append("</td>");
         msg.append(notyet ? "<td class=\"err\">" : "<td>").append(
                 c.getNotBefore()).append("</td></tr>\n");
-        msg.append("<tr><td>Not after:</td>");
+        msg.append("<tr><td>").append(
+                this.uploadPolicy.getString("itm_cert_nafter")).append("</td>");
         msg.append(expired ? "<td class=\"err\">" : "<td>").append(
                 c.getNotAfter()).append("</td></tr>\n");
-        msg.append("<tr><td>Serial:</td><td>");
+        msg.append("<tr><td>").append(
+                this.uploadPolicy.getString("itm_cert_serial")).append(
+                "</td><td>");
         msg.append(c.getSerialNumber());
         msg.append("</td></tr>\n");
-        msg.append("<tr><td>SHA1 Fingerprint:</td><td>");
+        msg.append("<tr><td>").append(
+                String.format(this.uploadPolicy.getString("itm_cert_fprint"),
+                        "SHA1")).append("</td><td>");
         MessageDigest d;
         StringBuffer fp = new StringBuffer();
         try {
@@ -424,7 +449,9 @@ public class InteractiveTrustManager implements X509TrustManager,
         }
         msg.append(fp).append("</td></tr>\n");
         fp.setLength(0);
-        msg.append("<tr><td>MD5 Fingerprint:</td><td>");
+        msg.append("<tr><td>").append(
+                String.format(this.uploadPolicy.getString("itm_cert_fprint"),
+                        "MD5")).append("</td><td>");
         try {
             d = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -441,18 +468,23 @@ public class InteractiveTrustManager implements X509TrustManager,
         }
         msg.append(fp).append("</td></tr>\n");
         msg.append("</table><table>");
-        msg.append("<tr><th colspan=2>Issuer:</th></tr>");
+        msg.append("<tr><th colspan=2>").append(
+                this.uploadPolicy.getString("itm_cert_issuer")).append(
+                "</th></tr>");
         msg
                 .append(formatDN(c.getIssuerX500Principal().getName(), null,
                         reason));
         msg.append("</table>");
-        msg.append("<p><b>Reason(s):</b><br><ul>");
+        msg.append("<p><b>").append(this.uploadPolicy.getString("itm_reasons"))
+                .append("</b><br><ul>");
         Iterator it = reason.iterator();
         while (it.hasNext()) {
             msg.append("<li>" + it.next() + "</li>\n");
         }
         msg.append("</ul></p>");
-        msg.append("<p><b>Do you want to accept this certificate?</b></p>");
+        msg.append("<p><b>").append(
+                this.uploadPolicy.getString("itm_accept_prompt")).append(
+                "</b></p>");
         msg.append("</body></html>");
 
         JPanel p = new JPanel();
@@ -462,11 +494,13 @@ public class InteractiveTrustManager implements X509TrustManager,
         ep.setBackground(p.getBackground());
         p.add(ep, BorderLayout.CENTER);
 
+        String no = this.uploadPolicy.getString("itm_accept_no");
         int ans = JOptionPane.showOptionDialog(null, p,
                 "SSL Certificate Alert", JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE, null, new String[] {
-                        "Always", "Only for this session", "No"
-                }, "No");
+                        this.uploadPolicy.getString("itm_accept_always"),
+                        this.uploadPolicy.getString("itm_accept_now"), no
+                }, no);
         switch (ans) {
             case JOptionPane.CANCEL_OPTION:
             case JOptionPane.CLOSED_OPTION:
@@ -498,7 +532,8 @@ public class InteractiveTrustManager implements X509TrustManager,
                             } else {
                                 // New truststore, get a new password.
                                 this.tspasswd = this
-                                        .getPassword("New TrustStore");
+                                        .getPassword(this.uploadPolicy
+                                                .getString("itm_new_tstore"));
                                 if (null == this.tspasswd)
                                     this.tspasswd = "changeit";
                             }

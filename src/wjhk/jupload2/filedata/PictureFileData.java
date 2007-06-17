@@ -1,6 +1,5 @@
 //
-// $Id: PictureFileData.java 137 2007-05-12 23:34:08 +0000 (sam., 12 mai 2007)
-// felfert $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -177,7 +176,8 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @param file The files which data are to be handled by this instance.
      */
-    public PictureFileData(File file, File root, PictureUploadPolicy uploadPolicy) {
+    public PictureFileData(File file, File root,
+            PictureUploadPolicy uploadPolicy) {
         super(file, root, uploadPolicy);
         // EGR Should be useless
         // this.uploadPolicy = (PictureUploadPolicy) super.uploadPolicy;
@@ -1005,8 +1005,8 @@ public class PictureFileData extends DefaultFileData {
      * When running from eclipse, the memory is freed Ok !
      */
     private void tooBigPicture() {
-        String msg = this.uploadPolicy
-                .getString("tooBigPicture", getFileName());
+        String msg = String.format(
+                this.uploadPolicy.getString("tooBigPicture"), getFileName());
         JOptionPane.showMessageDialog(null, msg, "Warning",
                 JOptionPane.WARNING_MESSAGE);
         this.uploadPolicy.displayWarn(msg);
