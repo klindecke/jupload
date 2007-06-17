@@ -1,6 +1,5 @@
 //
-// $Id: JUploadPanel.java 269 2007-06-10 21:12:43 +0000 (dim., 10 juin 2007)
-// felfert $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -125,27 +124,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private static final double mB = 1024L * 1024L;
 
     private static final double kB = 1024L;
-
-    // TODO: translation
-    private String speedunit_gb_per_second = "Gb/s";
-
-    // TODO: translation
-    private String speedunit_mb_per_second = "Mb/s";
-
-    // TODO: translation
-    private String speedunit_kb_per_second = "Kb/s";
-
-    // TODO: translation
-    private String speedunit_b_per_second = "b/s";
-
-    // TODO: translation
-    private String timefmt_hms = "%1$dh, %2$d min. and %3$d sec.";
-
-    // TODO: translation
-    private String timefmt_ms = "%1$d min. and %2$d sec.";
-
-    // TODO: translation
-    private String timefmt_s = "%1$d seconds";
 
     /** The popup menu of the applet */
     private JUploadPopupMenu jUploadPopupMenu;
@@ -386,36 +364,41 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     try {
                         remaining = (long) ((total - done) / cps);
                         if (remaining > 3600) {
-                            eta = String.format(this.timefmt_hms, new Long(
+                            eta = String.format(this.uploadPolicy
+                                    .getString("timefmt_hms"), new Long(
                                     remaining / 3600), new Long(
                                     (remaining / 60) % 60), new Long(
                                     remaining % 60));
                         } else if (remaining > 60) {
-                            eta = String.format(this.timefmt_ms, new Long(
+                            eta = String.format(this.uploadPolicy
+                                    .getString("timefmt_ms"), new Long(
                                     remaining / 60), new Long(remaining % 60));
                         } else
-                            eta = String.format(this.timefmt_s, new Long(
-                                    remaining));
+                            eta = String.format(this.uploadPolicy
+                                    .getString("timefmt_s"),
+                                    new Long(remaining));
                     } catch (ArithmeticException e1) {
-                        eta = "unknown";
+                        eta = this.uploadPolicy.getString("timefmt_unknown");
                     }
                     this.progressBar.setValue((int) percent);
-                    String unit = this.speedunit_b_per_second;
+                    String unit = this.uploadPolicy
+                            .getString("speedunit_b_per_second");
                     if (cps >= gB) {
                         cps /= gB;
-                        unit = this.speedunit_gb_per_second;
+                        unit = this.uploadPolicy
+                                .getString("speedunit_gb_per_second");
                     } else if (cps >= mB) {
                         cps /= mB;
-                        unit = this.speedunit_mb_per_second;
+                        unit = this.uploadPolicy
+                                .getString("speedunit_mb_per_second");
                     } else if (cps >= kB) {
                         cps /= kB;
-                        unit = this.speedunit_kb_per_second;
+                        unit = this.uploadPolicy
+                                .getString("speedunit_kb_per_second");
                     }
-
-                    String status = uploadPolicy
-                            .getString("uploadStatus", String.format("%1$d%%",
-                                    new Integer((int) percent)), String.format(
-                                    "%1$,3.2f", new Double(cps)), unit, eta);
+                    String status = String.format(this.uploadPolicy
+                            .getString("status_msg"), new Integer(
+                            (int) percent), new Double(cps), unit, eta);
                     this.statusLabel.setText(status);
                     this.uploadPolicy.getApplet().getAppletContext()
                             .showStatus(status);

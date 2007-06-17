@@ -77,7 +77,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     // TODO to be moved to HTTP ????
     long maxChunkSize;
-    
+
     /**
      * Maximum number of files for FTP upload.
      */
@@ -122,7 +122,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * The response message from the server, if any
      */
     private String responseMsg;
-    
+
     /**
      * Creates a new instance.
      * 
@@ -151,14 +151,14 @@ public abstract class DefaultFileUploadThread extends Thread implements
     public long getUploadedLength() {
         return this.uploadedLength;
     }
-    
+
     /**
      * @see wjhk.jupload2.upload.FileUploadThread#getTotalLength()
      */
     public long getTotalLength() {
         return this.totalFilesLength;
     }
-    
+
     /** @see FileUploadThread#stopUpload() */
     public void stopUpload() {
         this.stop = true;
@@ -208,9 +208,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
         for (int i = 0; i < this.filesToUpload.length && !this.stop; i++) {
             if (null != this.progressBar) {
                 this.progressBar.setValue(i);
-                this.progressBar.setString(this.uploadPolicy.getString(
-                        "preparingFile", (i + 1) + "/"
-                                + (this.filesToUpload.length)));
+                this.progressBar.setString(String.format(this.uploadPolicy
+                        .getString("preparingFile"), new Integer(i + 1),
+                        new Integer(this.filesToUpload.length)));
             }
             this.filesToUpload[i].beforeUpload();
             // totalFilesLength is used to correctly displays the progressBar
@@ -279,8 +279,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * This method is called at the end of each request.
-     * @return The response status code from the server (200 == OK)
      * 
+     * @return The response status code from the server (200 == OK)
      * @see #startRequest(long, boolean, int, boolean)
      */
     abstract int finishRequest() throws JUploadException;
@@ -457,12 +457,14 @@ public abstract class DefaultFileUploadThread extends Thread implements
             if (null != this.progressBar) {
                 if (bUploadOk || this.stop) {
                     if (!this.stop)
-                        this.progressBar.setString(this.uploadPolicy.getString(
-                                "nbUploadedFiles", iFirstFileForThisUpload
-                                        + iNbFilesForThisUpload));
+                        this.progressBar.setString(String.format(
+                                this.uploadPolicy.getString("nbUploadedFiles"),
+                                new Integer(iFirstFileForThisUpload
+                                        + iNbFilesForThisUpload)));
                     else
-                        this.progressBar.setString(this.uploadPolicy.getString(
-                                "infoAborted", iFirstFileForThisUpload - 1));
+                        this.progressBar.setString(String.format(
+                                this.uploadPolicy.getString("infoAborted"),
+                                new Integer(iFirstFileForThisUpload - 1)));
                 } else {
                     this.progressBar.setString(this.uploadPolicy
                             .getString("errDuringUpload"));
@@ -539,8 +541,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
         }
 
         if (!this.stop && (null != this.progressBar)) {
-            this.progressBar.setString(this.uploadPolicy.getString(
-                    "infoUploading", msg));
+            this.progressBar.setString(String.format(this.uploadPolicy
+                    .getString("infoUploading"), msg));
         }
 
         // Let's be optimistic: we calculate the total upload length. Then,
@@ -655,8 +657,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
                     // upload should be finished.
                     if (!bChunkEnabled || bLastChunk) {
                         if (!this.stop && (null != this.progressBar))
-                            this.progressBar.setString(this.uploadPolicy
-                                    .getString("infoUploaded", msg));
+                            this.progressBar.setString(String
+                                    .format(this.uploadPolicy
+                                            .getString("infoUploaded"), msg));
                         if (this.filesToUpload[firstFileToUpload + i]
                                 .getRemainingLength() > 0) {
                             this.uploadException = new JUploadExceptionUploadFailed(
@@ -681,8 +684,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 // We now ask to the uploadPolicy, if it was a success.
                 // If not, the isUploadSuccessful should raise an exception.
                 if (!this.stop)
-                    this.uploadPolicy.checkUploadSuccess(status, getResponseMsg(),
-                            getResponseBody());
+                    this.uploadPolicy.checkUploadSuccess(status,
+                            getResponseMsg(), getResponseBody());
 
             } catch (Exception e) {
                 this.uploadException = e;

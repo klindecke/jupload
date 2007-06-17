@@ -55,7 +55,7 @@ public class JUploadExceptionTooBigFile extends JUploadException {
      */
     public static String createErrorMessage(String filename, long uploadLength,
             UploadPolicy uploadPolicy) {
-        return uploadPolicy.getString("errFileTooBig", filename, Long
-                .toString(uploadLength));
+        return String.format(uploadPolicy.getString("errFileTooBig"), filename,
+                new Long(uploadLength));
     }
 }

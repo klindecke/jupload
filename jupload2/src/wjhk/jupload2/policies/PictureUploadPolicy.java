@@ -1,6 +1,5 @@
 //
-// $Id: PictureUploadPolicy.java 167 2007-05-24 08:32:02 +0000 (jeu., 24 mai
-// 2007) etienne_sf $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -250,7 +249,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         }
         if (!alertShown) {
             // Alert only once, when several files are not pictures... hum,
-            alert("notAPicture", file.getName());
+            alert(String.format(getString("notAPicture"), file.getName()));
             alertShown = true;
         }
         return null;

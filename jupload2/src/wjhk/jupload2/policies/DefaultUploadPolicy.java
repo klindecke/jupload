@@ -1,6 +1,5 @@
 //
-// $Id: DefaultUploadPolicy.java 152 2007-05-16 16:34:42 +0000 (mer., 16 mai
-// 2007) etienne_sf $
+// $Id$
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -616,11 +615,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         alertStr(getString(key));
     }
 
-    /** @see UploadPolicy#alert(String,String) */
-    public void alert(String key, String arg1) {
-        alertStr(getString(key, arg1));
-    }
-
     /**
      * The DefaultUpload accepts all file types: we just return an instance of
      * FileData, without any test.
@@ -755,45 +749,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public String getString(String key) {
         String ret = this.resourceBundle.getString(key);
         return ret;
-    }
-
-    /** @see UploadPolicy#getString(String,String) */
-    public String getString(String key, String value1) {
-        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
-                value1);
-        return ret;
-    }
-
-    /** @see UploadPolicy#getString(String,String,String) */
-    public String getString(String key, String value1, String value2) {
-        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
-                value1).replaceAll("\\{2\\}", value2);
-        return ret;
-    }
-
-    /** @see UploadPolicy#getString(String,String,String,String) */
-    public String getString(String key, String value1, String value2,
-            String value3) {
-        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
-                value1).replaceAll("\\{2\\}", value2).replaceAll("\\{3\\}",
-                value3);
-        return ret;
-    }
-
-    /** @see UploadPolicy#getString(String,String,String,String,String) */
-    public String getString(String key, String value1, String value2,
-            String value3, String value4) {
-        String ret = this.resourceBundle.getString(key).replaceAll("\\{1\\}",
-                value1).replaceAll("\\{2\\}", value2).replaceAll("\\{3\\}",
-                value3).replaceAll("\\{4\\}", value4);
-        return ret;
-    }
-
-    /**
-     * @see UploadPolicy#getString(String,int)
-     */
-    public String getString(String key, int value1) {
-        return getString(key, Integer.toString(value1));
     }
 
     /**
