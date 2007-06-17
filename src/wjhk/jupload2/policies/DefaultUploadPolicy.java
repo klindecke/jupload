@@ -330,7 +330,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.applet = theApplet;
         this.logWindow = theApplet.getLogWindow();
 
-        // Force the look and feel of the current system. This must be the very
+        // Get resource file. This must be the very first parameter to be set,
+        // because during initialization, translations may be needed.
+        setLang(UploadPolicyFactory.getParameter(theApplet, PROP_LANG,
+                DEFAULT_LANG, this));
+
+        // Force the look and feel of the current system. This must be the second
         // first parameter to be set, because during initialization, dialogs can
         // appear.
         setLookAndFeel(UploadPolicyFactory.getParameter(theApplet,
@@ -403,10 +408,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // occurs.
         setUrlToSendErrorTo(UploadPolicyFactory.getParameter(theApplet,
                 PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO, this));
-
-        // Get resource file.
-        setLang(UploadPolicyFactory.getParameter(theApplet, PROP_LANG,
-                DEFAULT_LANG, this));
 
         this.formData = UploadPolicyFactory.getParameter(theApplet,
                 PROP_FORMDATA, DEFAULT_FORMDATA, this);

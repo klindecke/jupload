@@ -332,9 +332,9 @@ public class InteractiveTrustManager implements X509TrustManager,
             String kv[] = tok.split("=", 2);
             if (kv.length == 2) {
                 if (kv[0].equals("C"))
-                    ret.append("<tr><td>)").append(
+                    ret.append("<tr><td>").append(
                             this.uploadPolicy.getString("itm_cert_C")).append(
-                            "</td></tr>\n");
+                            "</td><td>").append(kv[1]).append("</td></tr>\n");
                 if (kv[0].equals("CN")) {
                     boolean ok = true;
                     if (null != cn)
