@@ -371,7 +371,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 if (readingHttpBody) {
                     if (gotChunked) {
                         // read chunk-header
-                        line = readLine("ISO-8859-1");
+                        //line = readLine("ISO-8859-1");
+                        //Etienne: basic switch UTF-8
+                        line = readLine("UTF-8");
                         if (null == line)
                             throw new JUploadException("unexpected EOF");
                         // Handle a single chunk of the response
@@ -450,7 +452,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     }
                 } else {
                     // readingHttpBody is false, so we are still in headers.
-                    line = readLine("ISO-8859-1");
+                    //line = readLine("ISO-8859-1");
+                    //Etienne: basic switch UTF-8
+                    line = readLine("UTF-8");
                     if (null == line)
                         throw new JUploadException("unexpected EOF");
                     if (status == 0) {

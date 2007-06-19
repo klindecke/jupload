@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: UploadPolicy.java 287 2007-06-17 09:07:04 +0000 (dim., 17 juin 2007)
+// felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -469,6 +470,23 @@ import wjhk.jupload2.gui.JUploadPanel;
  * <i>showLogWindow</i>.</td>
  * </tr>
  * <tr>
+ * <td>specificHeaders</td>
+ * <td><I>null</I><br>
+ * <br>
+ * Since 3.0.2<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>Allows the caller to add any header(s) to the applet. These headers will
+ * be sent with each HTTP request to the server. If you put several lines in
+ * this parameter, these parameter should be separated by the "\\n" strings (not
+ * the \n character, but the \ character followed by the n character). No "\\n"
+ * at the end: it will be added by the applet. <BR>
+ * This allows an easy management of <B>Basic HTTP authentication</B>. Just add
+ * a header like this one:<BR>
+ * Authorization: Basic Base64EncodedString
+ * Where Base64EncodedString is the string "login:passord" encodded in Base 64.
+ * </td>
+ * </tr>
+ * <tr>
  * <td>sslVerifyCert<br>
  * Since 3.0.2b1</td>
  * <td>none<br>
@@ -617,18 +635,18 @@ import wjhk.jupload2.gui.JUploadPanel;
  * Below, an example of how to put the applet into a PHP page is shown:
  * </p>
  * <code><pre>
- *    &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
- *      archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
- *      &lt;!-- Applet display size, on the navigator page --&gt;
- *      width=&quot;500&quot; height=&quot;700&quot;
- *      &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
- *      mayscript&gt;
- *      &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
- *           DefaultUploadPolicy is used. The applet behaves like the original
- *           JUpload. (jupload v1) --&gt;
- *      &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
- *      Java 1.5 or higher plugin required.
- *    &lt;/applet&gt;
+ *           &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+ *             archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+ *             &lt;!-- Applet display size, on the navigator page --&gt;
+ *             width=&quot;500&quot; height=&quot;700&quot;
+ *             &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+ *             mayscript&gt;
+ *             &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+ *                  DefaultUploadPolicy is used. The applet behaves like the original
+ *                  JUpload. (jupload v1) --&gt;
+ *             &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+ *             Java 1.5 or higher plugin required.
+ *           &lt;/applet&gt;
  * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
  * by Ant build. DO NOT CHANGE!! -->
  * 
@@ -696,6 +714,14 @@ public interface UploadPolicy {
      * Parameter/Property name for specifying high quality previews.
      */
     final static String PROP_HIGH_QUALITY_PREVIEW = "highQualityPreview";
+
+    /**
+     * Parameter/Property name for specifying a list of specific headers, that
+     * will be added to all HTTP request to the server. The parameter can be
+     * used for Basic Authentication, by adding this header: Authorization:
+     * Basic [Bae64 encoding of the string "user:password"]
+     */
+    final static String PROP_SPECIFIC_HEADERS = "specificHeaders";
 
     /**
      * Parameter/Property name for specifying a PLAF class to load.
@@ -926,6 +952,11 @@ public interface UploadPolicy {
      * Default value for parameter "showStatusBar".
      */
     final static boolean DEFAULT_SHOW_STATUSBAR = true;
+
+    /**
+     * Default value for parameter "sslVerifyCert"
+     */
+    final static String DEFAULT_SPECIFIC_HEADERS = null;
 
     /**
      * Default value for parameter "sslVerifyCert"
@@ -1198,6 +1229,14 @@ public interface UploadPolicy {
      * @return The current value for the <i>showStatusBar</i> applet parameter.
      */
     public boolean getShowLogWindow();
+
+    /**
+     * Returns the list of specific headers, that will be added to all HTTP
+     * request to the server.
+     * 
+     * @return List of specific headers, with a \r\n at the end of each header.
+     */
+    public String getSpecificHeaders();
 
     /**
      * Get the original name of the file on the disk. This function can encode
