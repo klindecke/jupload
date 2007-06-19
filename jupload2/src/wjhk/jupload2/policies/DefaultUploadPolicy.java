@@ -145,6 +145,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private boolean showLogWindow = UploadPolicy.DEFAULT_SHOW_LOGWINDOW;
 
     private boolean showStatusbar = UploadPolicy.DEFAULT_SHOW_STATUSBAR;
+    
+    private String specificHeaders = null;
 
     /**
      * The current debug level.
@@ -393,6 +395,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // get the URL where files must be posted.
         setPostURL(UploadPolicyFactory.getParameter(theApplet, PROP_POST_URL,
                 DEFAULT_POST_URL, this));
+
+        // get any additional headers.
+        setSpecificHeaders(UploadPolicyFactory.getParameter(theApplet, PROP_SPECIFIC_HEADERS,
+                DEFAULT_SPECIFIC_HEADERS, this));
 
         setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
@@ -1066,6 +1072,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayDebug("postURL: " + this.postURL, 20);
             displayDebug("serverProtocol: " + this.serverProtocol, 20);
             displayDebug("showLogWindow: " + getShowLogWindow(), 20);
+            displayDebug("specificHeaders: " + getSpecificHeaders(), 20);
             displayDebug("stringUploadSuccess: " + this.stringUploadSuccess, 20);
             displayDebug("stringUploadError: " + this.stringUploadError, 20);
             displayDebug("urlToSendErrorTo: " + this.urlToSendErrorTo, 20);
@@ -1366,6 +1373,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // parameter.
         if (getApplet().getUploadPanel() != null) {
             getApplet().getUploadPanel().showOrHideLogWindow();
+        }
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getSpecificHeaders() */
+    public String getSpecificHeaders() {
+        return specificHeaders;
+    }
+    protected void setSpecificHeaders(String specificHeaders) {
+        this.specificHeaders = specificHeaders;
+        if (specificHeaders != null) {
+            //addHeader will add a \r\n at the end of the last line.
+            addHeader(specificHeaders.replaceAll("\\n", "\r\n"));
         }
     }
 

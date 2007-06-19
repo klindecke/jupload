@@ -8,6 +8,9 @@ Content-Length, if available. Use charset attribute of the Content-Type header.
 if available.
 - [Feature] Added placeholders for javascript in afterUploadURL:
 %success%, %msg% and %body. See howto-customization.html for a detailed description.
+- [Feature] Add of the specificHeaders applet parameter. This allows the caller to define 
+a list of headers that will be added in each HTTP request to the server. This allows
+Basic HTTP Authentication (see the doc for all details).
 
 V3.0.2b2
 - [Fix] renamed POST variables "md5sum", "mimetype", "pathinfo" and "relpathinfo" to
