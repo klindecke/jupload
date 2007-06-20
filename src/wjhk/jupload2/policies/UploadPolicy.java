@@ -483,7 +483,7 @@ import wjhk.jupload2.gui.JUploadPanel;
  * This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  * a header like this one:<BR>
  * Authorization: Basic Base64EncodedString
- * Where Base64EncodedString is the string "login:passord" encodded in Base 64.
+ * Where Base64EncodedString is the string "login:passord" encoded in Base 64.
  * </td>
  * </tr>
  * <tr>

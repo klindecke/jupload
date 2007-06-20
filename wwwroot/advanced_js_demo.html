@@ -30,6 +30,7 @@
 	debugLevel = "";
 	serverProtocol = "";
 	showStatusBar = "";
+	specificHeaders = "";
 	stringUploadError = "";
 	stringUploadSuccess = "";
 	
@@ -95,6 +96,9 @@
 	array = reParam.exec(query);
 	while (array != null) {
 		val = unescape(array[2]);
+		//unescape won't manage +
+		val = String(val).replace(/\+/g, " ");
+		
 		switch (array[1]) {
 		case "afterUploadURL":
 			afterUploadURL = val;
@@ -146,6 +150,9 @@
 			break;
 		case "showStatusBar":
 			showStatusBar = val;
+			break;
+		case "specificHeaders":
+			specificHeaders = val;
 			break;
 		case "stringUploadError":
 			stringUploadError = val;
@@ -200,6 +207,7 @@
 	writeInputText("stringUploadError", stringUploadError, "");
 	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
 	writeInputText("showStatusBar", showStatusBar, "");
+	writeInputText("specificHeaders", specificHeaders, "");
 	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
 	document.writeln('</TABLE></TD></TR>');
 	document.writeln('</TABLE>');
@@ -231,6 +239,7 @@
 	writeParam("maxPicWidth", maxPicWidth);
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);
 	writeParam("showStatusBar", showStatusBar);
+	writeParam("specificHeaders", specificHeaders);
 	writeParam("stringUploadError", stringUploadError);
 	writeParam("stringUploadSuccess", stringUploadSuccess);
 	document.writeln('Java 1.5 or higher plugin required.');

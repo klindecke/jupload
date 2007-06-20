@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: DefaultUploadPolicy.java 289 2007-06-19 10:04:46 +0000 (mar., 19 juin
+// 2007) etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -145,7 +146,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private boolean showLogWindow = UploadPolicy.DEFAULT_SHOW_LOGWINDOW;
 
     private boolean showStatusbar = UploadPolicy.DEFAULT_SHOW_STATUSBAR;
-    
+
     private String specificHeaders = null;
 
     /**
@@ -337,7 +338,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setLang(UploadPolicyFactory.getParameter(theApplet, PROP_LANG,
                 DEFAULT_LANG, this));
 
-        // Force the look and feel of the current system. This must be the second
+        // Force the look and feel of the current system. This must be the
+        // second
         // first parameter to be set, because during initialization, dialogs can
         // appear.
         setLookAndFeel(UploadPolicyFactory.getParameter(theApplet,
@@ -397,8 +399,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 DEFAULT_POST_URL, this));
 
         // get any additional headers.
-        setSpecificHeaders(UploadPolicyFactory.getParameter(theApplet, PROP_SPECIFIC_HEADERS,
-                DEFAULT_SPECIFIC_HEADERS, this));
+        setSpecificHeaders(UploadPolicyFactory.getParameter(theApplet,
+                PROP_SPECIFIC_HEADERS, DEFAULT_SPECIFIC_HEADERS, this));
 
         setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
@@ -1380,11 +1382,28 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public String getSpecificHeaders() {
         return specificHeaders;
     }
+
+    /**
+     * Set all specific headers defined in the specificHeaders applet parameter.
+     * This string is splitted, so that each header is added to the headers
+     * Vector. These headers are added to the headers list during applet
+     * initialization. There is currently no automatic way to remove the headers
+     * coming from specificHeaders, after initialization.
+     * 
+     * @param specificHeaders
+     */
     protected void setSpecificHeaders(String specificHeaders) {
         this.specificHeaders = specificHeaders;
         if (specificHeaders != null) {
-            //addHeader will add a \r\n at the end of the last line.
-            addHeader(specificHeaders.replaceAll("\\n", "\r\n"));
+            // Let's add each header in specificHeaders to the headers list. In
+            // specificHeaders, each header is separated by the \n string (two
+            // characters: \ then n, not the \n character).
+            // The regexp to find the \n string (not the \n character) is: \\n
+            // We then double each \ character:
+            String[] headerArray = specificHeaders.split("\\\\n");
+            for (int x = 0; x < headerArray.length; x++) {
+                addHeader(headerArray[x]);
+            }
         }
     }
 
