@@ -146,7 +146,7 @@ public class CookieJar {
     }
 
     /**
-     * Set the domain for this cookie jar. If set, only cookies matching the
+     * Sets the domain for this cookie jar. If set, only cookies matching the
      * specified domain are handled.
      * 
      * @param domain The domain of this instance

@@ -263,8 +263,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * Similar like BufferedInputStream#readLine() but operates on raw bytes.
      * Line-Ending is <b>always</b> "\r\n".
+     * 
+     * @param includeCR Set to true, if the terminating CR/LF should be included
+     *            in the returned byte array.
      */
-    private byte[] readLine() throws IOException {
+    private byte[] readLine(boolean includeCR) throws IOException {
         int len = 0;
         int buflen = 128; // average line length
         byte[] buf = new byte[buflen];
@@ -282,10 +285,17 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     return null;
                 case 10:
                     if ((len > 0) && (buf[len - 1] == 13)) {
-                        len--;
-                        ret = new byte[len];
-                        if (len > 0)
-                            System.arraycopy(buf, 0, ret, 0, len);
+                        if (includeCR) {
+                            ret = new byte[len + 1];
+                            if (len > 0)
+                                System.arraycopy(buf, 0, ret, 0, len);
+                            ret[len] = 10;
+                        } else {
+                            len--;
+                            ret = new byte[len];
+                            if (len > 0)
+                                System.arraycopy(buf, 0, ret, 0, len);
+                        }
                         return ret;
                     }
                 default:
@@ -305,9 +315,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * Line-Ending is <b>always</b> "\r\n".
      * 
      * @param charset The input charset of the stream.
+     * @param includeCR Set to true, if the terminating CR/LF should be included
+     *            in the returned byte array.
      */
-    private String readLine(String charset) throws IOException {
-        byte[] line = readLine();
+    private String readLine(String charset, boolean includeCR)
+            throws IOException {
+        byte[] line = readLine(includeCR);
         return (null == line) ? null : new String(line, charset);
     }
 
@@ -350,11 +363,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         boolean gotContentLength = false;
         int status = 0;
         int clen = 0;
-        String line;
+        String line = "";
         byte[] body = new byte[0];
-        byte[] CR = {
-                13, 10
-        };
         String charset = "ISO-8859-1";
 
         this.sbHttpResponseBody = new StringBuffer();
@@ -367,23 +377,35 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // && is evaluated from left to right so !stop must come first!
             while (!this.stop && ((!gotContentLength) || (clen > 0))) {
-                // Store the http body
                 if (readingHttpBody) {
+                    // Read the http body
                     if (gotChunked) {
-                        // read chunk-header
-                        //line = readLine("ISO-8859-1");
-                        //Etienne: basic switch UTF-8
-                        line = readLine("UTF-8");
+                        // Read the chunk header.
+                        // This is US-ASCII! (See RFC 2616, Section 2.2)
+                        line = readLine("US-ASCII", false);
                         if (null == line)
                             throw new JUploadException("unexpected EOF");
                         // Handle a single chunk of the response
+                        // We cut off possible chunk extensions and ignore them.
+                        // The length is hex-encoded (RFC 2616, Section 3.6.1)
                         int len = Integer.parseInt(line.replaceFirst(";.*", "")
                                 .trim(), 16);
                         this.uploadPolicy.displayDebug("Chunk: " + line
                                 + " dec: " + len, 80);
-                        if (len == 0)
-                            // we are finished with the body
+                        if (len == 0) {
+                            // RFC 2616, Section 3.6.1: A length of 0 denotes
+                            // the last chunk of the body.
+
+                            // This code wrong if the server sends chunks
+                            // with trailers! (trailers are HTTP Headers that
+                            // are send *after* the body. These are announced
+                            // in the regular HTTP header "Trailer".
+                            // Fritz: Never seen them so far ...
+                            // TODO: Implement trailer-handling.
                             break;
+                        }
+
+                        // Loop over the chunk (len == length of the chunk)
                         while (len > 0) {
                             int rlen = (len > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
                                     : len;
@@ -406,9 +428,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                                     body = byteAppend(body, this.chunkbuf);
                             }
                         }
-                        // If we got here, only the chunk's trailing CRLF is
-                        // left.
-                        readLine();
+                        // Got the whole chunk, read the trailing CRLF.
+                        readLine(false);
                     } else {
                         // Not chunked. Use either content-length (if available)
                         // or read until EOF.
@@ -440,40 +461,50 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             }
                         } else {
                             // No Content-length available, read until EOF
+                            // 
                             while (true) {
-                                byte[] lbuf = readLine();
+                                byte[] lbuf = readLine(true);
                                 if (null == lbuf)
                                     break;
                                 body = byteAppend(body, lbuf);
-                                body = byteAppend(body, CR);
                             }
                             break;
                         }
                     }
                 } else {
                     // readingHttpBody is false, so we are still in headers.
-                    //line = readLine("ISO-8859-1");
-                    //Etienne: basic switch UTF-8
-                    line = readLine("UTF-8");
-                    if (null == line)
+                    // Headers are US-ASCII (See RFC 2616, Section 2.2)
+                    String tmp = readLine("US-ASCII", false);
+                    if (null == tmp)
                         throw new JUploadException("unexpected EOF");
                     if (status == 0) {
                         this.uploadPolicy.displayDebug(
                                 "-------- Response Headers Start --------", 80);
-                        Matcher m = pHttpStatus.matcher(line);
+                        Matcher m = pHttpStatus.matcher(tmp);
                         if (m.matches()) {
                             status = Integer.parseInt(m.group(2));
                             setResponseMsg(m.group(1));
                         } else {
+                            // The status line must be the first line of the
+                            // response. (See RFC 2616, Section 6.1) so this
+                            // is an error.
+
                             // We first display the wrong line.
                             this.uploadPolicy.displayDebug(
-                                    "First line of response: '" + line + "'",
+                                    "First line of response: '" + tmp + "'",
                                     80);
                             // Then, we throw the exception.
                             throw new JUploadException(
                                     "HTTP response did not begin with status line.");
                         }
                     }
+                    // Handle folded headers (RFC 2616, Section 2.2). This is
+                    // handled after the status line, because that line may
+                    // not be folded (RFC 2616, Section 6.1).
+                    if (tmp.startsWith(" ") || tmp.startsWith("\t"))
+                        line += " " + tmp.trim();
+                    else
+                        line = tmp;
                     this.uploadPolicy.displayDebug(line, 80);
                     if (pClose.matcher(line).matches())
                         gotClose = true;
@@ -493,8 +524,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     if (m.matches())
                         this.cookies.parseCookieHeader(m.group(1));
                     if (line.length() == 0) {
-                        // Next lines will be the http body (or perhaps we
-                        // already are in the body, but it's Ok anyway)
+                        // RFC 2616, Section 6. Body is separated by the
+                        // header with an empty line.
                         readingHttpBody = true;
                         this.uploadPolicy.displayDebug(
                                 "--------- Response Headers End ---------", 80);
@@ -506,7 +537,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 // RFC 2868, section 8.1.2.1
                 cleanRequest();
             }
-            // Convert the whole body according to the charset
+            // Convert the whole body according to the charset.
+            // The default for charset ISO-8859-1, but overridden by
+            // the charset attribute of the Content-Type header (if any).
+            // See RFC 2616, Sections 3.4.1 and 3.7.1.
             this.sbHttpResponseBody.append(new String(body, charset));
         } catch (JUploadException e) {
             throw e;
@@ -585,9 +619,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Header: General
             header.append("Host: ").append(url.getHost()).append(
                     "\r\nAccept: */*\r\n");
+            // We do not want gzipped or compressed responses, so we must
+            // specify that here (RFC 2616, Section 14.3)
+            header.append("Accept-Encoding: identity\r\n");
 
             // Seems like the Keep-alive doesn't work properly, at least on my
-            // local dev (Etienne).
+            // local dev (Etienne). TODO: check, how the new code works
             if (!this.uploadPolicy.getAllowHttpPersistent()) {
                 header.append("Connection: close\r\n");
             } else {
