@@ -649,6 +649,23 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <i>showLogWindow</i>.</td>
  </tr>
  <tr>
+ <td>specificHeaders</td>
+ <td><I>null</I><br>
+ <br>
+ Since 3.0.2<br>
+ <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
+ <td>Allows the caller to add any header(s) to the applet. These headers will
+ be sent with each HTTP request to the server. If you put several lines in
+ this parameter, these parameter should be separated by the "n" strings (not
+ the n character, but the  character followed by the n character). No "n"
+ at the end: it will be added by the applet. <BR>
+ This allows an easy management of <B>Basic HTTP authentication</B>. Just add
+ a header like this one:<BR>
+ Authorization: Basic Base64EncodedString
+ Where Base64EncodedString is the string "login:passord" encodded in Base 64.
+ </td>
+ </tr>
+ <tr>
  <td>sslVerifyCert<br>
  Since 3.0.2b1</td>
  <td>none<br>
@@ -797,18 +814,18 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  Below, an example of how to put the applet into a PHP page is shown:
  </p>
  <code><pre>
-    &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
-      archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
-      &lt;!-- Applet display size, on the navigator page --&gt;
-      width=&quot;500&quot; height=&quot;700&quot;
-      &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
-      mayscript&gt;
-      &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
-           DefaultUploadPolicy is used. The applet behaves like the original
-           JUpload. (jupload v1) --&gt;
-      &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
-      Java 1.5 or higher plugin required.
-    &lt;/applet&gt;
+           &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+             archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+             &lt;!-- Applet display size, on the navigator page --&gt;
+             width=&quot;500&quot; height=&quot;700&quot;
+             &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+             mayscript&gt;
+             &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+                  DefaultUploadPolicy is used. The applet behaves like the original
+                  JUpload. (jupload v1) --&gt;
+             &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+             Java 1.5 or higher plugin required.
+           &lt;/applet&gt;
  </pre></code> <!-- ANT_INSERTDOC_END -->
 <!-- ATTENTION: The previous comment is used by Ant build. DO NOT CHANGE!! -->
 <p></p>
