@@ -220,7 +220,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         // Setup File Chooser.
         try {
-            this.fileChooser = new JUploadFileChooser(uploadPolicyParam);
+            this.fileChooser = uploadPolicyParam.createFileChooser();
         } catch (Exception e) {
             this.uploadPolicy.displayErr(e);
         }

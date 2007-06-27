@@ -43,7 +43,9 @@ import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
+import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileView;
+import wjhk.jupload2.gui.JUploadImagePreview;
 import wjhk.jupload2.gui.PicturePanel;
 
 /**
@@ -249,7 +251,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         }
         if (!alertShown) {
             // Alert only once, when several files are not pictures... hum,
-            alert(String.format(getString("notAPicture"), file.getName()));
+            alertStr(String.format(getString("notAPicture"), file.getName()));
             alertShown = true;
         }
         return null;
@@ -532,8 +534,22 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         displayDebug("", 20);
     }
 
+    
     /**
-     * Returns null: the default icon is used.
+     * Creates the file chooser, from the default implementation, then 
+     * add an accessory to preview pictures.
+     * 
+     * @see UploadPolicy#createFileChooser()
+     */
+    @Override
+    public JUploadFileChooser createFileChooser() {
+        JUploadFileChooser jufc = super.createFileChooser();
+        jufc.setAccessory(new JUploadImagePreview(jufc));
+        return jufc;        
+    }
+
+    /**
+     * Returns an icon, calculated from the image content.
      * 
      * @see UploadPolicy#fileViewGetIcon(File)
      */
