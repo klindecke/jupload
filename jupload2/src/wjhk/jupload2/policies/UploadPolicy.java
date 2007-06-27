@@ -32,6 +32,7 @@ import javax.swing.JProgressBar;
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.JUploadPanel;
@@ -1311,9 +1312,17 @@ public interface UploadPolicy {
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// miscellanneous methods
-    // ////////////////////////////////////////////////
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
+    //  MANAGEMENT OF THE FILE CHOOSER
+
+    /**
+     * The creation of the file chooser is controled by the upload policy, to allow fine control of the
+     * way to select files. For instance, the {@link PictureUploadPolicy} creates a file chooser, and add
+     * an accessory to preview pictures. 
+     */
+    public JUploadFileChooser createFileChooser();
+    
     /**
      * This methods is called by the {@link JUploadFileFilter#accept(File)}. It
      * allows the current upload policy to filter files, according to any
@@ -1342,6 +1351,9 @@ public interface UploadPolicy {
      */
     public Icon fileViewGetIcon(File file);
 
+    
+    // DISPLAY OF MESSAGES (ERROR, DEBUG ...)
+    
     /**
      * This method allows the applet to post debug information to the website
      * (see {@link #getUrlToSendErrorTo()}). Then, it is possible to log the

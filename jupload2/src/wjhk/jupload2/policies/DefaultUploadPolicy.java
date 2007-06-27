@@ -68,6 +68,7 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.upload.HttpConnect;
@@ -1606,6 +1607,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Let's store all text in the debug logfile
         addMsgToDebugLog(msg);
     }
+    
+
+    /** 
+     * Default implementation for {@link UploadPolicy#createFileChooser()}: just a creation of a 
+     * {@link JUploadFileChooser}.
+     * 
+     * @see UploadPolicy#createFileChooser()
+     */
+    public JUploadFileChooser createFileChooser() {
+        return new JUploadFileChooser(this);
+    }
+
 
     /**
      * This method returns the response for the

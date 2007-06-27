@@ -1,5 +1,9 @@
 TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
+- Remove the icon worker of the file view from the standard upload.
+- Change the cursor to 'WAIT', when displaying the ImagePreview in the file chooser.
+- Use quicker preview in the applet picture displays.
+
 
 V3.0.2b3
 - [Fix] HTTP response handling was broken. We now use raw byte I/O and apply
