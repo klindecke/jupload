@@ -1,4 +1,8 @@
+
+
 TODO list:
+- Upload several files in FTP generates a null pointer exception.
+- the setServerProtocol shoulf correctly manage ftp URL (without needing to add FTP as the serverProtocol parameter)
 - Allows upload from the demo site, or inform that it doesn't work.
 - Remove the icon worker of the file view from the standard upload.
 - Change the cursor to 'WAIT', when displaying the ImagePreview in the file chooser.
