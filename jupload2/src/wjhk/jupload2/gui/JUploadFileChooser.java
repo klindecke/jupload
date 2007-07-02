@@ -72,6 +72,8 @@ public class JUploadFileChooser extends JFileChooser {
         setFileView(this.fileView);
         if (this.uploadPolicy.fileFilterGetDescription() != null) {
             setFileFilter(this.fileFilter);
+            //If a file filter has been given to the applet, only these file should be allowed.
+            setAcceptAllFileFilterUsed(false);
         }
     }
 
