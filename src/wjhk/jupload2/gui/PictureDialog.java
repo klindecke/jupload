@@ -23,6 +23,7 @@ package wjhk.jupload2.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -79,7 +80,10 @@ public class PictureDialog extends JDialog implements ActionListener {
         getContentPane().add(this.picturePanel);
 
         pack();
-        setSize(getMaximumSize());
+        //Correction given by 
+        //setSize(getMaximumSize());  generate very high number under MAC OSX -> Applet Crash
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setBounds(0, 0, screenSize.width, screenSize.height);
 
         // The dialog is modal: the next line will return when the DialogPicture
         // is hidden (to be closed, in our case)
