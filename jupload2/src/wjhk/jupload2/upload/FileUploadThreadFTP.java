@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: FileUploadThreadFTP.java 136 2007-05-12 20:15:36 +0000 (sam., 12 mai
+// 2007) felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -49,7 +50,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * contain the approperiate ftp:// link. The format is:
  * 
  * <pre>
- *    ftp://username:password@myhost.com:21/directory
+ *         ftp://username:password@myhost.com:21/directory
  * </pre>
  * 
  * Where everything but the host is optional. There is another parameter that
@@ -129,11 +130,30 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
      * Creates a new instance. Performs the connection to the server based on
      * the matcher created in the main.
      * 
+     * @throws JUploadException
      * @throws IllegalArgumentException if any error occurs. message is error
      */
     public FileUploadThreadFTP(FileData[] filesDataParam,
-            UploadPolicy uploadPolicy, JProgressBar progress) {
+            UploadPolicy uploadPolicy, JProgressBar progress)
+            throws JUploadException {
         super(filesDataParam, uploadPolicy, progress);
+
+        // Some choherence checks, for parameter given to the applet.
+
+        // nbFilesPerRequest: must be 1 in FTP mode.
+        if (uploadPolicy.getNbFilesPerRequest() != 1) {
+            uploadPolicy
+                    .displayWarn("FTP mode: nbFilesPerRequest parameter ignored (forced to 1)");
+            uploadPolicy.setProperty(UploadPolicy.PROP_NB_FILES_PER_REQUEST,
+                    "1");
+        }
+
+        // maxChunkSize: must be unlimited (no chunk management in FTP mode).
+        if (uploadPolicy.getMaxChunkSize() != Long.MAX_VALUE) {
+            uploadPolicy
+                    .displayWarn("FTP mode: maxChunkSize parameter ignored (forced to Long.MAX_VALUE)");
+            uploadPolicy.setProperty(UploadPolicy.PROP_MAX_CHUNK_SIZE, Long.toString(Long.MAX_VALUE));
+        }
     }
 
     /** @see DefaultFileUploadThread#beforeRequest(int, int) */

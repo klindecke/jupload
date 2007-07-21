@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: PictureUploadPolicy.java 295 2007-06-27 08:43:25 +0000 (mer., 27 juin
+// 2007) etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -21,6 +22,7 @@
 package wjhk.jupload2.policies;
 
 import java.awt.AlphaComposite;
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -46,6 +48,7 @@ import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.JUploadImagePreview;
+import wjhk.jupload2.gui.PictureDialog;
 import wjhk.jupload2.gui.PicturePanel;
 
 /**
@@ -334,17 +337,42 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }// actionPerformed
 
     /**
-     * @see wjhk.jupload2.policies.UploadPolicy#onSelectFile(wjhk.jupload2.filedata.FileData)
+     * @see wjhk.jupload2.policies.UploadPolicy#onFileSelected(wjhk.jupload2.filedata.FileData)
      */
     @Override
-    public void onSelectFile(FileData fileData) {
+    public void onFileSelected(FileData fileData) {
         if (fileData != null) {
             displayDebug("File selected: " + fileData.getFileName(), 30);
         }
         if (this.picturePanel != null) {
+            Cursor previousCursor = setWaitCursor();
             this.picturePanel.setPictureFile((PictureFileData) fileData);
             this.rotateLeftButton.setEnabled(fileData != null);
             this.rotateRightButton.setEnabled(fileData != null);
+            setCursor(previousCursor);
+        }
+    }
+
+    /**
+     * Open the 'big' preview dialog box. It allows the user to see a full
+     * screen preview of the choosen picture.<BR>
+     * This method does nothing if the panel has no selected picture, that is
+     * when pictureFileData is null.
+     * 
+     * @see UploadPolicy#onFileDoubleClicked(FileData)
+     */
+    @Override
+    public void onFileDoubleClicked(FileData pictureFileData) {
+        if (pictureFileData == null) {
+            //No action
+        } else if (! (pictureFileData instanceof PictureFileData)) {
+            displayWarn("PictureUploadPolicy: received a non PictureFileData in onFileDoubleClicked");  
+        } else {
+            // Ok, we have a picture. Let's display it.
+            // uploadPolicy.displayDebug("---------- Opening PictureDialog",
+            // 60);
+            new PictureDialog(null, (PictureFileData)pictureFileData, this);
+            // uploadPolicy.displayDebug("---------- PictureDialog closed", 60);
         }
     }
 
@@ -534,10 +562,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         displayDebug("", 20);
     }
 
-    
     /**
-     * Creates the file chooser, from the default implementation, then 
-     * add an accessory to preview pictures.
+     * Creates the file chooser, from the default implementation, then add an
+     * accessory to preview pictures.
      * 
      * @see UploadPolicy#createFileChooser()
      */
@@ -545,7 +572,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public JUploadFileChooser createFileChooser() {
         JUploadFileChooser jufc = super.createFileChooser();
         jufc.setAccessory(new JUploadImagePreview(jufc));
-        return jufc;        
+        return jufc;
     }
 
     /**

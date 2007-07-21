@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: FilePanelJTable.java 95 2007-05-02 03:27:05 +0000 (mer., 02 mai 2007)
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -129,9 +131,22 @@ public class FilePanelJTable extends JTable implements MouseListener {
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
     public void mouseClicked(MouseEvent event) {
-        // Displays the contextual menu ?
-        if (!this.uploadPolicy.getApplet().getUploadPanel().maybeOpenPopupMenu(
-                event)) {
+        // Is this a double-click ?
+        if (event.getClickCount() == 2) {
+            // Let's open the 'big' preview, if we're in picture mode.
+            //We should have one selected row. Let's check it, you never knows !  ;-)
+            int selectedRow = getSelectedRow();
+            if (selectedRow >= 0) {
+                this.uploadPolicy.onFileSelected(this.filePanelDataModel
+                        .getFileDataAt(selectedRow));
+            }
+            
+            //FIXME The double click is not received here.
+            
+        } else if (!this.uploadPolicy.getApplet().getUploadPanel()
+                .maybeOpenPopupMenu(event)) {
+            // We did not open the displays the contextual menu. So we do what
+            // we have to do: sort the clicked column
             TableColumnModel colModel = getColumnModel();
             int index = colModel.getColumnIndexAtX(event.getX());
             int modelIndex = colModel.getColumn(index).getModelIndex();
@@ -177,7 +192,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
         //
         ListSelectionModel lsm = (ListSelectionModel) e.getSource();
         if (lsm.isSelectionEmpty()) {
-            this.uploadPolicy.onSelectFile(null);
+            this.uploadPolicy.onFileSelected(null);
         } else {
             int selectedRow = lsm.getMinSelectionIndex();
             // if one file is selected, we let the current upload policy reacts.
@@ -185,7 +200,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
             if (selectedRow == lsm.getMaxSelectionIndex()) {
                 Cursor previousCursor = getCursor();
                 setCursor(new Cursor(Cursor.WAIT_CURSOR));
-                this.uploadPolicy.onSelectFile(this.filePanelDataModel
+                this.uploadPolicy.onFileSelected(this.filePanelDataModel
                         .getFileDataAt(selectedRow));
                 setCursor(previousCursor);
             }

@@ -22,6 +22,7 @@
 package wjhk.jupload2.policies;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.io.BufferedOutputStream;
@@ -806,11 +807,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Default implementation of the
-     * {@link wjhk.jupload2.policies.UploadPolicy#onSelectFile(wjhk.jupload2.filedata.FileData)}.
+     * {@link wjhk.jupload2.policies.UploadPolicy#onFileSelected(wjhk.jupload2.filedata.FileData)}.
      * Nothing's done.
      */
-    public void onSelectFile(@SuppressWarnings("unused")
+    public void onFileSelected(@SuppressWarnings("unused")
     FileData fileData) {
+        // Default implementation : no action
+    }
+
+    /**
+     * Default implementation of the
+     * {@link wjhk.jupload2.policies.UploadPolicy#onFileDoubleClicked(FileData)}.
+     * Nothing's done.
+     */
+    public void onFileDoubleClicked(FileData fileData) {
         // Default implementation : no action
     }
 
@@ -1512,6 +1522,30 @@ public class DefaultUploadPolicy implements UploadPolicy {
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * This method changes the current mouse cursor to the wait one. It returns
+     * the old one so that, it can be restored, once the work is done.
+     * 
+     * @return The cursor that was active, before changing to the wait one. 
+     * @see setCursor
+     */
+    public Cursor setWaitCursor() {
+        Cursor previousCursor = getApplet().getCursor();
+        getApplet().setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        return previousCursor;
+    }
+
+    /**
+     * Changes the current mouse cursor. This method can be called at the end of
+     * a big treatement, to restore the cursor returned by the
+     * {@link #setWaitCursor()}.
+     * 
+     * @param cursor The cursor that must be set.
+     */
+    public void setCursor(Cursor cursor) {
+        getApplet().setCursor(cursor);
+    }
+
+    /**
      * Delete the current log. (called upon applet termination)
      */
     public void deleteLog() {
@@ -1607,18 +1641,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Let's store all text in the debug logfile
         addMsgToDebugLog(msg);
     }
-    
 
-    /** 
-     * Default implementation for {@link UploadPolicy#createFileChooser()}: just a creation of a 
-     * {@link JUploadFileChooser}.
+    /**
+     * Default implementation for {@link UploadPolicy#createFileChooser()}:
+     * just a creation of a {@link JUploadFileChooser}.
      * 
      * @see UploadPolicy#createFileChooser()
      */
     public JUploadFileChooser createFileChooser() {
         return new JUploadFileChooser(this);
     }
-
 
     /**
      * This method returns the response for the
