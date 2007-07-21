@@ -36,6 +36,7 @@ import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.JUploadPanel;
+import wjhk.jupload2.gui.PictureDialog;
 
 /**
  * This package contains upload policies, which allow easy configuration of the
@@ -483,9 +484,8 @@ import wjhk.jupload2.gui.JUploadPanel;
  * at the end: it will be added by the applet. <BR>
  * This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  * a header like this one:<BR>
- * Authorization: Basic Base64EncodedString
- * Where Base64EncodedString is the string "login:passord" encoded in Base 64.
- * </td>
+ * Authorization: Basic Base64EncodedString Where Base64EncodedString is the
+ * string "login:passord" encoded in Base 64. </td>
  * </tr>
  * <tr>
  * <td>sslVerifyCert<br>
@@ -636,18 +636,18 @@ import wjhk.jupload2.gui.JUploadPanel;
  * Below, an example of how to put the applet into a PHP page is shown:
  * </p>
  * <code><pre>
- *           &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
- *             archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
- *             &lt;!-- Applet display size, on the navigator page --&gt;
- *             width=&quot;500&quot; height=&quot;700&quot;
- *             &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
- *             mayscript&gt;
- *             &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
- *                  DefaultUploadPolicy is used. The applet behaves like the original
- *                  JUpload. (jupload v1) --&gt;
- *             &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
- *             Java 1.5 or higher plugin required.
- *           &lt;/applet&gt;
+ *              &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+ *                archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+ *                &lt;!-- Applet display size, on the navigator page --&gt;
+ *                width=&quot;500&quot; height=&quot;700&quot;
+ *                &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+ *                mayscript&gt;
+ *                &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+ *                     DefaultUploadPolicy is used. The applet behaves like the original
+ *                     JUpload. (jupload v1) --&gt;
+ *                &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+ *                Java 1.5 or higher plugin required.
+ *              &lt;/applet&gt;
  * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
  * by Ant build. DO NOT CHANGE!! -->
  * 
@@ -1068,7 +1068,6 @@ public interface UploadPolicy {
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// getters / setters
-    // ///////////////////////////////////////////////////
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -1314,15 +1313,16 @@ public interface UploadPolicy {
     // /////////////////// miscellanneous methods
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
-    //  MANAGEMENT OF THE FILE CHOOSER
+    // MANAGEMENT OF THE FILE CHOOSER
 
     /**
-     * The creation of the file chooser is controled by the upload policy, to allow fine control of the
-     * way to select files. For instance, the {@link PictureUploadPolicy} creates a file chooser, and add
-     * an accessory to preview pictures. 
+     * The creation of the file chooser is controled by the upload policy, to
+     * allow fine control of the way to select files. For instance, the
+     * {@link PictureUploadPolicy} creates a file chooser, and add an accessory
+     * to preview pictures.
      */
     public JUploadFileChooser createFileChooser();
-    
+
     /**
      * This methods is called by the {@link JUploadFileFilter#accept(File)}. It
      * allows the current upload policy to filter files, according to any
@@ -1351,9 +1351,8 @@ public interface UploadPolicy {
      */
     public Icon fileViewGetIcon(File file);
 
-    
     // DISPLAY OF MESSAGES (ERROR, DEBUG ...)
-    
+
     /**
      * This method allows the applet to post debug information to the website
      * (see {@link #getUrlToSendErrorTo()}). Then, it is possible to log the
@@ -1411,6 +1410,8 @@ public interface UploadPolicy {
      */
     public void displayDebug(String debug, int minDebugLevel);
 
+    // Others
+
     /**
      * Add an header to the list of headers that will be added to each HTTP
      * upload request. This method is called from specific uploadPolicies, which
@@ -1442,7 +1443,16 @@ public interface UploadPolicy {
      * 
      * @param fileData
      */
-    public void onSelectFile(FileData fileData);
+    public void onFileSelected(FileData fileData);
+
+    /**
+     * Reaction when the user double click on a file, in the file list. Default
+     * is no reaction. In {@link PictureUploadPolicy}, it will open a
+     * {@link PictureDialog}.
+     * 
+     * @param fileData
+     */
+    public void onFileDoubleClicked(FileData fileData);
 
     /**
      * Indicate if everything is ready for upload.

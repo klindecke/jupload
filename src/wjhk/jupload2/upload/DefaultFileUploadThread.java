@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: DefaultFileUploadThread.java 287 2007-06-17 09:07:04 +0000 (dim., 17
+// juin 2007) felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -56,6 +57,12 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// VARIABLES ///////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * The given array containing the files to upload. Stored in the
+     * constructor, and used in the run() method.
+     */
+    FileData[] filesDataParam = null;
 
     /**
      * This array will contain a 'copy' of the relevant element of the
@@ -132,17 +139,14 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     public DefaultFileUploadThread(FileData[] filesDataParam,
             UploadPolicy uploadPolicy, JProgressBar progressBar) {
+        this.filesDataParam = filesDataParam;
         this.uploadPolicy = uploadPolicy;
         this.progressBar = progressBar;
 
-        this.filesToUpload = new UploadFileData[filesDataParam.length];
-        this.maxChunkSize = uploadPolicy.getMaxChunkSize();
-        this.nbMaxFilesPerUpload = uploadPolicy.getNbFilesPerRequest();
-
-        for (int i = 0; i < filesDataParam.length; i += 1) {
-            this.filesToUpload[i] = new UploadFileData(filesDataParam[i], this,
-                    uploadPolicy);
-        }
+        // We don't store any additional parameters here: their value can be
+        // updated by the real class
+        // that'll be used. See FileUploadThreadFTP constructor of instance.
+        // Upload parameters are read in the run() method, below.
     }
 
     /**
@@ -363,6 +367,16 @@ public abstract class DefaultFileUploadThread extends Thread implements
     @Override
     final public void run() {
         boolean bUploadOk = true;
+
+        // Let's read the up-to-date upload parameters
+        this.filesToUpload = new UploadFileData[filesDataParam.length];
+        this.maxChunkSize = uploadPolicy.getMaxChunkSize();
+        this.nbMaxFilesPerUpload = uploadPolicy.getNbFilesPerRequest();
+
+        for (int i = 0; i < filesDataParam.length; i += 1) {
+            this.filesToUpload[i] = new UploadFileData(filesDataParam[i], this,
+                    uploadPolicy);
+        }
 
         // this inhibits status-update (progress bar and status bar)
         // from within the timer loop.

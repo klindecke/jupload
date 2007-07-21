@@ -46,6 +46,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 import wjhk.jupload2.upload.FileUploadThread;
@@ -492,9 +493,14 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     // fileUploadThread = new
                     // FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy,
                     // progress);
-                    this.fileUploadThread = new FileUploadThreadFTP(
-                            this.filePanel.getFiles(), this.uploadPolicy,
-                            this.progressBar);
+                    try {
+                        this.fileUploadThread = new FileUploadThreadFTP(
+                                this.filePanel.getFiles(), this.uploadPolicy,
+                                this.progressBar);
+                    } catch (JUploadException e1) {
+                        // Too bad !
+                        uploadPolicy.displayErr(e1);
+                    }
                 } else {
                     // fileUploadThread = new
                     // FileUploadThreadV4(filePanel.getFiles(), uploadPolicy,

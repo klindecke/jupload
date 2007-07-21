@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: PicturePanel.java 95 2007-05-02 03:27:05 +0000 (mer., 02 mai 2007)
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -297,10 +299,7 @@ public class PicturePanel extends Canvas implements MouseListener,
     MouseEvent arg0) {
         if (this.pictureFileData != null) {
             // Ok, we have a picture. Let's display it.
-            // uploadPolicy.displayDebug("---------- Opening PictureDialog",
-            // 60);
-            new PictureDialog(null, this.pictureFileData, this.uploadPolicy);
-            // uploadPolicy.displayDebug("---------- PictureDialog closed", 60);
+            this.uploadPolicy.onFileDoubleClicked(pictureFileData);
         }
     }
 

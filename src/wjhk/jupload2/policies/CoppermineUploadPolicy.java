@@ -115,7 +115,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * The Coppermine gallery allows files other than pictures. If it's a
      * picture, we manage it as a picture. Otherwise, we currently do nothing.
      * 
-     * @see #onSelectFile(FileData)
+     * @see #onFileSelected(FileData)
      */
     @Override
     public FileData createFileData(File file, File root) {
@@ -127,16 +127,16 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     }
 
     /**
-     * @see wjhk.jupload2.policies.UploadPolicy#onSelectFile(wjhk.jupload2.filedata.FileData)
+     * @see wjhk.jupload2.policies.UploadPolicy#onFileSelected(wjhk.jupload2.filedata.FileData)
      */
     @Override
-    public void onSelectFile(FileData fileData) {
+    public void onFileSelected(FileData fileData) {
         if (fileData == null) {
-            super.onSelectFile(fileData);
+            super.onFileSelected(fileData);
         } else if (fileData instanceof PictureFileData) {
-            super.onSelectFile(fileData);
+            super.onFileSelected(fileData);
         } else {
-            super.onSelectFile(null);
+            super.onFileSelected(null);
         }
     }
 
