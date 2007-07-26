@@ -21,6 +21,7 @@
 
 package wjhk.jupload2.policies;
 
+import java.awt.Cursor;
 import java.io.File;
 
 import javax.swing.Icon;
@@ -150,6 +151,24 @@ import wjhk.jupload2.gui.PictureDialog;
  * the applet.<br>
  * This parameter must contains a list of extensions, in lower case, separated
  * by slashes. eg: jpg/jpeg/gif </td>
+ * </tr>
+ * <tr>
+ * <td>calculateIconFromFileContent</td>
+ * <td><i>true</i><br>
+ * since 3.1.0<br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>This parameter allows to control whether the file icons in the file
+ * chooser are calculated from the file content. This is currently only
+ * available for pictures.<BR>
+ * If activated, the file chooser will open each pictures, and calculate the
+ * icon by resizing the picture. This is done in by using thread of minimam
+ * priority, to minimize performances impact on the navigator. Available values
+ * are: <DIR>
+ * <LI>-1: disabled. The default system are used.
+ * <LI>0 (default): available only in picture mode. That is: the current upload
+ * policy is an instance of or a class inheriting from
+ * {@link  PictureUploadPolicy}
+ * <LI>1: available for all upload policies. </DIR></td>
  * </tr>
  * <tr>
  * <td>debugLevel</td>
@@ -636,18 +655,18 @@ import wjhk.jupload2.gui.PictureDialog;
  * Below, an example of how to put the applet into a PHP page is shown:
  * </p>
  * <code><pre>
- *              &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
- *                archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
- *                &lt;!-- Applet display size, on the navigator page --&gt;
- *                width=&quot;500&quot; height=&quot;700&quot;
- *                &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
- *                mayscript&gt;
- *                &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
- *                     DefaultUploadPolicy is used. The applet behaves like the original
- *                     JUpload. (jupload v1) --&gt;
- *                &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
- *                Java 1.5 or higher plugin required.
- *              &lt;/applet&gt;
+ *                       &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+ *                         archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+ *                         &lt;!-- Applet display size, on the navigator page --&gt;
+ *                         width=&quot;500&quot; height=&quot;700&quot;
+ *                         &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+ *                         mayscript&gt;
+ *                         &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+ *                              DefaultUploadPolicy is used. The applet behaves like the original
+ *                              JUpload. (jupload v1) --&gt;
+ *                         &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+ *                         Java 1.5 or higher plugin required.
+ *                       &lt;/applet&gt;
  * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
  * by Ant build. DO NOT CHANGE!! -->
  * 
@@ -1007,8 +1026,7 @@ public interface UploadPolicy {
      * @param browse The default browse button.
      * @param remove The default removeSelected button.
      * @param removeAll The default removeAll button.
-     * @param mainPanel The panel that contains all objects. It can be used to
-     *            change the cursor (to a WAIT_CURSOR for instance).
+     * @param mainPanel The panel that contains all objects.
      * @return the topPanel, that will be displayed on the top of the Applet.
      */
     public JPanel createTopPanel(JButton browse, JButton remove,
@@ -1022,8 +1040,7 @@ public interface UploadPolicy {
      * @param progressBar The default progress bar.
      * @param uploadButton The default upload button.
      * @param stopButton The default stop button.
-     * @param mainPanel The panel that contains all objects. It can be used to
-     *            change the cursor (to a WAIT_CURSOR for instance).
+     * @param mainPanel The panel that contains all objects.
      * @return the topPanel, that will be displayed on the top of the Applet.
      */
     public JPanel createProgressPanel(JProgressBar progressBar,
@@ -1035,8 +1052,7 @@ public interface UploadPolicy {
      * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createStatusBar(JLabel, JPanel)}.
      * 
      * @param statusContent The status bar content
-     * @param mainPanel The panel that contains all objects. It can be used to
-     *            change the cursor (to a WAIT_CURSOR for instance).
+     * @param mainPanel The panel that contains all objects.
      * @return the topPanel, that will be displayed on the top of the Applet.
      */
     public JPanel createStatusBar(JLabel statusContent, JPanel mainPanel);
@@ -1350,6 +1366,24 @@ public interface UploadPolicy {
      * @return The resulting icon.
      */
     public Icon fileViewGetIcon(File file);
+
+    /**
+     * This method changes the current mouse cursor to the wait one. It returns
+     * the old one so that, it can be restored, once the work is done.
+     * 
+     * @return The cursor that was active, before changing to the wait one.
+     * @see setCursor
+     */
+    public Cursor setWaitCursor();
+
+    /**
+     * Changes the current mouse cursor. This method can be called at the end of
+     * a big treatement, to restore the cursor returned by the
+     * {@link #setWaitCursor()}.
+     * 
+     * @param cursor The cursor that must be set.
+     */
+    public void setCursor(Cursor cursor);
 
     // DISPLAY OF MESSAGES (ERROR, DEBUG ...)
 
