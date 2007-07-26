@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: DialogPicturePanel.java 95 2007-05-02 03:27:05 +0000 (mer., 02 mai 2007)
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -25,46 +27,50 @@ import java.awt.event.MouseEvent;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
-
 /**
- * 
- * The picture for the PictureDialog. The difference with the PicturePanel, is that
- * a click on it closes the Dialog. 
+ * The picture for the PictureDialog. The difference with the PicturePanel, is
+ * that a click on it closes the Dialog.
  * 
  * @author Etienne Gauthier
  */
 public class DialogPicturePanel extends PicturePanel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1333603128496671158L;
-	/**
-	 * The JDialog containing this panel.
-	 */
-	PictureDialog pictureDialog;
-	
-	/**
-	 * 
-	 */
-	public DialogPicturePanel(PictureDialog pictureDialog, UploadPolicy uploadPolicy, PictureFileData pictureFileData) {
-		super(pictureDialog.getContentPane(), false, uploadPolicy);
-		
-		this.pictureDialog = pictureDialog;
-		setPictureFile(pictureFileData);
-	}
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1333603128496671158L;
 
-	/**
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-	 */
-	@Override
+    /**
+     * The JDialog containing this panel.
+     */
+    PictureDialog pictureDialog;
+
+    /**
+     * 
+     */
+    public DialogPicturePanel(PictureDialog pictureDialog,
+            UploadPolicy uploadPolicy, PictureFileData pictureFileData) {
+        super(false, uploadPolicy);
+
+        this.pictureDialog = pictureDialog;
+        // pictureDialog.getContentPane().setCursor(new
+        // Cursor(Cursor.WAIT_CURSOR));
+        setPictureFile(pictureFileData);
+        // pictureDialog.getContentPane().setCursor(null);
+    }
+
+    /**
+     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     */
+    @Override
     public void mouseClicked(@SuppressWarnings("unused")
     MouseEvent arg0) {
-		//Let's close the current DialogBox, if it has not already be done.
-		if (this.pictureDialog != null) {
-			this.uploadPolicy.displayDebug("[DialogPicturePanel] Before pictureDialog.dispose()", 60);
-			this.pictureDialog.dispose();
-			this.pictureDialog = null;
-		}
-	}
+        // Let's close the current DialogBox, if it has not already be done.
+        if (this.pictureDialog != null) {
+            this.uploadPolicy.displayDebug(
+                    "[DialogPicturePanel] Before pictureDialog.dispose()", 60);
+            this.pictureDialog.dispose();
+            this.pictureDialog = null;
+        }
+    }
 }

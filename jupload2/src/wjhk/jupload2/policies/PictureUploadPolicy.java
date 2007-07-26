@@ -305,8 +305,10 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         pPanel.setLayout(new GridLayout(1, 1));
         pPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 10));
 
-        this.picturePanel = new PicturePanel(mainPanel, true, this);
+        this.picturePanel = new PicturePanel(true, this);
         pPanel.add(this.picturePanel);
+        //Setting specific cursor for this panel, default for other parts of the applet.
+        setCursor(null);
 
         // And last but not least ... creation of the top panel:
         JPanel topPanel = new JPanel();
@@ -561,6 +563,29 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 + this.targetPictureFormat, 20);
         displayDebug("", 20);
     }
+    
+    /**
+     * Calls the {@link DefaultUploadPolicy#setWaitCursor()} method, then erases the picture panel specific
+     * cursor.
+     * @see DefaultUploadPolicy#setCursor(Cursor)
+     */
+    @Override
+    public Cursor setWaitCursor() {
+        Cursor previousCursor = super.setWaitCursor();
+        picturePanel.setCursor(null);
+        return previousCursor;
+    }
+
+    /**
+     * Calls the {@link DefaultUploadPolicy#setCursor(Cursor)} method, then set the picture panel specific
+     * cursor.
+     * @see DefaultUploadPolicy#setCursor(Cursor)
+     */
+    @Override
+    public void setCursor(Cursor cursor) {
+        super.setCursor(null);
+        picturePanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
 
     /**
      * Creates the file chooser, from the default implementation, then add an
@@ -571,7 +596,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public JUploadFileChooser createFileChooser() {
         JUploadFileChooser jufc = super.createFileChooser();
-        jufc.setAccessory(new JUploadImagePreview(jufc));
+        jufc.setAccessory(new JUploadImagePreview(jufc, this));
         return jufc;
     }
 
@@ -605,7 +630,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// static methods
-    // ////////////////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

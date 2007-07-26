@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: JUploadPanel.java 303 2007-07-21 07:42:51 +0000 (sam., 21 juil. 2007)
+// etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -58,8 +59,7 @@ import wjhk.jupload2.upload.FileUploadThreadHTTP;
  * the text. The JFC doesn't always remember to do that. <BR>
  */
 
-final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
-        ItemListener {
+final class JUploadPopupMenu extends JPopupMenu implements ItemListener {
 
     /** A generated serialVersionUID */
     private static final long serialVersionUID = -5473337111643079720L;
@@ -77,21 +77,19 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
 
     JUploadPopupMenu(UploadPolicy uploadPolicy) {
         this.uploadPolicy = uploadPolicy;
+
+        // ////////////////////////////////////////////////////////////////////////
         // Creation of the menu items
+        // ////////////////////////////////////////////////////////////////////////
+        // First: debug on or off
         this.cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug on");
         this.cbMenuItemDebugOnOff
                 .setState(this.uploadPolicy.getDebugLevel() == 100);
         add(this.cbMenuItemDebugOnOff);
+        // ////////////////////////////////////////////////////////////////////////
         this.cbMenuItemDebugOnOff.addItemListener(this);
     }
 
-    /**
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(@SuppressWarnings("unused")
-    ActionEvent action) {
-        // Nothing to do.
-    }
 
     /**
      * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
@@ -398,8 +396,9 @@ public class JUploadPanel extends JPanel implements ActionListener,
                                 .getString("speedunit_kb_per_second");
                     }
                     String status = String.format(this.uploadPolicy
-                            .getString("status_msg"), new Integer(
-                            (int) percent), new Double(cps), unit, eta);
+                            .getString("status_msg"),
+                            new Integer((int) percent), new Double(cps), unit,
+                            eta);
                     this.statusLabel.setText(status);
                     this.uploadPolicy.getApplet().getAppletContext()
                             .showStatus(status);

@@ -1065,30 +1065,39 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayDebug("  country: "
                     + this.resourceBundle.getLocale().getCountry(), 20);
 
-            displayDebug("afterUploadURL: " + getAfterUploadURL(), 20);
-            displayDebug("allowHttpPersistent: " + getAllowHttpPersistent(), 20);
-            displayDebug(
-                    "allowedFileExtensions: " + getAllowedFileExtensions(), 20);
-            displayDebug("debug: " + this.debugLevel, 1);
-            displayDebug("filenameEncoding: " + this.filenameEncoding, 20);
+            displayDebug(PROP_AFTER_UPLOAD_URL + ": " + getAfterUploadURL(), 20);
+            displayDebug(PROP_ALLOW_HTTP_PERSISTENT + ": "
+                    + getAllowHttpPersistent(), 20);
+            displayDebug(PROP_ALLOWED_FILE_EXTENSIONS + ": "
+                    + getAllowedFileExtensions(), 20);
+            displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
+                    + " (debugfile: " + debugFile.getAbsolutePath() + ")", 1);
+            displayDebug(PROP_FILENAME_ENCODING + ": " + this.filenameEncoding,
+                    20);
             displayDebug("lang: " + this.lang, 20);
-            displayDebug("maxChunkSize: " + this.maxChunkSize, 20);
+            displayDebug(PROP_MAX_CHUNK_SIZE + ": " + this.maxChunkSize, 20);
             if (this.maxFileSize == Long.MAX_VALUE) {
                 // If the maxFileSize was not given, we display its value only
                 // in debug mode.
-                displayDebug("maxFileSize  : " + this.maxFileSize, 20);
+                displayDebug(PROP_MAX_FILE_SIZE + ": " + this.maxFileSize, 20);
             } else {
                 // If the maxFileSize was given, we always inform the user.
-                displayInfo("maxFileSize  : " + this.maxFileSize);
+                displayInfo(PROP_MAX_FILE_SIZE + ": " + this.maxFileSize);
             }
-            displayDebug("nbFilesPerRequest: " + this.nbFilesPerRequest, 20);
-            displayDebug("postURL: " + this.postURL, 20);
-            displayDebug("serverProtocol: " + this.serverProtocol, 20);
-            displayDebug("showLogWindow: " + getShowLogWindow(), 20);
-            displayDebug("specificHeaders: " + getSpecificHeaders(), 20);
-            displayDebug("stringUploadSuccess: " + this.stringUploadSuccess, 20);
-            displayDebug("stringUploadError: " + this.stringUploadError, 20);
-            displayDebug("urlToSendErrorTo: " + this.urlToSendErrorTo, 20);
+            displayDebug(PROP_NB_FILES_PER_REQUEST + ": "
+                    + this.nbFilesPerRequest, 20);
+            displayDebug(PROP_POST_URL + ": " + this.postURL, 20);
+            displayDebug(PROP_SERVER_PROTOCOL + ": " + this.serverProtocol, 20);
+            displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 20);
+            displayDebug(PROP_SHOW_STATUSBAR + ": " + showStatusbar, 20);
+            displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(),
+                    20);
+            displayDebug(PROP_STRING_UPLOAD_SUCCESS + ": "
+                    + this.stringUploadSuccess, 20);
+            displayDebug(PROP_STRING_UPLOAD_ERROR + ": "
+                    + this.stringUploadError, 20);
+            displayDebug(PROP_URL_TO_SEND_ERROR_TO + ": "
+                    + this.urlToSendErrorTo, 20);
             displayDebug("", 20);
         }
     }
@@ -1194,6 +1203,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // change.
         if (this.debugLevel >= 0) {
             displayInfo("Debug level set to " + debugLevel);
+            displayInfo("Current debug output file: " + debugFile.getAbsolutePath());
         }
         this.debugLevel = debugLevel;
 
@@ -1522,11 +1532,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * This method changes the current mouse cursor to the wait one. It returns
-     * the old one so that, it can be restored, once the work is done.
-     * 
-     * @return The cursor that was active, before changing to the wait one. 
-     * @see setCursor
+     * @see UploadPolicy#setWaitCursor()
      */
     public Cursor setWaitCursor() {
         Cursor previousCursor = getApplet().getCursor();
@@ -1535,11 +1541,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Changes the current mouse cursor. This method can be called at the end of
-     * a big treatement, to restore the cursor returned by the
-     * {@link #setWaitCursor()}.
-     * 
-     * @param cursor The cursor that must be set.
+     * @see UploadPolicy#setCursor(Cursor)
      */
     public void setCursor(Cursor cursor) {
         getApplet().setCursor(cursor);
@@ -1721,4 +1723,5 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return (null != this.lastResponseMessage) ? this.lastResponseMessage
                 : "";
     }
+
 }

@@ -24,7 +24,6 @@
 package wjhk.jupload2.gui;
 
 import java.awt.Canvas;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -75,8 +74,6 @@ public class PicturePanel extends Canvas implements MouseListener,
      */
     private static final long serialVersionUID = -3439340009940699981L;
 
-    private Container mainContainer;
-
     private PictureFileData pictureFileData;
 
     /**
@@ -96,13 +93,6 @@ public class PicturePanel extends Canvas implements MouseListener,
     private boolean hasToStoreOffscreenPicture = false;
 
     /**
-     * That cursor which is displayed when the mouse is over this panel. The
-     * cursor can be changer to wait cursor, when long treatments are done, like
-     * loading a new picture.
-     */
-    private Cursor picturePanelCursor = new Cursor(Cursor.HAND_CURSOR);
-
-    /**
      * The current upload policy.
      */
     protected UploadPolicy uploadPolicy;
@@ -110,14 +100,12 @@ public class PicturePanel extends Canvas implements MouseListener,
     /**
      * Standard constructor.
      * 
-     * @param mainContainer The main panel of the current window. It can be used
-     *            to change the displayed cursor (to a WAIT_CURSOR for instance)
+     * @param mainContainer The main panel of the current window.
      */
-    public PicturePanel(Container mainContainer,
-            boolean hasToStoreOffscreenPicture, UploadPolicy uploadPolicy) {
+    public PicturePanel(boolean hasToStoreOffscreenPicture,
+            UploadPolicy uploadPolicy) {
         super();
 
-        this.mainContainer = mainContainer;
         this.hasToStoreOffscreenPicture = hasToStoreOffscreenPicture;
         this.uploadPolicy = uploadPolicy;
 
@@ -127,9 +115,6 @@ public class PicturePanel extends Canvas implements MouseListener,
         // We want to know when a resize event occurs (to recalculate
         // offscreenImage)
         addComponentListener(this);
-
-        // Indication to the user : this panel can be clicked on.
-        setCursor(this.picturePanelCursor);
     }
 
     /**
@@ -211,6 +196,7 @@ public class PicturePanel extends Canvas implements MouseListener,
      */
     public void rotate(int quarter) {
         if (this.pictureFileData != null) {
+            Cursor previousCursor = uploadPolicy.setWaitCursor();
             this.pictureFileData.addRotation(quarter);
             // The previously calculated picture is now wrong.
             this.offscreenImage.flush();
@@ -218,6 +204,7 @@ public class PicturePanel extends Canvas implements MouseListener,
             calculateOffscreenImage();
 
             repaint();
+            uploadPolicy.setCursor(previousCursor);
         } else {
             this.uploadPolicy
                     .displayWarn("Hum, this is really strange: there is no pictureFileData in the PicturePanel! Command is ignored.");
@@ -230,12 +217,10 @@ public class PicturePanel extends Canvas implements MouseListener,
      * only clear the panel rectangle, on the screen.
      */
     private void calculateOffscreenImage() {
-        Cursor previousCursor = null;
-        if (this.mainContainer != null) {
-            previousCursor = this.mainContainer.getCursor();
-            this.mainContainer.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-            this.setCursor(null);
-        }
+        /**
+         * Cursor previousCursor = null; if (this.mainContainer != null) {
+         * previousCursor = this.uploadPolicy.setWaitCursor(); }
+         */
         if (this.pictureFileData == null) {
             // Nothing to do. offscreenImage should be null.
             if (this.offscreenImage != null) {
@@ -266,10 +251,10 @@ public class PicturePanel extends Canvas implements MouseListener,
             }
         }
 
-        if (previousCursor != null && this.mainContainer != null) {
-            this.mainContainer.setCursor(previousCursor);
-            this.setCursor(this.picturePanelCursor);
-        }
+        /*
+         * if (previousCursor != null && this.mainContainer != null) {
+         * this.mainContainer.setCursor(previousCursor); }
+         */
     }
 
     /**
@@ -280,7 +265,6 @@ public class PicturePanel extends Canvas implements MouseListener,
         // super.finalize();
         this.uploadPolicy.displayDebug("Within PicturePanel.finalize()", 90);
 
-        this.mainContainer = null;
         this.pictureFileData = null;
         this.uploadPolicy = null;
 
@@ -292,7 +276,6 @@ public class PicturePanel extends Canvas implements MouseListener,
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// MouseListener interface
-    // ////////////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
     /** @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent) */
     public void mouseClicked(@SuppressWarnings("unused")

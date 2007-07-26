@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: PictureDialog.java 298 2007-07-12 10:17:32 +0000 (jeu., 12 juil. 2007)
+// etienne_sf $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -21,11 +22,14 @@
 package wjhk.jupload2.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -38,7 +42,8 @@ import wjhk.jupload2.policies.UploadPolicy;
  * 
  * @author Etienne Gauthier
  */
-public class PictureDialog extends JDialog implements ActionListener {
+public class PictureDialog extends JDialog implements ActionListener,
+        ComponentListener {
 
     /**
      * 
@@ -67,6 +72,10 @@ public class PictureDialog extends JDialog implements ActionListener {
         this.uploadPolicy = uploadPolicy;
         this.pictureFileData = pictureFileData;
 
+        // This will be a long operation. The cursor will set back to normal in
+        // componentShown, see below
+        setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
         // Creation of the image area
         this.picturePanel = new DialogPicturePanel(this, uploadPolicy,
                 pictureFileData);
@@ -80,13 +89,17 @@ public class PictureDialog extends JDialog implements ActionListener {
         getContentPane().add(this.picturePanel);
 
         pack();
-        //Correction given by 
-        //setSize(getMaximumSize());  generate very high number under MAC OSX -> Applet Crash
+        // Correction given by
+        // setSize(getMaximumSize()); generate very high number under MAC OSX ->
+        // Applet Crash
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(0, 0, screenSize.width, screenSize.height);
 
         // The dialog is modal: the next line will return when the DialogPicture
         // is hidden (to be closed, in our case)
+        // But we want to know when it will becom visible, to clear the wait
+        // cursor.
+        addComponentListener(this);
         setVisible(true);
 
         // MEMORY LEAK CORRECTION :
@@ -108,6 +121,23 @@ public class PictureDialog extends JDialog implements ActionListener {
                     "[PictureDialog] Before this.dispose()", 60);
             this.dispose();
         }
+    }
+
+    public void componentHidden(ComponentEvent arg0) {
+        // No action
+    }
+
+    public void componentMoved(ComponentEvent arg0) {
+        // No action
+    }
+
+    public void componentResized(ComponentEvent arg0) {
+        // No action
+    }
+
+    public void componentShown(ComponentEvent arg0) {
+        // We set the cursor back to normal
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     /**

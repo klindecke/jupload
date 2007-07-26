@@ -134,15 +134,17 @@ public class FilePanelJTable extends JTable implements MouseListener {
         // Is this a double-click ?
         if (event.getClickCount() == 2) {
             // Let's open the 'big' preview, if we're in picture mode.
-            //We should have one selected row. Let's check it, you never knows !  ;-)
+            // We should have one selected row. Let's check it, you never knows
+            // ! ;-)
             int selectedRow = getSelectedRow();
             if (selectedRow >= 0) {
                 this.uploadPolicy.onFileSelected(this.filePanelDataModel
                         .getFileDataAt(selectedRow));
             }
-            
-            //FIXME The double click is not received here.
-            
+
+            // FIXME The double click is not received here, unless on it is on
+            // the column header
+
         } else if (!this.uploadPolicy.getApplet().getUploadPanel()
                 .maybeOpenPopupMenu(event)) {
             // We did not open the displays the contextual menu. So we do what
@@ -198,11 +200,10 @@ public class FilePanelJTable extends JTable implements MouseListener {
             // if one file is selected, we let the current upload policy reacts.
             // Otherwise, we don't do anything.
             if (selectedRow == lsm.getMaxSelectionIndex()) {
-                Cursor previousCursor = getCursor();
-                setCursor(new Cursor(Cursor.WAIT_CURSOR));
+                Cursor previousCursor = this.uploadPolicy.setWaitCursor();
                 this.uploadPolicy.onFileSelected(this.filePanelDataModel
                         .getFileDataAt(selectedRow));
-                setCursor(previousCursor);
+                this.uploadPolicy.setCursor(previousCursor);
             }
         }
     }

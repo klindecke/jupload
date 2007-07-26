@@ -1,14 +1,9 @@
 TODO list:
 - [FileChooser] Replace the 'open' button by 'Add file'.
-- [Picture mode] Better management of the wait cursor
 - [Picture mode] A double-click on a file should also open the preview.
-- [Picture mode] Picture resizing, to display the small and big preview: to make it quicker ?
-- Add an item on the CTRL+Right Click, to indicate the current debug file. It may not be necessary anymore 
-to switch the applet to debug mode. (hum, what about the applet parameter display... to be checked)
-- [Picture mode] New applet parameter, to display the file content in the file chooser as the file icon or not
+- [Picture mode] New applet parameter (calculateIconFromFileContent), to display the file content in the file chooser 
+as the file icon or not
 - [Picture mode] New applet parameter, to add or not the preview accessory.
-- [Picture mode] FleChooser: display the preview image in the fileChooserAccessory should be in a dedicated thread, so
-that double-clicking on a file is instantaneous.
 - The setServerProtocol should correctly manage ftp URL (without needing to add FTP as the serverProtocol parameter)
 - Allows upload from the demo site, or inform that it doesn't work.
 - Remove the icon worker of the file view from the standard upload.
@@ -18,6 +13,9 @@ that double-clicking on a file is instantaneous.
 
 V3.0.2b4
 - [Fix] Uploading several files in FTP mode, with wrong nbFilesPerRequest or maxChunkSize would generate an error.
+- [Minor] Better management of the wait cursor in picture mode.
+- [Minor] FileChooser: The display of the preview image in the fileChooserAccessory is now done in a dedicated thread, 
+so that selecting a file is instantaneous.
 - [Translation] Czech translation available, thanks to Vladan Zajda.
 
 V3.0.2b3

@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -151,16 +152,18 @@ class IconWorker implements Runnable {
                 this.status = STATUS_LOADING;
                 this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
                         + this.file.getName() + ")", 90);
-    
+
                 this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
                 this.fileChooser.repaint(0);
-    
+
                 this.status = STATUS_LOADED;
-                //A try to minimize memory footprint 
+
+                // A try to minimize memory footprint
                 Runtime.getRuntime().gc();
             }
         } catch (OutOfMemoryError e) {
-            uploadPolicy.displayWarn("OutOfMemoryError in IconWorker.loadIcon()");
+            uploadPolicy
+                    .displayWarn("OutOfMemoryError in IconWorker.loadIcon()");
             this.status = STATUS_ERROR_WHILE_LOADING;
         }
     }
@@ -180,7 +183,18 @@ class IconWorker implements Runnable {
  * 
  * @author Etienne Gauthier
  */
-public class JUploadFileView extends FileView implements PropertyChangeListener {
+public class JUploadFileView extends FileView implements
+        PropertyChangeListener, ThreadFactory {
+
+    /**
+     * This thread group is used to contain all icon worker threads. Its
+     * priority is the MIN_PRIORITY, to try to minimize CPU footprint. Its
+     * thread max priority is set in the
+     * {@link JUploadFileView#JUploadFileView(UploadPolicy, JFileChooser)}
+     * constructor.
+     */
+    static ThreadGroup iconWorkerThreadGroup = new ThreadGroup(
+            "JUpload ThreadGroup");
 
     /** The current upload policy. */
     UploadPolicy uploadPolicy = null;
@@ -219,6 +233,11 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
         this.uploadPolicy = uploadPolicy;
         this.fileChooser = fileChooser;
         this.fileChooser.addPropertyChangeListener(this);
+
+        // The real interest of the threa group, here, is to lower the priority
+        // of the icon workers threads:
+        JUploadFileView.iconWorkerThreadGroup
+                .setMaxPriority(Thread.MIN_PRIORITY);
 
         this.emptyIcon = new ImageIcon(new BufferedImage(ICON_SIZE, ICON_SIZE,
                 BufferedImage.TYPE_INT_ARGB_PRE));
@@ -338,5 +357,18 @@ public class JUploadFileView extends FileView implements PropertyChangeListener 
     @Override
     public Boolean isTraversable(File f) {
         return null; // let the L&F FileView figure this out
+    }
+
+    /**
+     * Implementation of ThreadFactory. Creates a thread in the
+     * {@link #iconWorkerThreadGroup} thread group. This thread group has the
+     * lower available priority.
+     * 
+     * @param runnable The runnable instance to start.
+     */
+    public Thread newThread(Runnable runnable) {
+        Thread thread = new Thread(JUploadFileView.iconWorkerThreadGroup, runnable);
+        thread.setPriority(Thread.MIN_PRIORITY);
+        return thread;
     }
 }
