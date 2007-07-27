@@ -157,6 +157,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private int debugLevel = UploadPolicy.DEFAULT_DEBUG_LEVEL;
 
     /**
+     * Current value for the fileChooserIconFromFileContent applet property.
+     * 
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
+     */
+    private int fileChooserIconFromFileContent = 0;
+
+    /**
      * This String contains the filenameEncoding parameter. All details about
      * the available applet parameters are displayed in the <a
      * href="UploadPolicy.html@parameters">Upload Policy javadoc page</a>.
@@ -377,6 +384,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // urlToSendErrorTo)
         setDebugLevel(UploadPolicyFactory.getParameter(theApplet,
                 PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL, this), false);
+
+        // get the filenameEncoding. If not null, it should be a valid argument
+        // for the URLEncoder.encode method.
+        setFileChooserIconFromFileContent(UploadPolicyFactory.getParameter(
+                theApplet, PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT,
+                DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT, this));
 
         // get the filenameEncoding. If not null, it should be a valid argument
         // for the URLEncoder.encode method.
@@ -1000,6 +1013,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         } else if (prop.equals(PROP_DEBUG_LEVEL)) {
             setDebugLevel(UploadPolicyFactory.parseInt(value, this.debugLevel,
                     this));
+        } else if (prop.equals(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT)) {
+            setFileChooserIconFromFileContent(UploadPolicyFactory.parseInt(
+                    value, getFileChooserIconFromFileContent(), this));
         } else if (prop.equals(PROP_LANG)) {
             setLang(value);
         } else if (prop.equals(PROP_FILENAME_ENCODING)) {
@@ -1072,6 +1088,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     + getAllowedFileExtensions(), 20);
             displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
                     + " (debugfile: " + debugFile.getAbsolutePath() + ")", 1);
+            displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
+                    + getFileChooserIconFromFileContent(), 20);
             displayDebug(PROP_FILENAME_ENCODING + ": " + this.filenameEncoding,
                     20);
             displayDebug("lang: " + this.lang, 20);
@@ -1203,7 +1221,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // change.
         if (this.debugLevel >= 0) {
             displayInfo("Debug level set to " + debugLevel);
-            displayInfo("Current debug output file: " + debugFile.getAbsolutePath());
+            displayInfo("Current debug output file: "
+                    + debugFile.getAbsolutePath());
         }
         this.debugLevel = debugLevel;
 
@@ -1217,6 +1236,29 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 displayParameterStatus();
             }
         }
+    }
+
+    /**
+     * Getter for {@link #fileChooserIconFromFileContent}.
+     * 
+     * @return Current value for fileChooserIconFromFileContent
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
+     */
+    public int getFileChooserIconFromFileContent() {
+        return fileChooserIconFromFileContent;
+    }
+
+    /**
+     * Setter for {@link #fileChooserIconFromFileContent}. Current allowed
+     * values are: -1, 0, 1. Default value is 0.
+     * 
+     * @param fileChooserIconFromFileContent Value to be set. If the value is
+     *            not allowed (not -1, 0 or 1), the current value is unchangeed.
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
+     */
+    public void setFileChooserIconFromFileContent(
+            int fileChooserIconFromFileContent) {
+        this.fileChooserIconFromFileContent = fileChooserIconFromFileContent;
     }
 
     /**
@@ -1369,16 +1411,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     protected void setServerProtocol(String value) throws JUploadException {
         if (null == value || value.equals("")) {
-            if (null == this.postURL || this.postURL.equals(""))
+            if (null == this.postURL || this.postURL.equals("")) {
                 throw new JUploadException("postURL not set");
-            try {
-                value = new HttpConnect(this).getProtocol();
-            } catch (Exception e) {
-                // If we throw an error here, we prevent the applet to start.
-                throw new JUploadException(e);
-                // displayErr(e);
-                // Let's try with default value.
-                // value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
+            } else if (this.postURL.substring(0, 3).equals("ftp")) {
+                value = "ftp";
+            } else {
+                try {
+                    value = new HttpConnect(this).getProtocol();
+                } catch (Exception e) {
+                    // If we throw an error here, we prevent the applet to start.
+                    throw new JUploadException(e);
+                    // displayErr(e);
+                    // Let's try with default value.
+                    // value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
+                }
             }
         }
         this.serverProtocol = value;

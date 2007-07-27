@@ -604,6 +604,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * Returns an icon, calculated from the image content.
      * 
      * @see UploadPolicy#fileViewGetIcon(File)
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     @Override
     public Icon fileViewGetIcon(File file) {

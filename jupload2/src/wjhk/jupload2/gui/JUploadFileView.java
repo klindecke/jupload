@@ -36,6 +36,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileView;
 
+import wjhk.jupload2.policies.DefaultUploadPolicy;
+import wjhk.jupload2.policies.PictureUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
 
 // //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,10 +318,23 @@ public class JUploadFileView extends FileView implements
     }
 
     /**
+     * The fileChooserIconFromFileContent applet parameter defies which icon is
+     * to be returned here.
+     * 
      * @see javax.swing.filechooser.FileView#getIcon(java.io.File)
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     @Override
     public Icon getIcon(File file) {
+        // For DefaultUploadPolicy, a value of 1 means calculating the icon.
+        // For PictureUploadPolicy and sisters, a value of 0 also means
+        // calculating the icon
+        // Otherwise: return null, for default icon.
+        if (!((uploadPolicy.getFileChooserIconFromFileContent() == 1 && uploadPolicy instanceof DefaultUploadPolicy) || (uploadPolicy
+                .getFileChooserIconFromFileContent() == 0 && uploadPolicy instanceof PictureUploadPolicy))) {
+            return null;
+        }
+        // For PictureUploadPolicy and sisters, a value of 0
         if (file.isDirectory()) {
             // We let the L&F display the system icon for directories.
             return null;
@@ -367,7 +382,8 @@ public class JUploadFileView extends FileView implements
      * @param runnable The runnable instance to start.
      */
     public Thread newThread(Runnable runnable) {
-        Thread thread = new Thread(JUploadFileView.iconWorkerThreadGroup, runnable);
+        Thread thread = new Thread(JUploadFileView.iconWorkerThreadGroup,
+                runnable);
         thread.setPriority(Thread.MIN_PRIORITY);
         return thread;
     }
