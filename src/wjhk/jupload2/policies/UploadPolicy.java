@@ -153,7 +153,18 @@ import wjhk.jupload2.gui.PictureDialog;
  * by slashes. eg: jpg/jpeg/gif </td>
  * </tr>
  * <tr>
- * <td>calculateIconFromFileContent</td>
+ * <td>debugLevel</td>
+ * <td>0 <br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>With 0, you get the normal production output. The higher the number is,
+ * the more information is displayed in the log window. <br>
+ * Note: All debug messages are stored in a temporary log file. This can be used
+ * to display more information, if needed. See also the 'webmasterMail'
+ * parameter. </td>
+ * </tr>
+ * <tr>
+ * <td>fileChooserIconFromFileContent</td>
  * <td><i>true</i><br>
  * since 3.1.0<br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
@@ -169,17 +180,6 @@ import wjhk.jupload2.gui.PictureDialog;
  * policy is an instance of or a class inheriting from
  * {@link  PictureUploadPolicy}
  * <LI>1: available for all upload policies. </DIR></td>
- * </tr>
- * <tr>
- * <td>debugLevel</td>
- * <td>0 <br>
- * <br>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>With 0, you get the normal production output. The higher the number is,
- * the more information is displayed in the log window. <br>
- * Note: All debug messages are stored in a temporary log file. This can be used
- * to display more information, if needed. See also the 'webmasterMail'
- * parameter. </td>
  * </tr>
  * <tr>
  * <td>filenameEncoding</td>
@@ -655,18 +655,18 @@ import wjhk.jupload2.gui.PictureDialog;
  * Below, an example of how to put the applet into a PHP page is shown:
  * </p>
  * <code><pre>
- *                       &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
- *                         archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
- *                         &lt;!-- Applet display size, on the navigator page --&gt;
- *                         width=&quot;500&quot; height=&quot;700&quot;
- *                         &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
- *                         mayscript&gt;
- *                         &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
- *                              DefaultUploadPolicy is used. The applet behaves like the original
- *                              JUpload. (jupload v1) --&gt;
- *                         &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
- *                         Java 1.5 or higher plugin required.
- *                       &lt;/applet&gt;
+ *                              &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+ *                                archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+ *                                &lt;!-- Applet display size, on the navigator page --&gt;
+ *                                width=&quot;500&quot; height=&quot;700&quot;
+ *                                &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+ *                                mayscript&gt;
+ *                                &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+ *                                     DefaultUploadPolicy is used. The applet behaves like the original
+ *                                     JUpload. (jupload v1) --&gt;
+ *                                &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+ *                                Java 1.5 or higher plugin required.
+ *                              &lt;/applet&gt;
  * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
  * by Ant build. DO NOT CHANGE!! -->
  * 
@@ -714,6 +714,24 @@ public interface UploadPolicy {
      * Parameter/Property name for specifying the debug level
      */
     final static String PROP_DEBUG_LEVEL = "debugLevel";
+
+    /**
+     * This parameter allows to control whether the file icons in the file
+     * chooser are calculated from the file content. This is currently only
+     * available for pictures.<BR>
+     * If activated, the file chooser will open each pictures, and calculate the
+     * icon by resizing the picture. This is done in by using thread of minimam
+     * priority, to minimize performances impact on the navigator. Available
+     * values are: <DIR>
+     * <LI>-1: disabled. The default system are used.
+     * <LI>0 (default): available only in picture mode. That is: the current
+     * upload policy is an instance of or a class inheriting from
+     * {@link  PictureUploadPolicy}
+     * <LI>1: available for all upload policies. </DIR>
+     * 
+     * @see JUploadFileView#getIcon(File)
+     */
+    final static String PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = "fileChooserIconFromFileContent";
 
     /**
      * Parameter/Property name for specifying the UI language
@@ -889,6 +907,12 @@ public interface UploadPolicy {
      * Default value for parameter "debugLevel".
      */
     final static int DEFAULT_DEBUG_LEVEL = 0;
+
+    /**
+     * Default value for parameter
+     * {@link #PROP_CALCULATE_ICON_FROM_FILE_CONTENT}
+     */
+    final static int DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = 0;
 
     /**
      * Default value for parameter "lang".
@@ -1152,6 +1176,11 @@ public interface UploadPolicy {
      * @see #setDebugLevel(int)
      */
     public int getDebugLevel();
+
+    /**
+     * Getter for the fileChooserIconFromFileContent parameter.
+     */
+    public int getFileChooserIconFromFileContent();
 
     /**
      * Return the encoding that should be used for the filename. This encoding

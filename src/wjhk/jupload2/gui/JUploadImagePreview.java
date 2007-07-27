@@ -25,6 +25,7 @@ package wjhk.jupload2.gui;
  * 
  * @see PictureUploadPolicy
  */
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -39,6 +40,12 @@ import javax.swing.JFileChooser;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class LoadImageThread extends Thread {
+
+    /**
+     * That cursor that will be used each time the user select a new file, when
+     * resizing the picture before displaying in the preview accessory.
+     */
+    final static Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
 
     /**
      * The file that is to be loaded.
@@ -71,6 +78,7 @@ class LoadImageThread extends Thread {
         jUploadImagePreview.uploadPolicy.displayDebug(
                 "LoadImageThread.start (start)", 100);
         if (this.file != null) {
+            jUploadImagePreview.jFileChooser.setCursor(waitCursor);
             ImageIcon tmpIcon = new ImageIcon(this.file.getPath());
             if (tmpIcon != null) {
                 if (tmpIcon.getIconWidth() > 90) {
@@ -88,8 +96,10 @@ class LoadImageThread extends Thread {
         // if not interrupted, we display the picture to our jUploadImagePreview
         if (!isInterrupted() && thumbnail != null) {
             jUploadImagePreview.setThumbnail(thumbnail);
+            jUploadImagePreview.jFileChooser.setCursor(null);
         }
-        jUploadImagePreview.uploadPolicy.displayDebug("LoadImageThread.start (end)", 100);
+        jUploadImagePreview.uploadPolicy.displayDebug(
+                "LoadImageThread.start (end)", 100);
     }
 
 }
@@ -106,6 +116,11 @@ public class JUploadImagePreview extends JComponent implements
      * The current upload policy.
      */
     UploadPolicy uploadPolicy;
+
+    /**
+     * Current file chooser, which owns this file preview.
+     */
+    JFileChooser jFileChooser = null;
 
     /**
      * The picture, resized to the preview size.
@@ -131,10 +146,13 @@ public class JUploadImagePreview extends JComponent implements
      * @param fc The current file chooser, which will contain this acessory.
      * @param uploadPolicy The current upload policy.
      */
-    public JUploadImagePreview(JFileChooser fc, UploadPolicy uploadPolicy) {
+    public JUploadImagePreview(JFileChooser jFileChooser,
+            UploadPolicy uploadPolicy) {
+        this.jFileChooser = jFileChooser;
         this.uploadPolicy = uploadPolicy;
+
         setPreferredSize(new Dimension(100, 50));
-        fc.addPropertyChangeListener(this);
+        jFileChooser.addPropertyChangeListener(this);
     }
 
     /**
@@ -156,20 +174,21 @@ public class JUploadImagePreview extends JComponent implements
      */
     void setFile(File file) {
         this.file = file;
-        
-        //First: clear the current picture.
+
+        // First: clear the current picture.
         this.thumbnail = null;
         repaint();
-        
-        //Next: load aysnchronously the picture.
+
+        // Next: load aysnchronously the picture.
         if (this.file != null) {
             // If a thread is running, let's stop it.
             if (loadImageThread != null && loadImageThread.isAlive()) {
                 loadImageThread.interrupt();
             }
-            
+
             loadImageThread = new LoadImageThread(this, file);
-            //We want this thread to be executed before the icon loading threads.
+            // We want this thread to be executed before the icon loading
+            // threads.
             loadImageThread.setPriority(Thread.MAX_PRIORITY);
             // Let's start the thread, and exit: the applet is not blocked.
             loadImageThread.start();
