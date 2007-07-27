@@ -58,8 +58,6 @@ public class JUploadFileChooser extends JFileChooser {
     /** The 'standard' constructor for our file chooser */
     public JUploadFileChooser(UploadPolicy uploadPolicyParam) {
         this.uploadPolicy = uploadPolicyParam;
-        setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        //FIXME: the cursor is not changed!!!!!!       :-(
 
         this.fileFilter = new JUploadFileFilter(this.uploadPolicy);
         this.fileView = new JUploadFileView(this.uploadPolicy, this);        
