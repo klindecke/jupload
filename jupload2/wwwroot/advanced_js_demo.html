@@ -18,6 +18,9 @@
 	
 	afterUploadURL = "";
 	allowHttpPersistent = "";
+	fileChooserIconFromFileContent = "";
+	fileChooserIconSize = "";
+	fileChooserImagePreview = "";
 	filenameEncoding = "";
 	highQualityPreview = "";
 	lang = "";
@@ -115,6 +118,15 @@
 		case "debugLevel":
 			debugLevel = val;
 			break;
+		case "fileChooserIconFromFileContent":
+			fileChooserIconFromFileContent = val;
+			break;
+		case "fileChooserIconSize":
+			fileChooserIconSize = val;
+			break;
+		case "fileChooserImagePreview":
+			fileChooserImagePreview = val;
+			break;
 		case "filenameEncoding":
 			filenameEncoding = val;
 			break;
@@ -193,11 +205,14 @@
 	writeInputText("afterUploadURL", afterUploadURL, "");
 	writeInputText("allowHttpPersistent", allowHttpPersistent, "");
 	writeInputText("debugLevel", debugLevel, "");
+	writeInputText("fileChooserIconFromFileContent", fileChooserIconFromFileContent, "");
+	writeInputText("fileChooserIconSize", fileChooserIconSize, "");
+	writeInputText("fileChooserImagePreview", fileChooserImagePreview, "");
 	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"], '');	
 	writeInputSelect("lang", lang, langList, 'Japanese needs specific JRE extension');
+	document.writeln('</TABLE></TD><TD><TABLE>');
 	writeInputText("lookAndFeel", lookAndFeel, "");
 	writeInputText("filenameEncoding", filenameEncoding, "");
-	document.writeln('</TABLE></TD><TD><TABLE>');
 	writeInputText("nbFilesPerRequest", nbFilesPerRequest, "");
 	writeInputText("maxChunkSize", maxChunkSize, "");
 	writeInputText("maxFileSize", maxFileSize, "");
@@ -229,6 +244,9 @@
 	writeParam("afterUploadURL", afterUploadURL);
 	writeParam("allowHttpPersistent", allowHttpPersistent);
 	writeParam("debugLevel", debugLevel);
+	writeParam("fileChooserIconFromFileContent", fileChooserIconFromFileContent);
+	writeParam("fileChooserIconSize", fileChooserIconSize);
+	writeParam("fileChooserImagePreview", fileChooserImagePreview);
 	writeParam("filenameEncoding", filenameEncoding);
 	writeParam("lang", lang);
 	writeParam("lookAndFeel", lookAndFeel);
