@@ -183,12 +183,12 @@ import wjhk.jupload2.gui.PictureDialog;
  * </tr>
  * <tr>
  * <td>fileChooserIconSize</td>
- * <td><i>50</i><br>
+ * <td><i>20</i><br>
  * since 3.1.0b<br>
  * {@link wjhk.jupload2.policies.UploadPolicy}</td>
  * <td>This parameter allows to control the size of icons, in pixels, in the
  * file chooser. Used only when fileChooserIconFromFileContent is activated.<BR>
- * Note: The standard icon size is a value of 30. With 50, you'll get a better view of the picture.
+ * Note: The standard icon size is a value of 20. With 50, you'll get a better view of the picture.
  * </td>
  * </tr>
  * <tr>
@@ -952,7 +952,7 @@ public interface UploadPolicy {
      * 
      * @see #PROP_FILE_CHOOSER_ICON_SIZE
      */
-    final static int DEFAULT_FILE_CHOOSER_ICON_SIZE = 50;
+    final static int DEFAULT_FILE_CHOOSER_ICON_SIZE = 20;
 
     /**
      * Default value for applet parameter "fileChooserImagePreview".
