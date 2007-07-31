@@ -157,11 +157,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private int debugLevel = UploadPolicy.DEFAULT_DEBUG_LEVEL;
 
     /**
-     * Current value for the fileChooserIconFromFileContent applet property.
+     * Stored value for the fileChooserIconFromFileContent applet property.
      * 
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
-    private int fileChooserIconFromFileContent = 0;
+    private int fileChooserIconFromFileContent = UploadPolicy.DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT;
+
+    /**
+     * Stored value for the fileChooserIconSize applet property.
+     * 
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
+     */
+    private int fileChooserIconSize = UploadPolicy.DEFAULT_FILE_CHOOSER_ICON_SIZE;
 
     /**
      * This String contains the filenameEncoding parameter. All details about
@@ -385,11 +392,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setDebugLevel(UploadPolicyFactory.getParameter(theApplet,
                 PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL, this), false);
 
-        // get the filenameEncoding. If not null, it should be a valid argument
-        // for the URLEncoder.encode method.
+        // get the fileChooserIconFromFileContent. 
         setFileChooserIconFromFileContent(UploadPolicyFactory.getParameter(
                 theApplet, PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT,
                 DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT, this));
+
+        // get the fileChooserIconSize. 
+        setFileChooserIconSize(UploadPolicyFactory.getParameter(
+                theApplet, PROP_FILE_CHOOSER_ICON_SIZE,
+                DEFAULT_FILE_CHOOSER_ICON_SIZE, this));
 
         // get the filenameEncoding. If not null, it should be a valid argument
         // for the URLEncoder.encode method.
@@ -1016,6 +1027,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         } else if (prop.equals(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT)) {
             setFileChooserIconFromFileContent(UploadPolicyFactory.parseInt(
                     value, getFileChooserIconFromFileContent(), this));
+        } else if (prop.equals(PROP_FILE_CHOOSER_ICON_SIZE)) {
+            setFileChooserIconSize(UploadPolicyFactory.parseInt(
+                    value, getFileChooserIconSize(), this));
         } else if (prop.equals(PROP_LANG)) {
             setLang(value);
         } else if (prop.equals(PROP_FILENAME_ENCODING)) {
@@ -1090,6 +1104,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     + " (debugfile: " + debugFile.getAbsolutePath() + ")", 1);
             displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
                     + getFileChooserIconFromFileContent(), 20);
+            displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
+                    + getFileChooserIconSize(), 20);
             displayDebug(PROP_FILENAME_ENCODING + ": " + this.filenameEncoding,
                     20);
             displayDebug("lang: " + this.lang, 20);
@@ -1259,6 +1275,27 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public void setFileChooserIconFromFileContent(
             int fileChooserIconFromFileContent) {
         this.fileChooserIconFromFileContent = fileChooserIconFromFileContent;
+    }
+
+    /**
+     * Getter for {@link #fileChooserIconSize}.
+     * 
+     * @return Current value for fileChooserIconSize
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
+     */
+    public int getFileChooserIconSize() {
+        return this.fileChooserIconSize;
+    }
+
+    /**
+     * Setter for {@link #fileChooserIconSize}. 
+     * 
+     * @param fileChooserIconSize Value to be set. 
+     * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
+     */
+    public void setFileChooserIconSize(
+            int fileChooserIconSize) {
+        this.fileChooserIconSize = fileChooserIconSize;
     }
 
     /**

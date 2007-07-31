@@ -21,8 +21,6 @@
 
 package wjhk.jupload2.gui;
 
-import java.awt.Cursor;
-
 import javax.swing.JFileChooser;
 
 import wjhk.jupload2.policies.UploadPolicy;

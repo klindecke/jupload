@@ -137,9 +137,9 @@ class IconWorker implements Runnable {
                 // changes of directory, then went bak to it.
                 // We ask again to calculate its icon.
                 this.fileView.execute(this);
-                return null;
+                return JUploadFileView.emptyIcon;
             default:
-                return null;
+                return JUploadFileView.emptyIcon;
         }// switch
     }// getIcon
 
@@ -155,10 +155,13 @@ class IconWorker implements Runnable {
                 this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
                         + this.file.getName() + ")", 90);
 
+                // This class is used only to do the next call, in a separate
+                // thread.
                 this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
-                this.fileChooser.repaint(0);
 
+                // Let's notify the fact the work is done.
                 this.status = STATUS_LOADED;
+                this.fileChooser.repaint(0);
 
                 // A try to minimize memory footprint
                 Runtime.getRuntime().gc();
@@ -216,14 +219,9 @@ public class JUploadFileView extends FileView implements
     ExecutorService executorService = null;
 
     /**
-     * Temporary constant: will be replaced by an applet parameter.
-     */
-    public final static int ICON_SIZE = 20;
-
-    /**
      * An empty icon, having the good file size.
      */
-    Icon emptyIcon = null;
+    public static ImageIcon emptyIcon = null;
 
     /**
      * Creates a new instance.
@@ -241,8 +239,20 @@ public class JUploadFileView extends FileView implements
         JUploadFileView.iconWorkerThreadGroup
                 .setMaxPriority(Thread.MIN_PRIORITY);
 
-        this.emptyIcon = new ImageIcon(new BufferedImage(ICON_SIZE, ICON_SIZE,
-                BufferedImage.TYPE_INT_ARGB_PRE));
+        // emptyIcon needs an upload policy, to be set, but we'll create it
+        // only once.
+        if (emptyIcon == null
+                || emptyIcon.getIconHeight() != uploadPolicy
+                        .getFileChooserIconSize()) {
+            // The empty icon has not been calculated yet, or its size changed
+            // since the icon creation. This can happen when the applet is
+            // reloaded, and the applet parameter changed: the static attribute
+            // are not recalculated.
+            // Let's construct the resized picture.
+            emptyIcon = new ImageIcon(new BufferedImage(uploadPolicy
+                    .getFileChooserIconSize(), uploadPolicy
+                    .getFileChooserIconSize(), BufferedImage.TYPE_INT_ARGB_PRE));
+        }
     }
 
     synchronized void execute(IconWorker iconWorker) {
@@ -255,8 +265,8 @@ public class JUploadFileView extends FileView implements
                             90);
             this.executorService = Executors.newSingleThreadExecutor();
         }
-        this.executorService.execute(iconWorker);
         iconWorker.status = IconWorker.STATUS_TO_BE_LOADED;
+        this.executorService.execute(iconWorker);
     }
 
     /**
@@ -350,7 +360,7 @@ public class JUploadFileView extends FileView implements
             // later.
             execute(iconWorker);
             // We currently have no icon to display.
-            return null;
+            return emptyIcon;
         }
         // Ok, let's take the icon.
         return iconWorker.getIcon();
