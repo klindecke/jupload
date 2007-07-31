@@ -151,7 +151,7 @@ public class JUploadImagePreview extends JComponent implements
         this.jFileChooser = jFileChooser;
         this.uploadPolicy = uploadPolicy;
 
-        setPreferredSize(new Dimension(100, 50));
+        setPreferredSize(new Dimension(200, 200));
         jFileChooser.addPropertyChangeListener(this);
     }
 
@@ -170,23 +170,29 @@ public class JUploadImagePreview extends JComponent implements
     /**
      * Changes the current file: this erases the current displayed picture, then
      * call the {@link LoadImageThread#start()} method. This generate the
-     * picture asynchroneously.
+     * picture asynchroneously. Directories are ignored.
      */
-    void setFile(File file) {
-        this.file = file;
+    void setFile(File fileParam) {
+        if (fileParam != null && fileParam.isDirectory()) {
+            this.file = null;
+        } else {
+            this.file = fileParam;
+        }
 
         // First: clear the current picture.
         this.thumbnail = null;
         repaint();
 
+        // If a thread is running, let's stop it.
+        if (loadImageThread != null && loadImageThread.isAlive()) {
+            //Let's forget this thread.
+            loadImageThread.interrupt();
+            loadImageThread = null;
+        }
+
         // Next: load aysnchronously the picture.
         if (this.file != null) {
-            // If a thread is running, let's stop it.
-            if (loadImageThread != null && loadImageThread.isAlive()) {
-                loadImageThread.interrupt();
-            }
-
-            loadImageThread = new LoadImageThread(this, file);
+            loadImageThread = new LoadImageThread(this, this.file);
             // We want this thread to be executed before the icon loading
             // threads.
             loadImageThread.setPriority(Thread.MAX_PRIORITY);

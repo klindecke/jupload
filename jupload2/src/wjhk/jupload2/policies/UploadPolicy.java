@@ -165,9 +165,9 @@ import wjhk.jupload2.gui.PictureDialog;
  * </tr>
  * <tr>
  * <td>fileChooserIconFromFileContent</td>
- * <td><i>true</i><br>
- * since 3.1.0<br>
- * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td><i>0</i><br>
+ * since 3.1.0b<br>
+ * {@link wjhk.jupload2.policies.UploadPolicy}</td>
  * <td>This parameter allows to control whether the file icons in the file
  * chooser are calculated from the file content. This is currently only
  * available for pictures.<BR>
@@ -181,6 +181,27 @@ import wjhk.jupload2.gui.PictureDialog;
  * {@link  PictureUploadPolicy}
  * <LI>1: available for all upload policies. </DIR></td>
  * </tr>
+ * <tr>
+ * <td>fileChooserIconSize</td>
+ * <td><i>50</i><br>
+ * since 3.1.0b<br>
+ * {@link wjhk.jupload2.policies.UploadPolicy}</td>
+ * <td>This parameter allows to control the size of icons, in pixels, in the
+ * file chooser. Used only when fileChooserIconFromFileContent is activated.<BR>
+ * Note: The standard icon size is a value of 30. With 50, you'll get a better view of the picture.
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>fileChooserImagePreview</td>
+ * <td><i>true</i><br>
+ * since 3.1.0b<br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>This parameter allows to control whether an preview is available for
+ * picture in the file chooser. If activated, the file chooser will open the
+ * preview in a separate thread, of high priority. This avoid blocking the
+ * applet while calculating the preview picture, when the user just
+ * double-clicked a picture file. This parameter is ignored for
+ * DefaultUploadPolicy. </tr>
  * <tr>
  * <td>filenameEncoding</td>
  * <td><i>null</i><br>
@@ -655,18 +676,18 @@ import wjhk.jupload2.gui.PictureDialog;
  * Below, an example of how to put the applet into a PHP page is shown:
  * </p>
  * <code><pre>
- *                              &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
- *                                archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
- *                                &lt;!-- Applet display size, on the navigator page --&gt;
- *                                width=&quot;500&quot; height=&quot;700&quot;
- *                                &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
- *                                mayscript&gt;
- *                                &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
- *                                     DefaultUploadPolicy is used. The applet behaves like the original
- *                                     JUpload. (jupload v1) --&gt;
- *                                &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
- *                                Java 1.5 or higher plugin required.
- *                              &lt;/applet&gt;
+ *                                     &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+ *                                       archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+ *                                       &lt;!-- Applet display size, on the navigator page --&gt;
+ *                                       width=&quot;500&quot; height=&quot;700&quot;
+ *                                       &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+ *                                       mayscript&gt;
+ *                                       &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+ *                                            DefaultUploadPolicy is used. The applet behaves like the original
+ *                                            JUpload. (jupload v1) --&gt;
+ *                                       &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+ *                                       Java 1.5 or higher plugin required.
+ *                                     &lt;/applet&gt;
  * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
  * by Ant build. DO NOT CHANGE!! -->
  * 
@@ -729,14 +750,20 @@ public interface UploadPolicy {
      * {@link  PictureUploadPolicy}
      * <LI>1: available for all upload policies. </DIR>
      * 
-     * @see JUploadFileView#getIcon(File)
      */
     final static String PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = "fileChooserIconFromFileContent";
+    
+    /**
+     * This parameter allows to control the size of icons, in pixels, in the
+     * file chooser. Used only when fileChooserIconFromFileContent is activated.
+     */
+    final static String PROP_FILE_CHOOSER_ICON_SIZE = "fileChooserIconSize";
 
     /**
-     * Parameter/Property name for specifying the UI language
+     * Allows control on the preview on the file chooser. Only for
+     * {@link PictureUploadPolicy} and its inheritants.
      */
-    final static String PROP_LANG = "lang";
+    final static String PROP_FILE_CHOOSER_IMAGE_PREVIEW = "fileChooserImagePreview";
 
     /**
      * Parameter/Property name for specifying the encoding of file names.
@@ -752,6 +779,11 @@ public interface UploadPolicy {
      * Parameter/Property name for specifying high quality previews.
      */
     final static String PROP_HIGH_QUALITY_PREVIEW = "highQualityPreview";
+
+    /**
+     * Parameter/Property name for specifying the UI language
+     */
+    final static String PROP_LANG = "lang";
 
     /**
      * Parameter/Property name for specifying a list of specific headers, that
@@ -909,10 +941,25 @@ public interface UploadPolicy {
     final static int DEFAULT_DEBUG_LEVEL = 0;
 
     /**
-     * Default value for parameter
-     * {@link #PROP_CALCULATE_ICON_FROM_FILE_CONTENT}
+     * Default value for applet parameter "fileChooserIconFromFileContent".
+     * 
+     * @see #PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     final static int DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = 0;
+
+    /**
+     * Default value for applet parameter "fileChooserIconSize".
+     * 
+     * @see #PROP_FILE_CHOOSER_ICON_SIZE
+     */
+    final static int DEFAULT_FILE_CHOOSER_ICON_SIZE = 50;
+
+    /**
+     * Default value for applet parameter "fileChooserImagePreview".
+     * 
+     * @see #PROP_FILE_CHOOSER_IMAGE_PREVIEW
+     */
+    final static boolean DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW = true;
 
     /**
      * Default value for parameter "lang".
@@ -1178,9 +1225,20 @@ public interface UploadPolicy {
     public int getDebugLevel();
 
     /**
-     * Getter for the fileChooserIconFromFileContent parameter.
+     * Getter for the fileChooserIconFromFileContent applet parameter.
+     * 
+     * @return Stored value for fileChooserIconFromFileContent
+     * @see #PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     public int getFileChooserIconFromFileContent();
+
+    /**
+     * Getter for the fileChooserIconSize applet parameter.
+     * 
+     * @return Stored value for fileChooserIconSize
+     * @see #PROP_FILE_CHOOSER_ICON_SIZE
+     */
+    public int getFileChooserIconSize();
 
     /**
      * Return the encoding that should be used for the filename. This encoding

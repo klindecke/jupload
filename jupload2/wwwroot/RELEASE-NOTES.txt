@@ -1,7 +1,7 @@
 TODO list:
+- fileChooserIconSize: doesn't work when set to 80 ?
 - [FileChooser] Replace the 'open' button by 'Add file'.
 - [Picture mode] A double-click on a file should also open the preview.
-- [Picture mode] New applet parameter, to add or not the preview accessory.
 - Allows upload from the demo site, or inform that it doesn't work.
 - Change the cursor to 'WAIT', when displaying the ImagePreview in the file chooser.
 - Use quicker preview in the applet picture displays.
@@ -17,6 +17,9 @@ so that selecting a file is instantaneous.
 - [Translation] Czech translation available, thanks to Vladan Zajda.
 - [Picture mode] New applet parameter (fileChooserIconFromFileContent), to display the file content in the file 
 chooser as the file icon or use the default file system icon.
+- [Fix] All file icons are now displayed (the last one was not refreshed)
+- [Picture mode] New applet parameter (fileChooserIconSize), to control the size of these icons, in the file chooser.
+- [Picture mode] New applet parameter (fileChooserImagePreview), to add or not the preview accessory.
 
 V3.0.2b3
 - [Fix] HTTP response handling was broken. We now use raw byte I/O and apply

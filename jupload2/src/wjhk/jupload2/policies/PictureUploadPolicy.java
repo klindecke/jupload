@@ -46,7 +46,6 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
-import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.JUploadImagePreview;
 import wjhk.jupload2.gui.PictureDialog;
 import wjhk.jupload2.gui.PicturePanel;
@@ -135,6 +134,13 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     private String targetPictureFormat;
 
     /**
+     * Stored value for the fileChooserIconFromFileContent applet property.
+     * 
+     * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
+     */
+    private boolean fileChooserImagePreview = UploadPolicy.DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW;
+
+    /**
      * Indicates wether or not the preview pictures must be calculated by the
      * BufferedImage.getScaledInstance() method.
      */
@@ -210,6 +216,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
         // Creation of the PictureFileDataPolicy, from parameters given to the
         // applet, or from default values.
+        setFileChooserImagePreview(UploadPolicyFactory.getParameter(theApplet,
+                PROP_FILE_CHOOSER_IMAGE_PREVIEW,
+                DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW, this));
         setHighQualityPreview(UploadPolicyFactory.getParameter(theApplet,
                 PROP_HIGH_QUALITY_PREVIEW, DEFAULT_HIGH_QUALITY_PREVIEW, this));
         setMaxHeight(UploadPolicyFactory.getParameter(theApplet,
@@ -307,7 +316,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
         this.picturePanel = new PicturePanel(true, this);
         pPanel.add(this.picturePanel);
-        //Setting specific cursor for this panel, default for other parts of the applet.
+        // Setting specific cursor for this panel, default for other parts of
+        // the applet.
         setCursor(null);
 
         // And last but not least ... creation of the top panel:
@@ -366,14 +376,14 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public void onFileDoubleClicked(FileData pictureFileData) {
         if (pictureFileData == null) {
-            //No action
-        } else if (! (pictureFileData instanceof PictureFileData)) {
-            displayWarn("PictureUploadPolicy: received a non PictureFileData in onFileDoubleClicked");  
+            // No action
+        } else if (!(pictureFileData instanceof PictureFileData)) {
+            displayWarn("PictureUploadPolicy: received a non PictureFileData in onFileDoubleClicked");
         } else {
             // Ok, we have a picture. Let's display it.
             // uploadPolicy.displayDebug("---------- Opening PictureDialog",
             // 60);
-            new PictureDialog(null, (PictureFileData)pictureFileData, this);
+            new PictureDialog(null, (PictureFileData) pictureFileData, this);
             // uploadPolicy.displayDebug("---------- PictureDialog closed", 60);
         }
     }
@@ -399,6 +409,28 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     // /////////////////////// Getters and Setters
     // ////////////////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Getter for {@link #fileChooserImagePreview}.
+     * 
+     * @return Current value for the applet parameter: fileChooserImagePreview
+     * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
+     */
+    public boolean getFileChooserImagePreview() {
+        return fileChooserImagePreview;
+    }
+
+    /**
+     * Setter for {@link #fileChooserIconFromFileContent}. Current allowed
+     * values are: -1, 0, 1. Default value is 0.
+     * 
+     * @param fileChooserImagePreview new value to store, for the applet
+     *            parameter: fileChooserImagePreview.
+     * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
+     */
+    public void setFileChooserImagePreview(boolean fileChooserImagePreview) {
+        this.fileChooserImagePreview = fileChooserImagePreview;
+    }
 
     /** @return the applet parameter <I>highQualityPreview</I>. */
     public boolean getHighQualityPreview() {
@@ -511,7 +543,10 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public void setProperty(String prop, String value) throws JUploadException {
         // The, we check the local properties.
-        if (prop.equals(PROP_STORE_BUFFERED_IMAGE)) {
+        if (prop.equals(PROP_FILE_CHOOSER_IMAGE_PREVIEW)) {
+            setFileChooserImagePreview(UploadPolicyFactory.parseBoolean(value,
+                    getFileChooserImagePreview(), this));
+        } else if (prop.equals(PROP_STORE_BUFFERED_IMAGE)) {
             setStoreBufferedImage(UploadPolicyFactory.parseBoolean(value,
                     this.storeBufferedImage, this));
         } else if (prop.equals(PROP_HIGH_QUALITY_PREVIEW)) {
@@ -543,6 +578,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         super.displayParameterStatus();
 
         displayDebug("======= Parameters managed by PictureUploadPolicy", 20);
+        displayDebug(PROP_FILE_CHOOSER_IMAGE_PREVIEW + ": "
+                + getFileChooserImagePreview(), 20);
         displayDebug(PROP_HIGH_QUALITY_PREVIEW + " : "
                 + this.highQualityPreview, 20);
         displayDebug(PROP_PICTURE_COMPRESSION_QUALITY + " : "
@@ -563,10 +600,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 + this.targetPictureFormat, 20);
         displayDebug("", 20);
     }
-    
+
     /**
-     * Calls the {@link DefaultUploadPolicy#setWaitCursor()} method, then erases the picture panel specific
-     * cursor.
+     * Calls the {@link DefaultUploadPolicy#setWaitCursor()} method, then erases
+     * the picture panel specific cursor.
+     * 
      * @see DefaultUploadPolicy#setCursor(Cursor)
      */
     @Override
@@ -577,8 +615,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }
 
     /**
-     * Calls the {@link DefaultUploadPolicy#setCursor(Cursor)} method, then set the picture panel specific
-     * cursor.
+     * Calls the {@link DefaultUploadPolicy#setCursor(Cursor)} method, then set
+     * the picture panel specific cursor.
+     * 
      * @see DefaultUploadPolicy#setCursor(Cursor)
      */
     @Override
@@ -596,27 +635,40 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public JUploadFileChooser createFileChooser() {
         JUploadFileChooser jufc = super.createFileChooser();
-        jufc.setAccessory(new JUploadImagePreview(jufc, this));
+        if (getFileChooserImagePreview()) {
+            jufc.setAccessory(new JUploadImagePreview(jufc, this));
+        }
         return jufc;
     }
 
     /**
-     * Returns an icon, calculated from the image content.
+     * Returns an icon, calculated from the image content. Currently only
+     * pictures managed by ImageIO can be displayed. Once upon a day, axtracting
+     * the first picture of a video may become reality... ;-)
      * 
+     * @return The calculated ImageIcon, or null if no picture can be extracted.
      * @see UploadPolicy#fileViewGetIcon(File)
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     @Override
     public Icon fileViewGetIcon(File file) {
+        // Default is to retuen a null ImageIcon.
         ImageIcon imageIcon = null;
+
         if (null != file) {
             try {
                 // First, we load the picture
                 BufferedImage image = ImageIO.read(file);
-                if (null != image) {
+
+                if (image == null) {
+                    displayDebug(
+                            file.getName()
+                                    + " is not an image (in PictureUploadPolicy.fileViewGetIcon()",
+                            80);
+                } else {
                     BufferedImage resized = resizePicture(image,
-                            JUploadFileView.ICON_SIZE,
-                            JUploadFileView.ICON_SIZE, false, this);
+                            getFileChooserIconSize(), getFileChooserIconSize(),
+                            false, this);
                     imageIcon = new ImageIcon(resized);
                 }
             } catch (IllegalArgumentException e) {
@@ -626,6 +678,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 displayErr(e);
             }
         }
+
         return imageIcon;
     }
 
