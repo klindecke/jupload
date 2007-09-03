@@ -298,6 +298,8 @@ public class JUploadFileView extends FileView implements
                 iw.status = IconWorker.STATUS_NOT_LOADED;
             }
         }
+        this.uploadPolicy.displayDebug(
+                "All IconWorker running jobs are now marked as stopped.", 50);
     }
 
     /**

@@ -172,6 +172,10 @@ class FilePanelDataModel2 extends AbstractTableModel {
         if (contains(file)) {
             this.uploadPolicy.displayWarn("File " + file.getName()
                     + " already exists");
+        } else if (! this.uploadPolicy.fileFilterAccept(file)) {
+            String msg = file.getName() + " : " + this.uploadPolicy.getString("errForbiddenExtension");
+            this.uploadPolicy.alertStr(msg);
+            this.uploadPolicy.displayWarn(msg);
         } else {
             // We first call the upload policy, to get :
             // - The correct fileData instance (for instance the

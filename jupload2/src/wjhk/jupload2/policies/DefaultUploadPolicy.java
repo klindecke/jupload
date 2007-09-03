@@ -1753,13 +1753,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             return true;
         } else {
             // Get the file extension
-            String filename = file.getName();
-            int point = filename.lastIndexOf('.');
-            // Do our filename ends with a point ?
-            if (point == filename.length() - 1) {
-                return false;
-            }
-            String extension = filename.substring(point + 1).toLowerCase();
+            String extension = DefaultFileData.getExtension(file).toLowerCase();
             // allowedFileExtensions is :
             // - a list of file extensions,
             // - in lower case,
