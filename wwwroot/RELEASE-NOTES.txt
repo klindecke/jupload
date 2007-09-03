@@ -1,4 +1,8 @@
 TODO list:
+- Check FTP upload. Ok in last (SVN) version ?
+- Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
+- Picture mode: applet parameter to control the size of the preview on the file chooser.
+- Picture mode: create a specific file chooser, to have nice preview, instead of the standard JFileChooser.
 - fileChooserIconSize: doesn't work when set to 80 ?
 - [FileChooser] Replace the 'open' button by 'Add file'.
 - [Picture mode] A double-click on a file should also open the preview.
@@ -11,6 +15,8 @@ V3.1.0b1
 - [Fix] Uploading several files in FTP mode, with wrong nbFilesPerRequest or maxChunkSize would generate an error.
 - [Fix] The setServerProtocol now correctly manage ftp URL. It doesn't generate an error any more when the server 
 protocol applet parameter is not set.
+- [Fix] Drag'n Drop: the applet now controls whether the dropped files correspond to the current file filter (list 
+of allowed file extensions).
 - [Minor] Better management of the wait cursor in picture mode.
 - [Minor] FileChooser: The display of the preview image in the fileChooserAccessory is now done in a dedicated thread, 
 so that selecting a file is instantaneous.

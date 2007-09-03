@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: DefaultFileData.java 267 2007-06-08 13:42:02 +0000 (ven., 08 juin 2007)
+// felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -170,8 +171,7 @@ public class DefaultFileData implements FileData {
 
     /** @see FileData#getFileExtension() */
     public String getFileExtension() {
-        String name = this.file.getName();
-        return name.substring(name.lastIndexOf('.') + 1);
+        return getExtension(this.file);
     }
 
     /** @see FileData#getFileLength() */
@@ -218,4 +218,18 @@ public class DefaultFileData implements FileData {
         }
         return "";
     }
+
+    // ////////////////////////////////////////////////////////
+    // UTILITIES
+    // ////////////////////////////////////////////////////////
+    /**
+     * Returns the extension of the given file. To be clear: <I>jpg</I> is the
+     * extension for the file named <I>picture.jpg</I>.
+     */
+    public static String getExtension(File file) {
+        String name = file.getName();
+        return name.substring(name.lastIndexOf('.') + 1);
+    }
+
+
 }
