@@ -260,7 +260,7 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  the specified name is created, and the document is shown there.</li>
  </ul>
  See also:
- <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/applet/AppletContext.html#showDocument(java.net.URL, java.lang.String)" title="class or interface in java.applet"><CODE>AppletContext.showDocument(java.net.URL, java.lang.String)</CODE></A>
+ <CODE>AppletContext.showDocument(java.net.URL, java.lang.String)</CODE>
  </td>
  </tr>
  <tr>
@@ -339,6 +339,45 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  to display more information, if needed. See also the 'webmasterMail'
  parameter. </td>
  </tr>
+ <tr>
+ <td>fileChooserIconFromFileContent</td>
+ <td><i>0</i><br>
+ since 3.1.0b<br>
+ <a href="doc/wjhk/jupload2/policies/UploadPolicy.html" title="interface in wjhk.jupload2.policies"><CODE>UploadPolicy</CODE></A></td>
+ <td>This parameter allows to control whether the file icons in the file
+ chooser are calculated from the file content. This is currently only
+ available for pictures.<BR>
+ If activated, the file chooser will open each pictures, and calculate the
+ icon by resizing the picture. This is done in by using thread of minimam
+ priority, to minimize performances impact on the navigator. Available values
+ are: <DIR>
+ <LI>-1: disabled. The default system are used.
+ <LI>0 (default): available only in picture mode. That is: the current upload
+ policy is an instance of or a class inheriting from
+ <a href="doc/wjhk/jupload2/policies/PictureUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>PictureUploadPolicy</CODE></A>
+ <LI>1: available for all upload policies. </DIR></td>
+ </tr>
+ <tr>
+ <td>fileChooserIconSize</td>
+ <td><i>20</i><br>
+ since 3.1.0b<br>
+ <a href="doc/wjhk/jupload2/policies/UploadPolicy.html" title="interface in wjhk.jupload2.policies"><CODE>UploadPolicy</CODE></A></td>
+ <td>This parameter allows to control the size of icons, in pixels, in the
+ file chooser. Used only when fileChooserIconFromFileContent is activated.<BR>
+ Note: The standard icon size is a value of 20. With 50, you'll get a better view of the picture.
+ </td>
+ </tr>
+ <tr>
+ <td>fileChooserImagePreview</td>
+ <td><i>true</i><br>
+ since 3.1.0b<br>
+ <a href="doc/wjhk/jupload2/policies/PictureUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>PictureUploadPolicy</CODE></A></td>
+ <td>This parameter allows to control whether an preview is available for
+ picture in the file chooser. If activated, the file chooser will open the
+ preview in a separate thread, of high priority. This avoid blocking the
+ applet while calculating the preview picture, when the user just
+ double-clicked a picture file. This parameter is ignored for
+ DefaultUploadPolicy. </tr>
  <tr>
  <td>filenameEncoding</td>
  <td><i>null</i><br>
@@ -661,9 +700,8 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  at the end: it will be added by the applet. <BR>
  This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  a header like this one:<BR>
- Authorization: Basic Base64EncodedString
- Where Base64EncodedString is the string "login:passord" encodded in Base 64.
- </td>
+ Authorization: Basic Base64EncodedString Where Base64EncodedString is the
+ string "login:passord" encoded in Base 64. </td>
  </tr>
  <tr>
  <td>sslVerifyCert<br>
@@ -814,18 +852,18 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  Below, an example of how to put the applet into a PHP page is shown:
  </p>
  <code><pre>
-           &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
-             archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
-             &lt;!-- Applet display size, on the navigator page --&gt;
-             width=&quot;500&quot; height=&quot;700&quot;
-             &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
-             mayscript&gt;
-             &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
-                  DefaultUploadPolicy is used. The applet behaves like the original
-                  JUpload. (jupload v1) --&gt;
-             &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
-             Java 1.5 or higher plugin required.
-           &lt;/applet&gt;
+                                     &lt;applet name=&quot;JUpload&quot; code=&quot;wjhk.jupload2.JUploadApplet&quot;
+                                       archive=&quot;plugins/jupload/wjhk.jupload.jar&quot;
+                                       &lt;!-- Applet display size, on the navigator page --&gt;
+                                       width=&quot;500&quot; height=&quot;700&quot;
+                                       &lt;!-- The applet uses some javascript functions, so we must allow that : --&gt;
+                                       mayscript&gt;
+                                       &lt;!-- No parameter is mandatory. We don't precise the UploadPolicy, so
+                                            DefaultUploadPolicy is used. The applet behaves like the original
+                                            JUpload. (jupload v1) --&gt;
+                                       &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
+                                       Java 1.5 or higher plugin required.
+                                     &lt;/applet&gt;
  </pre></code> <!-- ANT_INSERTDOC_END -->
 <!-- ATTENTION: The previous comment is used by Ant build. DO NOT CHANGE!! -->
 <p></p>

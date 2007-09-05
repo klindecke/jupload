@@ -155,7 +155,7 @@ class IconWorker implements Runnable {
                 this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
                         + this.file.getName() + ")", 90);
 
-                // This class is used only to do the next call, in a separate
+                // This class is used only to do the callbe low, in a separate
                 // thread.
                 this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
 
@@ -323,7 +323,7 @@ public class JUploadFileView extends FileView implements
     // /////////////////////// Methods from the FileView class
     // ///////////////////////////////////////////////////////////////////////:
 
-    /** #see {@link javax.swing.filechooser.FileView#getDescription(File))} */
+    /** #see javax.swing.filechooser.FileView#getDescription(File)) */
     @Override
     public String getDescription(File f) {
         return null; // let the L&F FileView figure this out

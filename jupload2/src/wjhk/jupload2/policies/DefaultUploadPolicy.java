@@ -274,7 +274,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * The text area, where message are to be displayed.
      * 
-     * @see #displayMsg(String)
+     * @see #displayMsg(String, String)
      */
     private JUploadTextArea logWindow = null;
 

@@ -803,7 +803,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * Returns the header for this file, within the http multipart body.
      * 
-     * @param fileIndex Index of the file in the array that contains all files
+     * @param index Index of the file in the array that contains all files
      *            to upload.
      * @param bound The boundary that separate files in the http multipart post
      *            body.

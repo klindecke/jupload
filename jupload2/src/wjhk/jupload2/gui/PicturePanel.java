@@ -100,7 +100,8 @@ public class PicturePanel extends Canvas implements MouseListener,
     /**
      * Standard constructor.
      * 
-     * @param mainContainer The main panel of the current window.
+     * @param hasToStoreOffscreenPicture
+     * @param uploadPolicy The current upload policy
      */
     public PicturePanel(boolean hasToStoreOffscreenPicture,
             UploadPolicy uploadPolicy) {

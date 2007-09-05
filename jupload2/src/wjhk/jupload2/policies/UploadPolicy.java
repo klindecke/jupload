@@ -1459,7 +1459,7 @@ public interface UploadPolicy {
      * the old one so that, it can be restored, once the work is done.
      * 
      * @return The cursor that was active, before changing to the wait one.
-     * @see setCursor
+     * @see #setCursor(Cursor)
      */
     public Cursor setWaitCursor();
 
