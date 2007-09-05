@@ -28,7 +28,6 @@ package wjhk.jupload2.gui;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -37,6 +36,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
+import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class LoadImageThread extends Thread {
@@ -73,22 +73,13 @@ class LoadImageThread extends Thread {
      */
     @Override
     public void run() {
-        ImageIcon thumbnail = null;
 
         jUploadImagePreview.uploadPolicy.displayDebug(
                 "LoadImageThread.start (start)", 100);
-        if (this.file != null) {
-            jUploadImagePreview.jFileChooser.setCursor(waitCursor);
-            ImageIcon tmpIcon = new ImageIcon(this.file.getPath());
-            if (tmpIcon != null) {
-                if (tmpIcon.getIconWidth() > 90) {
-                    thumbnail = new ImageIcon(tmpIcon.getImage()
-                            .getScaledInstance(90, -1, Image.SCALE_DEFAULT));
-                } else { // no need to miniaturize
-                    thumbnail = tmpIcon;
-                }
-            }
-        }
+        jUploadImagePreview.jFileChooser.setCursor(waitCursor);
+        ImageIcon thumbnail = PictureFileData.getImageIcon(file,
+                this.jUploadImagePreview.getWidth(), this.jUploadImagePreview
+                        .getHeight());
 
         // A try to minimize memory footprint
         Runtime.getRuntime().gc();
@@ -101,7 +92,6 @@ class LoadImageThread extends Thread {
         jUploadImagePreview.uploadPolicy.displayDebug(
                 "LoadImageThread.start (end)", 100);
     }
-
 }
 
 /** ImagePreview.java by FileChooserDemo2.java. */
@@ -143,7 +133,7 @@ public class JUploadImagePreview extends JComponent implements
     /**
      * The standard constructor for this class.
      * 
-     * @param fc The current file chooser, which will contain this acessory.
+     * @param jFileChooser The current file chooser, which will contain this acessory.
      * @param uploadPolicy The current upload policy.
      */
     public JUploadImagePreview(JFileChooser jFileChooser,
@@ -185,7 +175,7 @@ public class JUploadImagePreview extends JComponent implements
 
         // If a thread is running, let's stop it.
         if (loadImageThread != null && loadImageThread.isAlive()) {
-            //Let's forget this thread.
+            // Let's forget this thread.
             loadImageThread.interrupt();
             loadImageThread = null;
         }

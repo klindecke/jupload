@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: PictureFileData.java 287 2007-06-17 09:07:04 +0000 (dim., 17 juin 2007)
+// felfert $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -20,7 +21,9 @@
 
 package wjhk.jupload2.filedata;
 
+import java.awt.AlphaComposite;
 import java.awt.Canvas;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -37,6 +40,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import wjhk.jupload2.exception.JUploadException;
@@ -1025,5 +1029,93 @@ public class PictureFileData extends DefaultFileData {
             ext = "jpeg";
         }
         this.mimeType = "image/" + ext;
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////
+    // /////////////////////// static methods
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * This methods resizes the given picture to the given width and height. It
+     * is largely inspired from the sample available on:
+     * http://java.sun.com/products/java-media/2D/reference/faqs
+     * 
+     * @param originalImage The picture to resize
+     * @param maxWidth The maximum width for the resized picture.
+     * @param maxHeight The maximum height for the resized picture.
+     * @param preserveAlpha
+     */
+    public static BufferedImage resizePicture(Image originalImage,
+            int maxWidth, int maxHeight, boolean preserveAlpha,
+            PictureUploadPolicy uploadPolicy) {
+        // We calculate the real scale factor, that is must set both width less
+        // than maxWidth and height less
+        // than maxHeight.
+        int originalWidth = originalImage.getWidth(uploadPolicy);
+        int originalHeight = originalImage.getHeight(uploadPolicy);
+        float widthScale = (float) maxWidth / originalWidth;
+        float heightScale = (float) maxHeight / originalHeight;
+        double scale = Math.min(widthScale, heightScale);
+        // Picture will not be enlarged.
+        scale = (scale > 1) ? 1 : scale;
+
+        int scaledWidth = (int) (scale * originalWidth);
+        int scaledHeight = (int) (scale * originalHeight);
+        // Some rounding operation may generate wrong calculation.
+        if (scaledWidth > maxWidth) {
+            scaledWidth = maxWidth;
+        }
+        if (scaledHeight > maxHeight) {
+            scaledHeight = maxHeight;
+        }
+
+        int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB
+                : BufferedImage.TYPE_INT_ARGB;
+        BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight,
+                imageType);
+        Graphics2D g = scaledBI.createGraphics();
+        if (preserveAlpha) {
+            g.setComposite(AlphaComposite.Src);
+        }
+        g.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null);
+        g.dispose();
+        return scaledBI;
+    }
+
+    /**
+     * Returns an ImageIcon for the given file, resized according to the given
+     * dimensions. If the original file contains a pictures smaller than these
+     * width and height, the picture is returned as is (nor resized).
+     * 
+     * @param pictureFile The file, containing a picture, from which the user
+     *            wants to extract a static picture.
+     * @param maxWidth The maximum allowed width for the static picture to generate.
+     * @param maxHeight The maximum allowed height for the static picture to generate.
+     * @return The created static picture, or null if the file is null.
+     */
+    public static ImageIcon getImageIcon(File pictureFile, int maxWidth,
+            int maxHeight) {
+        ImageIcon thumbnail = null;
+
+        if (pictureFile != null) {
+            ImageIcon tmpIcon = new ImageIcon(pictureFile.getPath());
+            if (tmpIcon != null) {
+                float scaleWidth = ((float) maxWidth) / tmpIcon.getIconWidth();
+                float scaleHeight = ((float) maxHeight)
+                        / tmpIcon.getIconHeight();
+                float scale = Math.min(scaleWidth, scaleHeight);
+
+                if (scale < 1) {
+                    thumbnail = new ImageIcon(tmpIcon.getImage()
+                            .getScaledInstance(
+                                    (int) (scale * tmpIcon.getIconWidth()),
+                                    (int) (scale * tmpIcon.getIconHeight()),
+                                    Image.SCALE_FAST));
+                } else { // no need to miniaturize
+                    thumbnail = tmpIcon;
+                }
+            }
+        }
+        return thumbnail;
     }
 }
