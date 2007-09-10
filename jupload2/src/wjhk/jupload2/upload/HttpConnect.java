@@ -1,5 +1,6 @@
 //
-// $Id$
+// $Id: HttpConnect.java 286 2007-06-17 09:03:29 +0000 (dim., 17 juin 2007)
+// felfert $
 //
 // jupload - A file upload applet.
 //
@@ -27,6 +28,7 @@ package wjhk.jupload2.upload;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
@@ -49,6 +51,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 
+import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -241,8 +244,9 @@ public class HttpConnect {
         boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
         boolean useSSL = url.getProtocol().equals("https");
         Socket s = Connect(url, proxy);
-        BufferedReader in = new BufferedReader(new InputStreamReader(s
-                .getInputStream()));
+        // BufferedReader in = new BufferedReader(new
+        // InputStreamReader(s.getInputStream()));
+        InputStream in = s.getInputStream();
         StringBuffer req = new StringBuffer();
         req.append("HEAD ");
         if (useProxy && (!useSSL)) {
@@ -264,9 +268,31 @@ public class HttpConnect {
         os.flush();
         if (!(s instanceof SSLSocket))
             s.shutdownOutput();
-        String line = in.readLine();
+        String firstLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
+        // Let's check if we're facing an IIS server. The applet is compatible
+        // with IIS, only if allowHttpPersistent is false.
+        String line = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
+        while ((line = FileUploadThreadHTTP.readLine(in, "US-ASCII", false))
+                .length() > 0) {
+            if (line.matches("^Server: .*IIS")) {
+                try {
+                    uploadPolicy.setProperty(
+                            UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT, "false");
+                    uploadPolicy.displayWarn(UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
+                            + "' forced to false, for IIS compatibility (in HttpConnect.getProtocol())");
+                } catch (JUploadException e) {
+                    uploadPolicy.displayWarn("Can't set property '"
+                            + UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
+                            + "' to false, in HttpConnect.getProtocol()");
+                }
+                break;
+            }
+        }
+        // Let's look for the web server kind: the applet works IIS only if
+        // allowHttpPersistent is false
+        // A finir
         s.close();
-        if (null == line) {
+        if (null == firstLine) {
             this.uploadPolicy.displayErr("EMPTY HEAD response");
             return "HTTP/1.1";
         }
