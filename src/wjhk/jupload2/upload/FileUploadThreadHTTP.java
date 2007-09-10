@@ -260,101 +260,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         }
     }
 
-    /**
-     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * Line-Ending is <b>always</b> "\r\n".
-     * 
-     * @param includeCR Set to true, if the terminating CR/LF should be included
-     *            in the returned byte array.
-     */
-    private byte[] readLine(boolean includeCR) throws IOException {
-        int len = 0;
-        int buflen = 128; // average line length
-        byte[] buf = new byte[buflen];
-        byte[] ret = null;
-        int b;
-        while (true) {
-            b = this.httpDataIn.read();
-            switch (b) {
-                case -1:
-                    if (len > 0) {
-                        ret = new byte[len];
-                        System.arraycopy(buf, 0, ret, 0, len);
-                        return ret;
-                    }
-                    return null;
-                case 10:
-                    if ((len > 0) && (buf[len - 1] == 13)) {
-                        if (includeCR) {
-                            ret = new byte[len + 1];
-                            if (len > 0)
-                                System.arraycopy(buf, 0, ret, 0, len);
-                            ret[len] = 10;
-                        } else {
-                            len--;
-                            ret = new byte[len];
-                            if (len > 0)
-                                System.arraycopy(buf, 0, ret, 0, len);
-                        }
-                        return ret;
-                    }
-                default:
-                    buf[len++] = (byte) b;
-                    if (len >= buflen) {
-                        buflen *= 2;
-                        byte[] tmp = new byte[buflen];
-                        System.arraycopy(buf, 0, tmp, 0, len);
-                        buf = tmp;
-                    }
-            }
-        }
-    }
-
-    /**
-     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * Line-Ending is <b>always</b> "\r\n".
-     * 
-     * @param charset The input charset of the stream.
-     * @param includeCR Set to true, if the terminating CR/LF should be included
-     *            in the returned byte array.
-     */
-    private String readLine(String charset, boolean includeCR)
-            throws IOException {
-        byte[] line = readLine(includeCR);
-        return (null == line) ? null : new String(line, charset);
-    }
-
-    /**
-     * Concatenates two byte arrays.
-     * 
-     * @param buf1 The first array
-     * @param buf2 The second array
-     * @return A byte array, containing buf2 appended to buf2
-     */
-    private byte[] byteAppend(byte[] buf1, byte[] buf2) {
-        byte[] ret = new byte[buf1.length + buf2.length];
-        System.arraycopy(buf1, 0, ret, 0, buf1.length);
-        System.arraycopy(buf2, 0, ret, buf1.length, buf2.length);
-        return ret;
-    }
-
-    /**
-     * Concatenates two byte arrays.
-     * 
-     * @param buf1 The first array
-     * @param buf2 The second array
-     * @param len Number of bytes to copy from buf2
-     * @return A byte array, containing buf2 appended to buf2
-     */
-    private byte[] byteAppend(byte[] buf1, byte[] buf2, int len) {
-        if (len > buf2.length)
-            len = buf2.length;
-        byte[] ret = new byte[buf1.length + len];
-        System.arraycopy(buf1, 0, ret, 0, buf1.length);
-        System.arraycopy(buf2, 0, ret, buf1.length, len);
-        return ret;
-    }
-
     @Override
     int finishRequest() throws JUploadException {
         boolean readingHttpBody = false;
@@ -382,7 +287,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     if (gotChunked) {
                         // Read the chunk header.
                         // This is US-ASCII! (See RFC 2616, Section 2.2)
-                        line = readLine("US-ASCII", false);
+                        line = readLine(httpDataIn, "US-ASCII", false);
                         if (null == line)
                             throw new JUploadException("unexpected EOF");
                         // Handle a single chunk of the response
@@ -429,7 +334,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             }
                         }
                         // Got the whole chunk, read the trailing CRLF.
-                        readLine(false);
+                        readLine(httpDataIn, false);
                     } else {
                         // Not chunked. Use either content-length (if available)
                         // or read until EOF.
@@ -463,7 +368,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             // No Content-length available, read until EOF
                             // 
                             while (true) {
-                                byte[] lbuf = readLine(true);
+                                byte[] lbuf = readLine(httpDataIn, true);
                                 if (null == lbuf)
                                     break;
                                 body = byteAppend(body, lbuf);
@@ -474,7 +379,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 } else {
                     // readingHttpBody is false, so we are still in headers.
                     // Headers are US-ASCII (See RFC 2616, Section 2.2)
-                    String tmp = readLine("US-ASCII", false);
+                    String tmp = readLine(httpDataIn, "US-ASCII", false);
                     if (null == tmp)
                         throw new JUploadException("unexpected EOF");
                     if (status == 0) {
@@ -490,9 +395,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             // is an error.
 
                             // We first display the wrong line.
-                            this.uploadPolicy.displayDebug(
-                                    "First line of response: '" + tmp + "'",
-                                    80);
+                            this.uploadPolicy
+                                    .displayDebug("First line of response: '"
+                                            + tmp + "'", 80);
                             // Then, we throw the exception.
                             throw new JUploadException(
                                     "HTTP response did not begin with status line.");
@@ -624,7 +529,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             header.append("Accept-Encoding: identity\r\n");
 
             // Seems like the Keep-alive doesn't work properly, at least on my
-            // local dev (Etienne). TODO: check, how the new code works
+            // local dev (Etienne).
+            // TODO: check, how the new code works
             if (!this.uploadPolicy.getAllowHttpPersistent()) {
                 header.append("Connection: close\r\n");
             } else {
@@ -664,7 +570,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             header.append(formParams);
 
             // Only connect, if sock is null!!
-            if (this.sock == null) {
+            // ... or if we don't persist HTTP connections (patch for IIS, based
+            // on Marc Reidy's patch)
+            if (this.sock == null || !uploadPolicy.getAllowHttpPersistent()) {
                 this.sock = new HttpConnect(this.uploadPolicy).Connect(url,
                         proxy);
                 this.httpDataOut = new DataOutputStream(
@@ -803,8 +711,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * Returns the header for this file, within the http multipart body.
      * 
-     * @param index Index of the file in the array that contains all files
-     *            to upload.
+     * @param index Index of the file in the array that contains all files to
+     *            upload.
      * @param bound The boundary that separate files in the http multipart post
      *            body.
      * @param chunkPart The numero of the current chunk (from 1 to n)
@@ -946,4 +854,105 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // Return the body content
         return formParams.toString();
     }
+
+    // //////////////////////////////////////////////////////////////////////////////////////
+    // //////////////////// Various utilities
+    // //////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
+     * Line-Ending is <b>always</b> "\r\n".
+     * 
+     * @param charset The input charset of the stream.
+     * @param includeCR Set to true, if the terminating CR/LF should be included
+     *            in the returned byte array.
+     */
+    public static String readLine(InputStream inputStream, String charset,
+            boolean includeCR) throws IOException {
+        byte[] line = readLine(inputStream, includeCR);
+        return (null == line) ? null : new String(line, charset);
+    }
+
+    /**
+     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
+     * Line-Ending is <b>always</b> "\r\n".
+     * 
+     * @param includeCR Set to true, if the terminating CR/LF should be included
+     *            in the returned byte array.
+     */
+    public static byte[] readLine(InputStream inputStream, boolean includeCR)
+            throws IOException {
+        int len = 0;
+        int buflen = 128; // average line length
+        byte[] buf = new byte[buflen];
+        byte[] ret = null;
+        int b;
+        while (true) {
+            b = inputStream.read();
+            switch (b) {
+                case -1:
+                    if (len > 0) {
+                        ret = new byte[len];
+                        System.arraycopy(buf, 0, ret, 0, len);
+                        return ret;
+                    }
+                    return null;
+                case 10:
+                    if ((len > 0) && (buf[len - 1] == 13)) {
+                        if (includeCR) {
+                            ret = new byte[len + 1];
+                            if (len > 0)
+                                System.arraycopy(buf, 0, ret, 0, len);
+                            ret[len] = 10;
+                        } else {
+                            len--;
+                            ret = new byte[len];
+                            if (len > 0)
+                                System.arraycopy(buf, 0, ret, 0, len);
+                        }
+                        return ret;
+                    }
+                default:
+                    buf[len++] = (byte) b;
+                    if (len >= buflen) {
+                        buflen *= 2;
+                        byte[] tmp = new byte[buflen];
+                        System.arraycopy(buf, 0, tmp, 0, len);
+                        buf = tmp;
+                    }
+            }
+        }
+    }
+
+    /**
+     * Concatenates two byte arrays.
+     * 
+     * @param buf1 The first array
+     * @param buf2 The second array
+     * @return A byte array, containing buf2 appended to buf2
+     */
+    public static byte[] byteAppend(byte[] buf1, byte[] buf2) {
+        byte[] ret = new byte[buf1.length + buf2.length];
+        System.arraycopy(buf1, 0, ret, 0, buf1.length);
+        System.arraycopy(buf2, 0, ret, buf1.length, buf2.length);
+        return ret;
+    }
+
+    /**
+     * Concatenates two byte arrays.
+     * 
+     * @param buf1 The first array
+     * @param buf2 The second array
+     * @param len Number of bytes to copy from buf2
+     * @return A byte array, containing buf2 appended to buf2
+     */
+    public static byte[] byteAppend(byte[] buf1, byte[] buf2, int len) {
+        if (len > buf2.length)
+            len = buf2.length;
+        byte[] ret = new byte[buf1.length + len];
+        System.arraycopy(buf1, 0, ret, 0, buf1.length);
+        System.arraycopy(buf2, 0, ret, buf1.length, len);
+        return ret;
+    }
+
 }

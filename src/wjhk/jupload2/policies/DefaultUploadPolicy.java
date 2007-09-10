@@ -545,7 +545,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.lastResponseBody = body;
         this.lastResponseMessage = msg;
         displayDebug("HTTP status: " + msg, 40);
-        if (status != 200)
+        //HTTP-100 correction, thanks to Marc Reidy
+        if ((status != 200) && (status != 100))
             throw new JUploadExceptionUploadFailed("Received HTTP status "
                     + msg);
 
