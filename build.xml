@@ -207,7 +207,7 @@
 		</fixcrlf>
 	</target>
 
-	<target name="-version_java">
+	<target name="-version_java"> 
 		<svn javahl="${svn.use.javahl}">
 			<status path="${src.dir}" lastChangedDateProperty="svn.date" />
 			<wcversion path="${src.dir}" prefix="svn." />
