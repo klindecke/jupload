@@ -1083,7 +1083,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             // Let's display some information to the user, about the received
             // parameters.
             displayInfo("JUpload applet, version " + JUploadApplet.VERSION
-                    + " (" + JUploadApplet.LAST_MODIFIED
+                    + " (compiled: " + JUploadApplet.BUILD_DATE
                     + "), available at http://jupload.sourceforge.net/");
             displayDebug("Java version: " + System.getProperty("java.version"),
                     20);

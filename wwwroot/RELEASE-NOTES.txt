@@ -11,6 +11,9 @@ TODO list:
 
 
 V3.1.0
+- [Fix] The JUpload project now compiles 'out of the box', even from eclipse. No more need to use the given 
+build.xml ant script. The script is still necessary, so that the applet indicates the correct SVN revision and 
+build date.
 - [Fix] Uploading several files in FTP mode, with wrong nbFilesPerRequest or maxChunkSize would generate an error.
 - [Fix] The setServerProtocol now correctly manage ftp URL. It doesn't generate an error any more when the server 
 protocol applet parameter is not set.

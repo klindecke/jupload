@@ -22,9 +22,11 @@ package wjhk.jupload2;
 
 import java.applet.Applet;
 import java.awt.BorderLayout;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -57,19 +59,56 @@ public class JUploadApplet extends Applet {
     private static final long serialVersionUID = -3207851532114846776L;
 
     /**
-     * The version of this applet.
+     * The final that contains the SVN properties. These properties are
+     * generated during compilation, by the build.xml ant file.
      */
-    public final static String VERSION = "3.1.0b4 [SVN-Rev: " + JUploadSvnRevision.REVISION + "]";
+    private final static String svnPropertiesFilename = "/conf/svn.properties";
 
     /**
-     * The last modification of this applet.
+     * The properties, created at build time, by the build.xml ant file. Or a
+     * dummy property set, with 'unknown' values.
      */
-    public final static String LAST_MODIFIED = JUploadSvnRevision.LASTCHANGED;
+    private static Properties svnProperties = getSvnProperties();
 
+    /**
+     * The version of this applet. The version itseld is to be updated in the
+     * JUploadApplet.java file. The revision is added at build time, by the
+     * build.xml ant file, packaged with the applet.
+     */
+    public final static String VERSION = "3.1.0b4 [SVN-Rev: "
+            + svnProperties.getProperty("revision") + "]";
+
+    /**
+     * The last modification of this applet. Not accurate: would work only if
+     * the whole src folder is commited. Remplaced by the build date.
+     * 
+     * @deprecated since v3.1
+     */
+    public final static String LAST_MODIFIED = svnProperties
+            .getProperty("lastSrcDirModificationDate");
+
+    /**
+     * Date of the build for the applet. It's generated at build time by the
+     * build.xml packaged by the script. If compiled with eclipse (for
+     * instance), the build_date is noted as 'unknown'.
+     */
+    public final static String BUILD_DATE = svnProperties
+            .getProperty("buildDate");
+
+    /**
+     * The current upload policy. This class is responsible for the call to the
+     * UploadPolicyFactory.
+     */
     private UploadPolicy uploadPolicy = null;
 
+    /**
+     * The JUploadPanel, which actually contains all the applet components.
+     */
     private JUploadPanel jUploadPanel = null;
 
+    /**
+     * The log messages should go there ...
+     */
     private JUploadTextArea logWindow = null;
 
     private class Callback {
@@ -116,7 +155,7 @@ public class JUploadApplet extends Applet {
         } catch (final Exception e) {
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
-            //TODO Translate this sentence
+            // TODO Translate this sentence
             JOptionPane
                     .showMessageDialog(
                             null,
@@ -245,10 +284,45 @@ public class JUploadApplet extends Applet {
         runUnload();
     }
 
+    // /////////////////////////////////////////////////////////////////////////
+    // ////////////////////// Helper functions
+    // /////////////////////////////////////////////////////////////////////////
+
     /**
      * Helper function for ant build to retrieve the current version.
      */
     public static void main(String[] args) {
         System.out.println(VERSION.split(" ")[0]);
+    }
+
+    /**
+     * Helper function, to get the Revision number, if available. The applet
+     * must be built fro the build.xml ant file.
+     */
+    public static Properties getSvnProperties() {
+        Properties properties = new Properties();
+        Boolean bPropertiesLoaded = false;
+        
+        //Let's try to load the propeties file.
+        try {
+            properties.load(properties.getClass().getResourceAsStream(
+                    svnPropertiesFilename));
+            bPropertiesLoaded = true;
+        } catch (NullPointerException e) {
+        } catch (IOException e) {
+            // An error occured when reading the file. The applet was
+            // probably not built with the build.xml ant file.
+            // We'll create a fake propery list. See below.
+        }
+
+        if (!bPropertiesLoaded) {
+            properties.setProperty("buildDate",
+                    "Unknown build date (please use the build.xml ant script)");
+            properties.setProperty("lastSrcDirModificationDate",
+                    "Unknown last modification date (please use the build.xml ant script)");
+            properties.setProperty("revision",
+                    "Unknown revision (please use the build.xml ant script)");
+        }
+        return properties;
     }
 }
