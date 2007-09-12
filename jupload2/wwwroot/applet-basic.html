@@ -5,14 +5,18 @@
 <title>JUpload - File Upload Applet (basic mode demo)</title>
 </head>
 <body>
-<script language="javascript" src="common.js" type="text/javascript"></script>
+<script language="javascript" type="text/javascript"src="common.js" />
+<script language="javascript" type="text/javascript">
+	documentWriteEmptyApplet();
+</script>
 
 <center>
 <table width="640" cellpadding="7" cellspacing="0" border="0">
     <tr>
-        <td colspan="2" align="center"><font face="arial" size="+1"
-            color="red"><b><u>JUpload - File Upload
-        Applet</u></b></font></td>
+        <td colspan="2" align="center"><font face="arial" size="+1" color="red">
+        	<b><u>JUpload - File Upload Applet</u></b>
+        	</font>
+        </td>
     </tr>
     <tr height="20"></tr>
     <tr>
@@ -22,20 +26,35 @@
         </td>
     </tr>
     <tr>
-        <td colspan="2" align="center"><applet
-            code="wjhk.jupload2.JUploadApplet" name="JUpload"
-            archive="wjhk.jupload.jar" width="640" height="300"
-            mayscript alt="">
-            <param name="CODE" value="wjhk.jupload2.JUploadApplet" />
-            <param name="ARCHIVE" value="wjhk.jupload.jar" />
-            <param name="type"
-                value="application/x-java-applet;version=1.5" />
-            <param name="scriptable" value="false" />
-            <param name="postURL"
-                value="http://jupload.sourceforge.net/upload_dummy.php" />
-            <param name="maxChunkSize" value="500000" />
-            <param name="nbFilesPerRequest" value="2" />
-            Java 1.5 or higher plugin required. </applet></td>
+        <td colspan="2" align="center">
+<!---------------------------------------------------------------------------------------------------------
+-------------------     A DUMMY APLET TAG, converted by the java HtmlConverter.exe tool -------------------
+-------------------        to ask the user to install the java plugin, if needed        -------------------
+----------------------------------------------------------------------------------------------------------->
+			<script language="javascript" type="text/javascript">
+				documentWriteEmptyApplet();
+			</script>
+<!---------------------------------------------------------------------------------------------------------
+-------------------     A SIMPLE AND STANDARD APPLET TAG, to call the JUpload applet  --------------------- 
+----------------------------------------------------------------------------------------------------------->
+        <applet
+	            code="wjhk.jupload2.JUploadApplet"
+	            name="JUpload"
+	            archive="wjhk.jupload.jar"
+	            width="640"
+	            height="300"
+	            mayscript
+	            alt="The java pugin must be installed.">
+            <!-- param name="CODE"    value="wjhk.jupload2.JUploadApplet" / -->
+            <!-- param name="ARCHIVE" value="wjhk.jupload.jar" / -->
+            <!-- param name="type"    value="application/x-java-applet;version=1.5" /  -->
+            <param name="postURL" value="upload_dummy.php" />
+            Java 1.5 or higher plugin required. 
+        </applet>
+<!-- --------------------------------------------------------------------------------------------------------
+----------------------------------     END OF THE APPLET TAG    ---------------------------------------------
+---------------------------------------------------------------------------------------------------------- -->
+        </td>
     </tr>
     <tr>
         <td colspan="2" bgcolor="#3F7C98">
@@ -44,8 +63,7 @@
     </tr>
     <tr>
         <td>Post URL:</td>
-        <td bgcolor="FFFFFF">
-        http://jupload.sourceforge.net/upload_dummy.php</td>
+        <td bgcolor="FFFFFF">upload_dummy.php</td>
     </tr>
     <!-- footer -->
     <tr>
