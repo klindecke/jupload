@@ -1,13 +1,9 @@
 TODO list:
 - Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
 - Picture mode: applet parameter to control the size of the preview on the file chooser.
-- Picture mode: create a specific file chooser, to have nice preview, instead of the standard JFileChooser.
-- fileChooserIconSize: doesn't work when set to 80 ?
 - [FileChooser] Replace the 'open' button by 'Add file'.
 - [Picture mode] A double-click on a file should also open the preview.
 - Allows upload from the demo site, or inform that it doesn't work.
-- Change the cursor to 'WAIT', when displaying the ImagePreview in the file chooser.
-- Use quicker preview in the applet picture displays.
 
 
 V3.1.0
@@ -106,6 +102,8 @@ V3.0.1
 - [Fix] Automatic detection of the HTTP protocol was not called when the applet parameter
   "serverProtocol" was specified with an empty string.
 - [Fix] Release are now compiled with 1.5 JVM
+
+
 
 V3.0.0
 
