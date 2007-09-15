@@ -75,7 +75,7 @@ public class JUploadApplet extends Applet {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    public final static String VERSION = "3.1.0b [SVN-Rev: "
+    public final static String VERSION = "3.1.0 [SVN-Rev: "
             + svnProperties.getProperty("revision") + "]";
 
     /**
