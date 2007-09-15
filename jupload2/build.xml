@@ -259,6 +259,7 @@ lastSrcDirModificationDate = ${svn.date}
 				<include name="wwwroot/**/*" />
 				<include name="doc/**/*" />
 				<include name="build.xml" />
+				<include name="readme.txt" />
 				<!-- svn-ant stuff -->
 				<include name="lib/**/*" />
 				<!-- eclipse stuff -->

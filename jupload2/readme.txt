@@ -10,8 +10,10 @@ You'll find in this file a description of the package content.
 
 QUICK START :
 
-full sources :  /src  
-demo web site:  /wwwroot/index.html
+The three main entry points are:
+- Compiled applet: /wwwroot/wjhk.jupload.jar
+- full sources :  /src  
+- demo web site:  /wwwroot/index.html
   It contains links to all docs for the JUpload project.
 
 
