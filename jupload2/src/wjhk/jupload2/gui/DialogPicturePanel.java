@@ -55,7 +55,7 @@ public class DialogPicturePanel extends PicturePanel {
         this.pictureDialog = pictureDialog;
         // pictureDialog.getContentPane().setCursor(new
         // Cursor(Cursor.WAIT_CURSOR));
-        setPictureFile(pictureFileData);
+        setPictureFile(pictureFileData, null, null);
         // pictureDialog.getContentPane().setCursor(null);
     }
 

@@ -19,6 +19,8 @@ build date.
 protocol applet parameter is not set.
 - [Fix] Drag'n Drop: the applet now controls whether the dropped files correspond to the current file filter (list 
 of allowed file extensions).
+- [Fix] Management of files which can't be read by the applet: files are not uploaded, and a proper warning is 
+displayed, instead of a Java error that blocks the upload.
 - [Minor] PictureUploadPolicy: the picture preview in the file chooser displays bigger pictures.
 - [Minor] Better management of the wait cursor in picture mode.
 - [Minor] FileChooser: various enhancement of the pictre mode:

@@ -811,7 +811,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         }
         // The last tail gets an additional "--" in order to tell the Server we
         // have finished.
-        this.tails[firstFileToUpload + nbFilesToUpload - 1] += bound + "--\r\n";
+        if (nbFilesToUpload > 0) {
+            this.tails[firstFileToUpload + nbFilesToUpload - 1] += bound
+                    + "--\r\n";
+        }
 
     }
 

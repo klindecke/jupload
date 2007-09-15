@@ -170,6 +170,7 @@ class IconWorker implements Runnable {
             uploadPolicy
                     .displayWarn("OutOfMemoryError in IconWorker.loadIcon()");
             this.status = STATUS_ERROR_WHILE_LOADING;
+            this.icon = null;
         }
     }
 

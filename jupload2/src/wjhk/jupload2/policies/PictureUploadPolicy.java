@@ -353,9 +353,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         }
         if (this.picturePanel != null) {
             Cursor previousCursor = setWaitCursor();
-            this.picturePanel.setPictureFile((PictureFileData) fileData);
-            this.rotateLeftButton.setEnabled(fileData != null);
-            this.rotateRightButton.setEnabled(fileData != null);
+            this.picturePanel.setPictureFile((PictureFileData) fileData,
+                    this.rotateLeftButton, this.rotateRightButton);
+            // this.rotateLeftButton.setEnabled(fileData != null);
+            // this.rotateRightButton.setEnabled(fileData != null);
+            // TODO remove the two lines above, if tests are Ok.
             setCursor(previousCursor);
         }
     }
@@ -391,9 +393,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         // buttons, even if the user stops the upload.
         getApplet().getFilePanel().clearSelection();
         if (this.picturePanel != null) {
-            this.picturePanel.setPictureFile(null);
-            this.rotateLeftButton.setEnabled(false);
-            this.rotateRightButton.setEnabled(false);
+            this.picturePanel.setPictureFile(null, this.rotateLeftButton,
+                    this.rotateRightButton);
+            // this.rotateLeftButton.setEnabled(false);
+            // this.rotateRightButton.setEnabled(false);
+            // TODO remove the two lines above, if tests are Ok.
         }
 
         // Then, we call the standard action, if any.
