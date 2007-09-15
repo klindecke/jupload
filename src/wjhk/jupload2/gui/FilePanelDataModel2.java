@@ -311,8 +311,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
         }
         String colName = getColumnName(col);
         // Don't know if it will be useful, but the switch below allows the
-        // column
-        // to be in any order.
+        // column to be in any order.
         if (colName.equals(this.COL_NAME)) {
             return fileData.getFileName();
         } else if (colName.equals(this.COL_SIZE)) {

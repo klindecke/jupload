@@ -32,6 +32,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.JButton;
+
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -124,8 +126,14 @@ public class PicturePanel extends Canvas implements MouseListener,
      * 
      * @param pictureFileData The FileData for the image to be displayed. Null
      *            if no picture should be displayed.
+     * @param button1 A button that will be activated or not, depending of the
+     *            pictures was correctly set into the panel. May be null, if not
+     *            button is to be enabled.
+     * @param button1 Another button that will be activated or not. May also be
+     *            null.
      */
-    public void setPictureFile(PictureFileData pictureFileData) {
+    public void setPictureFile(PictureFileData pictureFileData,
+            JButton button1, JButton button2) {
         // First : reset current picture configuration.
         this.pictureFileData = null;
         if (this.offscreenImage != null) {
@@ -139,8 +147,14 @@ public class PicturePanel extends Canvas implements MouseListener,
 
         // Then, we store the new picture data, get the offscreen picture and
         // ask for a repaint.
-        if (pictureFileData != null) {
+        boolean enableButton = false;
+        if (pictureFileData != null && pictureFileData.canRead()) {
             this.pictureFileData = pictureFileData;
+
+            // A picture has been selected. The buttons must be enabled.
+            enableButton = true;
+
+            // Now, we display this picture.
             calculateOffscreenImage();
             if (this.offscreenImage == null) {
                 this.uploadPolicy
@@ -149,6 +163,14 @@ public class PicturePanel extends Canvas implements MouseListener,
                                 1);
             }
             repaint();
+        }
+
+        // Let's activate the given button ... if any.
+        if (button1 != null) {
+            button1.setEnabled(enableButton);
+        }
+        if (button2 != null) {
+            button2.setEnabled(enableButton);
         }
     }
 

@@ -37,8 +37,10 @@ import java.util.Iterator;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -504,6 +506,23 @@ public class PictureFileData extends DefaultFileData {
             try {
                 localBufferedImage = ImageIO.read(getFile());
 
+                /*
+                // For debug, test of reading metadata
+                Iterator iterator = ImageIO.getImageReadersBySuffix(getExtension(getFile()));
+                ImageReader ir;
+                IIOMetadata metaData;
+                InputStream is;
+                while (iterator.hasNext()) {
+                    ir=(ImageReader)iterator.next();
+                    is = new InputStream(getFile());
+                    ir.setInput(is);
+                    metaData = ir.getImageMetadata(0);
+                    metaData = metaData;
+                    Crash
+                }
+                */
+                //TODO Finish metadata analysis.
+
                 AffineTransform transform = new AffineTransform();
 
                 // Let's store the original image width and height. It can be
@@ -894,12 +913,15 @@ public class PictureFileData extends DefaultFileData {
                 // Prepare (if not already done) the bufferedImage.
 
                 // If the image is rotated, we compare to realMaxWidth and
-                // realMaxHeight, instead of
-                // maxWidth and maxHeight. This allows to have a different
-                // picture size for rotated and
-                // not rotated pictures. See the UploadPolicy javadoc for
-                // details ... and a good reason ! ;-)
+                // realMaxHeight, instead of maxWidth and maxHeight. This allows
+                // to have a different picture size for rotated and not rotated
+                // pictures. See the UploadPolicy javadoc for details ... and a
+                // good reason ! ;-)
                 if (this.quarterRotation == 0) {
+                    // TODO: check if getMaxWidth is used at best. We should
+                    // resize only if the image is bigger than maxWidth. If it
+                    // is, we should resize to realMaxWidth (if defined), and
+                    // not to maxWidth.
                     bufferedImage = getBufferedImage(
                             ((PictureUploadPolicy) this.uploadPolicy)
                                     .getMaxWidth(),
@@ -1089,8 +1111,10 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @param pictureFile The file, containing a picture, from which the user
      *            wants to extract a static picture.
-     * @param maxWidth The maximum allowed width for the static picture to generate.
-     * @param maxHeight The maximum allowed height for the static picture to generate.
+     * @param maxWidth The maximum allowed width for the static picture to
+     *            generate.
+     * @param maxHeight The maximum allowed height for the static picture to
+     *            generate.
      * @return The created static picture, or null if the file is null.
      */
     public static ImageIcon getImageIcon(File pictureFile, int maxWidth,

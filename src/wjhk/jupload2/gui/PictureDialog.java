@@ -109,7 +109,7 @@ public class PictureDialog extends JDialog implements ActionListener,
         // has an explanation).
         // So, I have to manually free the memory consummed to display the
         // image, here.
-        this.picturePanel.setPictureFile(null);
+        this.picturePanel.setPictureFile(null, null, null);
     }
 
     /**

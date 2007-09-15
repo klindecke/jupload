@@ -58,12 +58,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // /////////////////////// VARIABLES ///////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * The given array containing the files to upload. Stored in the
-     * constructor, and used in the run() method.
+    /*
+     * Etienne Gauthier: this parameter is now removed. The incoming list of
+     * files to upload is now only managed in the constructor: it's up to it to
+     * manage files that can't be read. /** The given array containing the files
+     * to upload. Stored in the constructor, and used in the run() method.
      */
-    FileData[] filesDataParam = null;
-
+    // FileData[] filesDataParam = null;
     /**
      * This array will contain a 'copy' of the relevant element of the
      * filesDataParam array (see the constructor). After filling the
@@ -139,13 +140,46 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     public DefaultFileUploadThread(FileData[] filesDataParam,
             UploadPolicy uploadPolicy, JProgressBar progressBar) {
-        this.filesDataParam = filesDataParam;
         this.uploadPolicy = uploadPolicy;
         this.progressBar = progressBar;
 
+        // ////////////////////////////////////////////////////////////////////////////
+        // Let's read the up-to-date upload parameters
+        // First: how many files can be read. The files that can't be read won't
+        // be uploaded.
+        int nbFilesToUpload = 0;
+        for (int i = 0; i < filesDataParam.length; i += 1) {
+            if (filesDataParam[i].canRead()) {
+                nbFilesToUpload += 1;
+            }
+        }
+        this.filesToUpload = new UploadFileData[nbFilesToUpload];
+
+        // Patch to manage files that can't be read: we don't want them in
+        // filesToUpload!
+        // So let's add to the filesToUpload array, only the files to upload.
+        // The use of a Vector instead of an array for filesToUpload would be
+        // easier here. But all the implementation of the whole upload code is
+        // based on filesToUpload being an array.
+        // TODO display a proper message to the user, when a file can't be read.
+        // Currently, a warning is written in the applet output. But it won't be
+        // visible if the log window is hidden. In this case, the user must see
+        // the 'readable' column in the applet, and see that it's not checked.
+        // Not really intuitive!
+        int iFileIndex = 0;
+        for (int i = 0; i < filesDataParam.length; i += 1) {
+            if (filesDataParam[i].canRead()) {
+                this.filesToUpload[iFileIndex++] = new UploadFileData(
+                        filesDataParam[i], this, uploadPolicy);
+            } else {
+                uploadPolicy.displayWarn(filesDataParam[i].getFileName()
+                        + " is read only: it won't be uploaded.");
+            }
+        }
+
         // We don't store any additional parameters here: their value can be
-        // updated by the real class
-        // that'll be used. See FileUploadThreadFTP constructor of instance.
+        // updated by the real class that'll be used. See FileUploadThreadFTP
+        // constructor of instance.
         // Upload parameters are read in the run() method, below.
     }
 
@@ -368,15 +402,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
     final public void run() {
         boolean bUploadOk = true;
 
-        // Let's read the up-to-date upload parameters
-        this.filesToUpload = new UploadFileData[filesDataParam.length];
+        // Let's read up to date upload parameters.
+        // These parameters may be changed by the subclasses parameter of this
+        // class: so we read them as late as possible, that is: here!
         this.maxChunkSize = uploadPolicy.getMaxChunkSize();
         this.nbMaxFilesPerUpload = uploadPolicy.getNbFilesPerRequest();
-
-        for (int i = 0; i < filesDataParam.length; i += 1) {
-            this.filesToUpload[i] = new UploadFileData(filesDataParam[i], this,
-                    uploadPolicy);
-        }
 
         // this inhibits status-update (progress bar and status bar)
         // from within the timer loop.

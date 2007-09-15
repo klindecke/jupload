@@ -100,6 +100,11 @@ public class DefaultFileData implements FileData {
     private Date fileModified;
 
     /**
+     * Indicates whether the applet can read this file or not.
+     */
+    private Boolean canRead = null;
+
+    /**
      * Standard constructor
      * 
      * @param file The file whose data this instance will give.
@@ -194,9 +199,30 @@ public class DefaultFileData implements FileData {
         return this.mimeType;
     }
 
-    /** @see FileData#canRead() */
+    /**
+     * The canRead status is read once. This is done in this method, so that
+     * it's available for all subclasses. If it were in the construtor, we would
+     * have to initialize {@link #canRead} in all subclasses.
+     * 
+     * @see FileData#canRead()
+     */
     public boolean canRead() {
-        return this.file.canRead();
+        // The commented line below doesn't seems to work.
+        // return this.file.canRead();
+
+        // Let's store the status 'readible' only once. It's
+        if (canRead == null) {
+            try {
+                InputStream is = new FileInputStream(this.file);
+                is.close();
+                canRead = new Boolean(true);
+            } catch (IOException e) {
+                // Can't read the file!
+                canRead = new Boolean(false);
+            }
+        }
+
+        return canRead.booleanValue();
     }
 
     /** @see FileData#getFile() */
@@ -230,6 +256,5 @@ public class DefaultFileData implements FileData {
         String name = file.getName();
         return name.substring(name.lastIndexOf('.') + 1);
     }
-
 
 }
