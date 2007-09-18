@@ -213,7 +213,15 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     @Override
     public void afterUpload(Exception e, @SuppressWarnings("unused")
     String serverOutput) {
-        if (e == null) {
+        int nbPictureAfterUpload = getApplet().getFilePanel().getFilesLength();
+        if (nbPictureAfterUpload > this.nbPictureInUpload) {
+            displayErr("CoppermineUploadPolicy.afterUpload: The number of uploaded files is negative! ("
+                    + (this.nbPictureInUpload - nbPictureAfterUpload) + ")");
+        } else if (nbPictureAfterUpload == this.nbPictureInUpload) {
+            displayWarn("CoppermineUploadPolicy.afterUpload: No file were uploaded! ("
+                    + (nbPictureAfterUpload - this.nbPictureInUpload) + ")");
+        } else if (e == null) {
+            // Ok, at least one file were uploaded, and there was no error.
             try {
                 // First : construction of the editpic URL :
                 String editpicURL = getPostURL().substring(0,
@@ -222,7 +230,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                         + "/jupload&action=edit_uploaded_pics&album="
                         + this.albumId
                         + "&nb_pictures="
-                        + this.nbPictureInUpload;
+                        + (this.nbPictureInUpload - nbPictureAfterUpload);
 
                 if (getDebugLevel() >= 100) {
                     alertStr("No switch to property page, because debug level is "
