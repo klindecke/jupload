@@ -41,6 +41,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -506,23 +507,6 @@ public class PictureFileData extends DefaultFileData {
             try {
                 localBufferedImage = ImageIO.read(getFile());
 
-                /*
-                // For debug, test of reading metadata
-                Iterator iterator = ImageIO.getImageReadersBySuffix(getExtension(getFile()));
-                ImageReader ir;
-                IIOMetadata metaData;
-                InputStream is;
-                while (iterator.hasNext()) {
-                    ir=(ImageReader)iterator.next();
-                    is = new InputStream(getFile());
-                    ir.setInput(is);
-                    metaData = ir.getImageMetadata(0);
-                    metaData = metaData;
-                    Crash
-                }
-                */
-                //TODO Finish metadata analysis.
-
                 AffineTransform transform = new AffineTransform();
 
                 // Let's store the original image width and height. It can be
@@ -542,7 +526,7 @@ public class PictureFileData extends DefaultFileData {
                 int nonScaledRotatedWidth = this.originalWidth;
                 int nonScaledRotatedHeight = this.originalHeight;
                 if (this.quarterRotation % 2 != 0) {
-                    // 90ï¿½ or 270ï¿½ rotation: width and height are switched.
+                    // 90° or 270° rotation: width and height are switched.
                     nonScaledRotatedWidth = this.originalHeight;
                     nonScaledRotatedHeight = this.originalWidth;
                 }
@@ -966,11 +950,37 @@ public class PictureFileData extends DefaultFileData {
                         // to write some debug info.
                     }
 
+                    // Now, we write the metadata from the orginal file to the
+                    // transformed one ... if any exists.
+                    uploadPolicy.displayInfo("Start of metadata managing, for " + getFileName());
+                    IIOMetadata metadata = null;
+                    Iterator iterator = ImageIO.getImageReadersBySuffix(getExtension(getFile()));
+                    ImageReader ir;
+                    FileImageInputStream is;
+                    while (iterator.hasNext()) {
+                        ir=(ImageReader)iterator.next();
+                        try {
+                            is = new FileImageInputStream(getFile());
+                            ir.setInput(is);
+                            metadata = ir.getImageMetadata(0);
+                            uploadPolicy.displayDebug("Found one image read that can read metadata!", 20);
+                            break;
+                        } catch (Exception e) {
+                            uploadPolicy.displayErr(e);
+                            continue;
+                        }
+                    }
+                    
+                    if (metadata == null) {
+                        uploadPolicy.displayWarn("No metadata reader for " + getFileName());
+                    }
+
+
                     // Let's create the picture file.
                     FileImageOutputStream output = new FileImageOutputStream(
                             this.transformedPictureFile);
                     writer.setOutput(output);
-                    IIOImage image = new IIOImage(bufferedImage, null, null);
+                    IIOImage image = new IIOImage(bufferedImage, null, metadata);
                     writer.write(null, image, iwp);
                     writer.dispose();
                     output.close();
