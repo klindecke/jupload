@@ -20,6 +20,7 @@
 
 package wjhk.jupload2.gui;
 
+import java.awt.Point;
 import java.io.File;
 
 import wjhk.jupload2.filedata.FileData;
@@ -45,6 +46,7 @@ public interface FilePanel {
 
     /**
      * Retrieve the number of file entries in the JTable.
+     * 
      * @return the current number of files, held by this instance.
      */
     public int getFilesLength();
@@ -61,6 +63,7 @@ public interface FilePanel {
 
     /**
      * Remove a specified file entry.
+     * 
      * @param fileData The file to be removed.
      */
     public void remove(FileData fileData);
@@ -74,4 +77,12 @@ public interface FilePanel {
      * Requests focus for the JTable.
      */
     public void focusTable();
+
+    /**
+     * Ask for the file contained at specified row number.
+     * 
+     * @param row The row number
+     * @return The return instance of File.
+     */
+    public FileData getFileDataAt(Point point);
 }
