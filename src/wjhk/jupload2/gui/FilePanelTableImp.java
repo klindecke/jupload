@@ -22,6 +22,7 @@ package wjhk.jupload2.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Panel;
+import java.awt.Point;
 import java.awt.dnd.DropTarget;
 import java.io.File;
 
@@ -52,6 +53,7 @@ public class FilePanelTableImp extends Panel implements FilePanel {
 
     /**
      * Creates a new instance.
+     * 
      * @param jup The upload panel (parent).
      * @param uploadPolicy The upload policy to apply.
      */
@@ -66,7 +68,8 @@ public class FilePanelTableImp extends Panel implements FilePanel {
 
         TableColumnModel colModel = this.jtable.getColumnModel();
         for (int i = 0; i < this.model.getColumnCount(); i++) {
-            colModel.getColumn(i).setPreferredWidth(this.model.getColumnSize(i));
+            colModel.getColumn(i)
+                    .setPreferredWidth(this.model.getColumnSize(i));
         }
 
         JScrollPane scrollPane = new JScrollPane(this.jtable);
@@ -164,11 +167,15 @@ public class FilePanelTableImp extends Panel implements FilePanel {
         this.jtable.clearSelection();
     }
 
-    /**
-     * @see wjhk.jupload2.gui.FilePanel#focusTable()
-     */
+    /** @see wjhk.jupload2.gui.FilePanel#focusTable() */
     public final void focusTable() {
         if (0 < this.jtable.getRowCount())
             this.jtable.requestFocus();
+    }
+
+    /** @see wjhk.jupload2.gui.FilePanel#getFileDataAt(int) */
+    public FileData getFileDataAt(Point point) {
+        int row = jtable.rowAtPoint(point);
+        return model.getFileDataAt(row);
     }
 }

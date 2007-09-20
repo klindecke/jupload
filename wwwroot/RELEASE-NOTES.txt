@@ -6,6 +6,17 @@ TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
 
 
+V3.1.1b
+
+Changes:
+- [Minor] Picture mode: EXIF and IPTC data are now transmitted, even if the applet resizes or rotates the 
+transmitted picture
+
+Fixes:
+- The uploadPolicy.onFileDoubleClicked method is now clicked when a user double clicks on a file.
+
+
+
 V3.1.0
 - [Fix] The JUpload project now compiles 'out of the box', even from eclipse. No more need to use the given 
 build.xml ant script. The script is still necessary, so that the applet indicates the correct SVN revision and 
