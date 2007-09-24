@@ -79,9 +79,9 @@ public interface FilePanel {
     public void focusTable();
 
     /**
-     * Ask for the file contained at specified row number.
+     * Ask for the file contained below the specific point on the screen.
      * 
-     * @param row The row number
+     * @param point The point
      * @return The return instance of File.
      */
     public FileData getFileDataAt(Point point);

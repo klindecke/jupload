@@ -173,7 +173,7 @@ public class FilePanelTableImp extends Panel implements FilePanel {
             this.jtable.requestFocus();
     }
 
-    /** @see wjhk.jupload2.gui.FilePanel#getFileDataAt(int) */
+    /** @see wjhk.jupload2.gui.FilePanel#getFileDataAt(Point) */
     public FileData getFileDataAt(Point point) {
         int row = jtable.rowAtPoint(point);
         return model.getFileDataAt(row);
