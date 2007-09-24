@@ -17,11 +17,14 @@
 	uploadPolicy = "";
 	
 	afterUploadURL = "";
+	afterUploadTarget = "";
 	allowHttpPersistent = "";
+	allowedFileExtensions = "";
 	fileChooserIconFromFileContent = "";
 	fileChooserIconSize = "";
 	fileChooserImagePreview = "";
 	filenameEncoding = "";
+	formdata = "";
 	highQualityPreview = "";
 	lang = "";
 	lookAndFeel = "";
@@ -31,12 +34,16 @@
 	maxPicHeight = "";
 	maxPicWidth = "";
 	debugLevel = "";
+	realMaxPicHeight = "";
+	realMaxPicWidth = "";
 	serverProtocol = "";
+	showLogWindow = "";
 	showStatusBar = "";
 	specificHeaders = "";
+	sslVerifyCert = "";
 	stringUploadError = "";
 	stringUploadSuccess = "";
-	
+
 	//Some parameters can only be choosen from an existing list:
 	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy"];
 	//eo: esperanto
@@ -45,7 +52,10 @@
 
 	function writeInputText (name, value, comment) {
 		document.write('	<tr><td align="center">');
-		document.write(name + comment);
+		document.write('<B>' + name + '</B>');
+		if (comment != "") {
+			document.write(" (" + comment + ")");	
+		}
 		document.write('</td><td><INPUT TYPE="TEXT" NAME="');
 		document.write(name);
 		document.write('"');
@@ -59,7 +69,7 @@
 
 	function writeInputSelect (name, value, list, comment) {
 		document.write('	<tr><td align="center">');
-		document.write(name);
+		document.write('<B>' + name + '</B>');
 		if (comment != '') {
 			document.write(" (" + comment + ")");
 		}
@@ -78,8 +88,12 @@
 		document.writeln(	'</SELECT></td></tr>');
 	}//writeInputText
 
+	function writeBooleanInputSelect (name, value, comment) {
+		writeInputSelect(name, value, ["", "false", "true"], comment);
+	}
+	
 	function writeParam (param, value) {
-		if (value != "") {
+		if (value != undefined && value != "") {
 			document.write('   <param name="');
 			document.write(param);
 			document.write('" VALUE="');
@@ -102,85 +116,10 @@
 		//unescape won't manage +
 		val = String(val).replace(/\+/g, " ");
 		
-		switch (array[1]) {
-		case "afterUploadURL":
-			afterUploadURL = val;
-			break;
-		case "allowHttpPersistent":
-			allowHttpPersistent = val;
-			break;
-		case "appletHeight":
-			appletHeight = val;
-			break;
-		case "appletWidth":
-			appletWidth = val;
-			break;
-		case "debugLevel":
-			debugLevel = val;
-			break;
-		case "fileChooserIconFromFileContent":
-			fileChooserIconFromFileContent = val;
-			break;
-		case "fileChooserIconSize":
-			fileChooserIconSize = val;
-			break;
-		case "fileChooserImagePreview":
-			fileChooserImagePreview = val;
-			break;
-		case "filenameEncoding":
-			filenameEncoding = val;
-			break;
-		case "highQualityPreview":
-			highQualityPreview = val;
-			break;
-		case "lang":
-			lang = val;
-			break;
-		case "lookAndFeel":
-			lookAndFeel = val;
-			break;
-		case "maxPicHeight":
-			maxPicHeight = val;
-			break;
-		case "maxChunkSize":
-			maxChunkSize = val;
-			break;
-		case "maxFileSize":
-			maxFileSize = val;
-			break;
-		case "maxPicWidth":
-			maxPicWidth = val;
-			break;
-		case "nbFilesPerRequest":
-			nbFilesPerRequest = val;
-			break;
-		case "postURL":
-			postURL = val;
-			break;
-		case "serverProtocol":
-			serverProtocol = val;
-			break;
-		case "showStatusBar":
-			showStatusBar = val;
-			break;
-		case "specificHeaders":
-			specificHeaders = val;
-			break;
-		case "stringUploadError":
-			stringUploadError = val;
-			break;
-		case "stringUploadSuccess":
-			stringUploadSuccess = val;
-			break;
-		case "uploadPolicy":
-			uploadPolicy = val;
-			break;
-		case "urlToSendErrorTo":
-			urlToSendErrorTo = val;
-			break;
-		default:
-			alert("Unknown parameter: " + array[1]);
-		}
+		//array[1] contains the parameter name.
+		//val contains its value, to be set.
+		eval(array[1] + ' = val');
+
 		array = reParam.exec(query);
 	}//while
 
@@ -191,48 +130,13 @@
 		appletHeight = "300";
 	}
 
-	//First the form, with default values given by the query parameters.
-	document.writeln('<H3>Enter Jupload parameters</H3>');
-	document.writeln('<FORM>');
-	document.writeln('<TABLE BORDER=0>');
-	document.writeln('<TR><TD><TABLE>');
-	
-	writeInputText("appletHeight", appletHeight, "");
-	writeInputText("appletWidth", appletWidth, "");
-
-	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList, '');
-	writeInputText("postURL", postURL, " (you can now put https URL here)");
-	writeInputText("afterUploadURL", afterUploadURL, "");
-	writeInputText("allowHttpPersistent", allowHttpPersistent, "");
-	writeInputText("debugLevel", debugLevel, "");
-	writeInputText("fileChooserIconFromFileContent", fileChooserIconFromFileContent, "");
-	writeInputText("fileChooserIconSize", fileChooserIconSize, "");
-	writeInputText("fileChooserImagePreview", fileChooserImagePreview, "");
-	writeInputSelect("highQualityPreview", highQualityPreview, ["", "false", "true"], '');	
-	writeInputSelect("lang", lang, langList, 'Japanese needs specific JRE extension');
-	document.writeln('</TABLE></TD><TD><TABLE>');
-	writeInputText("lookAndFeel", lookAndFeel, "");
-	writeInputText("filenameEncoding", filenameEncoding, "");
-	writeInputText("nbFilesPerRequest", nbFilesPerRequest, "");
-	writeInputText("maxChunkSize", maxChunkSize, "");
-	writeInputText("maxFileSize", maxFileSize, "");
-	writeInputText("maxPicHeight", maxPicHeight, "");
-	writeInputText("maxPicWidth", maxPicWidth, "");
-	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
-	writeInputText("stringUploadError", stringUploadError, "");
-	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
-	writeInputText("showStatusBar", showStatusBar, "");
-	writeInputText("specificHeaders", specificHeaders, "");
-	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
-	document.writeln('</TABLE></TD></TR>');
-	document.writeln('</TABLE>');
-	document.writeln('<input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)">');
-	document.writeln('</FORM>');
-
 	//Let's write one APPLET tag for the selected language	
+	document.writeln('<H2>In this page, you can test all the applet parameters !</H2>');
 	document.writeln('<P><B>Caution:</B> The upload will work only if a valid postURL parameter is given. '
-		+ 'By default, postURL points to localhost:8080. <BR>That can be a Tomcat server, where the wwwroot webapp of '
+		+ 'By default, postURL points to sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot webapp of '
 		+ 'jupload is deployed.</P>');
+	document.writeln('<P>See the <a href="howto-customization.html#parameters">parameters list</a>, in the '
+		+ ' <a href="howto-customization.html#parameters">HowTo customize it</a> page, for all details on the applet parameters.</P>');
 	document.writeln('<P><APPLET ');
 	document.writeln('	CODE    = "wjhk.jupload2.JUploadApplet" ');
 	document.writeln('	ARCHIVE = "wjhk.jupload.jar, jakarta-commons-oro.jar, jakarta-commons-net.jar" ');
@@ -241,6 +145,7 @@
 	document.writeln('	MAYSCRIPT >');
 	writeParam("postURL", postURL);
 	writeParam("uploadPolicy", uploadPolicy);
+	writeParam("afterUploadTarget", afterUploadTarget);
 	writeParam("afterUploadURL", afterUploadURL);
 	writeParam("allowHttpPersistent", allowHttpPersistent);
 	writeParam("debugLevel", debugLevel);
@@ -248,20 +153,95 @@
 	writeParam("fileChooserIconSize", fileChooserIconSize);
 	writeParam("fileChooserImagePreview", fileChooserImagePreview);
 	writeParam("filenameEncoding", filenameEncoding);
+	writeParam("formdata", formdata);
 	writeParam("lang", lang);
 	writeParam("lookAndFeel", lookAndFeel);
 	writeParam("nbFilesPerRequest", nbFilesPerRequest);
 	writeParam("maxChunkSize", maxChunkSize);
 	writeParam("maxFileSize", maxFileSize);
 	writeParam("maxPicHeight", maxPicHeight);
-	writeParam("maxPicWidth", maxPicWidth);
-	writeParam("urlToSendErrorTo", urlToSendErrorTo);
+	writeParam("realMaxPicHeight", realMaxPicHeight);
+	writeParam("realMaxPicWidth", realMaxPicWidth);
+	writeParam("showLogWindow", showLogWindow);
 	writeParam("showStatusBar", showStatusBar);
 	writeParam("specificHeaders", specificHeaders);
+	writeParam("sslVerifyCert", sslVerifyCert);
 	writeParam("stringUploadError", stringUploadError);
 	writeParam("stringUploadSuccess", stringUploadSuccess);
+	writeParam("urlToSendErrorTo", urlToSendErrorTo);
 	document.writeln('Java 1.5 or higher plugin required.');
 	document.writeln('</APPLET>');
+
+
+	//First the form, with default values given by the query parameters.
+	document.writeln('<FORM>');
+
+	//Main parameters	
+	document.writeln('<HR>');
+	document.writeln('<H3>Main applet parameters</H3>');
+	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADING=0><TR><TD><TABLE BORDER=0>');
+	writeInputText("postURL", postURL, "<U>defines where the target URL for the uploaded files</U>; you can put http, https and ftp URL here; " +
+		"deploy wwwroot on an application server, and try the wwwroot/pages/parseRequest.jsp java upload demo.");
+	writeInputText("maxChunkSize", maxChunkSize, "allows the applet to split the uploaded files in chunks: you can override the server maxUploadSize with this parameter");
+	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
+	writeInputSelect("uploadPolicy", uploadPolicy, uploadPolicyList, '');
+	writeInputText("maxFileSize", maxFileSize, "");
+	writeInputText("nbFilesPerRequest", nbFilesPerRequest, "");
+	document.writeln('</TABLE></TD></TR></TABLE>');
+
+	//Glogal parameters	
+	document.writeln('<HR>');
+	document.writeln('<H3>Parameters to control the applet display</H3>');
+	document.writeln('<TABLE><TR><TD><TABLE BORDER=0>');
+	writeInputText("appletHeight", appletHeight, "forced to 300 in this sample, if empty");
+	writeInputText("appletWidth", appletWidth, "forced to 640 in this sample, if empty");
+	writeInputText("debugLevel", debugLevel, "a number between 0 and 100. <BR>If 0 and an error occurs: forced to 1");
+	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
+	writeInputSelect("lang", lang, langList, 'Japanese needs specific JRE extension');
+	writeInputText("lookAndFeel", lookAndFeel, "empty, java or system; see also UIManager.setLookAndFeel");
+	writeBooleanInputSelect("showLogWindow", showLogWindow, "ignored if debugLevel >= 1");
+	writeBooleanInputSelect("showStatusBar", showStatusBar, "");
+	document.writeln('</TABLE></TD></TR></TABLE>');
+
+	//Glogal parameters	
+	document.writeln('<HR>');
+	document.writeln('<H3>Other global parameters</H3>');
+	document.writeln('<TABLE BORDER=0><TR><TD><TABLE BORDER=0>');
+	writeInputText("afterUploadTarget", afterUploadTarget, "");
+	writeInputText("afterUploadURL", afterUploadURL, "");
+	writeInputText("allowedFileExtensions", allowedFileExtensions, "");
+	writeBooleanInputSelect("allowHttpPersistent", allowHttpPersistent, "");
+	writeInputText("filenameEncoding", filenameEncoding, "");
+	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
+	writeInputText("formdata", formdata, "");
+	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
+	writeInputText("stringUploadError", stringUploadError, "");
+	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
+	writeInputText("specificHeaders", specificHeaders, "");
+	writeInputText("sslVerifyCert", sslVerifyCert, "");
+	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
+	document.writeln('</TABLE></TD></TR></TABLE>');
+
+	//Glogal parameters	
+	document.writeln('<HR>');
+	document.writeln('<H3>Picture mode parameters</H3>');
+	document.writeln('<P>To use these parameters, you\'ll need to choose the PictureUploadPolicy,');
+	document.writeln('in the <I>main applet parameters</I>, here above.</P>');
+	document.writeln('<TABLE BORDER=0><TR><TD><TABLE BORDER=0>');
+	writeInputText("fileChooserIconFromFileContent", fileChooserIconFromFileContent, "");
+	writeInputText("fileChooserIconSize", fileChooserIconSize, "");
+	writeInputText("fileChooserImagePreview", fileChooserImagePreview, "");
+	writeBooleanInputSelect("highQualityPreview", highQualityPreview, '');	
+	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
+	writeInputText("maxPicHeight", maxPicHeight, "");
+	writeInputText("maxPicWidth", maxPicWidth, "");
+	writeInputText("realMaxPicHeight", realMaxPicHeight, '');
+	writeInputText("realMaxPicWidth", realMaxPicWidth, '');
+	document.writeln('</TABLE></TD></TR></TABLE>');
+	document.writeln('<HR>');
+	document.writeln('<BR><input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)"><BR><BR>');
+	document.writeln('</FORM>');
+
 </script> <script language="javascript" type=""> footer(); </script><script
     language="javascript" src="timestamp.js" type="text/javascript"></script>
 </div>
