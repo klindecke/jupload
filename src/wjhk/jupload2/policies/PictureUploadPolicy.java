@@ -377,11 +377,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         } else if (!(pictureFileData instanceof PictureFileData)) {
             displayWarn("PictureUploadPolicy: received a non PictureFileData in onFileDoubleClicked");
         } else {
-            // Ok, we have a picture. Let's display it.
-            // uploadPolicy.displayDebug("---------- Opening PictureDialog",
-            // 60);
             new PictureDialog(null, (PictureFileData) pictureFileData, this);
-            // uploadPolicy.displayDebug("---------- PictureDialog closed", 60);
         }
     }
 

@@ -591,20 +591,21 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
      */
     public void mousePressed(MouseEvent mouseEvent) {
-        if (mouseEvent.getClickCount() == 2) {
-            // We have a double-click. Let's tell it to the current upload
-            // policy...
-            this.uploadPolicy.onFileDoubleClicked(filePanel.getFileDataAt(mouseEvent.getPoint()));
-        } else {
-            maybeOpenPopupMenu(mouseEvent);
-        }
+        maybeOpenPopupMenu(mouseEvent);
     }
 
     /**
      * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
      */
     public void mouseReleased(MouseEvent mouseEvent) {
-        maybeOpenPopupMenu(mouseEvent);
+        if (mouseEvent.getClickCount() == 2) {
+            // We have a double-click. Let's tell it to the current upload
+            // policy...
+            this.uploadPolicy.onFileDoubleClicked(filePanel
+                    .getFileDataAt(mouseEvent.getPoint()));
+        } else {
+            maybeOpenPopupMenu(mouseEvent);
+        }
     }
 
     /**

@@ -32,7 +32,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.JButton;
+import javax.swing.AbstractButton;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.PictureFileData;
@@ -43,11 +43,12 @@ import wjhk.jupload2.policies.UploadPolicy;
  * its inherited policy) is used. Manages the panel where pictures are
  * displayed. <BR>
  * Each time a user selects a file in the panel file, the PictureUploadPolicy
- * calls {@link #setPictureFile(PictureFileData)}. I did an attempt to store
- * the Image generated for the Panel size into the PictureFileData, to avoid to
- * calculate the offscreenPicture each time the user select the same file again.
- * But it doesn't work: the applet quickly runs out of memory, even after
- * numerous calls of System.gc and finalize. <BR>
+ * calls
+ * {@link #setPictureFile(PictureFileData, AbstractButton, AbstractButton)}. I
+ * did an attempt to store the Image generated for the Panel size into the
+ * PictureFileData, to avoid to calculate the offscreenPicture each time the
+ * user select the same file again. But it doesn't work: the applet quickly runs
+ * out of memory, even after numerous calls of System.gc and finalize. <BR>
  * <BR>
  * This file is taken from the PictureApplet ((C) 2002 Guillaume
  * Chamberland-Larose), available here: To contact Guillaume Chamberland-Larose
@@ -129,11 +130,11 @@ public class PicturePanel extends Canvas implements MouseListener,
      * @param button1 A button that will be activated or not, depending of the
      *            pictures was correctly set into the panel. May be null, if not
      *            button is to be enabled.
-     * @param button1 Another button that will be activated or not. May also be
+     * @param button2 Another button that will be activated or not. May also be
      *            null.
      */
     public void setPictureFile(PictureFileData pictureFileData,
-            JButton button1, JButton button2) {
+            AbstractButton button1, AbstractButton button2) {
         // First : reset current picture configuration.
         this.pictureFileData = null;
         if (this.offscreenImage != null) {

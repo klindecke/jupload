@@ -132,16 +132,6 @@ import wjhk.jupload2.gui.PictureDialog;
  * checks that the albumId is correct, that is: >=1. </td>
  * </tr>
  * <tr>
- * <td>allowHttpPersistent</td>
- * <td><i>true</i><br>
- * since 3.0.0rc1<br>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>This parameter allows to switch off persistent HTTP connections which
- * are enabled by default (and the protocol version allows it). Currently, we
- * encountered problems with persistent connections when testing on a windows
- * box using a loopback interface only.</td>
- * </tr>
- * <tr>
  * <td>allowedFileExtensions</td>
  * <td><i>empty string</i><br>
  * since 2.9.0<br>
@@ -151,6 +141,16 @@ import wjhk.jupload2.gui.PictureDialog;
  * the applet.<br>
  * This parameter must contains a list of extensions, in lower case, separated
  * by slashes. eg: jpg/jpeg/gif </td>
+ * </tr>
+ * <tr>
+ * <td>allowHttpPersistent</td>
+ * <td><i>true</i><br>
+ * since 3.0.0rc1<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter allows to switch off persistent HTTP connections which
+ * are enabled by default (and the protocol version allows it). Currently, we
+ * encountered problems with persistent connections when testing on a windows
+ * box using a loopback interface only.</td>
  * </tr>
  * <tr>
  * <td>debugLevel</td>
@@ -579,7 +579,7 @@ import wjhk.jupload2.gui.PictureDialog;
  * </tr>
  * <tr>
  * <td>storeBufferedImage</td>
- * <td>false <br>
+ * <td>false <br> <I>Deprecated</I>
  * <br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
  * <td>This parameter indicates that the preview image on the applet is kept in
@@ -588,7 +588,9 @@ import wjhk.jupload2.gui.PictureDialog;
  * {@link wjhk.jupload2.filedata.PictureFileData#freeMemory(String)}, but it
  * doesn't change anything. Be careful to this parameter, and let it to the
  * default value, unless you've well tested it under all your target client
- * configurations. </td>
+ * configurations.
+ * <BR><I>This parameter will probably never be correctly implemented.</I> 
+ * </td>
  * </tr>
  * <tr>
  * <td>stringUploadError</td>
