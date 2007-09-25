@@ -1,6 +1,4 @@
 TODO list:
-- (picture mode)Little bug in the file panel : after a double click on a file, changing the selected file with
-the arrow (not the mouse) doesn't change the displayed picture (solution: dialog creation in a thread?)
 - Implement target picture format (to be changed to another name ?)
 - Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
 - Picture mode: applet parameter to control the size of the preview on the file chooser.
