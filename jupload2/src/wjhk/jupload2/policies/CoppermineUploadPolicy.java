@@ -22,7 +22,6 @@
 package wjhk.jupload2.policies;
 
 import java.io.File;
-import java.net.URL;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
@@ -120,10 +119,13 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     @Override
     public FileData createFileData(File file, File root) {
         PictureFileData pfd = new PictureFileData(file, root, this);
+
+        // Is the given file a picture ?
         if (pfd.isPicture()) {
             return pfd;
+        } else {
+            return new DefaultFileData(file, root, this);
         }
-        return new DefaultFileData(file, root, this);
     }
 
     /**
@@ -134,8 +136,12 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         if (fileData == null) {
             super.onFileSelected(fileData);
         } else if (fileData instanceof PictureFileData) {
+            // The selected file is a picture, we let PictureUploadPolicy manage
+            // it.
             super.onFileSelected(fileData);
         } else {
+            // he selected file is not a picture. We simulate the fact that no
+            // more picture is selected, so that the preview picture is cleared.
             super.onFileSelected(null);
         }
     }
@@ -166,15 +172,10 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      */
     @Override
     public String getPostURL() {
-        // The jupload.phg script gives the upload php script that will receive
-        // the uploaded files.
-        // It can be xp_publish.php, or (much better) jupload.php.
-        // In either case, the postURL given to the applet contains already one
-        // paramete: the cmd (for xp_publish) or
-        // the action (for jupload). We just add one parameter.
-        // Note: if the postURL (given to the applet) doesn't need any
-        // parameter, it's necessary to add a dummy one,
-        // so that the line below generates a valid URL.
+        // Within the coppermine PHP script, that contains the call to this
+        // applet, the postURL given contains the full URL, without the album
+        // id. So we ask for this postURL, and just concatenate the albumId on
+        // the fly.
         String postURL = super.getPostURL();
         return postURL + (postURL.contains("?") ? "&" : "?") + "album="
                 + this.albumId;
@@ -191,6 +192,11 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     }
 
     /**
+     * This method checks that an album id has been given, and then stores the
+     * number of files that are to be uploaded, before upload, then call its
+     * superclass. This number is then used to display to the user the list of
+     * pictures he just uploaded.
+     * 
      * @see wjhk.jupload2.policies.UploadPolicy#isUploadReady()
      */
     @Override
@@ -207,12 +213,10 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         return super.isUploadReady();
     }
 
-    /**
-     * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
-     */
+    /** @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String) */
     @Override
     public void afterUpload(Exception e, @SuppressWarnings("unused")
-    String serverOutput) {
+    String serverOutput) throws JUploadException {
         int nbPictureAfterUpload = getApplet().getFilePanel().getFilesLength();
         if (nbPictureAfterUpload > this.nbPictureInUpload) {
             displayErr("CoppermineUploadPolicy.afterUpload: The number of uploaded files is negative! ("
@@ -220,41 +224,27 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         } else if (nbPictureAfterUpload == this.nbPictureInUpload) {
             displayWarn("CoppermineUploadPolicy.afterUpload: No file were uploaded! ("
                     + (nbPictureAfterUpload - this.nbPictureInUpload) + ")");
+        } else if (getDebugLevel() >= 100) {
+            alertStr("No switch to property page, because debug level is "
+                    + getDebugLevel() + " (>=100)");
         } else if (e == null) {
-            // Ok, at least one file were uploaded, and there was no error.
-            try {
-                // First : construction of the editpic URL :
-                String editpicURL = getPostURL().substring(0,
-                        getPostURL().lastIndexOf('/'))
-                        // + "/editpics.php?album=" + albumId
-                        + "/jupload&action=edit_uploaded_pics&album="
-                        + this.albumId
-                        + "&nb_pictures="
-                        + (this.nbPictureInUpload - nbPictureAfterUpload);
+            // Let's display an alert box, to explain what to do to the
+            // user: he will be redirected to the coppermine page that
+            // allow him to associate names and comments to the uploaded
+            // pictures.
+            alert("coppermineUploadOk");
 
-                if (getDebugLevel() >= 100) {
-                    alertStr("No switch to property page, because debug level is "
-                            + getDebugLevel() + " (>=100)");
-                } else {
-                    // Let's display an alert box, to explain what to do to the
-                    // user: he will be redirected to the coppermine page that
-                    // allow him to associate names and comments to the uploaded
-                    // pictures.
-                    alert("coppermineUploadOk");
-
-                    // Let's change the current URL to edit names and comments,
-                    // for the selected album. Ok, let's go and add names and
-                    // comments to the newly updated pictures.
-                    String target = getAfterUploadTarget();
-                    getApplet().getAppletContext().showDocument(
-                            new URL(editpicURL),
-                            (null == target) ? "_self" : target);
-                }
-            } catch (Exception ee) {
-                // Oups, no navigator. We are probably in debug mode, within
-                // eclipse for instance.
-                displayErr(ee);
-            }
+            // Let's change the afterUploadURL value, so we can call the
+            // standard afterUpload method (DefaultUploadPolicy).
+            setAfterUploadURL(getPostURL().substring(0,
+                    getPostURL().lastIndexOf('/'))
+                    // + "/editpics.php?album=" + albumId
+                    + "/jupload&action=edit_uploaded_pics&album="
+                    + this.albumId
+                    + "&nb_pictures="
+                    + (this.nbPictureInUpload - nbPictureAfterUpload));
+            // ... and call the standard behaviour.
+            super.afterUpload(e, serverOutput);
         }
     }
 

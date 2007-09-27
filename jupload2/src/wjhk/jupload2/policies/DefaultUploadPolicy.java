@@ -392,15 +392,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setDebugLevel(UploadPolicyFactory.getParameter(theApplet,
                 PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL, this), false);
 
-        // get the fileChooserIconFromFileContent. 
+        // get the fileChooserIconFromFileContent.
         setFileChooserIconFromFileContent(UploadPolicyFactory.getParameter(
                 theApplet, PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT,
                 DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT, this));
 
-        // get the fileChooserIconSize. 
-        setFileChooserIconSize(UploadPolicyFactory.getParameter(
-                theApplet, PROP_FILE_CHOOSER_ICON_SIZE,
-                DEFAULT_FILE_CHOOSER_ICON_SIZE, this));
+        // get the fileChooserIconSize.
+        setFileChooserIconSize(UploadPolicyFactory.getParameter(theApplet,
+                PROP_FILE_CHOOSER_ICON_SIZE, DEFAULT_FILE_CHOOSER_ICON_SIZE,
+                this));
 
         // get the filenameEncoding. If not null, it should be a valid argument
         // for the URLEncoder.encode method.
@@ -545,7 +545,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.lastResponseBody = body;
         this.lastResponseMessage = msg;
         displayDebug("HTTP status: " + msg, 40);
-        //HTTP-100 correction, thanks to Marc Reidy
+        // HTTP-100 correction, thanks to Marc Reidy
         if ((status != 200) && (status != 100))
             throw new JUploadExceptionUploadFailed("Received HTTP status "
                     + msg);
@@ -596,7 +596,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
      */
     public void afterUpload(Exception e, @SuppressWarnings("unused")
-    String serverOutput) {
+    String serverOutput) throws JUploadException {
         // If there was no error, and afterUploadURL is defined, let's try to go
         // to this URL.
         String url = getAfterUploadURL();
@@ -615,18 +615,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         expr = expr.replaceAll("%success%",
                                 (null == e) ? "true" : "false");
                     JSObject.getWindow(getApplet()).eval(expr);
-                    return;
-                }
-                if (null == e) {
+                } else if (null == e) {
+                    // This is not a javascript URL: we change the current page
+                    // only if no error occured.
                     String target = getAfterUploadTarget();
                     if (getDebugLevel() >= 100) {
                         alertStr("No switch to getAfterUploadURL, because debug level is "
                                 + getDebugLevel() + " (>=100)");
                     } else {
                         // Let's change the current URL to edit names and
-                        // comments, for the selected album. Ok, let's go
-                        // and add names and comments to the newly updated
-                        // pictures.
+                        // comments, for the selected album. Ok, let's go and
+                        // add names and comments to the newly updated pictures.
                         getApplet().getAppletContext().showDocument(
                                 new URL(url),
                                 (null == target) ? "_self" : target);
@@ -1029,8 +1028,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
             setFileChooserIconFromFileContent(UploadPolicyFactory.parseInt(
                     value, getFileChooserIconFromFileContent(), this));
         } else if (prop.equals(PROP_FILE_CHOOSER_ICON_SIZE)) {
-            setFileChooserIconSize(UploadPolicyFactory.parseInt(
-                    value, getFileChooserIconSize(), this));
+            setFileChooserIconSize(UploadPolicyFactory.parseInt(value,
+                    getFileChooserIconSize(), this));
         } else if (prop.equals(PROP_LANG)) {
             setLang(value);
         } else if (prop.equals(PROP_FILENAME_ENCODING)) {
@@ -1289,13 +1288,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Setter for {@link #fileChooserIconSize}. 
+     * Setter for {@link #fileChooserIconSize}.
      * 
-     * @param fileChooserIconSize Value to be set. 
+     * @param fileChooserIconSize Value to be set.
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
      */
-    public void setFileChooserIconSize(
-            int fileChooserIconSize) {
+    public void setFileChooserIconSize(int fileChooserIconSize) {
         this.fileChooserIconSize = fileChooserIconSize;
     }
 
@@ -1457,7 +1455,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 try {
                     value = new HttpConnect(this).getProtocol();
                 } catch (Exception e) {
-                    // If we throw an error here, we prevent the applet to start.
+                    // If we throw an error here, we prevent the applet to
+                    // start.
                     throw new JUploadException(e);
                     // displayErr(e);
                     // Let's try with default value.
