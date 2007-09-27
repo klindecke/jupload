@@ -22,7 +22,6 @@ package wjhk.jupload2;
 
 import java.applet.Applet;
 import java.awt.BorderLayout;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -302,24 +301,41 @@ public class JUploadApplet extends Applet {
     public static Properties getSvnProperties() {
         Properties properties = new Properties();
         Boolean bPropertiesLoaded = false;
-        
-        //Let's try to load the propeties file.
+
+        // Let's try to load the properties file.
+        // The upload policy is not created yet: we can not use its disply
+        // methods to trace what is happening here.
         try {
-            properties.load(properties.getClass().getResourceAsStream(
-                    svnPropertiesFilename));
+            properties.load(Class.forName("wjhk.jupload2.JUploadApplet")
+                    .getResourceAsStream(svnPropertiesFilename));
             bPropertiesLoaded = true;
-        } catch (NullPointerException e) {
-        } catch (IOException e) {
+        } catch (Exception e) {
             // An error occured when reading the file. The applet was
             // probably not built with the build.xml ant file.
-            // We'll create a fake propery list. See below.
+            // We'll create a fake property list. See below.
+
+            // We can not output to the uploadPolicy display method, as the
+            // upload policy is not created yet. We output to the system output.
+            // Consequence: if this doesn't work during build, you'll see an
+            // error during the build: the generated file name will contain the
+            // following error message.
+            System.out.println(e.getClass().getName()
+                    + " in JUploadApplet.getSvnProperties() (" + e.getMessage()
+                    + ")");
         }
 
+        /*
+         * } catch (NullPointerException e) { } catch (IOException e) { // An
+         * error occured when reading the file. The applet was // probably not
+         * built with the build.xml ant file. // We'll create a fake propery
+         * list. See below. }
+         */
         if (!bPropertiesLoaded) {
             properties.setProperty("buildDate",
                     "Unknown build date (please use the build.xml ant script)");
-            properties.setProperty("lastSrcDirModificationDate",
-                    "Unknown last modification date (please use the build.xml ant script)");
+            properties
+                    .setProperty("lastSrcDirModificationDate",
+                            "Unknown last modification date (please use the build.xml ant script)");
             properties.setProperty("revision",
                     "Unknown revision (please use the build.xml ant script)");
         }

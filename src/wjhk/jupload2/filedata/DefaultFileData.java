@@ -110,24 +110,35 @@ public class DefaultFileData implements FileData {
      * @param file The file whose data this instance will give.
      */
     public DefaultFileData(File file, File root, UploadPolicy uploadPolicy) {
+        uploadPolicy.displayDebug("Creation of the DefaultFileData for " + file.getAbsolutePath(), 20);
         this.file = file;
         this.uploadPolicy = uploadPolicy;
         this.fileSize = this.file.length();
         this.fileDir = this.file.getAbsoluteFile().getParent();
         this.fileModified = new Date(this.file.lastModified());
-        if (null != root)
+        if (null != root) {
             this.fileRoot = root.getAbsolutePath();
+            uploadPolicy.displayDebug("   root: " + root.getAbsolutePath(), 50);
+        } else {
+            uploadPolicy.displayDebug("   root: null", 50);
+        }
 
         // Let's load the mime types list.
         if (mimeTypes == null) {
             mimeTypes = new Properties();
+            final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
             try {
+                /*
                 mimeTypes.load(getClass().getResourceAsStream(
-                        "/conf/mimetypes.properties"));
-            } catch (IOException e) {
-                uploadPolicy.displayWarn("Unable to load the mime types list: "
-                        + e.getMessage());
-                mimeTypes = null;
+                        mimetypePropertiesFilename));
+                */
+                mimeTypes.load(Class.forName("wjhk.jupload2.JUploadApplet").getResourceAsStream(
+                        mimetypePropertiesFilename));
+                uploadPolicy.displayDebug("Mime types list loaded Ok ("
+                        + mimetypePropertiesFilename + ")", 50);
+            } catch (Exception e) {
+                uploadPolicy.displayWarn("Unable to load the mime types list ("
+                        + mimetypePropertiesFilename + "): " + e.getClass().getName()+  " (" + e.getMessage() + ")");
             }
         }
 

@@ -418,7 +418,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 this.fileUploadThread.close();
                 this.fileUploadThread = null;
 
-                this.uploadPolicy.afterUpload(ex, svrRet);
+                try {
+                    this.uploadPolicy.afterUpload(ex, svrRet);
+                } catch (JUploadException e1) {
+                    this.uploadPolicy.displayErr("error in uploadPolicy.afterUpload (JUploadPanel)", e1);
+                }
                 // Do something (eg Redirect to another page for
                 // processing).
                 // EGR if((null != aus) && isSuccess)

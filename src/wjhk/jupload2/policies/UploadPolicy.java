@@ -1629,7 +1629,7 @@ public interface UploadPolicy {
      * @param e null if success, or the exception indicating the problem.
      * @param serverOutput The full server output, including the HTTP headers.
      */
-    public void afterUpload(Exception e, String serverOutput);
+    public void afterUpload(Exception e, String serverOutput) throws JUploadException;
 
     /**
      * Retrieve a local property. This allows localization. All strings are
