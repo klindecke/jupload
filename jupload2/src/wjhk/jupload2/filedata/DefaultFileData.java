@@ -110,7 +110,6 @@ public class DefaultFileData implements FileData {
      * @param file The file whose data this instance will give.
      */
     public DefaultFileData(File file, File root, UploadPolicy uploadPolicy) {
-        uploadPolicy.displayDebug("Creation of the DefaultFileData for " + file.getAbsolutePath(), 20);
         this.file = file;
         this.uploadPolicy = uploadPolicy;
         this.fileSize = this.file.length();
@@ -118,9 +117,12 @@ public class DefaultFileData implements FileData {
         this.fileModified = new Date(this.file.lastModified());
         if (null != root) {
             this.fileRoot = root.getAbsolutePath();
-            uploadPolicy.displayDebug("   root: " + root.getAbsolutePath(), 50);
+            uploadPolicy.displayDebug("Creation of the DefaultFileData for "
+                    + file.getAbsolutePath() + "(root: "
+                    + root.getAbsolutePath() + ")", 20);
         } else {
-            uploadPolicy.displayDebug("   root: null", 50);
+            uploadPolicy.displayDebug("Creation of the DefaultFileData for "
+                    + file.getAbsolutePath() + "(root: null)", 20);
         }
 
         // Let's load the mime types list.
@@ -129,16 +131,17 @@ public class DefaultFileData implements FileData {
             final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
             try {
                 /*
-                mimeTypes.load(getClass().getResourceAsStream(
-                        mimetypePropertiesFilename));
-                */
-                mimeTypes.load(Class.forName("wjhk.jupload2.JUploadApplet").getResourceAsStream(
-                        mimetypePropertiesFilename));
+                 * mimeTypes.load(getClass().getResourceAsStream(
+                 * mimetypePropertiesFilename));
+                 */
+                mimeTypes.load(Class.forName("wjhk.jupload2.JUploadApplet")
+                        .getResourceAsStream(mimetypePropertiesFilename));
                 uploadPolicy.displayDebug("Mime types list loaded Ok ("
                         + mimetypePropertiesFilename + ")", 50);
             } catch (Exception e) {
                 uploadPolicy.displayWarn("Unable to load the mime types list ("
-                        + mimetypePropertiesFilename + "): " + e.getClass().getName()+  " (" + e.getMessage() + ")");
+                        + mimetypePropertiesFilename + "): "
+                        + e.getClass().getName() + " (" + e.getMessage() + ")");
             }
         }
 

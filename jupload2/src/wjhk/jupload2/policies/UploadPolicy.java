@@ -96,13 +96,21 @@ import wjhk.jupload2.gui.PictureDialog;
  * the current page to another one after a successful upload. <br>
  * This allows, for instance, to display a page containing the file description
  * of the newly uploaded page. Since version 3.0.2b2, you can specify a
- * JavaScript expression instead of a plain URL:<br>
+ * JavaScript expression instead of a plain URL. So afterUploadURL can now
+ * contain:<br>
+ * <UL>
+ * <LI><B>A javascript expression</B>: The URL must start by <I>javascript:</I>.
+ * See below for details.</LI>
+ * <LI><B>A http URL</B>: the navigator will open this URL, in the current
+ * page or another, according to the <I>afterUploadTarget</I> parameter. Any
+ * URL that doesn't start by <I>javascript:</I> is handled as an http URL.</LI>
+ * </UL>
  * If the value of afterUploadURL starts with the string "javascript:", the
  * remainder of the string is evaluated as JavaScript expression in the current
  * document context. For example: If afterUloadURL is<br>
- * <code>"alert('Thanks for the upload');"</code>,</br> then after a
- * successful upload, a messagebox would pop up. Since 3.0.2b3 there are now
- * three placeholders available which can be used as parameters in function
+ * <code>"javascript:alert('Thanks for the upload');"</code>,</br> then
+ * after a successful upload, a messagebox would pop up. Since 3.0.2b3 there are
+ * now three placeholders available which can be used as parameters in function
  * calls:
  * <ul>
  * <li><code>%success%</code> is replaced by <b>true</b> or <b>false</b>
@@ -188,8 +196,8 @@ import wjhk.jupload2.gui.PictureDialog;
  * {@link wjhk.jupload2.policies.UploadPolicy}</td>
  * <td>This parameter allows to control the size of icons, in pixels, in the
  * file chooser. Used only when fileChooserIconFromFileContent is activated.<BR>
- * Note: The standard icon size is a value of 20. With 50, you'll get a better view of the picture.
- * </td>
+ * Note: The standard icon size is a value of 20. With 50, you'll get a better
+ * view of the picture. </td>
  * </tr>
  * <tr>
  * <td>fileChooserImagePreview</td>
@@ -579,8 +587,8 @@ import wjhk.jupload2.gui.PictureDialog;
  * </tr>
  * <tr>
  * <td>storeBufferedImage</td>
- * <td>false <br> <I>Deprecated</I>
- * <br>
+ * <td>false <br>
+ * <I>Deprecated</I> <br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
  * <td>This parameter indicates that the preview image on the applet is kept in
  * memory. It works really nice under eclise. But, once in the navigator, the
@@ -588,9 +596,8 @@ import wjhk.jupload2.gui.PictureDialog;
  * {@link wjhk.jupload2.filedata.PictureFileData#freeMemory(String)}, but it
  * doesn't change anything. Be careful to this parameter, and let it to the
  * default value, unless you've well tested it under all your target client
- * configurations.
- * <BR><I>This parameter will probably never be correctly implemented.</I> 
- * </td>
+ * configurations. <BR>
+ * <I>This parameter will probably never be correctly implemented.</I> </td>
  * </tr>
  * <tr>
  * <td>stringUploadError</td>
@@ -751,10 +758,9 @@ public interface UploadPolicy {
      * upload policy is an instance of or a class inheriting from
      * {@link  PictureUploadPolicy}
      * <LI>1: available for all upload policies. </DIR>
-     * 
      */
     final static String PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = "fileChooserIconFromFileContent";
-    
+
     /**
      * This parameter allows to control the size of icons, in pixels, in the
      * file chooser. Used only when fileChooserIconFromFileContent is activated.
@@ -1629,7 +1635,8 @@ public interface UploadPolicy {
      * @param e null if success, or the exception indicating the problem.
      * @param serverOutput The full server output, including the HTTP headers.
      */
-    public void afterUpload(Exception e, String serverOutput) throws JUploadException;
+    public void afterUpload(Exception e, String serverOutput)
+            throws JUploadException;
 
     /**
      * Retrieve a local property. This allows localization. All strings are
