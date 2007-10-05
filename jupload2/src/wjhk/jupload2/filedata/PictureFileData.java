@@ -193,7 +193,7 @@ public class PictureFileData extends DefaultFileData {
         String fileExtension = getFileExtension();
 
         // Is it a picture?
-        Iterator iter = ImageIO.getImageReadersByFormatName(fileExtension);
+        Iterator<ImageReader> iter = ImageIO.getImageReadersByFormatName(fileExtension);
         this.isPicture = iter.hasNext();
         uploadPolicy.displayDebug("isPicture=" + this.isPicture + " ("
                 + file.getName() + "), extension=" + fileExtension, 75);
@@ -920,10 +920,10 @@ public class PictureFileData extends DefaultFileData {
                 }
 
                 // Get the writer (to choose the compression quality)
-                Iterator iter = ImageIO
+                Iterator<ImageWriter> iter = ImageIO
                         .getImageWritersByFormatName(localPictureFormat);
                 if (iter.hasNext()) {
-                    ImageWriter writer = (ImageWriter) iter.next();
+                    ImageWriter writer = iter.next();
                     ImageWriteParam iwp = writer.getDefaultWriteParam();
 
                     // For jpeg pictures, we force the compression level.
@@ -954,11 +954,11 @@ public class PictureFileData extends DefaultFileData {
                     // transformed one ... if any exists.
                     uploadPolicy.displayInfo("Start of metadata managing, for " + getFileName());
                     IIOMetadata metadata = null;
-                    Iterator iterator = ImageIO.getImageReadersBySuffix(getExtension(getFile()));
+                    Iterator<ImageReader> iterator = ImageIO.getImageReadersBySuffix(getExtension(getFile()));
                     ImageReader ir;
                     FileImageInputStream is;
                     while (iterator.hasNext()) {
-                        ir=(ImageReader)iterator.next();
+                        ir = iterator.next();
                         try {
                             is = new FileImageInputStream(getFile());
                             ir.setInput(is);

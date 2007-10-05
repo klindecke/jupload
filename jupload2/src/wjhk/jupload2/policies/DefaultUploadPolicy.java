@@ -818,10 +818,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see UploadPolicy#onAppendHeader(StringBuffer) */
     public StringBuffer onAppendHeader(StringBuffer sb) {
-        Iterator it = this.headers.iterator();
+        Iterator<String> it = this.headers.iterator();
         String header;
         while (it.hasNext()) {
-            header = (String) it.next();
+            header = it.next();
             displayDebug(header, 90);
             sb.append(header);
             sb.append("\r\n");

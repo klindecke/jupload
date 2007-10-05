@@ -289,10 +289,10 @@ public class JUploadFileView extends FileView implements
     private void stopRunningJobs() {
         this.uploadPolicy.displayDebug(
                 "Shutting down all IconWorker running jobs", 50);
-        Enumeration e = this.hashMap.elements();
+        Enumeration<IconWorker> e = this.hashMap.elements();
         IconWorker iw = null;
         while (e.hasMoreElements()) {
-            iw = (IconWorker) e.nextElement();
+            iw = e.nextElement();
             if (iw.status == IconWorker.STATUS_TO_BE_LOADED) {
                 this.uploadPolicy.displayDebug("   Shutting down "
                         + iw.file.getAbsolutePath(), 50);

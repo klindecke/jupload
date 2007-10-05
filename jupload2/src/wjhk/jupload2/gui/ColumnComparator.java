@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: ColumnComparator.java 95 2007-05-02 03:27:05Z
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -21,19 +23,20 @@
 package wjhk.jupload2.gui;
 
 import java.util.Comparator;
-import wjhk.jupload2.filedata.DefaultFileData;
+import wjhk.jupload2.filedata.FileData;
 
 /**
  * Technical class, used to sort rows in the
  * {@link wjhk.jupload2.gui.FilePanelDataModel2} class.
  */
-public class ColumnComparator implements Comparator {
+public class ColumnComparator implements Comparator<FileData> {
     protected int index;
 
     protected boolean ascending;
 
     /**
      * Creates a new instance.
+     * 
      * @param index The column index of the table data to be compared
      * @param ascending Specifies the sort order.
      */
@@ -46,26 +49,26 @@ public class ColumnComparator implements Comparator {
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public int compare(Object one, Object two) {
-        if (one instanceof DefaultFileData && two instanceof DefaultFileData) {
+    public int compare(FileData one, FileData two) {
+        //if (one instanceof DefaultFileData && two instanceof DefaultFileData) {
             Object oOne;
             Object oTwo;
             switch (this.index) {
                 case FilePanelDataModel2.COLINDEX_NAME:
-                    oOne = ((DefaultFileData) one).getFileName();
-                    oTwo = ((DefaultFileData) two).getFileName();
+                    oOne = ((FileData) one).getFileName();
+                    oTwo = ((FileData) two).getFileName();
                     break;
                 case FilePanelDataModel2.COLINDEX_SIZE:
-                    oOne = new Long(((DefaultFileData) one).getFileLength());
-                    oTwo = new Long(((DefaultFileData) two).getFileLength());
+                    oOne = new Long(((FileData) one).getFileLength());
+                    oTwo = new Long(((FileData) two).getFileLength());
                     break;
                 case FilePanelDataModel2.COLINDEX_DIRECTORY:
-                    oOne = ((DefaultFileData) one).getDirectory();
-                    oTwo = ((DefaultFileData) two).getDirectory();
+                    oOne = ((FileData) one).getDirectory();
+                    oTwo = ((FileData) two).getDirectory();
                     break;
                 case FilePanelDataModel2.COLINDEX_MODIFIED:
-                    oOne = ((DefaultFileData) one).getLastModified();
-                    oTwo = ((DefaultFileData) two).getLastModified();
+                    oOne = ((FileData) one).getLastModified();
+                    oTwo = ((FileData) two).getLastModified();
                     break;
                 default:
                     return 0;
@@ -74,7 +77,7 @@ public class ColumnComparator implements Comparator {
                 return ((Comparable) oOne).compareTo(oTwo)
                         * (this.ascending ? 1 : -1);
             }
-        }
+        //}
         return 0;
     }
 }
