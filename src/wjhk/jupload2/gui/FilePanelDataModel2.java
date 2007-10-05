@@ -107,7 +107,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     protected int[] columnSize = null;
 
-    protected Class[] columnClasses = null;
+    protected Class<?> columnClasses[] = null;
 
     /**
      * This Vector contains all FileData.

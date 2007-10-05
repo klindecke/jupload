@@ -69,7 +69,7 @@ public class UploadPolicyFactory {
             boolean usingDefaultUploadPolicy = false;
             try {
                 action = uploadPolicyStr;
-                Class uploadPolicyClass = null;
+                Class<?> uploadPolicyClass = null;
                 // Our default is "DefaultUploadPolicy", (without prefix)
                 // so we try the prefixed variant first. But only, if the
                 // user had specified an unqualified classname.
@@ -95,10 +95,10 @@ public class UploadPolicyFactory {
                     }
                 }
                 action = "constructorParameters";
-                Class[] constructorParameters = {
+                Class<?>[] constructorParameters = {
                     Class.forName("wjhk.jupload2.JUploadApplet")
                 };
-                Constructor constructor = uploadPolicyClass
+                Constructor<?> constructor = uploadPolicyClass
                         .getConstructor(constructorParameters);
                 Object[] params = {
                     theApplet

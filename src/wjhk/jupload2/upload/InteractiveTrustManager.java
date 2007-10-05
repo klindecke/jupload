@@ -477,7 +477,7 @@ public class InteractiveTrustManager implements X509TrustManager,
         msg.append("</table>");
         msg.append("<p><b>").append(this.uploadPolicy.getString("itm_reasons"))
                 .append("</b><br><ul>");
-        Iterator it = reason.iterator();
+        Iterator<String> it = reason.iterator();
         while (it.hasNext()) {
             msg.append("<li>" + it.next() + "</li>\n");
         }
