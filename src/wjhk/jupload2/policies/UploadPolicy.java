@@ -22,6 +22,7 @@
 package wjhk.jupload2.policies;
 
 import java.awt.Cursor;
+import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
 
 import javax.swing.Icon;
@@ -1424,6 +1425,15 @@ public interface UploadPolicy {
     // /////////////////// miscellanneous methods
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Reaction by the upload policy, once the management of the dropped file(s)
+     * is finished, that is: after all the dropped files have been successfully
+     * added to the file list.
+     * 
+     * @param dropEvent The event containing the dropped file
+     */
+    public void afterFileDropped(DropTargetDropEvent dropEvent);
+
     // MANAGEMENT OF THE FILE CHOOSER
 
     /**
@@ -1480,7 +1490,9 @@ public interface UploadPolicy {
      */
     public void setCursor(Cursor cursor);
 
+    // //////////////////////////////////////////////////////////////////////////////////////////////
     // DISPLAY OF MESSAGES (ERROR, DEBUG ...)
+    // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * This method allows the applet to post debug information to the website

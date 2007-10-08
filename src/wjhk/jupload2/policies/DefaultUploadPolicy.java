@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
+import java.awt.dnd.DropTargetDropEvent;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -1725,6 +1726,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
         // Let's store all text in the debug logfile
         addMsgToDebugLog(msg);
+    }
+
+    /**
+     * Default reaction after a successful drop operation: no action.
+     * 
+     * @see UploadPolicy#afterFileDropped(DropTargetDropEvent)
+     */
+    public void afterFileDropped(DropTargetDropEvent dropEvent) {
+        // Default: no action.
     }
 
     /**

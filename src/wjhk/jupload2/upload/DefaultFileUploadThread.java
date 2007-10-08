@@ -758,8 +758,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // The upload was Ok, we remove the uploaded files from the
             // filePanel.
             for (int i = 0; i < nbFilesToUpload && !this.stop; i++) {
-                this.uploadPolicy.getApplet().getFilePanel().remove(
-                        this.filesToUpload[firstFileToUpload + i]);
+                this.uploadPolicy.getApplet().getUploadPanel().getFilePanel()
+                        .remove(this.filesToUpload[firstFileToUpload + i]);
             }
         } else {
             this.uploadPolicy.displayErr(this.uploadException);

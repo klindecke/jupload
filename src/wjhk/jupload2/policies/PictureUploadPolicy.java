@@ -387,7 +387,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         // We clear the current picture selection. This insures a correct
         // managing of enabling/disabling of
         // buttons, even if the user stops the upload.
-        getApplet().getFilePanel().clearSelection();
+        getApplet().getUploadPanel().getFilePanel().clearSelection();
         if (this.picturePanel != null) {
             this.picturePanel.setPictureFile(null, this.rotateLeftButton,
                     this.rotateRightButton);

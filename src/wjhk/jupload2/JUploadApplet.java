@@ -30,7 +30,6 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import wjhk.jupload2.gui.FilePanel;
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -168,7 +167,7 @@ public class JUploadApplet extends Applet {
      * Retrieves the FilePanel of this applet.
      * 
      * @return the current FilePanel of this instance.
-     */
+     *
     public FilePanel getFilePanel() {
         return this.jUploadPanel.getFilePanel();
     }
@@ -217,9 +216,9 @@ public class JUploadApplet extends Applet {
      */
     public void setProperty(String prop, String value) {
         try {
-            this.jUploadPanel.getUploadPolicy().setProperty(prop, value);
+            uploadPolicy.setProperty(prop, value);
         } catch (Exception e) {
-            this.jUploadPanel.getUploadPolicy().displayErr(e);
+            uploadPolicy.displayErr(e);
         }
     }
 

@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import wjhk.jupload2.policies.UploadPolicy;
+
 /**
  * Our implementation of DND.
  * 
@@ -40,15 +42,18 @@ import java.util.List;
  */
 public class DnDListener implements DropTargetListener {
 
-    private JUploadPanel uploadPanel;
+    private FilePanel filePanel;
+
+    private UploadPolicy uploadPolicy;
 
     /**
      * Creates a new instance.
      * 
      * @param uploadPanel The corresponding upload panel.
      */
-    public DnDListener(JUploadPanel uploadPanel) {
-        this.uploadPanel = uploadPanel;
+    public DnDListener(JUploadPanel uploadPanel, UploadPolicy uploadPolicy) {
+        this.filePanel = uploadPanel.getFilePanel();
+        this.uploadPolicy = uploadPolicy;
     }
 
     /**
@@ -85,18 +90,24 @@ public class DnDListener implements DropTargetListener {
         } else {
             e.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
             try {
-                List<?> fileList = (List<?>) e.getTransferable().getTransferData(
-                        DataFlavor.javaFileListFlavor);
+                List<?> fileList = (List<?>) e.getTransferable()
+                        .getTransferData(DataFlavor.javaFileListFlavor);
                 // this.uploadPanel.addFiles((File[]) fileList.toArray(), null);
                 Iterator<?> i = fileList.iterator();
                 while (i.hasNext()) {
-                    File []f = {(File)i.next()};
-                    if (f[0].isDirectory())
-                        this.uploadPanel.addFiles(f, f[0].getParentFile());
-                    else
-                        this.uploadPanel.addFiles(f, null);
+                    File[] f = {
+                        (File) i.next()
+                    };
+                    if (f[0].isDirectory()) {
+                        this.filePanel.addFiles(f, f[0].getParentFile());
+                    } else {
+                        this.filePanel.addFiles(f, null);
+                    }
                 }
                 e.getDropTargetContext().dropComplete(true);
+
+                //Let's communicate this to the upload policy: there may be something to do now.
+                uploadPolicy.afterFileDropped(e);                
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 e.rejectDrop();
@@ -104,7 +115,6 @@ public class DnDListener implements DropTargetListener {
                 ufe.printStackTrace();
                 e.rejectDrop();
             }
-
         }
     }
 
