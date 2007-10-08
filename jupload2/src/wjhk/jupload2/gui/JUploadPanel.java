@@ -26,20 +26,15 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -55,56 +50,9 @@ import wjhk.jupload2.upload.FileUploadThreadFTP;
 import wjhk.jupload2.upload.FileUploadThreadHTTP;
 
 /**
- * Overwriting the default Append class such that it scrolls to the bottom of
- * the text. The JFC doesn't always remember to do that. <BR>
- */
-
-final class JUploadPopupMenu extends JPopupMenu implements ItemListener {
-
-    /** A generated serialVersionUID */
-    private static final long serialVersionUID = -5473337111643079720L;
-
-    /**
-     * Identifies the menu item that will set debug mode on or off (on means:
-     * debugLevel=100)
-     */
-    JCheckBoxMenuItem cbMenuItemDebugOnOff = null;
-
-    /**
-     * The current upload policy.
-     */
-    private UploadPolicy uploadPolicy;
-
-    JUploadPopupMenu(UploadPolicy uploadPolicy) {
-        this.uploadPolicy = uploadPolicy;
-
-        // ////////////////////////////////////////////////////////////////////////
-        // Creation of the menu items
-        // ////////////////////////////////////////////////////////////////////////
-        // First: debug on or off
-        this.cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug on");
-        this.cbMenuItemDebugOnOff
-                .setState(this.uploadPolicy.getDebugLevel() == 100);
-        add(this.cbMenuItemDebugOnOff);
-        // ////////////////////////////////////////////////////////////////////////
-        this.cbMenuItemDebugOnOff.addItemListener(this);
-    }
-
-    /**
-     * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
-     */
-    public void itemStateChanged(ItemEvent e) {
-        if (this.cbMenuItemDebugOnOff == e.getItem()) {
-            this.uploadPolicy.setDebugLevel((this.cbMenuItemDebugOnOff
-                    .isSelected() ? 100 : 0));
-        }
-    }
-}
-
-/**
- * Main code for the applet (or frame) creation. It contains all creation for
- * necessary elements, or calls to {@link wjhk.jupload2.policies.UploadPolicy}
- * to allow easy personalization.
+ * Main code for the applet (or frame) creation. It contains all creation of
+ * necessary elements, and calls to {@link wjhk.jupload2.policies.UploadPolicy}
+ * methods to allow easy personalization.
  * 
  * @author William JinHua Kwong
  * @version $Revision$
@@ -136,9 +84,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private final static int PROGRESS_INTERVAL = 10;
 
     /**
-     * The counter for updating the upload status. The upload status
-     * (progressbar) gets updated every (DEFAULT_TIMEOUT * PROGRESS_INTERVAL)
-     * ms.
+     * The counter for updating the upload status. The upload status (progress
+     * bar) gets updated every (DEFAULT_TIMEOUT * PROGRESS_INTERVAL) ms.
      */
     private int update_counter = 0;
 
@@ -174,11 +121,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     // ------------- CONSTRUCTOR --------------------------------------------
 
     /**
-     * Constructor to call, when running from outside of an applet : this is
-     * taken from the version 1 of Jupload. It can be used for test (like
-     * originally), but this is now useless as eclipse allow direct execution of
-     * applet, for tests. It can also be used to use this code from within a
-     * java application.
+     * Standard constructor.
      * 
      * @param containerParam The container, where all GUI elements are to be
      *            created.
@@ -320,6 +263,16 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     // ----------------------------------------------------------------------
+    /**
+     * @return the filePanel
+     */
+    public FilePanel getFilePanel() {
+        return this.filePanel;
+    }
+    
+    /**
+     * Add files to the current file list.
+     *
     protected void addFiles(File[] f, File root) {
         this.filePanel.addFiles(f, root);
         if (0 < this.filePanel.getFilesLength()) {
@@ -328,6 +281,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.uploadButton.setEnabled(true);
         }
     }
+    */
 
     /**
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
@@ -421,12 +375,10 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 try {
                     this.uploadPolicy.afterUpload(ex, svrRet);
                 } catch (JUploadException e1) {
-                    this.uploadPolicy.displayErr("error in uploadPolicy.afterUpload (JUploadPanel)", e1);
+                    this.uploadPolicy.displayErr(
+                            "error in uploadPolicy.afterUpload (JUploadPanel)",
+                            e1);
                 }
-                // Do something (eg Redirect to another page for
-                // processing).
-                // EGR if((null != aus) && isSuccess)
-                // aus.executeThis(svrRet);
 
                 boolean haveFiles = (0 < this.filePanel.getFilesLength());
                 this.uploadButton.setEnabled(haveFiles);
@@ -446,7 +398,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 try {
                     int ret = this.fileChooser.showOpenDialog(new Frame());
                     if (JFileChooser.APPROVE_OPTION == ret)
-                        addFiles(this.fileChooser.getSelectedFiles(),
+                        this.filePanel.addFiles(this.fileChooser.getSelectedFiles(),
                                 this.fileChooser.getCurrentDirectory());
                     // We stop any running task for the JUploadFileView
                     this.fileChooser.shutdownNow();
@@ -526,20 +478,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // focus the table. This is necessary in order to enable mouse events
         // for triggering tooltips.
         this.filePanel.focusTable();
-    }
-
-    /**
-     * @return the uploadPolicy
-     */
-    public UploadPolicy getUploadPolicy() {
-        return this.uploadPolicy;
-    }
-
-    /**
-     * @return the filePanel
-     */
-    public FilePanel getFilePanel() {
-        return this.filePanel;
     }
 
     /**

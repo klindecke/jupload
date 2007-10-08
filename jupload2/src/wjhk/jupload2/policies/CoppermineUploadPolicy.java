@@ -207,7 +207,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         }
 
         // We note the number of files to upload.
-        this.nbPictureInUpload = getApplet().getFilePanel().getFilesLength();
+        this.nbPictureInUpload = getApplet().getUploadPanel().getFilePanel().getFilesLength();
 
         // Default : Let's ask the mother.
         return super.isUploadReady();
@@ -217,7 +217,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     @Override
     public void afterUpload(Exception e, @SuppressWarnings("unused")
     String serverOutput) throws JUploadException {
-        int nbPictureAfterUpload = getApplet().getFilePanel().getFilesLength();
+        int nbPictureAfterUpload = getApplet().getUploadPanel().getFilePanel().getFilesLength();
         if (nbPictureAfterUpload > this.nbPictureInUpload) {
             displayErr("CoppermineUploadPolicy.afterUpload: The number of uploaded files is negative! ("
                     + (this.nbPictureInUpload - nbPictureAfterUpload) + ")");

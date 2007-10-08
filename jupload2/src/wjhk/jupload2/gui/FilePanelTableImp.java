@@ -76,7 +76,7 @@ public class FilePanelTableImp extends Panel implements FilePanel {
         add(scrollPane, BorderLayout.CENTER);
         scrollPane.addMouseListener(jup);
 
-        new DropTarget(scrollPane, new DnDListener(jup));
+        new DropTarget(scrollPane, new DnDListener(jup, uploadPolicy));
     }
 
     /**
