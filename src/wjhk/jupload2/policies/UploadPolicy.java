@@ -1099,9 +1099,19 @@ public interface UploadPolicy {
     final static String DEFAULT_FORMDATA = null;
 
     /**
-     * This method is called to create the top panel. The default implementation
-     * is defined in
+     * This method allows the upolad policy to override the content of the
+     * applet part that is above the file list, called here the 'top panel'.
+     * That is: the part that contains the Browse, Remove and RemoveAll buttons.
+     * The default implementation is defined in
      * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}.
+     * <BR>
+     * You can see an example in the
+     * {@link PictureUploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel) 
+     * upload policy implementation. <BR>
+     * <B>Note:</B> This method is called by the
+     * {@link DefaultUploadPolicy#addComponentsToJUploadPanel(JUploadPanel)}
+     * method. If you create an upload policy that overrides the
+     * addComponentsToJUploadPanel method, it's up to you to call it.
      * 
      * @param browse The default browse button.
      * @param remove The default removeSelected button.
@@ -1136,6 +1146,14 @@ public interface UploadPolicy {
      * @return the topPanel, that will be displayed on the top of the Applet.
      */
     public JPanel createStatusBar(JLabel statusContent, JPanel mainPanel);
+
+    /**
+     * This methods allow the upload policy to override the default disposition
+     * of the components on the applet.
+     * 
+     * @see #createTopPanel(JButton, JButton, JButton, JPanel)
+     */
+    public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel);
 
     /**
      * This methods creates a new FileData instance (or one of its inherited

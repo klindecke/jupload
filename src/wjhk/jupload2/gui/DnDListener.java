@@ -42,7 +42,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class DnDListener implements DropTargetListener {
 
-    private FilePanel filePanel;
+    private JUploadPanel uploadPanel;
 
     private UploadPolicy uploadPolicy;
 
@@ -52,7 +52,7 @@ public class DnDListener implements DropTargetListener {
      * @param uploadPanel The corresponding upload panel.
      */
     public DnDListener(JUploadPanel uploadPanel, UploadPolicy uploadPolicy) {
-        this.filePanel = uploadPanel.getFilePanel();
+        this.uploadPanel = uploadPanel;
         this.uploadPolicy = uploadPolicy;
     }
 
@@ -99,9 +99,9 @@ public class DnDListener implements DropTargetListener {
                         (File) i.next()
                     };
                     if (f[0].isDirectory()) {
-                        this.filePanel.addFiles(f, f[0].getParentFile());
+                        this.uploadPanel.addFiles(f, f[0].getParentFile());
                     } else {
-                        this.filePanel.addFiles(f, null);
+                        this.uploadPanel.addFiles(f, null);
                     }
                 }
                 e.getDropTargetContext().dropComplete(true);

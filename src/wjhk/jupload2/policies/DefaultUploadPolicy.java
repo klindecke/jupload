@@ -70,8 +70,10 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.FilePanelTableImp;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
+import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.upload.HttpConnect;
 import wjhk.jupload2.upload.InteractiveTrustManager;
@@ -719,6 +721,44 @@ public class DefaultUploadPolicy implements UploadPolicy {
             return pstatus;
         }
         return null;
+    }
+
+    /**
+     * This methods allow the upload policy to override the default disposition
+     * of the components on the applet.
+     * 
+     * @see #createTopPanel(JButton, JButton, JButton, JPanel)
+     */
+    public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
+        // The top panel is the upper part of the applet: above the file list.
+        //JPanel topPanel = new JPanel();
+        JPanel topPanel = createTopPanel(jUploadPanel.getBrowseButton(), jUploadPanel
+                .getRemoveButton(), jUploadPanel.getRemoveAllButton(), jUploadPanel);
+        if (topPanel != null) {
+            jUploadPanel.add(topPanel);
+        }
+
+        // Then, we add the file list.
+        FilePanelTableImp filePanel = new FilePanelTableImp(jUploadPanel, this);
+        jUploadPanel.setFilePanel(filePanel);
+        jUploadPanel.add(filePanel);
+
+        // The progress panel contains the progress bar, and the upload and stop
+        // buttons.
+        JPanel progressPanel = createProgressPanel(jUploadPanel
+                .getProgressBar(), jUploadPanel.getUploadButton(), jUploadPanel
+                .getStopButton(), jUploadPanel);
+        jUploadPanel.add(progressPanel);
+        
+        //Now, we add the log window.
+        jUploadPanel.showOrHideLogWindow();
+        jUploadPanel.add(jUploadPanel.getJLogWindowPane());
+        
+        //And, to finish with: the status bar.
+        JPanel p = createStatusBar(jUploadPanel.getStatusLabel(), jUploadPanel);
+        if (null != p) {
+            jUploadPanel.add(p);
+        }
     }
 
     /**
