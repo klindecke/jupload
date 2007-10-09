@@ -3,7 +3,7 @@ TODO list:
 - Allows upload from the demo site, or inform that it doesn't work.
 - Picture mode: implement target picture format (to be changed to another name ?)
 - Picture mode: applet parameter to control the size of the preview on the file chooser.
-
+- Restore compatibility with standard Java application.
 
 V3.1.1b2
 
