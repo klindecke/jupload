@@ -731,9 +731,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
         // The top panel is the upper part of the applet: above the file list.
-        //JPanel topPanel = new JPanel();
-        JPanel topPanel = createTopPanel(jUploadPanel.getBrowseButton(), jUploadPanel
-                .getRemoveButton(), jUploadPanel.getRemoveAllButton(), jUploadPanel);
+        // JPanel topPanel = new JPanel();
+        JPanel topPanel = createTopPanel(jUploadPanel.getBrowseButton(),
+                jUploadPanel.getRemoveButton(), jUploadPanel
+                        .getRemoveAllButton(), jUploadPanel);
         if (topPanel != null) {
             jUploadPanel.add(topPanel);
         }
@@ -749,12 +750,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 .getProgressBar(), jUploadPanel.getUploadButton(), jUploadPanel
                 .getStopButton(), jUploadPanel);
         jUploadPanel.add(progressPanel);
-        
-        //Now, we add the log window.
+
+        // Now, we add the log window.
         jUploadPanel.showOrHideLogWindow();
         jUploadPanel.add(jUploadPanel.getJLogWindowPane());
-        
-        //And, to finish with: the status bar.
+
+        // And, to finish with: the status bar.
         JPanel p = createStatusBar(jUploadPanel.getStatusLabel(), jUploadPanel);
         if (null != p) {
             jUploadPanel.add(p);
@@ -773,13 +774,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
+     * If debug is off, the log window may not be visible. We switch the debug
+     * to on, to be sure that some information will be displayed to the user.
+     * <BR>
+     * If debug is -1, the log window remains hidden.
+     * 
      * @see UploadPolicy#displayErr(String)
      */
     public void displayErr(String err) {
-        // If debug is off, the log window may not be visible. We switch the
-        // debug to on, to be sure that some
-        // information will be displayed to the user.
-        if (getDebugLevel() <= 0)
+        if (getDebugLevel() == 0)
             setDebugLevel(1);
         displayMsg("[ERROR] ", err);
     }
