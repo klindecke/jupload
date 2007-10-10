@@ -727,7 +727,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * This methods allow the upload policy to override the default disposition
      * of the components on the applet.
      * 
-     * @see #createTopPanel(JButton, JButton, JButton, JPanel)
+     * @see UploadPolicy#addComponentsToJUploadPanel(JUploadPanel)
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
         // The top panel is the upper part of the applet: above the file list.
