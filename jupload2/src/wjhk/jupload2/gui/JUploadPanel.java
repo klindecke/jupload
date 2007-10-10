@@ -271,6 +271,34 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     /**
+     * This methods show or hides the logWindow, depending on the following
+     * applet parameters. The following conditions must be met, to hide the log
+     * window: <DIR>
+     * <LI>showLogWindow (must be False)
+     * <LI>debugLevel (must be 0 or less) </DIR>
+     */
+    public void showOrHideLogWindow() {
+        if (this.uploadPolicy.getShowLogWindow()
+                || this.uploadPolicy.getDebugLevel() > 0) {
+            // The log window should be visible. Is it visible already?
+            if (!this.isLogWindowVisible) {
+                add(this.jLogWindowPane, -1);
+                this.isLogWindowVisible = true;
+                // Let's recalculate the component display
+                validate();
+            }
+        } else {
+            // It should be hidden.
+            if (this.isLogWindowVisible) {
+                remove(this.jLogWindowPane);
+                this.isLogWindowVisible = false;
+                // Let's recalculate the component display
+                validate();
+            }
+        }
+    }
+
+    /**
      * This methods creates each standard upload element, that will be displayed
      * on the applet. Then, the {@link UploadPol
      * 
@@ -336,6 +364,215 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
     }
 
+    // ///////////////////////////////////////////////////////////////////////////////
+    // ///////////////// Action methods
+    // ///////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Reaction of the panel to a Time event.
+     */
+    private void actionPerformedTimerExpired() {
+        // Time for an update now.
+        this.update_counter = 0;
+        if (null != this.progressBar
+                && (this.fileUploadThread.getStartTime() != 0)) {
+            long duration = (System.currentTimeMillis() - this.fileUploadThread
+                    .getStartTime()) / 1000;
+            double done = this.fileUploadThread.getUploadedLength();
+            double total = this.fileUploadThread.getTotalLength();
+            double percent;
+            double cps;
+            long remaining;
+            String eta;
+            try {
+                percent = 100.0 * done / total;
+            } catch (ArithmeticException e1) {
+                percent = 100;
+            }
+            try {
+                cps = done / duration;
+            } catch (ArithmeticException e1) {
+                cps = done;
+            }
+            try {
+                remaining = (long) ((total - done) / cps);
+                if (remaining > 3600) {
+                    eta = String.format(this.uploadPolicy
+                            .getString("timefmt_hms"), new Long(
+                            remaining / 3600), new Long((remaining / 60) % 60),
+                            new Long(remaining % 60));
+                } else if (remaining > 60) {
+                    eta = String.format(this.uploadPolicy
+                            .getString("timefmt_ms"), new Long(remaining / 60),
+                            new Long(remaining % 60));
+                } else
+                    eta = String.format(this.uploadPolicy
+                            .getString("timefmt_s"), new Long(remaining));
+            } catch (ArithmeticException e1) {
+                eta = this.uploadPolicy.getString("timefmt_unknown");
+            }
+            this.progressBar.setValue((int) percent);
+            String unit = this.uploadPolicy.getString("speedunit_b_per_second");
+            if (cps >= gB) {
+                cps /= gB;
+                unit = this.uploadPolicy.getString("speedunit_gb_per_second");
+            } else if (cps >= mB) {
+                cps /= mB;
+                unit = this.uploadPolicy.getString("speedunit_mb_per_second");
+            } else if (cps >= kB) {
+                cps /= kB;
+                unit = this.uploadPolicy.getString("speedunit_kb_per_second");
+            }
+            String status = String.format(this.uploadPolicy
+                    .getString("status_msg"), new Integer((int) percent),
+                    new Double(cps), unit, eta);
+            this.statusLabel.setText(status);
+            this.uploadPolicy.getApplet().getAppletContext().showStatus(status);
+        }
+    }
+
+    /**
+     * The upload is finished, let's react to this interesting event.
+     */
+    private void actionPerformedUploadFinished() {
+        // The upload is finished
+        this.uploadPolicy.displayDebug(
+                "JUploadPanel: after !fileUploadThread.isAlive()", 60);
+        this.timer.stop();
+        String svrRet = this.fileUploadThread.getResponseMsg();
+        Exception ex = this.fileUploadThread.getException();
+
+        // Restore enable state, as the upload is finished.
+        this.stopButton.setEnabled(false);
+        this.browseButton.setEnabled(true);
+
+        // Free resources of the upload thread.
+        this.fileUploadThread.close();
+        this.fileUploadThread = null;
+
+        try {
+            this.uploadPolicy.afterUpload(ex, svrRet);
+        } catch (JUploadException e1) {
+            this.uploadPolicy.displayErr(
+                    "error in uploadPolicy.afterUpload (JUploadPanel)", e1);
+        }
+
+        boolean haveFiles = (0 < this.filePanel.getFilesLength());
+        this.uploadButton.setEnabled(haveFiles);
+        this.removeButton.setEnabled(haveFiles);
+        this.removeAllButton.setEnabled(haveFiles);
+
+        this.uploadPolicy.getApplet().getAppletContext().showStatus("");
+        this.statusLabel.setText(" ");
+    }
+
+    /**
+     * Reaction to a click on the browse button.
+     */
+    public void doBrowse() {
+        // Browse clicked
+        if (null != this.fileChooser) {
+            try {
+                int ret = this.fileChooser.showOpenDialog(new Frame());
+                if (JFileChooser.APPROVE_OPTION == ret)
+                    addFiles(this.fileChooser.getSelectedFiles(),
+                            this.fileChooser.getCurrentDirectory());
+                // We stop any running task for the JUploadFileView
+                this.fileChooser.shutdownNow();
+            } catch (Exception ex) {
+                this.uploadPolicy.displayErr(ex);
+            }
+        }
+    }
+
+    /**
+     * Reaction to a click on the remove button. This method actually removes
+     * the selected files in the file list.
+     */
+    public void doRemove() {
+        this.filePanel.removeSelected();
+        if (0 >= this.filePanel.getFilesLength()) {
+            this.removeButton.setEnabled(false);
+            this.removeAllButton.setEnabled(false);
+            this.uploadButton.setEnabled(false);
+        }
+    }
+
+    /**
+     * Reaction to a click on the removeAll button. This method actually removes
+     * all the files in the file list.
+     */
+    public void doRemoveAll() {
+        this.filePanel.removeAll();
+        this.removeButton.setEnabled(false);
+        this.removeAllButton.setEnabled(false);
+        this.uploadButton.setEnabled(false);
+    }
+
+    /**
+     * Reaction to a click on the upload button. This method can be called from
+     * outside to start the upload.
+     */
+    public void doStartUpload() {
+        // Check that the upload is ready (we ask the uploadPolicy. Then,
+        // we'll call beforeUpload for each
+        // FileData instance, that exists in allFiles[].
+
+        // ///////////////////////////////////////////////////////////////////////////////////////////////
+        // IMPORTANT: It's up to the UploadPolicy to explain to the user
+        // that the upload is not ready!
+        // ///////////////////////////////////////////////////////////////////////////////////////////////
+        if (this.uploadPolicy.isUploadReady()) {
+            this.uploadPolicy.beforeUpload();
+
+            this.browseButton.setEnabled(false);
+            this.removeButton.setEnabled(false);
+            this.removeAllButton.setEnabled(false);
+            this.uploadButton.setEnabled(false);
+            this.stopButton.setEnabled(true);
+
+            // The FileUploadThread instance depends on the protocol.
+            if (this.uploadPolicy.getPostURL().substring(0, 4).equals("ftp:")) {
+                // fileUploadThread = new
+                // FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy,
+                // progress);
+                try {
+                    this.fileUploadThread = new FileUploadThreadFTP(
+                            this.filePanel.getFiles(), this.uploadPolicy,
+                            this.progressBar);
+                } catch (JUploadException e1) {
+                    // Too bad !
+                    uploadPolicy.displayErr(e1);
+                }
+            } else {
+                // fileUploadThread = new
+                // FileUploadThreadV4(filePanel.getFiles(), uploadPolicy,
+                // progress);
+                this.fileUploadThread = new FileUploadThreadHTTP(this.filePanel
+                        .getFiles(), this.uploadPolicy, this.progressBar);
+            }
+            this.fileUploadThread.start();
+
+            // Create a timer.
+            this.timer = new Timer(DEFAULT_TIMEOUT, this);
+            this.timer.start();
+            this.uploadPolicy.displayDebug("Timer started", 60);
+
+        } // if isIploadReady()
+    }
+
+    /**
+     * Reaction to a click on the stop button. This stops the running on upload.
+     * This method can be called from outside to start the upload.
+     */
+    public void doStopUpload() {
+        this.fileUploadThread.stopUpload();
+    }
+
+    // ///////////////////////////////////////////////////////////////////////////////
+    // ///////////////// Implementation of the ActionListener
+    // ///////////////////////////////////////////////////////////////////////////////
+
     /**
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
@@ -344,222 +581,38 @@ public class JUploadPanel extends JPanel implements ActionListener,
             // timer is expired
             if ((this.update_counter++ > PROGRESS_INTERVAL)
                     || (!this.fileUploadThread.isAlive())) {
-                // Time for an update now.
-                this.update_counter = 0;
-                if (null != this.progressBar
-                        && (this.fileUploadThread.getStartTime() != 0)) {
-                    long duration = (System.currentTimeMillis() - this.fileUploadThread
-                            .getStartTime()) / 1000;
-                    double done = this.fileUploadThread.getUploadedLength();
-                    double total = this.fileUploadThread.getTotalLength();
-                    double percent;
-                    double cps;
-                    long remaining;
-                    String eta;
-                    try {
-                        percent = 100.0 * done / total;
-                    } catch (ArithmeticException e1) {
-                        percent = 100;
-                    }
-                    try {
-                        cps = done / duration;
-                    } catch (ArithmeticException e1) {
-                        cps = done;
-                    }
-                    try {
-                        remaining = (long) ((total - done) / cps);
-                        if (remaining > 3600) {
-                            eta = String.format(this.uploadPolicy
-                                    .getString("timefmt_hms"), new Long(
-                                    remaining / 3600), new Long(
-                                    (remaining / 60) % 60), new Long(
-                                    remaining % 60));
-                        } else if (remaining > 60) {
-                            eta = String.format(this.uploadPolicy
-                                    .getString("timefmt_ms"), new Long(
-                                    remaining / 60), new Long(remaining % 60));
-                        } else
-                            eta = String.format(this.uploadPolicy
-                                    .getString("timefmt_s"),
-                                    new Long(remaining));
-                    } catch (ArithmeticException e1) {
-                        eta = this.uploadPolicy.getString("timefmt_unknown");
-                    }
-                    this.progressBar.setValue((int) percent);
-                    String unit = this.uploadPolicy
-                            .getString("speedunit_b_per_second");
-                    if (cps >= gB) {
-                        cps /= gB;
-                        unit = this.uploadPolicy
-                                .getString("speedunit_gb_per_second");
-                    } else if (cps >= mB) {
-                        cps /= mB;
-                        unit = this.uploadPolicy
-                                .getString("speedunit_mb_per_second");
-                    } else if (cps >= kB) {
-                        cps /= kB;
-                        unit = this.uploadPolicy
-                                .getString("speedunit_kb_per_second");
-                    }
-                    String status = String.format(this.uploadPolicy
-                            .getString("status_msg"),
-                            new Integer((int) percent), new Double(cps), unit,
-                            eta);
-                    this.statusLabel.setText(status);
-                    this.uploadPolicy.getApplet().getAppletContext()
-                            .showStatus(status);
-                }
+                actionPerformedTimerExpired();
             }
             if (!this.fileUploadThread.isAlive()) {
-                this.uploadPolicy.displayDebug(
-                        "JUploadPanel: after !fileUploadThread.isAlive()", 60);
-                this.timer.stop();
-                String svrRet = this.fileUploadThread.getResponseMsg();
-                Exception ex = this.fileUploadThread.getException();
-
-                // Restore enable state, as the upload is finished.
-                this.stopButton.setEnabled(false);
-                this.browseButton.setEnabled(true);
-
-                // Free resources of the upload thread.
-                this.fileUploadThread.close();
-                this.fileUploadThread = null;
-
-                try {
-                    this.uploadPolicy.afterUpload(ex, svrRet);
-                } catch (JUploadException e1) {
-                    this.uploadPolicy.displayErr(
-                            "error in uploadPolicy.afterUpload (JUploadPanel)",
-                            e1);
-                }
-
-                boolean haveFiles = (0 < this.filePanel.getFilesLength());
-                this.uploadButton.setEnabled(haveFiles);
-                this.removeButton.setEnabled(haveFiles);
-                this.removeAllButton.setEnabled(haveFiles);
-
-                this.uploadPolicy.getApplet().getAppletContext().showStatus("");
-                this.statusLabel.setText(" ");
-
+                actionPerformedUploadFinished();
             }
             return;
         }
         this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
         if (e.getActionCommand() == this.browseButton.getActionCommand()) {
-            // Browse clicked
-            if (null != this.fileChooser) {
-                try {
-                    int ret = this.fileChooser.showOpenDialog(new Frame());
-                    if (JFileChooser.APPROVE_OPTION == ret)
-                        addFiles(this.fileChooser.getSelectedFiles(),
-                                this.fileChooser.getCurrentDirectory());
-                    // We stop any running task for the JUploadFileView
-                    this.fileChooser.shutdownNow();
-                } catch (Exception ex) {
-                    this.uploadPolicy.displayErr(ex);
-                }
-            }
+            doBrowse();
         } else if (e.getActionCommand() == this.removeButton.getActionCommand()) {
             // Remove clicked
-            this.filePanel.removeSelected();
-            if (0 >= this.filePanel.getFilesLength()) {
-                this.removeButton.setEnabled(false);
-                this.removeAllButton.setEnabled(false);
-                this.uploadButton.setEnabled(false);
-            }
+            doRemove();
         } else if (e.getActionCommand() == this.removeAllButton
                 .getActionCommand()) {
             // Remove All clicked
-            this.filePanel.removeAll();
-            this.removeButton.setEnabled(false);
-            this.removeAllButton.setEnabled(false);
-            this.uploadButton.setEnabled(false);
+            doRemoveAll();
         } else if (e.getActionCommand() == this.uploadButton.getActionCommand()) {
             // Upload clicked
-
-            // Check that the upload is ready (we ask the uploadPolicy. Then,
-            // we'll call beforeUpload for each
-            // FileData instance, that exists in allFiles[].
-
-            // ///////////////////////////////////////////////////////////////////////////////////////////////
-            // IMPORTANT: It's up to the UploadPolicy to explain to the user
-            // that the upload is not ready!
-            // ///////////////////////////////////////////////////////////////////////////////////////////////
-            if (this.uploadPolicy.isUploadReady()) {
-                this.uploadPolicy.beforeUpload();
-
-                this.browseButton.setEnabled(false);
-                this.removeButton.setEnabled(false);
-                this.removeAllButton.setEnabled(false);
-                this.uploadButton.setEnabled(false);
-                this.stopButton.setEnabled(true);
-
-                // The FileUploadThread instance depends on the protocol.
-                if (this.uploadPolicy.getPostURL().substring(0, 4).equals(
-                        "ftp:")) {
-                    // fileUploadThread = new
-                    // FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy,
-                    // progress);
-                    try {
-                        this.fileUploadThread = new FileUploadThreadFTP(
-                                this.filePanel.getFiles(), this.uploadPolicy,
-                                this.progressBar);
-                    } catch (JUploadException e1) {
-                        // Too bad !
-                        uploadPolicy.displayErr(e1);
-                    }
-                } else {
-                    // fileUploadThread = new
-                    // FileUploadThreadV4(filePanel.getFiles(), uploadPolicy,
-                    // progress);
-                    this.fileUploadThread = new FileUploadThreadHTTP(
-                            this.filePanel.getFiles(), this.uploadPolicy,
-                            this.progressBar);
-                }
-                this.fileUploadThread.start();
-
-                // Create a timer.
-                this.timer = new Timer(DEFAULT_TIMEOUT, this);
-                this.timer.start();
-                this.uploadPolicy.displayDebug("Timer started", 60);
-
-            } // if isIploadReady()
+            doStartUpload();
         } else if (e.getActionCommand() == this.stopButton.getActionCommand()) {
             // We request the thread to stop its job.
-            this.fileUploadThread.stopUpload();
+            doStopUpload();
         }
         // focus the table. This is necessary in order to enable mouse events
         // for triggering tooltips.
         this.filePanel.focusTable();
     }
 
-    /**
-     * This methods show or hides the logWindow, depending on the following
-     * applet parameters. The following conditions must be met, to hide the log
-     * window: <DIR>
-     * <LI>showLogWindow (must be False)
-     * <LI>debugLevel (must be 0 or less) </DIR>
-     */
-    public void showOrHideLogWindow() {
-        if (this.uploadPolicy.getShowLogWindow()
-                || this.uploadPolicy.getDebugLevel() > 0) {
-            // The log window should be visible. Is it visible already?
-            if (!this.isLogWindowVisible) {
-                add(this.jLogWindowPane, -1);
-                this.isLogWindowVisible = true;
-                // Let's recalculate the component display
-                validate();
-            }
-        } else {
-            // It should be hidden.
-            if (this.isLogWindowVisible) {
-                remove(this.jLogWindowPane);
-                this.isLogWindowVisible = false;
-                // Let's recalculate the component display
-                validate();
-            }
-        }
-    }
+    // ///////////////////////////////////////////////////////////////////////////////
+    // ///////////////// Implementation of the MouseListener
+    // ///////////////////////////////////////////////////////////////////////////////
 
     /**
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
