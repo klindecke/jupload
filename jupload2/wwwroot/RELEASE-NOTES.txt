@@ -1,26 +1,32 @@
 TODO list:
+- Check the HEAD error on applet startup.
 - Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
 - Allows upload from the demo site, or inform that it doesn't work.
 - Picture mode: implement target picture format (to be changed to another name ?)
 - Picture mode: applet parameter to control the size of the preview on the file chooser.
-- Restore compatibility with standard Java application.
+- Restore compatibility with standard Java application (it currently only works as an applet).
 
-V3.1.1b2
+
+V3.2.0 b
+
+Changes:
+- [Major] The upload policy can now define the exact content of the applet 
+(see the UploadPolicy.addComponentsToJUploadPanel(JUploadPanel) method) 
+- [Minor] putting the debugLevel to -1 will prevent the logWindow to become visible when this parameter is set
+to false, and an error occurs.
+- [Minor] Picture mode: EXIF and IPTC data are now transmitted, even if the applet resizes or rotates the 
+transmitted picture
+- [Minor] All components of the applet are now valid drop target, so that the user can drop files on any component
+(previously: the only valid drop target was the file list)
+- [Minor] All components of the applet are can now display the JUpload popup menu (CTRL + Right Click). Currently,
+this menu allow only to put on/off the debug mode.
 
 Fixes:
 - [Medium] The release version was not displayed in the status bar, when used within the navigator. The following 
 string is displayed, instead of the subversion commit number: "Unknown revision (please use the build.xml ant script)"
 - [Minor] picture mode: after a double click on a file, changing the selected file with the keyboard arrow (up 
 and down) would not be detected by the applet.
-
-V3.1.1b
-
-Changes:
-- [Minor] Picture mode: EXIF and IPTC data are now transmitted, even if the applet resizes or rotates the 
-transmitted picture
-
-Fixes:
-- The uploadPolicy.onFileDoubleClicked method is now clicked when a user double clicks on a file.
+- [Minor] The uploadPolicy.onFileDoubleClicked method is now clicked when a user double clicks on a file.
 
 
 
