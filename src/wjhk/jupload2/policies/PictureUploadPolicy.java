@@ -42,6 +42,7 @@ import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadImagePreview;
+import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.PictureDialog;
 import wjhk.jupload2.gui.PicturePanel;
 
@@ -276,7 +277,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      */
     @Override
     public JPanel createTopPanel(JButton browse, JButton remove,
-            JButton removeAll, JPanel mainPanel) {
+            JButton removeAll, JUploadPanel jUploadPanel) {
         // The top panel is verticaly divided in :
         // - On the left, the button bar (buttons one above another)
         // - On the right, the preview PicturePanel.
@@ -286,12 +287,14 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         this.rotateLeftButton.setIcon(new ImageIcon(getClass().getResource(
                 "/images/rotateLeft.gif")));
         this.rotateLeftButton.addActionListener(this);
+        this.rotateLeftButton.addMouseListener(jUploadPanel);
         this.rotateLeftButton.setEnabled(false);
 
         this.rotateRightButton = new JButton(getString("buttonRotateRight"));
         this.rotateRightButton.setIcon(new ImageIcon(getClass().getResource(
                 "/images/rotateRight.gif")));
         this.rotateRightButton.addActionListener(this);
+        this.rotateRightButton.addMouseListener(jUploadPanel);
         this.rotateRightButton.setEnabled(false);
 
         // The button bar
@@ -310,6 +313,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         pPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 10));
 
         this.picturePanel = new PicturePanel(true, this);
+        this.picturePanel.addMouseListener(jUploadPanel);
         pPanel.add(this.picturePanel);
         // Setting specific cursor for this panel, default for other parts of
         // the applet.
@@ -321,7 +325,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         topPanel.add(buttonPanel);
         topPanel.add(pPanel);
 
-        mainPanel.setBorder(BorderFactory
+        jUploadPanel.setBorder(BorderFactory
                 .createLineBorder(SystemColor.controlDkShadow));
 
         return topPanel;

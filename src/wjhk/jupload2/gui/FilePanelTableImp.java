@@ -21,9 +21,9 @@
 package wjhk.jupload2.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Panel;
 import java.awt.Point;
-import java.awt.dnd.DropTarget;
 import java.io.File;
 
 import javax.swing.JScrollPane;
@@ -35,7 +35,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 /**
  * Implementation of the FilePanel : it creates the
  * {@link wjhk.jupload2.gui.FilePanelJTable}, and handles the necessary
- * functionnalities.
+ * functionalities.
  * 
  * @author William JinHua Kwong
  * @version $Revision$
@@ -75,8 +75,6 @@ public class FilePanelTableImp extends Panel implements FilePanel {
         JScrollPane scrollPane = new JScrollPane(this.jtable);
         add(scrollPane, BorderLayout.CENTER);
         scrollPane.addMouseListener(jup);
-
-        new DropTarget(scrollPane, new DnDListener(jup, uploadPolicy));
     }
 
     /**
@@ -177,5 +175,15 @@ public class FilePanelTableImp extends Panel implements FilePanel {
     public FileData getFileDataAt(Point point) {
         int row = jtable.rowAtPoint(point);
         return model.getFileDataAt(row);
+    }
+
+    /**
+     * Return the component on which drop event can occur. Used by
+     * {@link JUploadPanel}, when initializing the DropTarget.
+     * 
+     * @return
+     */
+    public Component getDropComponent() {
+        return this;
     }
 }

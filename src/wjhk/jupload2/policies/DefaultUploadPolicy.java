@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -70,7 +71,6 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
-import wjhk.jupload2.gui.FilePanelTableImp;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadPanel;
@@ -674,7 +674,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public JPanel createTopPanel(JButton browse, JButton remove,
             JButton removeAll, @SuppressWarnings("unused")
-            JPanel mainPanel) {
+            JUploadPanel jUploadPanel) {
         JPanel jPanel = new JPanel();
 
         jPanel.setLayout(new GridLayout(1, 3, 10, 5));
@@ -683,7 +683,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         jPanel.add(removeAll);
         jPanel.add(remove);
 
-        mainPanel.setBorder(BorderFactory
+        jUploadPanel.setBorder(BorderFactory
                 .createLineBorder(SystemColor.controlDkShadow));
 
         return jPanel;
@@ -730,6 +730,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see UploadPolicy#addComponentsToJUploadPanel(JUploadPanel)
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
+        //Set the global layout of the panel.
+        jUploadPanel.setLayout(new BoxLayout(jUploadPanel, BoxLayout.Y_AXIS));
+
         // The top panel is the upper part of the applet: above the file list.
         // JPanel topPanel = new JPanel();
         JPanel topPanel = createTopPanel(jUploadPanel.getBrowseButton(),
@@ -737,12 +740,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         .getRemoveAllButton(), jUploadPanel);
         if (topPanel != null) {
             jUploadPanel.add(topPanel);
+            topPanel.addMouseListener(jUploadPanel);
         }
 
         // Then, we add the file list.
-        FilePanelTableImp filePanel = new FilePanelTableImp(jUploadPanel, this);
-        jUploadPanel.setFilePanel(filePanel);
-        jUploadPanel.add(filePanel);
+        jUploadPanel.add(jUploadPanel.getFilePanel().getDropComponent());
 
         // The progress panel contains the progress bar, and the upload and stop
         // buttons.
@@ -750,6 +752,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 .getProgressBar(), jUploadPanel.getUploadButton(), jUploadPanel
                 .getStopButton(), jUploadPanel);
         jUploadPanel.add(progressPanel);
+        jUploadPanel.addMouseListener(jUploadPanel);
 
         // Now, we add the log window.
         jUploadPanel.showOrHideLogWindow();
@@ -759,6 +762,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         JPanel p = createStatusBar(jUploadPanel.getStatusLabel(), jUploadPanel);
         if (null != p) {
             jUploadPanel.add(p);
+            p.addMouseListener(jUploadPanel);
         }
     }
 
