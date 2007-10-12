@@ -20,6 +20,7 @@
 
 package wjhk.jupload2.gui;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 
@@ -85,4 +86,12 @@ public interface FilePanel {
      * @return The return instance of File.
      */
     public FileData getFileDataAt(Point point);
+
+    /**
+     * Return the component on which drop event can occur. Used by
+     * {@link JUploadPanel}, when initializing the DropTarget.
+     * 
+     * @return The drop component target
+     */
+    public Component getDropComponent();
 }

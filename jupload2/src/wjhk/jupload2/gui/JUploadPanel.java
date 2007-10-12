@@ -23,6 +23,7 @@ package wjhk.jupload2.gui;
 
 import java.awt.Container;
 import java.awt.Frame;
+import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -30,7 +31,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -98,6 +98,13 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     // ------------- VARIABLES ----------------------------------------------
 
+    /**
+     * The Drag and Drop listener, that will manage the drop event. All pplet
+     * element should register this instance, so that the user see the whole
+     * applet as a unique drop target.
+     */
+    private DnDListener dndListener = null;
+
     private JButton browseButton = null, removeButton = null,
             removeAllButton = null, uploadButton = null, stopButton = null;
 
@@ -120,15 +127,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * window.
      */
     private JScrollPane jLogWindowPane = null;
-
-    /**
-     * The log window is visible if one of these two conditions are met:
-     * debugLevel>0 or showLogWindow is set to true. <BR>
-     * Note: if an error occurs, and debugLevel is 0, then debugLevel is set to
-     * true. This means that, when debugLevel is 0 and an error occurs, the log
-     * window become visible.
-     */
-    private boolean isLogWindowVisible = false;
 
     /**
      * Used to wait for the upload to finish.
@@ -161,12 +159,31 @@ public class JUploadPanel extends JPanel implements ActionListener,
         this.jUploadPopupMenu = new JUploadPopupMenu(this.uploadPolicy);
 
         // First: create standard components.
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         createStandardComponents();
         logWindow.addMouseListener(this);
 
         // Then: display them on the applet
         this.uploadPolicy.addComponentsToJUploadPanel(this);
+
+        // Define the drop target.
+        dndListener = new DnDListener(this, uploadPolicy);
+        new DropTarget(this, dndListener);
+        new DropTarget(this.filePanel.getDropComponent(), dndListener);
+        new DropTarget(this.logWindow, dndListener);
+
+        // The JUploadPanel will listen to Mouse messages for the standard
+        // component. The current only application of this, it the CTRL+Righ
+        // Click, that triggers the popup menu, which allow to switch debug on.
+        browseButton.addMouseListener(this);
+        removeAllButton.addMouseListener(this);
+        removeButton.addMouseListener(this);
+        stopButton.addMouseListener(this);
+        uploadButton.addMouseListener(this);
+        
+        jLogWindowPane.addMouseListener(this);
+        logWindow.addMouseListener(this);
+        progressBar.addMouseListener(this);
+        statusLabel.addMouseListener(this);
 
         /*
          * // Setup Top Panel setupTopPanel(); // Setup File Panel. //
@@ -209,6 +226,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     "/images/explorer.gif")));
         }
         this.browseButton.addActionListener(this);
+        // new DropTarget(this.browseButton, dndListener);
 
         // -------- JButton remove --------
         if (this.removeButton == null) {
@@ -219,6 +237,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.removeButton.setEnabled(false);
         this.removeButton.addActionListener(this);
+        // new DropTarget(this.removeButton, dndListener);
 
         // -------- JButton removeAll --------
         if (this.removeAllButton == null) {
@@ -229,6 +248,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.removeAllButton.setEnabled(false);
         this.removeAllButton.addActionListener(this);
+        // new DropTarget(this.removeAllButton, dndListener);
 
         // -------- JButton upload --------
         if (null == this.uploadButton) {
@@ -239,12 +259,17 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.uploadButton.setEnabled(false);
         this.uploadButton.addActionListener(this);
+        // new DropTarget(this.uploadButton, dndListener);
+
+        // -------- JProgressBar progress --------
+        filePanel = new FilePanelTableImp(this, this.uploadPolicy);
 
         // -------- JProgressBar progress --------
         if (null == this.progressBar) {
             this.progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
             this.progressBar.setStringPainted(true);
         }
+        // new DropTarget(this.progressBar, dndListener);
 
         // -------- JButton stop --------
         if (null == this.stopButton) {
@@ -255,6 +280,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.stopButton.setEnabled(false);
         this.stopButton.addActionListener(this);
+        // new DropTarget(this.stopButton, dndListener);
 
         // -------- JButton stop --------
         if (this.jLogWindowPane == null) {
@@ -265,9 +291,12 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         }
         this.jLogWindowPane.getViewport().add(this.logWindow);
+        // new DropTarget(this.logWindow, dndListener);
+        // new DropTarget(this.jLogWindowPane, dndListener);
 
         // -------- statusLabel --------
         this.statusLabel = new JLabel("JUpload V" + JUploadApplet.VERSION);
+        // new DropTarget(this.statusLabel, dndListener);
     }
 
     /**
@@ -278,78 +307,21 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * <LI>debugLevel (must be 0 or less) </DIR>
      */
     public void showOrHideLogWindow() {
+        // Etienne: we should not more remove and re-add the component, as it
+        // will be added at a different place, that where it was placed by
+        // the upload policy! (see addComponentsToJUploadPanel)
         if (this.uploadPolicy.getShowLogWindow()
                 || this.uploadPolicy.getDebugLevel() > 0) {
-            // The log window should be visible. Is it visible already?
-            if (!this.isLogWindowVisible) {
-                add(this.jLogWindowPane, -1);
-                this.isLogWindowVisible = true;
-                // Let's recalculate the component display
-                validate();
-            }
+            // The log window should be visible.
+            //
+            this.jLogWindowPane.setVisible(true);
         } else {
             // It should be hidden.
-            if (this.isLogWindowVisible) {
-                remove(this.jLogWindowPane);
-                this.isLogWindowVisible = false;
-                // Let's recalculate the component display
-                validate();
-            }
+            this.jLogWindowPane.setVisible(false);
         }
+        // Let's recalculate the component display
+        validate();
     }
-
-    /**
-     * This methods creates each standard upload element, that will be displayed
-     * on the applet. Then, the {@link UploadPol
-     * 
-     * private void setupTopPanel() { // -------- JButton browse --------
-     * this.browseButton = new JButton(this.uploadPolicy
-     * .getString("buttonBrowse")); this.browseButton.setIcon(new
-     * ImageIcon(getClass().getResource( "/images/explorer.gif")));
-     * this.browseButton.addActionListener(this); // -------- JButton remove
-     * -------- this.removeButton = new JButton(this.uploadPolicy
-     * .getString("buttonRemoveSelected")); this.removeButton.setIcon(new
-     * ImageIcon(getClass().getResource( "/images/recycle.gif")));
-     * this.removeButton.setEnabled(false);
-     * this.removeButton.addActionListener(this); // -------- JButton removeAll
-     * -------- this.removeAllButton = new JButton(this.uploadPolicy
-     * .getString("buttonRemoveAll")); this.removeAllButton.setIcon(new
-     * ImageIcon(getClass().getResource( "/images/cross.gif")));
-     * this.removeAllButton.setEnabled(false);
-     * this.removeAllButton.addActionListener(this); // ------- Then ask the
-     * current upload policy to create the top panel // --------// }
-     * 
-     * private void setupProgressPanel(JButton jbUpload, JProgressBar
-     * jpbProgress, JButton jbStop) { // -------- JButton upload -------- if
-     * (null == jbUpload) { this.uploadButton = new JButton(this.uploadPolicy
-     * .getString("buttonUpload")); this.uploadButton.setIcon(new
-     * ImageIcon(getClass().getResource( "/images/up.gif"))); } else {
-     * this.uploadButton = jbUpload; } this.uploadButton.setEnabled(false);
-     * this.uploadButton.addActionListener(this); // -------- JProgressBar
-     * progress -------- if (null == jpbProgress) { this.progressBar = new
-     * JProgressBar(SwingConstants.HORIZONTAL);
-     * this.progressBar.setStringPainted(true); } else { this.progressBar =
-     * jpbProgress; } // -------- JButton stop -------- if (null == jbStop) {
-     * this.stopButton = new JButton(this.uploadPolicy
-     * .getString("buttonStop")); this.stopButton.setIcon(new
-     * ImageIcon(getClass().getResource( "/images/cross.gif"))); } else {
-     * this.stopButton = jbStop; } this.stopButton.setEnabled(false);
-     * this.stopButton.addActionListener(this); }
-     * 
-     * private void setupLogWindow() { this.jLogWindowPane = new JScrollPane();
-     * this.jLogWindowPane
-     * .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-     * this.jLogWindowPane
-     * .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-     * 
-     * this.jLogWindowPane.getViewport().add(this.logWindow); //
-     * showOrHideLogWindow(); // this.add(jLogWindowPane); }
-     * 
-     * private void setupStatusBar() { this.statusLabel = new JLabel("JUpload V" +
-     * JUploadApplet.VERSION); /* JPanel p =
-     * this.uploadPolicy.createStatusBar(this.statusLabel, this); if (null != p)
-     * this.add(p); }
-     */
 
     // ----------------------------------------------------------------------
     /**
@@ -680,6 +652,13 @@ public class JUploadPanel extends JPanel implements ActionListener,
      */
     public JButton getBrowseButton() {
         return browseButton;
+    }
+
+    /**
+     * @return the dndListener
+     */
+    public DnDListener getDndListener() {
+        return dndListener;
     }
 
     /**

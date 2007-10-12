@@ -169,8 +169,8 @@ import wjhk.jupload2.gui.PictureDialog;
  * <td>With 0, you get the normal production output. The higher the number is,
  * the more information is displayed in the log window. <br>
  * Note: All debug messages are stored in a temporary log file. This can be used
- * to display more information, if needed. See also the 'webmasterMail'
- * parameter. </td>
+ * to display more information, if needed. See also the <I>urlToSendErrorTo</I>
+ * applet parameter. </td>
  * </tr>
  * <tr>
  * <td>fileChooserIconFromFileContent</td>
@@ -1120,7 +1120,7 @@ public interface UploadPolicy {
      * @return the topPanel, that will be displayed on the top of the Applet.
      */
     public JPanel createTopPanel(JButton browse, JButton remove,
-            JButton removeAll, JPanel mainPanel);
+            JButton removeAll, JUploadPanel mainPanel);
 
     /**
      * This method is called to create the progress panel. The default
