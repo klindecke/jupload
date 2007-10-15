@@ -179,7 +179,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         removeButton.addMouseListener(this);
         stopButton.addMouseListener(this);
         uploadButton.addMouseListener(this);
-        
+
         jLogWindowPane.addMouseListener(this);
         logWindow.addMouseListener(this);
         progressBar.addMouseListener(this);
@@ -226,7 +226,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     "/images/explorer.gif")));
         }
         this.browseButton.addActionListener(this);
-        // new DropTarget(this.browseButton, dndListener);
 
         // -------- JButton remove --------
         if (this.removeButton == null) {
@@ -237,7 +236,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.removeButton.setEnabled(false);
         this.removeButton.addActionListener(this);
-        // new DropTarget(this.removeButton, dndListener);
 
         // -------- JButton removeAll --------
         if (this.removeAllButton == null) {
@@ -248,7 +246,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.removeAllButton.setEnabled(false);
         this.removeAllButton.addActionListener(this);
-        // new DropTarget(this.removeAllButton, dndListener);
 
         // -------- JButton upload --------
         if (null == this.uploadButton) {
@@ -259,7 +256,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.uploadButton.setEnabled(false);
         this.uploadButton.addActionListener(this);
-        // new DropTarget(this.uploadButton, dndListener);
 
         // -------- JProgressBar progress --------
         filePanel = new FilePanelTableImp(this, this.uploadPolicy);
@@ -269,7 +265,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
             this.progressBar.setStringPainted(true);
         }
-        // new DropTarget(this.progressBar, dndListener);
 
         // -------- JButton stop --------
         if (null == this.stopButton) {
@@ -280,7 +275,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         }
         this.stopButton.setEnabled(false);
         this.stopButton.addActionListener(this);
-        // new DropTarget(this.stopButton, dndListener);
 
         // -------- JButton stop --------
         if (this.jLogWindowPane == null) {
@@ -291,12 +285,10 @@ public class JUploadPanel extends JPanel implements ActionListener,
                     .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         }
         this.jLogWindowPane.getViewport().add(this.logWindow);
-        // new DropTarget(this.logWindow, dndListener);
-        // new DropTarget(this.jLogWindowPane, dndListener);
+        this.jLogWindowPane.setPreferredSize(null);
 
         // -------- statusLabel --------
         this.statusLabel = new JLabel("JUpload V" + JUploadApplet.VERSION);
-        // new DropTarget(this.statusLabel, dndListener);
     }
 
     /**
