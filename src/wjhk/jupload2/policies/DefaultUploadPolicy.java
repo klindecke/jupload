@@ -116,7 +116,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * applet contains the reference of the Applet. It's useful to interact with
      * it. <BR>
-     * It also allows acccess to the navigator properties, if the html tag
+     * It also allows access to the navigator properties, if the html tag
      * MAYSCRIPT is put in the APPLET tag. This allows this class to get the
      * cookie, userAgent and protocol, to upload files in the current user
      * session on the server. <BR>
@@ -132,12 +132,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String afterUploadURL = UploadPolicy.DEFAULT_AFTER_UPLOAD_URL;
 
     /**
-     * Contains the allowedFileExtensions applet paramater.
+     * Contains the allowedFileExtensions applet parameter.
      */
     private boolean allowHttpPersistent = UploadPolicy.DEFAULT_ALLOW_HTTP_PERSISTENT;
 
     /**
-     * Contains the allowedFileExtensions applet paramater.
+     * Contains the allowedFileExtensions applet parameter.
      */
     private String allowedFileExtensions = UploadPolicy.DEFAULT_ALLOWED_FILE_EXTENSIONS;
 
