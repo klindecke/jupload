@@ -271,10 +271,10 @@ public class HttpConnect {
         String firstLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
         // Let's check if we're facing an IIS server. The applet is compatible
         // with IIS, only if allowHttpPersistent is false.
-        String line = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
-        while ((line = FileUploadThreadHTTP.readLine(in, "US-ASCII", false))
+        String nextLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
+        while ((nextLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false))
                 .length() > 0) {
-            if (line.matches("^Server: .*IIS")) {
+            if (nextLine.matches("^Server: .*IIS")) {
                 try {
                     uploadPolicy.setProperty(
                             UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT, "false");
@@ -296,13 +296,13 @@ public class HttpConnect {
             this.uploadPolicy.displayErr("EMPTY HEAD response");
             return "HTTP/1.1";
         }
-        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s.*").matcher(line);
+        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s.*").matcher(firstLine);
         if (!m.matches()) {
-            this.uploadPolicy.displayErr("Unexpected HEAD response: '" + line
+            this.uploadPolicy.displayErr("Unexpected HEAD response: '" + firstLine
                     + "'");
             return "HTTP/1.1";
         }
-        this.uploadPolicy.displayDebug("HEAD response: " + line, 40);
+        this.uploadPolicy.displayDebug("HEAD response: " + firstLine, 40);
         return m.group(1);
     } // getProtocol()
 
