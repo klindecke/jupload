@@ -1,5 +1,6 @@
 TODO list:
-- Check the HEAD error on applet startup.
+- When an error occurs, a message (alert box) should be displayed to the user.
+- When debugLevel is -1 (and 0?) display a message when an error occurs.
 - Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
 - Allows upload from the demo site, or inform that it doesn't work.
 - Picture mode: implement target picture format (to be changed to another name ?)
@@ -20,8 +21,11 @@ transmitted picture
 (previously: the only valid drop target was the file list)
 - [Minor] All components of the applet are can now display the JUpload popup menu (CTRL + Right Click). Currently,
 this menu allow only to put on/off the debug mode.
+- [Minor] After an upload, the progress bar now goes back to '0%', instead of keeping 100% displayed.
 
 Fixes:
+- [Medium] Corrected the error that occurs during startup (Unexpected HEAD response). This would make the log 
+window become visible, when debugLevel is 0, and showLogWindow is set to false. 
 - [Medium] The release version was not displayed in the status bar, when used within the navigator. The following 
 string is displayed, instead of the subversion commit number: "Unknown revision (please use the build.xml ant script)"
 - [Minor] picture mode: after a double click on a file, changing the selected file with the keyboard arrow (up 
