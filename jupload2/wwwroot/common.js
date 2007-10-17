@@ -29,6 +29,7 @@ function footer() {
   document.writeln("            Doc:");
   document.writeln("            <A HREF='doc/index.html'>javadoc</A>, &nbsp; ");
   document.writeln("            <A HREF='howto-debug.html'>HowTo debug it</A>, &nbsp; ");
+  document.writeln("            <A HREF='howto-compile.html'>HowTo compile it</A>, &nbsp; ");
   document.writeln("            <A HREF='howto-support.html'>HowTo get support</A>, &nbsp; ");
   document.writeln("            <A HREF='howto-customization.html'>HowTo customize it</A>, &nbsp; ");
   document.writeln("            <A HREF='howto-translation.html'>HowTo translate it</A>");
