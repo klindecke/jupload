@@ -26,13 +26,20 @@
 <a href="http://eclipse.org">eclipse.org</a> to download it.</P>
 
 To get sources from the sourceforge Subversion (conf management), you'll have to install the eclipse 
-subversion plugin. This is <B>optionnal</B>, as you can also get sources from the JUpload releases (see below).
-It's available at <a href="http://subclipse.tigris.org">subclipse.tigris.org</a>. An easy 
+subversion plugin. This is <B>optionnal</B>, as you can also get sources from the JUpload releases (see below). 
+Take care that there are two eclipse plugins for SVN: subversion (on polarion.org) and subclipse (on tigris.org). I
+prefer the first one: the second one let you do anything, and I did several mistakes in my SVN with it. An easy 
 way to install it is to use the eclipse software management function:
 <UL>
 <LI>Click on 'Help / Software Updates / Find and Install'
-<LI>If there is no 'Subclipse update site', add a new remote site, with this URL: 
-http://subclipse.tigris.org/update_1.2.x
+<LI>If there is no 'Subversive update site', go to 
+<a href="http://www.polarion.org/index.php?page=overview&project=subversive">subersion eclipse plugin</a>,
+or add a new remote site, with this URL (for eclipse 3.2 and 3.3): 
+	http://www.polarion.org/projects/subversive/download/1.1/update-site/ 
+	<DIR>
+	<LI>If there is no 'Subclipse update site', add a new remote site, with this URL: 
+	http://subclipse.tigris.org/update_1.2.x
+	</DIR>
 <LI>Check both subclipse and 'Europa Discovery site' (Europa is the eclipse 3.3 release)
 <LI>Click on 'Finish'. Eclipse will load the package list for the selected items.
 <LI>The list of available packages is displayed. Select the subversion plugin. Eclipse will help you to manage
