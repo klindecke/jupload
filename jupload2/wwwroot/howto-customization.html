@@ -272,13 +272,21 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  the current page to another one after a successful upload. <br>
  This allows, for instance, to display a page containing the file description
  of the newly uploaded page. Since version 3.0.2b2, you can specify a
- JavaScript expression instead of a plain URL:<br>
+ JavaScript expression instead of a plain URL. So afterUploadURL can now
+ contain:<br>
+ <UL>
+ <LI><B>A javascript expression</B>: The URL must start by <I>javascript:</I>.
+ See below for details.</LI>
+ <LI><B>A http URL</B>: the navigator will open this URL, in the current
+ page or another, according to the <I>afterUploadTarget</I> parameter. Any
+ URL that doesn't start by <I>javascript:</I> is handled as an http URL.</LI>
+ </UL>
  If the value of afterUploadURL starts with the string "javascript:", the
  remainder of the string is evaluated as JavaScript expression in the current
  document context. For example: If afterUloadURL is<br>
- <code>"alert('Thanks for the upload');"</code>,</br> then after a
- successful upload, a messagebox would pop up. Since 3.0.2b3 there are now
- three placeholders available which can be used as parameters in function
+ <code>"javascript:alert('Thanks for the upload');"</code>,</br> then
+ after a successful upload, a messagebox would pop up. Since 3.0.2b3 there are
+ now three placeholders available which can be used as parameters in function
  calls:
  <ul>
  <li><code>%success%</code> is replaced by <b>true</b> or <b>false</b>
@@ -336,8 +344,8 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <td>With 0, you get the normal production output. The higher the number is,
  the more information is displayed in the log window. <br>
  Note: All debug messages are stored in a temporary log file. This can be used
- to display more information, if needed. See also the 'webmasterMail'
- parameter. </td>
+ to display more information, if needed. See also the <I>urlToSendErrorTo</I>
+ applet parameter. </td>
  </tr>
  <tr>
  <td>fileChooserIconFromFileContent</td>
@@ -364,8 +372,8 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <a href="doc/wjhk/jupload2/policies/UploadPolicy.html" title="interface in wjhk.jupload2.policies"><CODE>UploadPolicy</CODE></A></td>
  <td>This parameter allows to control the size of icons, in pixels, in the
  file chooser. Used only when fileChooserIconFromFileContent is activated.<BR>
- Note: The standard icon size is a value of 20. With 50, you'll get a better view of the picture.
- </td>
+ Note: The standard icon size is a value of 20. With 50, you'll get a better
+ view of the picture. </td>
  </tr>
  <tr>
  <td>fileChooserImagePreview</td>
@@ -755,8 +763,8 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  </tr>
  <tr>
  <td>storeBufferedImage</td>
- <td>false <br> <I>Deprecated</I>
- <br>
+ <td>false <br>
+ <I>Deprecated</I> <br>
  <a href="doc/wjhk/jupload2/policies/PictureUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>PictureUploadPolicy</CODE></A></td>
  <td>This parameter indicates that the preview image on the applet is kept in
  memory. It works really nice under eclise. But, once in the navigator, the
@@ -764,9 +772,8 @@ using the creating a new policy, using the UploadPolicy interface:</p>
  <a href="doc/wjhk/jupload2/filedata/PictureFileData.html#freeMemory(java.lang.String)"><CODE>PictureFileData.freeMemory(String)</CODE></A>, but it
  doesn't change anything. Be careful to this parameter, and let it to the
  default value, unless you've well tested it under all your target client
- configurations.
- <BR><I>This parameter will probably never be correctly implemented.</I> 
- </td>
+ configurations. <BR>
+ <I>This parameter will probably never be correctly implemented.</I> </td>
  </tr>
  <tr>
  <td>stringUploadError</td>
