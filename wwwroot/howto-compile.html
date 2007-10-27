@@ -102,13 +102,15 @@ able to compile with eclipse</P>
 
 
 <h2><a name="ant">Compile with the given Ant build file</a></h2>
-<P>A ant build file is given with JUpload, to generate two main targets:</P>
+<P>An ant build file is given with JUpload, to generate two main targets:</P>
 <UL>
 <LI>The default one, 'deploy', create the compiled jar file. Its main advantage, is that it creates or updates
 the /conf/svn.properties file, that contains the applet version (see wjhk.jupload2.JUploadApplet#VERSION 
 attribute) and last SVN commit number. 
 <LI>The 'dist' creates a jar containing a jupload release, including: sources and wwwroot directory, with javadoc.
 </UL>
+
+To use this ant build file (<I>build.xml</I>), with eclipse: just right on it, and choose <I>Run as / ant build</I>.
 
 <h2><a name="svn">Get the sources from the sourceforge subversion</a></h2>
 
