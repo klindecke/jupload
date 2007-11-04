@@ -59,7 +59,7 @@ import wjhk.jupload2.upload.FileUploadThreadHTTP;
  * work from within a navigator (an applet) or from a standard java application.
  * <BR>
  * This compatibility is no more maintained, as a lot of code suppose access to
- * navigator parameters.
+ * navigator parameters. Hope it will be restored...
  * 
  * @author William JinHua Kwong
  * @version $Revision$
@@ -131,7 +131,13 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * Used to wait for the upload to finish.
      */
-    private Timer timer = null;
+    private Timer timerUpload = new Timer(DEFAULT_TIMEOUT, this);
+
+    /**
+     * This 5 second long timer, is used to flush the progress bar ... 5
+     * seconds, after the upload finished. The progress bar will get back to 0%!
+     */
+    private Timer timerAfterUpload = new Timer(5000, this);
 
     private UploadPolicy uploadPolicy = null;
 
@@ -402,7 +408,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // The upload is finished
         this.uploadPolicy.displayDebug(
                 "JUploadPanel: after !fileUploadThread.isAlive()", 60);
-        this.timer.stop();
+        this.timerUpload.stop();
         String svrRet = this.fileUploadThread.getResponseMsg();
         Exception ex = this.fileUploadThread.getException();
 
@@ -428,6 +434,20 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         this.uploadPolicy.getApplet().getAppletContext().showStatus("");
         this.statusLabel.setText(" ");
+
+        // We'll put the progress bar back to 0% (ready for another upload) in 5
+        // seconds.
+        this.timerAfterUpload.start();
+    }
+
+    /**
+     * Reaction to the timerAfterUpload timer event. The progress bar get back
+     * from 100% to 0%.
+     */
+    private void actionClearProgressBar() {
+        this.progressBar.setValue(0);
+        this.progressBar.setString(null);
+        this.timerAfterUpload.stop();
     }
 
     /**
@@ -518,8 +538,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.fileUploadThread.start();
 
             // Create a timer.
-            this.timer = new Timer(DEFAULT_TIMEOUT, this);
-            this.timer.start();
+            this.timerUpload.start();
             this.uploadPolicy.displayDebug("Timer started", 60);
 
         } // if isIploadReady()
@@ -542,13 +561,18 @@ public class JUploadPanel extends JPanel implements ActionListener,
      */
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() instanceof Timer) {
-            // timer is expired
-            if ((this.update_counter++ > PROGRESS_INTERVAL)
-                    || (!this.fileUploadThread.isAlive())) {
-                actionPerformedTimerExpired();
-            }
-            if (!this.fileUploadThread.isAlive()) {
-                actionPerformedUploadFinished();
+            // Which timer is it ?
+            if (this.timerUpload.isRunning()) {
+                // timer is expired
+                if ((this.update_counter++ > PROGRESS_INTERVAL)
+                        || (!this.fileUploadThread.isAlive())) {
+                    actionPerformedTimerExpired();
+                }
+                if (!this.fileUploadThread.isAlive()) {
+                    actionPerformedUploadFinished();
+                }
+            } else if (this.timerAfterUpload.isRunning()) {
+                actionClearProgressBar();
             }
             return;
         }
