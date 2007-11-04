@@ -408,6 +408,22 @@ import wjhk.jupload2.gui.PictureDialog;
  * This parameter is currently applied only to jpg (and jpeg) pictures.</td>
  * </tr>
  * <tr>
+ * <td>pictureTransmitMetadata</td>
+ * <td><i>true</i><br>
+ * since 3.2.0<br>
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>This parameter controls whether the applet transmit metadata of the
+ * original picture. This may prevent personal information to be thrown on the
+ * net.<br>
+ * Note 1: This parameter is especially important for picture coming from the
+ * Canon EOS 20D, 30D and 40D: pictures shooted in portrait mode contain
+ * metadata that are incompatible with Java 1.6.0_3! The color of transformed
+ * pictures become strange...<br>
+ * Note 2: <Caution> As of 3.2.0, this parameter blocks metadata only for
+ * pictures that are updated by the applet. Metadata from picture transmitted
+ * 'as is' are not removed. </td>
+ * </tr>
+ * <tr>
  * <td>postURL</td>
  * <td>null since 1.9.2rc4, (was <i>Mandatory</i> before)<br>
  * <br>
@@ -841,6 +857,12 @@ public interface UploadPolicy {
     final static String PROP_PICTURE_COMPRESSION_QUALITY = "pictureCompressionQuality";
 
     /**
+     * Parameter/Property name for specifying whether picture metadata (EXIF
+     * coming from the camera for instance.
+     */
+    final static String PROP_PICTURE_TRANSMIT_METADATA = "pictureTransmitMetadata";
+
+    /**
      * Parameter/Property name for specifying URL of the upload post request.
      */
     final static String PROP_POST_URL = "postURL";
@@ -1022,6 +1044,11 @@ public interface UploadPolicy {
      * Default value for parameter "pictureCompressionQuality".
      */
     final static float DEFAULT_PICTURE_COMPRESSION_QUALITY = (float) 0.8;
+
+    /**
+     * Default value for parameter "pictureCompressionQuality".
+     */
+    final static boolean DEFAULT_PICTURE_TRANSMIT_METADATA = true;
 
     /**
      * Default value for parameter "postURL".
