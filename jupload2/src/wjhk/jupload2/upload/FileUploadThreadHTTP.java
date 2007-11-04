@@ -555,9 +555,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             contentLength += formParams.length();
 
             header.append("Content-Type: multipart/form-data; boundary=")
-                    .append(this.boundary.substring(2)).append("\r\n").append(
-                            "Content-Length: ").append(contentLength).append(
-                            "\r\n");
+                    .append(this.boundary.substring(2)).append("\r\n");
+            header.append("Content-Length: ").append(contentLength).append(
+            "\r\n");
+            header.append("Content-Encoding: UTF-8\r\n");
 
             // Get specific headers for this upload.
             this.uploadPolicy.onAppendHeader(header);
@@ -762,11 +763,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         sb.append("\"\r\n");
 
         // Line 3: Content-Type.
-        if (false) // will be a configurable e.g.: transfer-binary
-            sb.append("Content-Type: application/octet-stream");
-        else
-            sb.append("Content-Type: ").append(mimetype);
-        sb.append("\r\n");
+        sb.append("Content-Type: ").append(mimetype).append("\r\n");
 
         // An empty line to finish the header.
         sb.append("\r\n");
