@@ -193,7 +193,8 @@ public class PictureFileData extends DefaultFileData {
         String fileExtension = getFileExtension();
 
         // Is it a picture?
-        Iterator<ImageReader> iter = ImageIO.getImageReadersByFormatName(fileExtension);
+        Iterator<ImageReader> iter = ImageIO
+                .getImageReadersByFormatName(fileExtension);
         this.isPicture = iter.hasNext();
         uploadPolicy.displayDebug("isPicture=" + this.isPicture + " ("
                 + file.getName() + "), extension=" + fileExtension, 75);
@@ -248,6 +249,9 @@ public class PictureFileData extends DefaultFileData {
             try {
                 if (hasToTransformPicture()) {
                     getTransformedPictureFile();
+                } else if (!((PictureUploadPolicy) uploadPolicy)
+                        .getPictureTransmitMetadata()) {
+                    clearPictureFileMetadata();
                 }
             } catch (OutOfMemoryError e) {
                 // Oups ! My EOS 20D has too big pictures to handle more than
@@ -601,7 +605,7 @@ public class PictureFileData extends DefaultFileData {
 
                 // If we have to rescale the picture, we first do it:
                 if (scale < 1) {
-                    if (highquality) {
+                    if (highquality && false) {
                         this.uploadPolicy.displayDebug(
                                 "Resizing picture(using high quality picture)",
                                 40);
@@ -611,11 +615,12 @@ public class PictureFileData extends DefaultFileData {
                                 Image.SCALE_SMOOTH);
                         img.flush();
 
-                        // the localBufferedImage may be 'unknwon'.
+                        // the localBufferedImage may be 'unknown'.
                         int localImageType = localBufferedImage.getType();
                         if (localImageType == BufferedImage.TYPE_CUSTOM) {
                             localImageType = BufferedImage.TYPE_INT_BGR;
                         }
+
                         localBufferedImage = new BufferedImage(
                                 (int) (this.originalWidth * scale),
                                 (int) (this.originalHeight * scale),
@@ -651,6 +656,15 @@ public class PictureFileData extends DefaultFileData {
                             AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
                     bufferedImage = affineTransformOp
                             .createCompatibleDestImage(localBufferedImage, null);
+                    // Checks, after the fact the pictures produces by the Canon
+                    // EOS 30D are not properly resized: colors are 'strange'
+                    // after resizing.
+                    uploadPolicy.displayDebug("bufferedImage.getColorModel(): "
+                            + bufferedImage.getColorModel().toString(), 80);
+                    uploadPolicy.displayDebug(
+                            "localBufferedImage.getColorModel(): "
+                                    + localBufferedImage.getColorModel()
+                                            .toString(), 80);
                     /*
                      * break; case 1: //This options create black pictures !
                      * affineTransformOp = new AffineTransformOp(transform,
@@ -878,16 +892,29 @@ public class PictureFileData extends DefaultFileData {
     private File getTransformedPictureFile() {
         BufferedImage bufferedImage = null;
         String tmpFileName = null;
+        String action = null;
+
         // Do we already created the transformed file ?
         if (this.transformedPictureFile == null) {
             try {
+                action = "get temp file";
                 this.transformedPictureFile = File.createTempFile("jupload_",
                         ".tmp");
+                if (this.transformedPictureFile.exists()) {
+                    // Debug: first try to repeat the problem. Seems to get an
+                    // error when the temporary file already exists. According
+                    // to javadoc, it should not be possible.
+                    this.uploadPolicy
+                            .displayWarn("PictureFileData.getTransformedPictureFile(): temp file already exists "
+                                    + this.transformedPictureFile
+                                            .getAbsolutePath() + ")");
+                }
                 this.uploadPolicy.getApplet().registerUnload(this,
                         "deleteTransformedPictureFile");
                 tmpFileName = this.transformedPictureFile.getAbsolutePath();
                 this.uploadPolicy.displayDebug("Using temp file " + tmpFileName
                         + " for " + getFileName(), 50);
+                action = "Temp file created";
 
                 String localPictureFormat = (((PictureUploadPolicy) this.uploadPolicy)
                         .getTargetPictureFormat() == null) ? getFileExtension()
@@ -918,6 +945,7 @@ public class PictureFileData extends DefaultFileData {
                             ((PictureUploadPolicy) this.uploadPolicy)
                                     .getRealMaxHeight(), true);
                 }
+                action = "BufferedImage created";
 
                 // Get the writer (to choose the compression quality)
                 Iterator<ImageWriter> iter = ImageIO
@@ -950,41 +978,57 @@ public class PictureFileData extends DefaultFileData {
                         // to write some debug info.
                     }
 
-                    // Now, we write the metadata from the orginal file to the
+                    // Now, we write the metadata from the original file to the
                     // transformed one ... if any exists.
-                    uploadPolicy.displayInfo("Start of metadata managing, for " + getFileName());
+                    uploadPolicy.displayInfo("Start of metadata managing, for "
+                            + getFileName());
                     IIOMetadata metadata = null;
-                    Iterator<ImageReader> iterator = ImageIO.getImageReadersBySuffix(getExtension(getFile()));
-                    ImageReader ir;
-                    FileImageInputStream is;
-                    while (iterator.hasNext()) {
-                        ir = iterator.next();
-                        try {
-                            is = new FileImageInputStream(getFile());
-                            ir.setInput(is);
-                            metadata = ir.getImageMetadata(0);
-                            uploadPolicy.displayDebug("Found one image read that can read metadata!", 20);
-                            break;
-                        } catch (Exception e) {
-                            uploadPolicy.displayErr(e);
-                            continue;
+                    // Should we add the original metadata to the tranformed
+                    // file ?
+                    action = "Should we transmit metadata ?";
+                    if (((PictureUploadPolicy) uploadPolicy)
+                            .getPictureTransmitMetadata()) {
+                        Iterator<ImageReader> iterator = ImageIO
+                                .getImageReadersBySuffix(getExtension(getFile()));
+                        ImageReader ir;
+                        FileImageInputStream is;
+                        while (iterator.hasNext()) {
+                            ir = iterator.next();
+                            try {
+                                is = new FileImageInputStream(getFile());
+                                ir.setInput(is);
+                                metadata = ir.getImageMetadata(0);
+                                uploadPolicy
+                                        .displayDebug(
+                                                "Found one image reader that can read metadata!",
+                                                20);
+                                // Tests on JRE 1.6.0_03: no other reader can
+                                // read JPEG and metadata.
+                                break;
+                            } catch (Exception e) {
+                                uploadPolicy.displayErr(e);
+                                continue;
+                            }
+                        }
+
+                        if (metadata == null) {
+                            uploadPolicy.displayWarn("No metadata reader for "
+                                    + getFileName());
                         }
                     }
-                    
-                    if (metadata == null) {
-                        uploadPolicy.displayWarn("No metadata reader for " + getFileName());
-                    }
-
 
                     // Let's create the picture file.
+                    action = "Creating FileImageOutputStream";
                     FileImageOutputStream output = new FileImageOutputStream(
                             this.transformedPictureFile);
                     writer.setOutput(output);
+                    action = "Writing IIOImage";
                     IIOImage image = new IIOImage(bufferedImage, null, metadata);
                     writer.write(null, image, iwp);
                     writer.dispose();
                     output.close();
                     output = null;
+                    action = "IIOImage written";
 
                     // For debug: test if any other driver exists.
                     int i = 2;
@@ -999,6 +1043,7 @@ public class PictureFileData extends DefaultFileData {
                 }
 
                 // Within the navigator, we have to free memory ASAP
+                action = "Finished";
                 if (!this.storeBufferedImage) {
                     bufferedImage = null;
                     freeMemory("getTransformedPictureFile");
@@ -1009,9 +1054,11 @@ public class PictureFileData extends DefaultFileData {
                 // We mask any exception that occurs within this method. The
                 // called method should raise
                 // JUploadException, so their exceptions won't be catched here.
-                this.uploadPolicy.displayWarn(e.getClass().getName()
-                        + " while writing the " + tmpFileName
-                        + " file. (picture will not be transformed)");
+                this.uploadPolicy.displayWarn(e.getClass().getName() + " ["
+                        + e.getMessage() + "] " + " while writing the "
+                        + tmpFileName
+                        + " file. (picture will not be transformed) {action="
+                        + action + "}");
                 if (e instanceof FileNotFoundException) {
                     this.uploadPolicy
                             .displayInfo(e.getClass().getName()
@@ -1151,5 +1198,35 @@ public class PictureFileData extends DefaultFileData {
             }
         }
         return thumbnail;
+    }
+
+    private void clearPictureFileMetadata() throws JUploadException {
+        boolean metadataClearDone = false;
+
+        try {
+            Iterator<ImageWriter> iter = ImageIO
+                    .getImageWritersByFormatName("JPG");
+            File outFile = (this.transformedPictureFile != null) ? this.transformedPictureFile
+                    : getFile();
+            FileImageOutputStream output = new FileImageOutputStream(outFile);
+
+            while (iter.hasNext()) {
+                ImageWriter writer = iter.next();
+                writer.setOutput(output);
+                if (writer.canReplaceImageMetadata(0)) {
+                    writer.replaceImageMetadata(0, null);
+                    // The work is done. Let's go out of this loop.
+                    metadataClearDone = true;
+                    break;
+                }
+            }// while
+        } catch (IOException ioe) {
+            throw new JUploadException(ioe);
+        }
+
+        if (!metadataClearDone) {
+            uploadPolicy
+                    .displayWarn("Image metada not cleared: will be transmitted with pictures");
+        }
     }
 }

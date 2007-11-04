@@ -1,11 +1,19 @@
 TODO list:
-- When an error occurs, a message (alert box) should be displayed to the user.
-- When debugLevel is -1 (and 0?) display a message when an error occurs.
+- Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
+are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
+there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.
+- When pictureTransmit Metadata is false, metadata should be removed from the file to upload, even if there is
+no picture transformation (it's Ok if the file is transformed, either resized or rotated)
+- Manage the 302 Moved Temporarily HTTP return code.
+- Picture mode: use the JMF and Java Advanced Image I/O
+- Add pictureTransmitMetadata to: the js demo and the javadoc
+- All error should result in a question to the user: do you want to send the error log?
 - Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
 - Allows upload from the demo site, or inform that it doesn't work.
 - Picture mode: implement target picture format (to be changed to another name ?)
 - Picture mode: applet parameter to control the size of the preview on the file chooser.
 - Restore compatibility with standard Java application (it currently only works as an applet).
+
 
 
 V3.2.0 b
@@ -22,6 +30,7 @@ transmitted picture
 - [Minor] All components of the applet are can now display the JUpload popup menu (CTRL + Right Click). Currently,
 this menu allow only to put on/off the debug mode.
 - [Minor] After an upload, the progress bar now goes back to '0%', instead of keeping 100% displayed.
+- [Minor] When an error occurs, a message (alert box) is displayed to the user.
 
 Fixes:
 - [Medium] Corrected the error that occurs during startup (Unexpected HEAD response). This would make the log 
@@ -32,6 +41,9 @@ string is displayed, instead of the subversion commit number: "Unknown revision 
 and down) would not be detected by the applet.
 - [Minor] The uploadPolicy.onFileDoubleClicked method is now clicked when a user double clicks on a file.
 
+Known bug:
+- [Minor] Whe the applet transmits picture metadata (EXIF) coming from Canon EOS 30D, shooted in portait mode, the 
+colors of the resize or rotated pictures are 'strange'. No problem in landscape! Works Ok for Canon EOS 20D.
 
 
 V3.1.0

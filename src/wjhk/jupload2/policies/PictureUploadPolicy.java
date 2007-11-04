@@ -156,7 +156,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * Maximal height for the uploaded picture. If the actual height for the
      * picture is more than maxHeight, the picture is resized. The proportion
-     * between widht and height are maintained. Negative if no maximum height
+     * between width and height are maintained. Negative if no maximum height
      * (no resizing). <BR>
      * Default: -1.
      * 
@@ -171,6 +171,13 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @see UploadPolicy#PROP_PICTURE_COMPRESSION_QUALITY
      */
     private float pictureCompressionQuality = UploadPolicy.DEFAULT_PICTURE_COMPRESSION_QUALITY;
+
+    /**
+     * Used to control whether PictureFileData should add metadata to transformed
+     * picture files, before upload (or remove metadata from normally
+     * untransformed picture files).
+     */
+    private boolean pictureTransmitMetadata;
 
     /**
      * @see UploadPolicy
@@ -224,6 +231,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         setPictureCompressionQuality(UploadPolicyFactory.getParameter(
                 theApplet, PROP_PICTURE_COMPRESSION_QUALITY,
                 DEFAULT_PICTURE_COMPRESSION_QUALITY, this));
+        setPictureTransmitMetadata(UploadPolicyFactory.getParameter(theApplet,
+                PROP_PICTURE_TRANSMIT_METADATA,
+                DEFAULT_PICTURE_TRANSMIT_METADATA, this));
         setRealMaxHeight(UploadPolicyFactory.getParameter(theApplet,
                 PROP_REAL_MAX_HEIGHT, DEFAULT_REAL_MAX_HEIGHT, this));
         setRealMaxWidth(UploadPolicyFactory.getParameter(theApplet,
@@ -484,6 +494,22 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }
 
     /**
+     * @see #pictureTransmitMetadata
+     * @return The current value for transmission (or no transmission) of picture metadata.
+     */
+    public boolean getPictureTransmitMetadata() {
+        return this.pictureTransmitMetadata;
+    }
+
+    /**
+     * @see #pictureTransmitMetadata
+     * @param pictureCompressionQuality The new value for picture compression.
+     */
+    void setPictureTransmitMetadata(boolean pictureTransmitMetadata) {
+        this.pictureTransmitMetadata = pictureTransmitMetadata;
+    }
+
+    /**
      * @return Returns the maxHeight, that should be used by pictures that are
      *         transformed (rotated...) by the applet.
      */
@@ -557,6 +583,12 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         } else if (prop.equals(PROP_MAX_WIDTH)) {
             setMaxWidth(UploadPolicyFactory
                     .parseInt(value, this.maxWidth, this));
+        } else if (prop.equals(PROP_PICTURE_COMPRESSION_QUALITY)) {
+            setPictureCompressionQuality(UploadPolicyFactory
+                    .parseFloat(value, this.pictureCompressionQuality, this));
+        } else if (prop.equals(PROP_PICTURE_TRANSMIT_METADATA)) {
+            setPictureTransmitMetadata(UploadPolicyFactory
+                    .parseBoolean(value, this.pictureTransmitMetadata, this));
         } else if (prop.equals(PROP_REAL_MAX_HEIGHT)) {
             setRealMaxHeight(UploadPolicyFactory.parseInt(value,
                     this.realMaxHeight, this));
@@ -583,6 +615,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 + this.highQualityPreview, 20);
         displayDebug(PROP_PICTURE_COMPRESSION_QUALITY + " : "
                 + getPictureCompressionQuality(), 20);
+        displayDebug(PROP_PICTURE_TRANSMIT_METADATA + " : "
+                + getPictureTransmitMetadata(), 20);
         if (this.maxWidth != DEFAULT_MAX_WIDTH
                 || this.maxHeight != DEFAULT_MAX_HEIGHT) {
             displayDebug(PROP_MAX_WIDTH + " : " + this.maxWidth + ", "
