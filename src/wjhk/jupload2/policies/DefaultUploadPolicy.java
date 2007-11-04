@@ -730,7 +730,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see UploadPolicy#addComponentsToJUploadPanel(JUploadPanel)
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
-        //Set the global layout of the panel.
+        // Set the global layout of the panel.
         jUploadPanel.setLayout(new BoxLayout(jUploadPanel, BoxLayout.Y_AXIS));
 
         // The top panel is the upper part of the applet: above the file list.
@@ -766,15 +766,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
-    /**
-     * @see UploadPolicy#displayErr(Exception)
-     */
+    /** @see UploadPolicy#displayErr(Exception) */
     public void displayErr(Exception e) {
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(bs);
-        e.printStackTrace(ps);
-        ps.close();
-        displayErr(bs.toString());
+        displayErr(null, e);
+    }
+
+    /** @see UploadPolicy#displayErr(String) */
+    public void displayErr(String err) {
+        displayErr(err, null);
     }
 
     /**
@@ -783,21 +782,41 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * <BR>
      * If debug is -1, the log window remains hidden.
      * 
-     * @see UploadPolicy#displayErr(String)
-     */
-    public void displayErr(String err) {
-        if (getDebugLevel() == 0)
-            setDebugLevel(1);
-        displayMsg("[ERROR] ", err);
-    }
-
-    /**
      * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
      *      java.lang.Exception)
      */
     public void displayErr(String err, Exception e) {
-        displayErr(err);
-        displayErr(e);
+        // Default behavior: if debugLevel is 0, and an error occurs, we force
+        // the debug level to 1: this makes the log window become visible, if it
+        // was hidden.
+        if (getDebugLevel() == 0)
+            setDebugLevel(1);
+
+        String errMsg = null;
+        String msg;
+        if (e != null) {
+            errMsg = e.getClass().getName() + ": " + e.getMessage();
+        }
+        if (err != null) {
+            msg = err + (e == null ? "" : (" [" + errMsg + "]"));
+        } else {
+            msg = errMsg;
+        }
+        // We must say something to the user:
+        if (msg == null || msg.equals("")) {
+            msg = "Unknown error";
+        }
+
+        displayMsg("[ERROR] ", msg);
+        alertStr(msg);
+
+        if (e != null) {
+            ByteArrayOutputStream bs = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(bs);
+            e.printStackTrace(ps);
+            ps.close();
+            displayMsg("", bs.toString());
+        }
     }
 
     /**
