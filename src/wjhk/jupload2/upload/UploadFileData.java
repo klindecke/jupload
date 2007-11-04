@@ -135,10 +135,6 @@ class UploadFileData implements FileData {
      */
     void uploadFile(OutputStream outputStream, long amount)
             throws JUploadException {
-
-        // We'l update the progess bar every NUM_BYTES bytes, instead of every
-        // byte.
-
         this.uploadPolicy.displayDebug("in UploadFileData.uploadFile (amount:"
                 + amount + ", getUploadLength(): " + getUploadLength() + ")",
                 30);
@@ -272,12 +268,12 @@ class UploadFileData implements FileData {
     public String getUploadFilename(int index) throws JUploadException {
         return this.uploadPolicy.getUploadFilename(this.fileData, index);
     }
-    
+
     /** @see UploadPolicy#getUploadName(FileData, int) */
     public String getUploadName(int index) {
         return this.uploadPolicy.getUploadName(this.fileData, index);
     }
-    
+
     /** @see FileData#getUploadLength() */
     public long getUploadLength() throws JUploadException {
         long uploadLength = this.fileData.getUploadLength();
