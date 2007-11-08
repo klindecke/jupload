@@ -1,4 +1,5 @@
 TODO list:
+- Compile for JRE 1.5: to be checked again
 - Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
 are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
 there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.

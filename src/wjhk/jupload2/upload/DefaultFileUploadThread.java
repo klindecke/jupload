@@ -734,8 +734,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
             } catch (Exception e) {
                 this.uploadException = e;
                 bReturn = false;
+                /*
+                 * The error will be managed by the main thread. We just store it, for now. 
                 this.uploadPolicy.displayErr(this.uploadPolicy
                         .getString("errDuringUpload"), e);
+                 */
             }
 
             if (this.uploadPolicy.getDebugLevel() > 80) {

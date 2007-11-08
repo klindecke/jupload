@@ -619,7 +619,7 @@ import wjhk.jupload2.gui.PictureDialog;
  * <tr>
  * <td>stringUploadError</td>
  * <td>empty string ("") [if using DefaultUploadPolicy]<br>
- * "ERROR (.*)" [if using CopperminUploadPolicy]<br>
+ * "ERROR: (.*)" [if using CopperminUploadPolicy]<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
  * Since 2.9.2rc4</td>

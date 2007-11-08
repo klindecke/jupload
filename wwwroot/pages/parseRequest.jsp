@@ -107,7 +107,13 @@
 	        
 	        fileItem.delete();
 	    }
-	    out.println("SUCCESS");
+	    
+	    //Do you want to test a successfull upload, or the way the applet react to an error ?
+	    if (true) { 
+	    	out.println("SUCCESS");
+	    } else {
+	    	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp");
+	    }
 	}//while
   }catch(Exception e){
     out.println("Exception e = " + e.toString());

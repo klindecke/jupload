@@ -563,12 +563,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         errmsg = "An unknown error occurs during upload.";
                     }
                 }
-                // Let's display the error message to the user.
-                alertStr(errmsg);
+                        
                 this.lastResponseMessage = errmsg;
 
-                throw new JUploadExceptionUploadFailed(getClass().getName()
-                        + ".checkUploadSuccess(): " + errmsg);
+                throw new JUploadExceptionUploadFailed(errmsg);
             }
             displayDebug("No error message found in HTTP response body", 50);
         }
@@ -768,7 +766,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see UploadPolicy#displayErr(Exception) */
     public void displayErr(Exception e) {
-        displayErr(null, e);
+        displayErr(e.getMessage(), e);
     }
 
     /** @see UploadPolicy#displayErr(String) */
@@ -785,35 +783,40 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
      *      java.lang.Exception)
      */
-    public void displayErr(String err, Exception e) {
+    public void displayErr(String errorText, Exception exception) {
         // Default behavior: if debugLevel is 0, and an error occurs, we force
         // the debug level to 1: this makes the log window become visible, if it
         // was hidden.
         if (getDebugLevel() == 0)
             setDebugLevel(1);
 
-        String errMsg = null;
-        String msg;
-        if (e != null) {
-            errMsg = e.getClass().getName() + ": " + e.getMessage();
-        }
-        if (err != null) {
-            msg = err + (e == null ? "" : (" [" + errMsg + "]"));
+        String exceptionMsg = null;
+        String alertMsg = errorText;
+        String logMsg = errorText;
+        Exception justToPrintAStackTrace = exception;
+
+        if (exception == null) {
+            justToPrintAStackTrace = new Exception();
         } else {
-            msg = errMsg;
-        }
-        // We must say something to the user:
-        if (msg == null || msg.equals("")) {
-            msg = "Unknown error";
+            // Ok, we have an exception.
+            exceptionMsg = exception.getClass().getName() + ": "
+                    + exception.getMessage();
+            if (errorText == null || errorText.equals("")) {
+                alertMsg = "Unknown error (" + exceptionMsg + ")";
+            }
+            logMsg = exceptionMsg + " (" + errorText + ")";
         }
 
-        displayMsg("[ERROR] ", msg);
-        alertStr(msg);
+        // Display the message to the user.
+        alertStr(alertMsg);
 
-        if (e != null) {
+        // Add the message to the log window
+        displayMsg("[ERROR] ", logMsg);
+        // Let's display the stack trace, if relevant.
+        if (exception != null) {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bs);
-            e.printStackTrace(ps);
+            justToPrintAStackTrace.printStackTrace(ps);
             ps.close();
             displayMsg("", bs.toString());
         }
@@ -1173,32 +1176,32 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     + getFileChooserIconFromFileContent(), 20);
             displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
                     + getFileChooserIconSize(), 20);
-            displayDebug(PROP_FILENAME_ENCODING + ": " + this.filenameEncoding,
+            displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(),
                     20);
             displayDebug("lang: " + this.lang, 20);
-            displayDebug(PROP_MAX_CHUNK_SIZE + ": " + this.maxChunkSize, 20);
+            displayDebug(PROP_MAX_CHUNK_SIZE + ": " + getMaxChunkSize(), 20);
             if (this.maxFileSize == Long.MAX_VALUE) {
                 // If the maxFileSize was not given, we display its value only
                 // in debug mode.
-                displayDebug(PROP_MAX_FILE_SIZE + ": " + this.maxFileSize, 20);
+                displayDebug(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize(), 20);
             } else {
                 // If the maxFileSize was given, we always inform the user.
-                displayInfo(PROP_MAX_FILE_SIZE + ": " + this.maxFileSize);
+                displayInfo(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize());
             }
             displayDebug(PROP_NB_FILES_PER_REQUEST + ": "
-                    + this.nbFilesPerRequest, 20);
+                    + getNbFilesPerRequest(), 20);
             displayDebug(PROP_POST_URL + ": " + this.postURL, 20);
-            displayDebug(PROP_SERVER_PROTOCOL + ": " + this.serverProtocol, 20);
+            displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 20);
             displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 20);
             displayDebug(PROP_SHOW_STATUSBAR + ": " + showStatusbar, 20);
             displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(),
                     20);
             displayDebug(PROP_STRING_UPLOAD_SUCCESS + ": "
-                    + this.stringUploadSuccess, 20);
+                    + getStringUploadSuccess(), 20);
             displayDebug(PROP_STRING_UPLOAD_ERROR + ": "
-                    + this.stringUploadError, 20);
+                    + getStringUploadError(), 20);
             displayDebug(PROP_URL_TO_SEND_ERROR_TO + ": "
-                    + this.urlToSendErrorTo, 20);
+                    + getUrlToSendErrorTo(), 20);
             displayDebug("", 20);
         }
     }
