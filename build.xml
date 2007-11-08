@@ -47,6 +47,9 @@
 
 	<property name="standard.compile.excludes" value="**/*.class" />
 
+	<!-- The applet is currently compiled for the 1.5 JRE -->
+	<property name="compiler" value="javac1.5" />
+
 	<property name="debug" value="true" />
 
 	<property name="compilation.failonerror" value="true" />
@@ -135,14 +138,24 @@
 
 	<target name="compile" depends="compile_all" />
 
-	<target name="compile_all" depends="prepare,-version_java">
+	<target name="compile_all" depends="prepare,-version_applet">
 		<antcall target="compile_impl">
 			<param name="includes" value="wjhk/**" />
 		</antcall>
 	</target>
 
 	<target name="compile_impl">
-		<javac srcdir="${src.dir}" debug="${debug}" failonerror="${compilation.failonerror}" deprecation="${deprecation}" optimize="${optimize}" includes="${includes}" excludes="${standard.compile.excludes}">
+		<echo message="Javac version used: ${compiler}" />
+		<javac 
+			srcdir="${src.dir}" 
+			debug="${debug}" 
+			compiler="${compiler}"
+			failonerror="${compilation.failonerror}" 
+			deprecation="${deprecation}" 
+			optimize="${optimize}" 
+			includes="${includes}" 
+			excludes="${standard.compile.excludes}"
+			>
 			<classpath refid="standard.class.path" />
 		</javac>
 	</target>
@@ -180,7 +193,7 @@
 		</fixcrlf>
 	</target>
 
-	<target name="-version_java">
+	<target name="-version_applet">
 		<svn javahl="${svn.use.javahl}">
 			<status path="${src.dir}" lastChangedDateProperty="svn.date" />
 			<wcversion path="${src.dir}" prefix="svn." />
