@@ -618,32 +618,39 @@ import wjhk.jupload2.gui.PictureDialog;
  * </tr>
  * <tr>
  * <td>stringUploadError</td>
- * <td>empty string ("") [if using DefaultUploadPolicy]<br>
+ * <td>Since 3.2.0: "^ERROR: (.*)$" for all upload policies<br>
+ * Empty string ("") [if using DefaultUploadPolicy]<br>
  * "ERROR: (.*)" [if using CopperminUploadPolicy]<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
  * Since 2.9.2rc4</td>
  * <td>This string is a regular expression. It allows the applet to test that
  * the server has detected an error in the upload. If this parameter is given to
- * the applet, the upload thread will try to match this regular epression to
- * each line of the server response <b>body</b>.<br>
+ * the applet, the upload thread will try to match this regular expression
+ * against each line of the server response <b>body</b>. If a group is found,
+ * it is considered as the error message, and will be displayed to the user.<br>
  * If the match is successfull once, the upload is considered to have failed.
  * and {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
  * If the expression contains a hunt-group, the matching contents of that group
- * is reported to the user. For example: If you specify "ERROR: (.*)" here, if
- * the server response contains the line "ERROR: md5sum check failed", the
- * string "md5sum check failed" is used for the exception message. </td>
+ * is reported to the user. For example: If let the default value "^ERROR:
+ * (.*)$" here, the applet will find an error if at least one line returned in
+ * the server response begins with "ERROR: ". Then, all characters that follow
+ * are extracted as the error message. So, if the server response contains the
+ * line "ERROR: md5sum check failed", the string "md5sum check failed" is used
+ * for the exception message. But if it returns a line "maybe ERROR: is it an
+ * error?", then the applet won't find any error in the server response.</td>
  * </tr>
  * <tr>
  * <td>stringUploadSuccess</td>
- * <td>empty string ("") since 2.9.0<br>
+ * <td>"^SUCCESS$"<br>
+ * empty string ("") since 2.9.0<br>
  * (was ".* 200 OK$" before) <br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This string is a regular expression. It allows the applet to test that
  * the server has accepted the upload. If this parameter is given to the applet,
- * the upload thread will try to match this regular epression to each lines
- * returned from the server.<br>
+ * the upload thread will try to match this regular expression against each
+ * lines returned from the server.<br>
  * If the match is successfull once, the upload is considered to be a success.
  * If not, a {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is
  * thrown. <br>
@@ -657,12 +664,11 @@ import wjhk.jupload2.gui.PictureDialog;
  * course, would not take your files into account. <br>
  * So, as soon as you know a regular expression that test the return from the
  * target application (and not just a techical HTTP response code), change the
- * stringUploadSuccess to this value. For instance, the
- * {@link wjhk.jupload2.policies.CoppermineUploadPolicy} changes this value to
- * "^SUCCESS$", as the HTTP body content of the server's answer contain just
- * this exact line. This 'success' means that the pictures have correctly be
- * added to the album, that vignettes have been generated (this I suppose),
- * etc... </td>
+ * stringUploadSuccess to this value. For instance, the default value will be
+ * matched if the HTTP body content of the server response contains one line
+ * that is exactly 'SUCCESS', without any other character. This 'success' means
+ * that the pictures have correctly uploaded to the server, and that he
+ * successfully managed the uploaded files. </td>
  * </tr>
  * <tr>
  * <td>targetPictureFormat</td>
@@ -1095,13 +1101,13 @@ public interface UploadPolicy {
      * 
      * @since 2.9.2rc4
      */
-    final static String DEFAULT_STRING_UPLOAD_ERROR = "";
+    final static String DEFAULT_STRING_UPLOAD_ERROR = "^ERROR: (.*)$";
 
     /**
      * Default value for parameter "stringUploadSuccess". Note: was ".* 200 OK$"
      * before 2.9.0
      */
-    final static String DEFAULT_STRING_UPLOAD_SUCCESS = "";
+    final static String DEFAULT_STRING_UPLOAD_SUCCESS = "^SUCCESS$";
 
     /**
      * Default value for parameter "targetPictureFormat".
