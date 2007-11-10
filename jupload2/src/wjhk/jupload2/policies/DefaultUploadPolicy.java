@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -553,31 +554,44 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throw new JUploadExceptionUploadFailed("Received HTTP status "
                     + msg);
 
-        if (!this.stringUploadError.equals("")) {
-            Matcher m = this.patternError.matcher(body);
-            if (m.find()) {
-                String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
-                if (m.groupCount() > 0) {
-                    errmsg = m.group(1);
-                    if (errmsg.equals("")) {
-                        errmsg = "An unknown error occurs during upload.";
-                    }
-                }
-                        
-                this.lastResponseMessage = errmsg;
+        // Let's analyze the body returned, line by line.
+        StringTokenizer st = new StringTokenizer(body, "\n\r");
+        Matcher matcherError;
+        String line;
+        while (st.hasMoreTokens()) {
+            line = (String) st.nextToken();
 
-                throw new JUploadExceptionUploadFailed(errmsg);
+            // Check if this is a success
+            // The success string should be in the http body
+            if (!this.stringUploadSuccess.equals("")) {
+                if (this.patternSuccess.matcher(line).matches())
+                    return true;
             }
-            displayDebug("No error message found in HTTP response body", 50);
+
+            // Check if this is an error
+            if (!this.stringUploadError.equals("")) {
+                matcherError = this.patternError.matcher(line);
+                if (matcherError.matches()) {
+                    String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
+                    if (matcherError.groupCount() > 0) {
+                        errmsg = matcherError.group(1);
+                        if (errmsg.equals("")) {
+                            errmsg = "An unknown error occurs during upload.";
+                        }
+                    }
+                    this.lastResponseMessage = errmsg;
+                    throw new JUploadExceptionUploadFailed(errmsg);
+                }
+            }
+
         }
 
-        if (this.stringUploadSuccess.equals(""))
+        // We found no stringUploadSuccess nor stringUploadError
+        
+        if (this.stringUploadSuccess.equals("")) {
             // No chance to check the correctness of this upload. -> Assume Ok
             return true;
-
-        // The success string should be in the http body
-        if (this.patternSuccess.matcher(body).find())
-            return true;
+        }
 
         // stringUploadSuccess was defined but we did not find it.
         // This is most certainly an error as http-status 200 does *not* refer
@@ -1518,7 +1532,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     protected void setServerProtocol(String value) throws JUploadException {
         if (null == value || value.equals("")) {
             if (null == this.postURL || this.postURL.equals("")) {
-                throw new JUploadException("postURL not set");
+                displayErr("postURL not set");
+                value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
             } else if (this.postURL.substring(0, 3).equals("ftp")) {
                 value = "ftp";
             } else {
@@ -1526,11 +1541,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     value = new HttpConnect(this).getProtocol();
                 } catch (Exception e) {
                     // If we throw an error here, we prevent the applet to
-                    // start.
-                    throw new JUploadException(e);
-                    // displayErr(e);
+                    // start. So we just log it, and try the default protocol
+                    displayErr("Unable to access to the postURL: '"
+                            + getPostURL() + "'", e);
                     // Let's try with default value.
-                    // value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
+                    value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
                 }
             }
         }

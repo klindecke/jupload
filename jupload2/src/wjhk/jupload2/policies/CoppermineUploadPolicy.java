@@ -99,9 +99,6 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
             throws JUploadException {
         // Let's call our mother ! :-)
         super(theApplet);
-        // Use our own default for stringUploadError
-        setStringUploadError(UploadPolicyFactory.getParameter(theApplet,
-                PROP_STRING_UPLOAD_ERROR, "ERROR: (.*)", this));
 
         // Let's read the albumId from the applet parameter. It can be unset,
         // but the user must then choose
