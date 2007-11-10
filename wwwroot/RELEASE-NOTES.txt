@@ -16,7 +16,7 @@ no picture transformation (it's Ok if the file is transformed, either resized or
 
 
 
-V3.2.0 b
+V3.2.0
 
 
 WARNING: 
