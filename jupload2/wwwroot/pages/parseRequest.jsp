@@ -112,7 +112,7 @@
 	    if (true) { 
 	    	out.println("SUCCESS");
 	    } else {
-	    	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp");
+	    	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp)");
 	    }
 	}//while
   }catch(Exception e){
