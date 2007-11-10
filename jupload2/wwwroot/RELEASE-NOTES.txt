@@ -1,5 +1,4 @@
 TODO list:
-- Compile for JRE 1.5: to be checked again
 - Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
 are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
 there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.
@@ -19,9 +18,20 @@ no picture transformation (it's Ok if the file is transformed, either resized or
 
 V3.2.0 b
 
+
+WARNING: 
+  Default value for stringUploadSuccess and stringUploadError applet parameter changed, for better control
+of upload success error (see javadoc). You should check that the applet still works ok in both success and error 
+cases, for your application.
+  Please note also that the used regexp function is now: matches(), and no more find().  
+
+
 Changes:
+- [Major] Default value for stringUploadSuccess and stringUploadError applet parameter changed.
 - [Major] The upload policy can now define the exact content of the applet 
 (see the UploadPolicy.addComponentsToJUploadPanel(JUploadPanel) method) 
+- [Minor] The applet now opens correctly, and display a proper message when postURL is wrong (or can not 
+be accessed)   
 - [Minor] putting the debugLevel to -1 will prevent the logWindow to become visible when this parameter is set
 to false, and an error occurs.
 - [Minor] Picture mode: EXIF and IPTC data are now transmitted, even if the applet resizes or rotates the 

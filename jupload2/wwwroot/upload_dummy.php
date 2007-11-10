@@ -1,5 +1,11 @@
 <?php
-$bSuccess=true;
+
+//Choose true or false here, to generate a success or an error message.
+//Note: the error 
+$bSuccess=false;
+
+
+
 foreach ($_FILES as $file => $fileArray) {
 	echo("File key: $file\n");
 	foreach ($fileArray as $item=>$val) {
