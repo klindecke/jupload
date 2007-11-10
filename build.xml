@@ -48,7 +48,7 @@
 	<property name="standard.compile.excludes" value="**/*.class" />
 
 	<!-- The applet is currently compiled for the 1.5 JRE -->
-	<property name="compiler" value="javac1.5" />
+	<property name="javac.target" value="1.5" />
 
 	<property name="debug" value="true" />
 
@@ -145,11 +145,11 @@
 	</target>
 
 	<target name="compile_impl">
-		<echo message="Javac version used: ${compiler}" />
+		<echo message="Javac current target: ${javac.target}" />
 		<javac 
 			srcdir="${src.dir}" 
 			debug="${debug}" 
-			compiler="${compiler}"
+			target="${javac.target}"
 			failonerror="${compilation.failonerror}" 
 			deprecation="${deprecation}" 
 			optimize="${optimize}" 
