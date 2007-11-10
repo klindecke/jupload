@@ -80,10 +80,11 @@ Java 1.5 or higher plugin required.
 	urlToSendErrorTo = ""; //Careful: log info will be truncated, if sent to a mailto: link.
 	uploadPolicy = "";
 	
-	afterUploadURL = "";
 	afterUploadTarget = "";
+	afterUploadURL = "";
 	allowHttpPersistent = "";
 	allowedFileExtensions = "";
+	debugLevel = "";
 	fileChooserIconFromFileContent = "";
 	fileChooserIconSize = "";
 	fileChooserImagePreview = "";
@@ -92,12 +93,12 @@ Java 1.5 or higher plugin required.
 	highQualityPreview = "";
 	lang = "";
 	lookAndFeel = "";
-	nbFilesPerRequest = "";
 	maxChunkSize = "500000";
 	maxFileSize = "";
 	maxPicHeight = "";
 	maxPicWidth = "";
-	debugLevel = "";
+	nbFilesPerRequest = "";
+	pictureTransmitMetadata = "";
 	realMaxPicHeight = "";
 	realMaxPicWidth = "";
 	serverProtocol = "";
@@ -209,6 +210,7 @@ Java 1.5 or higher plugin required.
 	document.writeln('	MAYSCRIPT >');
 	writeParam("postURL", postURL);
 	writeParam("uploadPolicy", uploadPolicy);
+
 	writeParam("afterUploadTarget", afterUploadTarget);
 	writeParam("afterUploadURL", afterUploadURL);
 	writeParam("allowHttpPersistent", allowHttpPersistent);
@@ -224,6 +226,7 @@ Java 1.5 or higher plugin required.
 	writeParam("maxChunkSize", maxChunkSize);
 	writeParam("maxFileSize", maxFileSize);
 	writeParam("maxPicHeight", maxPicHeight);
+	writeParam("pictureTransmitMetadata", pictureTransmitMetadata);
 	writeParam("realMaxPicHeight", realMaxPicHeight);
 	writeParam("realMaxPicWidth", realMaxPicWidth);
 	writeParam("showLogWindow", showLogWindow);
@@ -253,7 +256,7 @@ Java 1.5 or higher plugin required.
 	writeInputText("nbFilesPerRequest", nbFilesPerRequest, "");
 	document.writeln('</TABLE></TD></TR></TABLE>');
 
-	//Glogal parameters	
+	//Global parameters: control of the applet display
 	document.writeln('<HR>');
 	document.writeln('<H3>Parameters to control the applet display</H3>');
 	document.writeln('<TABLE><TR><TD><TABLE BORDER=0>');
@@ -267,7 +270,7 @@ Java 1.5 or higher plugin required.
 	writeBooleanInputSelect("showStatusBar", showStatusBar, "");
 	document.writeln('</TABLE></TD></TR></TABLE>');
 
-	//Glogal parameters	
+	//Other global parameters	
 	document.writeln('<HR>');
 	document.writeln('<H3>Other global parameters</H3>');
 	document.writeln('<TABLE BORDER=0><TR><TD><TABLE BORDER=0>');
@@ -286,7 +289,7 @@ Java 1.5 or higher plugin required.
 	writeInputText("urlToSendErrorTo", urlToSendErrorTo, "");
 	document.writeln('</TABLE></TD></TR></TABLE>');
 
-	//Glogal parameters	
+	//Picture mode parameters	
 	document.writeln('<HR>');
 	document.writeln('<H3>Picture mode parameters</H3>');
 	document.writeln('<P>To use these parameters, you\'ll need to choose the PictureUploadPolicy,');
@@ -296,6 +299,7 @@ Java 1.5 or higher plugin required.
 	writeInputText("fileChooserIconSize", fileChooserIconSize, "");
 	writeInputText("fileChooserImagePreview", fileChooserImagePreview, "");
 	writeBooleanInputSelect("highQualityPreview", highQualityPreview, '');	
+	writeBooleanInputSelect("pictureTransmitMetadata", pictureTransmitMetadata, '');	
 	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
 	writeInputText("maxPicHeight", maxPicHeight, "");
 	writeInputText("maxPicWidth", maxPicWidth, "");
