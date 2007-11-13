@@ -25,8 +25,13 @@
 
 package wjhk.jupload2.policies;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.dnd.DropTargetDropEvent;
+
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.gui.JUploadPanel;
 
 /**
  * 
@@ -49,20 +54,27 @@ public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
      * of the components on the applet.
      * 
      * @see UploadPolicy#addComponentsToJUploadPanel(JUploadPanel)
-     * 
-     * public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) { //
-     * Set the global layout of the panel. // jUploadPanel.setLayout(new
-     * GridLayout(1,1)); jUploadPanel.setLayout(new BorderLayout()); // Then,
-     * add on the screen of the only component that is visible.
-     * jUploadPanel.add(jUploadPanel.getProgressBar(), BorderLayout.CENTER); //
-     * Now, we add the log window. jUploadPanel.showOrHideLogWindow();
-     * jUploadPanel.add(jUploadPanel.getJLogWindowPane(), BorderLayout.SOUTH); }
-     * 
-     * /** Default reaction after a successful drop operation: no action.
+     */
+
+    public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
+        // Set the global layout of the panel.
+        jUploadPanel.setLayout(new GridLayout(1, 1));
+        jUploadPanel.setLayout(new BorderLayout());
+        // Then, add on the screen of the only component that is visible.
+        jUploadPanel.add(jUploadPanel.getProgressBar(), BorderLayout.CENTER);
+        // Now, we add the log window. 
+        jUploadPanel.showOrHideLogWindow();
+        jUploadPanel.add(jUploadPanel.getJLogWindowPane(), BorderLayout.SOUTH);
+    }
+
+    /**
+     * Default reaction after a successful drop operation: no action.
      * 
      * @see UploadPolicy#afterFileDropped(DropTargetDropEvent)
-     * 
-     * public void afterFileDropped(DropTargetDropEvent dropEvent) {
-     * getApplet().getUploadPanel().doStartUpload(); }
      */
+
+    public void afterFileDropped(DropTargetDropEvent dropEvent) {
+        getApplet().getUploadPanel().doStartUpload();
+    }
+
 }
