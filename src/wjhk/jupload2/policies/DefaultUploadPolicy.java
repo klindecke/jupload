@@ -482,6 +482,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
             // configurable...
             this.cookie = System.getProperty("debug_cookie");
             this.userAgent = System.getProperty("debug_agent");
+
+            displayDebug(
+                    "  no navigator found, reading 'debug_cookie' from system properties ("
+                            + this.cookie + ")", 10);
+            displayDebug(
+                    "  no navigator found, reading 'debug_agent' from system properties ("
+                            + this.userAgent + ")", 10);
             /*
              * Exemple of parameter when calling the JVM:
              * -Ddebug_cookie="Cookie:
@@ -587,7 +594,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
 
         // We found no stringUploadSuccess nor stringUploadError
-        
+
         if (this.stringUploadSuccess.equals("")) {
             // No chance to check the correctness of this upload. -> Assume Ok
             return true;
