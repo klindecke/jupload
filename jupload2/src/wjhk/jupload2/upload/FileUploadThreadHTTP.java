@@ -557,9 +557,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             header.append("Content-Type: multipart/form-data; boundary=")
                     .append(this.boundary.substring(2)).append("\r\n");
             header.append("Content-Length: ").append(contentLength).append(
-            "\r\n");
-            //Next line: wrong place for this parameter.  
-            //header.append("Content-Encoding: UTF-8\r\n");
+                    "\r\n");
+            // Next line: wrong place for this parameter.
+            // header.append("Content-Encoding: UTF-8\r\n");
 
             // Get specific headers for this upload.
             this.uploadPolicy.onAppendHeader(header);
@@ -838,12 +838,19 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Split this into parameters
             HashMap<String, String> requestParameters = new HashMap<String, String>();
             String[] paramPairs = query.split("&");
+            String[] oneParamArray;
 
             // Put the parameters correctly to the Hashmap
             for (String param : paramPairs) {
                 if (param.contains("=")) {
-                    requestParameters.put(param.split("=")[0],
-                            param.split("=")[1]);
+                    oneParamArray = param.split("=");
+                    if (oneParamArray.length > 1) {
+                        //There is a value for this parameter
+                        requestParameters.put(oneParamArray[0], oneParamArray[1]);
+                    } else {
+                        //There is no value for this parameter
+                        requestParameters.put(oneParamArray[0], "");
+                    }
                 }
             }
 
