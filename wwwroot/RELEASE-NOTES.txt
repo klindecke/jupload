@@ -1,4 +1,5 @@
 TODO list:
+- PHP sample, for chunked uploaded files.
 - Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
 are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
 there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.
@@ -13,6 +14,16 @@ no picture transformation (it's Ok if the file is transformed, either resized or
 - Picture mode: implement target picture format (to be changed to another name ?)
 - Picture mode: applet parameter to control the size of the preview on the file chooser.
 - Restore compatibility with standard Java application (it currently only works as an applet).
+
+
+V3.2.1
+
+Changes:
+- [Translation] Add of the Croatian language, thanks to Bruno Simic.
+
+Fixes:
+- [Major] (bug 1831234: PostURL Parameter NULL) When postURL contains a parameter with no value (ex: ?param1=&param2=value2), the applet would generate
+an error
 
 
 
