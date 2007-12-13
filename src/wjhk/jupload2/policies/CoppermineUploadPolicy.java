@@ -153,7 +153,9 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      */
     @Override
     public void setProperty(String prop, String value) throws JUploadException {
-        // The, we check the local properties.
+        displayDebug("[CoppermineUploadPolicy] Call off setProperty: " + prop + " => " + value, 60);
+
+        // Check if it's a local property.
         if (prop.equals(PROP_ALBUM_ID)) {
             this.albumId = UploadPolicyFactory.parseInt(value, 0, this);
             displayDebug("Post URL (modified in CoppermineUploadPolicy) = "

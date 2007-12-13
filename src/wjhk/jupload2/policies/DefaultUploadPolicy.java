@@ -70,12 +70,14 @@ import netscape.javascript.JSObject;
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.JUploadTextArea;
+import wjhk.jupload2.upload.ByteArrayEncoder;
 import wjhk.jupload2.upload.HttpConnect;
 import wjhk.jupload2.upload.InteractiveTrustManager;
 
@@ -321,7 +323,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * The regexp pattern that is used to find the success string in the HTTP
      * response. If found, the upload is considered to be a success: it has been
-     * accepted by the remote server and the remote appication.
+     * accepted by the remote server and the remote application.
      */
     protected Pattern patternSuccess = Pattern
             .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS);
@@ -570,13 +572,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
             // Check if this is a success
             // The success string should be in the http body
-            if (!this.stringUploadSuccess.equals("")) {
+            if (getStringUploadSuccess() != null
+                    && !getStringUploadSuccess().equals("")) {
                 if (this.patternSuccess.matcher(line).matches())
                     return true;
             }
 
             // Check if this is an error
-            if (!this.stringUploadError.equals("")) {
+            if (getStringUploadError() != null
+                    && !getStringUploadError().equals("")) {
                 matcherError = this.patternError.matcher(line);
                 if (matcherError.matches()) {
                     String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
@@ -595,7 +599,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // We found no stringUploadSuccess nor stringUploadError
 
-        if (this.stringUploadSuccess.equals("")) {
+        if (getStringUploadSuccess() == null
+                || getStringUploadSuccess().equals("")) {
             // No chance to check the correctness of this upload. -> Assume Ok
             return true;
         }
@@ -908,16 +913,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /** @see UploadPolicy#onAppendHeader(StringBuffer) */
-    public StringBuffer onAppendHeader(StringBuffer sb) {
+    public ByteArrayEncoder onAppendHeader(ByteArrayEncoder bae)
+            throws JUploadIOException {
         Iterator<String> it = this.headers.iterator();
         String header;
         while (it.hasNext()) {
             header = it.next();
             displayDebug(header, 90);
-            sb.append(header);
-            sb.append("\r\n");
+            bae.append(header).append("\r\n");
         }
-        return sb;
+        return bae;
     }// appendHeader
 
     /**
@@ -941,159 +946,172 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see UploadPolicy#sendDebugInformation(String) */
     public void sendDebugInformation(String description) {
+        try {
+            ByteArrayEncoder request = new ByteArrayEncoder();
 
-        if (null != this.urlToSendErrorTo) {
-            if (JOptionPane.showConfirmDialog(null,
-                    getString("questionSendMailOnError"), getString("Confirm"),
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-                displayDebug("Within response == true", 60);
+            if (null != this.urlToSendErrorTo) {
+                if (JOptionPane.showConfirmDialog(null,
+                        getString("questionSendMailOnError"),
+                        getString("Confirm"), JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+                    displayDebug("Within response == true", 60);
 
-                // The message is written in english, as it is not sure that the
-                // webmaster speaks the same language as the current user.
-                String query = null;
-                String action = null;
-                Socket sock = null;
-                DataOutputStream dataout = null;
-                BufferedReader datain = null;
-                StringBuffer sbHttpResponseBody = null;
-                StringBuffer request = null;
-                String line;
+                    // The message is written in english, as it is not sure that
+                    // the
+                    // webmaster speaks the same language as the current user.
+                    String query = null;
+                    String action = null;
+                    Socket sock = null;
+                    DataOutputStream dataout = null;
+                    BufferedReader datain = null;
+                    StringBuffer sbHttpResponseBody = null;
+                    String line;
 
-                // During debug output, we need to make shure that the debug
-                // log is not changed, so we set debugOk to false
-                // temporarily. -> Everything goes to stdout.
-                boolean localDebugOk = this.debugOk;
-                this.debugOk = false;
+                    // During debug output, we need to make sure that the debug
+                    // log is not changed, so we set debugOk to false
+                    // temporarily. -> Everything goes to stdout.
+                    boolean localDebugOk = this.debugOk;
+                    this.debugOk = false;
 
-                try {
-                    this.debugOut.flush();
-                    // First, calculate the size of the strings we will send.
-                    BufferedReader debugIn = new BufferedReader(new FileReader(
-                            this.debugFile));
-                    int contentLength = 0;
-                    while ((line = debugIn.readLine()) != null) {
-                        contentLength += URLEncoder
-                                .encode(line + "\n", "UTF-8").length();
-                    }
-                    debugIn.close();
-                    debugIn = new BufferedReader(new FileReader(this.debugFile));
+                    try {
+                        this.debugOut.flush();
+                        // First, calculate the size of the strings we will
+                        // send.
+                        BufferedReader debugIn = new BufferedReader(
+                                new FileReader(this.debugFile));
+                        int contentLength = 0;
+                        while ((line = debugIn.readLine()) != null) {
+                            contentLength += URLEncoder.encode(line + "\n",
+                                    request.getEncoding()).length();
+                        }
+                        debugIn.close();
+                        debugIn = new BufferedReader(new FileReader(
+                                this.debugFile));
 
-                    query = "description="
-                            + URLEncoder.encode(description, "UTF-8")
-                            + "&log="
-                            + URLEncoder
-                                    .encode(
-                                            "\n\nAn error occured during upload, in JUpload\n"
-                                                    + "All debug information is available below\n\n\n\n",
-                                            "UTF-8");
-                    request = new StringBuffer();
-                    contentLength += query.length();
-                    URL url = new URL(this.urlToSendErrorTo);
-                    request
-                            .append("POST ")
-                            .append(url)
-                            .append(" ")
-                            .append(getServerProtocol())
-                            .append("\r\n")
-                            .append("Host: ")
-                            .append(url.getHost())
-                            .append("\r\n")
-                            .append("Accept: */*\r\n")
-                            .append(
-                                    "Content-type: application/x-www-form-urlencoded\r\n")
-                            .append("Connection: close\r\n").append(
-                                    "Content-length: ").append(contentLength)
-                            .append("\r\n");
-                    // Get specific headers for this upload.
-                    onAppendHeader(request);
-                    // Blank line (end of header)
-                    request.append("\r\n").append(query);
+                        query = "description="
+                                + URLEncoder.encode(description, request
+                                        .getEncoding())
+                                + "&log="
+                                + URLEncoder
+                                        .encode(
+                                                "\n\nAn error occured during upload, in JUpload\n"
+                                                        + "All debug information is available below\n\n\n\n",
+                                                request.getEncoding());
 
-                    sock = new HttpConnect(this).Connect(url);
-                    dataout = new DataOutputStream(new BufferedOutputStream(
-                            sock.getOutputStream()));
-                    datain = new BufferedReader(new InputStreamReader(sock
-                            .getInputStream()));
+                        contentLength += query.length();
+                        URL url = new URL(this.urlToSendErrorTo);
+                        request
+                                .append("POST ")
+                                .append(url.toString())
+                                .append(" ")
+                                .append(getServerProtocol())
+                                .append("\r\n")
+                                .append("Host: ")
+                                .append(url.getHost())
+                                .append("\r\n")
+                                .append("Accept: */*\r\n")
+                                .append(
+                                        "Content-type: application/x-www-form-urlencoded\r\n")
+                                .append("Connection: close\r\n").append(
+                                        "Content-length: ").append(
+                                        String.valueOf(contentLength)).append(
+                                        "\r\n");
+                        // Get specific headers for this upload.
+                        onAppendHeader(request);
+                        // Blank line (end of header)
+                        request.append("\r\n").append(query);
 
-                    // Send http request to server
-                    action = "send bytes (1)";
-                    dataout.writeBytes(request.toString());
-                    dataout.writeBytes(query);
-                    while ((line = debugIn.readLine()) != null) {
-                        dataout.writeBytes(URLEncoder.encode(line + "\n",
-                                "UTF-8"));
-                    }
-                    debugIn.close();
-                    // We are done with the debug log, so re-enable it.
-                    this.debugOk = localDebugOk;
-                    action = "flush";
-                    dataout.flush();
-                    action = "wait for server answer";
-                    String strUploadSuccess = getStringUploadSuccess();
-                    boolean uploadSuccess = false;
-                    boolean readingHttpBody = false;
-                    sbHttpResponseBody = new StringBuffer();
-                    // Now, we wait for the full answer (which should mean that
-                    // the uploaded message has been treated on the server).
-                    while ((line = datain.readLine()) != null) {
-                        // Is this upload a success ?
-                        action = "test success";
-                        if (line.matches(strUploadSuccess)) {
-                            uploadSuccess = true;
+                        sock = new HttpConnect(this).Connect(url);
+                        dataout = new DataOutputStream(
+                                new BufferedOutputStream(sock.getOutputStream()));
+                        datain = new BufferedReader(new InputStreamReader(sock
+                                .getInputStream()));
+
+                        // Send http request to server
+                        action = "send bytes (1)";
+                        dataout.writeBytes(request.toString());
+                        dataout.writeBytes(query);
+                        while ((line = debugIn.readLine()) != null) {
+                            dataout.writeBytes(URLEncoder.encode(line + "\n",
+                                    request.getEncoding()));
+                        }
+                        debugIn.close();
+                        // We are done with the debug log, so re-enable it.
+                        this.debugOk = localDebugOk;
+                        action = "flush";
+                        dataout.flush();
+                        action = "wait for server answer";
+                        String strUploadSuccess = getStringUploadSuccess();
+                        boolean uploadSuccess = false;
+                        boolean readingHttpBody = false;
+                        sbHttpResponseBody = new StringBuffer();
+                        // Now, we wait for the full answer (which should mean
+                        // that
+                        // the uploaded message has been treated on the server).
+                        while ((line = datain.readLine()) != null) {
+                            // Is this upload a success ?
+                            action = "test success";
+                            if (line.matches(strUploadSuccess)) {
+                                uploadSuccess = true;
+                            }
+
+                            // Store the http body
+                            if (readingHttpBody) {
+                                action = "sbHttpResponseBody";
+                                sbHttpResponseBody.append(line).append("\n");
+                            }
+                            if (line.length() == 0) {
+                                // Next lines will be the http body (or perhaps
+                                // we
+                                // already are in the body, but it's Ok anyway)
+                                action = "readingHttpBody";
+                                readingHttpBody = true;
+                            }
+                        }
+                        // Is our upload a success ?
+                        if (!uploadSuccess) {
+                            throw new JUploadExceptionUploadFailed(
+                                    getString("errHttpResponse"));
                         }
 
-                        // Store the http body
-                        if (readingHttpBody) {
-                            action = "sbHttpResponseBody";
-                            sbHttpResponseBody.append(line).append("\n");
+                    } catch (Exception e) {
+                        this.debugOk = localDebugOk;
+                        displayErr(getString("errDuringLogManagement") + " ("
+                                + action + ")", e);
+                    } finally {
+                        this.debugOk = localDebugOk;
+                        try {
+                            dataout.close();
+                        } catch (Exception e) {
+                            displayErr(getString("errDuringLogManagement")
+                                    + " (dataout.close)", e);
                         }
-                        if (line.length() == 0) {
-                            // Next lines will be the http body (or perhaps we
-                            // already are in the body, but it's Ok anyway)
-                            action = "readingHttpBody";
-                            readingHttpBody = true;
+                        dataout = null;
+                        try {
+                            // Throws java.io.IOException
+                            datain.close();
+                        } catch (Exception e) {
+                            // Nothing to do.
                         }
-                    }
-                    // Is our upload a success ?
-                    if (!uploadSuccess) {
-                        throw new JUploadExceptionUploadFailed(
-                                getString("errHttpResponse"));
-                    }
+                        datain = null;
+                        try {
+                            // Throws java.io.IOException
+                            sock.close();
+                        } catch (Exception e) {
+                            displayErr(getString("errDuringLogManagement")
+                                    + " (sock.close)", e);
+                        }
+                        sock = null;
+                        displayDebug("Sent to server: " + request.getString(),
+                                100);
+                        displayDebug("Body received: "
+                                + sbHttpResponseBody.toString(), 100);
 
-                } catch (Exception e) {
-                    this.debugOk = localDebugOk;
-                    displayErr(getString("errDuringLogManagement") + " ("
-                            + action + ")", e);
-                } finally {
-                    this.debugOk = localDebugOk;
-                    try {
-                        dataout.close();
-                    } catch (Exception e) {
-                        displayErr(getString("errDuringLogManagement")
-                                + " (dataout.close)", e);
                     }
-                    dataout = null;
-                    try {
-                        // Throws java.io.IOException
-                        datain.close();
-                    } catch (Exception e) {
-                        // Nothing to do.
-                    }
-                    datain = null;
-                    try {
-                        // Throws java.io.IOException
-                        sock.close();
-                    } catch (Exception e) {
-                        displayErr(getString("errDuringLogManagement")
-                                + " (sock.close)", e);
-                    }
-                    sock = null;
-                    displayDebug("Sent to server: " + request.toString(), 100);
-                    displayDebug("Body received: "
-                            + sbHttpResponseBody.toString(), 100);
-
                 }
             }
+        } catch (JUploadIOException e) {
+            displayErr("Could not send debug information", e);
         }
     }// sendDebugInformation
 
@@ -1106,6 +1124,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
      *      java.lang.String)
      */
     public void setProperty(String prop, String value) throws JUploadException {
+
+        displayDebug("[DefaultUploadPolicy] Call off setProperty: " + prop
+                + " => " + value, 60);
+
         if (prop.equals(PROP_AFTER_UPLOAD_URL)) {
             setAfterUploadURL(value);
         } else if (prop.equals(PROP_ALLOW_HTTP_PERSISTENT)) {
@@ -1150,7 +1172,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayWarn("Unknown applet parameter: " + prop
                     + " (in DefaultUploadPolicy.setProperty)");
         }
-
     }
 
     /**
@@ -1648,11 +1669,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
     protected void setStringUploadError(String stringUploadError)
             throws JUploadException {
         this.stringUploadError = stringUploadError;
-        try {
-            this.patternError = Pattern.compile(stringUploadError);
-        } catch (PatternSyntaxException e) {
-            throw new JUploadException(
-                    "Invalid regex in parameter stringUploadError");
+        if (stringUploadError != null) {
+            try {
+                this.patternError = Pattern.compile(stringUploadError);
+            } catch (PatternSyntaxException e) {
+                throw new JUploadException(
+                        "Invalid regex in parameter stringUploadError");
+            }
         }
     }
 
@@ -1663,11 +1686,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
     protected void setStringUploadSuccess(String stringUploadSuccess)
             throws JUploadException {
         this.stringUploadSuccess = stringUploadSuccess;
-        try {
-            this.patternSuccess = Pattern.compile(stringUploadSuccess);
-        } catch (PatternSyntaxException e) {
-            throw new JUploadException(
-                    "Invalid regex in parameter stringUploadSuccess");
+        if (stringUploadSuccess != null) {
+            try {
+                this.patternSuccess = Pattern.compile(stringUploadSuccess);
+            } catch (PatternSyntaxException e) {
+                throw new JUploadException(
+                        "Invalid regex in parameter stringUploadSuccess");
+            }
         }
     }
 

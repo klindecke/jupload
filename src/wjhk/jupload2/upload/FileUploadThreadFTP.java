@@ -140,6 +140,14 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
         // Some choherence checks, for parameter given to the applet.
 
+        // stringUploadSuccess: unused in FTP mode. Must be null.
+        if (uploadPolicy.getStringUploadSuccess() != null) {
+            uploadPolicy
+                    .displayWarn("FTP mode: stringUploadSuccess parameter ignored (forced to null)");
+            uploadPolicy.setProperty(UploadPolicy.PROP_STRING_UPLOAD_SUCCESS,
+                    null);
+        }
+
         // nbFilesPerRequest: must be 1 in FTP mode.
         if (uploadPolicy.getNbFilesPerRequest() != 1) {
             uploadPolicy

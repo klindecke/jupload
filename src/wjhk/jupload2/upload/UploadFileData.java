@@ -70,11 +70,13 @@ class UploadFileData implements FileData {
      */
     private UploadPolicy uploadPolicy = null;
 
-    private MessageDigest digest = null;
-
     private static final int BUFLEN = 4096;
 
-    private static final byte buffer[] = new byte[BUFLEN];
+    /**
+     * This field is no more static, as we could decide to upload to field
+     * simultaneously.
+     */
+    private final byte readBuffer[] = new byte[BUFLEN];
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
     // //////////////////////////////////// CONSTRUCTOR
@@ -109,19 +111,45 @@ class UploadFileData implements FileData {
     }
 
     /**
-     * Retrieves the MD5 sum of the recently transfered chunk.
+     * Retrieves the MD5 sum of the file.<BR>
+     * <U>Caution:</U> since 3.3.0, this method has been rewrited. The file is
+     * now parsed once within this method. This allows proper calculation of the
+     * file head and tail, before upload.
      * 
      * @return The corresponding MD5 sum.
      */
-    String getMD5() {
+    String getMD5() throws JUploadException {
         StringBuffer ret = new StringBuffer();
+        MessageDigest digest = null;
+        byte md5Buffer[] = new byte[BUFLEN];
+        int nbBytes;
+
+        // Calculation of the MD5 sum. Now done before upload, to prepare the
+        // file head.
+        // This makes the file being parsed two times: once before upload, and
+        // once for the actual upload
+        InputStream md5InputStream = this.fileData.getInputStream();
+        try {
+            digest = MessageDigest.getInstance("MD5");
+            while ((nbBytes = md5InputStream.read(md5Buffer, 0, BUFLEN)) > 0) {
+                digest.update(md5Buffer, 0, nbBytes);
+            }
+            md5InputStream.close();
+        } catch (IOException e) {
+            throw new JUploadException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new JUploadException(e);
+        }
+
+        // Now properly format the md5 sum.
         byte md5sum[] = new byte[32];
-        if (this.digest != null)
-            md5sum = this.digest.digest();
+        if (digest != null)
+            md5sum = digest.digest();
         for (int i = 0; i < md5sum.length; i++) {
             ret.append(Integer.toHexString((md5sum[i] >> 4) & 0x0f));
             ret.append(Integer.toHexString(md5sum[i] & 0x0f));
         }
+
         return ret.toString();
     }
 
@@ -142,24 +170,19 @@ class UploadFileData implements FileData {
         // getInputStream will put a new fileInput in the inputStream attribute,
         // or leave it unchanged if it is not null.
         getInputStream();
-        try {
-            this.digest = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new JUploadException(e);
-        }
+
         while (!this.fileUploadThread.isUploadStopped() && (0 < amount)) {
             int toread = (amount > BUFLEN) ? BUFLEN : (int) amount;
             int towrite = 0;
             try {
-                towrite = this.inputStream.read(buffer, 0, toread);
+                towrite = this.inputStream.read(this.readBuffer, 0, toread);
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new JUploadIOException(e);
             }
             if (towrite > 0) {
-                this.digest.update(buffer, 0, towrite);
                 try {
-                    outputStream.write(buffer, 0, towrite);
+                    outputStream.write(this.readBuffer, 0, towrite);
                     this.fileUploadThread.nbBytesUploaded(towrite);
                     amount -= towrite;
                     this.uploadRemainingLength -= towrite;
@@ -168,7 +191,7 @@ class UploadFileData implements FileData {
                     throw new JUploadIOException(e);
                 }
             }
-        }
+        }// while
     }
 
     /**

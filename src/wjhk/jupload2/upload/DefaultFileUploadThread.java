@@ -27,6 +27,7 @@ import javax.swing.JProgressBar;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -275,7 +276,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      *            addtional length is asked.
      * @return The additional number of bytes for this file.
      */
-    abstract long getAdditionnalBytesForUpload(int indexFile);
+    abstract long getAdditionnalBytesForUpload(int indexFile) throws JUploadIOException ;
 
     /**
      * This method is called before starting of each request. It can be used to
@@ -600,10 +601,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
             beforeRequest(firstFileToUploadParam, nbFilesToUploadParam);
 
             for (int i = 0; i < nbFilesToUploadParam && !this.stop; i++) {
+                // Total length, for HTTP upload.
                 totalContentLength += this.filesToUpload[firstFileToUploadParam
                         + i].getUploadLength();
                 totalContentLength += getAdditionnalBytesForUpload(firstFileToUploadParam
                         + i);
+                // Total file length: used to manage the progess bar (we don't
+                // follow the bytes uploaded within headers and forms).
                 totalFileLength += this.filesToUpload[firstFileToUploadParam
                         + i].getUploadLength();
 
@@ -618,8 +622,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
                                             + " bytes, getAdditionnalBytesForUpload="
                                             + getAdditionnalBytesForUpload(firstFileToUploadParam
                                                     + i) + " bytes", 80);
-                }
-            }
+                }//if (debugLevel)
+            }//for
         } catch (JUploadException e) {
             this.uploadPolicy.displayErr(e);
             this.uploadException = e;
@@ -735,9 +739,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 this.uploadException = e;
                 bReturn = false;
                 /*
-                 * The error will be managed by the main thread. We just store it, for now. 
-                this.uploadPolicy.displayErr(this.uploadPolicy
-                        .getString("errDuringUpload"), e);
+                 * The error will be managed by the main thread. We just store
+                 * it, for now. this.uploadPolicy.displayErr(this.uploadPolicy
+                 * .getString("errDuringUpload"), e);
                  */
             }
 
