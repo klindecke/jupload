@@ -33,12 +33,14 @@ import javax.swing.JProgressBar;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.PictureDialog;
+import wjhk.jupload2.upload.ByteArrayEncoder;
 
 /**
  * This package contains upload policies, which allow easy configuration of the
@@ -1619,14 +1621,16 @@ public interface UploadPolicy {
      * Append specific headers for this upload (session cookies, for instance).
      * This method is called while building each upload HTTP request.
      * 
-     * @param sb The header StringBuffer where sp�cific headers should be
-     *            appended.
-     * @return The StringBuffer given in parameters. This is conform to the
-     *         StringBuffer.append method.
+     * @param sb The header {@link ByteArrayEncoder} where specific headers
+     *            should be appended.
+     * @return The {@link ByteArrayEncoder} given in parameters. This is allows
+     *         to work like with StringBuffer.append method:
+     *         sb.append(s1).append(s2);
      * @see #addHeader(String)
      * @see wjhk.jupload2.upload.FileUploadThread
      */
-    public StringBuffer onAppendHeader(StringBuffer sb);
+    public ByteArrayEncoder onAppendHeader(ByteArrayEncoder sb)
+            throws JUploadIOException;
 
     /**
      * This method is called each time a file is selected in the panel files. It
