@@ -1326,6 +1326,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public JUploadApplet getApplet() {
         return this.applet;
     }
+    
+    /** @see UploadPolicy#getDateFormat() */
+    public String getDateFormat() {
+        return UploadPolicy.DEFAULT_DATE_FORMAT;
+    }
 
     /** @see UploadPolicy#getDebugLevel() */
     public int getDebugLevel() {
