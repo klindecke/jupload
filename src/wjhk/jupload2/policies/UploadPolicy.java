@@ -214,16 +214,18 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * double-clicked a picture file. This parameter is ignored for
  * DefaultUploadPolicy. </tr>
  * <tr>
- * <td>filenameEncoding</td>
- * <td><i>null</i><br>
+ * <td><s>filenameEncoding</s></td>
+ * <td><S><i>null</i></S><br>
  * <br>
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>With null, the filename in the <i>Content-Disposition</i> header is not
+ * <S>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</S></td>
+ * <td> Since 3.3.0, this parameter is no more used. The full applet upload HTTP
+ * request to the server is now correctly encoded.<BR>
+ * <S>With null, the filename in the <i>Content-Disposition</i> header is not
  * encoded. If not null, the applet tries to encode this filename with the given
  * encoding. It's up to the receiver (the web site) to decode this encoding (see
  * {@link #getUploadFilename(FileData, int)}. <br>
  * Example: if the "UTF8" encoding is choosen, the PHP function urldecode can be
- * used to decode the filename. </td>
+ * used to decode the filename. </S></td>
  * </tr>
  * <tr>
  * <tr>
@@ -975,6 +977,11 @@ public interface UploadPolicy {
     final static boolean DEFAULT_STORE_BUFFERED_IMAGE = false;
 
     /**
+     * Default value for date format when changing date/time variable to String.
+     */
+    final static String DEFAULT_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
+    /**
      * Default value for parameter "debugLevel".
      */
     final static int DEFAULT_DEBUG_LEVEL = 0;
@@ -1262,6 +1269,14 @@ public interface UploadPolicy {
      * @return Reference to the applet.
      */
     public JUploadApplet getApplet();
+
+    /**
+     * Returns the currently choosen format for date. It must be compatible with
+     * the SimpleDateFormat standard Java class.
+     * 
+     * @return The date format.
+     */
+    public String getDateFormat();
 
     /**
      * This method indicate whether or not the debug messages must be displayed.

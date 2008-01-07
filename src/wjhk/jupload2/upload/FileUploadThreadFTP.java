@@ -160,7 +160,8 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         if (uploadPolicy.getMaxChunkSize() != Long.MAX_VALUE) {
             uploadPolicy
                     .displayWarn("FTP mode: maxChunkSize parameter ignored (forced to Long.MAX_VALUE)");
-            uploadPolicy.setProperty(UploadPolicy.PROP_MAX_CHUNK_SIZE, Long.toString(Long.MAX_VALUE));
+            uploadPolicy.setProperty(UploadPolicy.PROP_MAX_CHUNK_SIZE, Long
+                    .toString(Long.MAX_VALUE));
         }
     }
 
@@ -271,17 +272,19 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     /** @see DefaultFileUploadThread#cleanRequest() */
     @Override
     void cleanRequest() throws JUploadException {
-        try {
-            this.bufferedOutputStream.close();
-            this.ftpOutputStream.close();
-            if (!this.ftp.completePendingCommand()) {
-                throw new JUploadExceptionUploadFailed(
-                        "ftp.completePendingCommand() returned false");
+        if (this.bufferedOutputStream != null) {
+            try {
+                this.bufferedOutputStream.close();
+                this.ftpOutputStream.close();
+                if (!this.ftp.completePendingCommand()) {
+                    throw new JUploadExceptionUploadFailed(
+                            "ftp.completePendingCommand() returned false");
+                }
+            } catch (IOException e) {
+                throw new JUploadException(e);
+            } finally {
+                this.bufferedOutputStream = null;
             }
-        } catch (IOException e) {
-            throw new JUploadException(e);
-        } finally {
-            this.bufferedOutputStream = null;
         }
     }
 

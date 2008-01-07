@@ -37,6 +37,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -772,6 +773,13 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 .getDirectory());
         addPostVariable(bae, bound, "relpathinfo[]", this.filesToUpload[index]
                 .getRelativeDir());
+        // To add the file datetime, we first have to format this date.
+        SimpleDateFormat dateformat = new SimpleDateFormat(uploadPolicy
+                .getDateFormat());
+        String uploadFileModificationDate = dateformat
+                .format(this.filesToUpload[index].getLastModified());
+        addPostVariable(bae, bound, "filemodificationdate[]",
+                uploadFileModificationDate);
 
         // boundary.
         bae.append(bound).append("\r\n");

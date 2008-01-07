@@ -31,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -57,7 +58,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <UL>
  * <LI> Ability to define a target format (to convert pictures to JPG before
  * upload, for instance)
- * <LI> Optionnal definition of a maximal width and/or height.
+ * <LI> Optional definition of a maximal width and/or height.
  * <LI> Ability to rotate a picture, with {@link #addRotation(int)}
  * <LI> Ability to store a picture into a BufferedImage. This is actualy a bad
  * idea within an applet (should run within a java application) : the applet
@@ -149,6 +150,14 @@ public class PictureFileData extends DefaultFileData {
      * {@link #getInputStream()} and freed by {@link #afterUpload()}.
      */
     private File transformedPictureFile = null;
+
+    /**
+     * Contains the reference to a copy of the original picture files.
+     * Originally created because a SUN bug would prevent picture to be
+     * correctly resized if the original picture filename contains accents (or
+     * any non-ASCII characters).
+     */
+    private File workingCopyTempFile = null;
 
     /**
      * uploadLength contains the uploadLength, which is : <BR> - The size of the
@@ -249,9 +258,6 @@ public class PictureFileData extends DefaultFileData {
             try {
                 if (hasToTransformPicture()) {
                     getTransformedPictureFile();
-                } else if (!((PictureUploadPolicy) uploadPolicy)
-                        .getPictureTransmitMetadata()) {
-                    clearPictureFileMetadata();
                 }
             } catch (OutOfMemoryError e) {
                 // Oups ! My EOS 20D has too big pictures to handle more than
@@ -335,7 +341,6 @@ public class PictureFileData extends DefaultFileData {
                 this.uploadPolicy.displayWarn("Temporary file not deleted");
             } else {
                 deleteTransformedPictureFile();
-                this.uploadLength = -1;
             }
         }
     }
@@ -495,6 +500,7 @@ public class PictureFileData extends DefaultFileData {
     private BufferedImage getBufferedImage(int maxWidth, int maxHeight,
             boolean highquality) throws JUploadException {
         BufferedImage bufferedImage = null;
+        double theta = Math.toRadians(90 * this.quarterRotation);
 
         if (!this.isPicture) {
             // This case is quite simple !
@@ -509,7 +515,9 @@ public class PictureFileData extends DefaultFileData {
             freeMemory("start of getBufferedImage");
 
             try {
-                localBufferedImage = ImageIO.read(getFile());
+                this.uploadPolicy.displayDebug("File read: "
+                        + getWorkingSourceFile().getAbsolutePath(), 60);
+                localBufferedImage = ImageIO.read(getWorkingSourceFile());
 
                 AffineTransform transform = new AffineTransform();
 
@@ -536,25 +544,26 @@ public class PictureFileData extends DefaultFileData {
                 }
                 // Now, we can compare these width and height to the maximum
                 // width and height
-                float scaleWidth = ((maxWidth < 0) ? 1 : ((float) maxWidth)
+                double scaleWidth = ((maxWidth < 0) ? 1 : ((double) maxWidth)
                         / nonScaledRotatedWidth);
-                float scaleHeight = ((maxHeight < 0) ? 1 : ((float) maxHeight)
+                double scaleHeight = ((maxHeight < 0) ? 1 : ((double) maxHeight)
                         / nonScaledRotatedHeight);
-                float scale = Math.min(scaleWidth, scaleHeight);
+                double scale = Math.min(scaleWidth, scaleHeight);
                 // FIXME The scaleWidth and scaleHeigth is wrong when the
                 // maxHeight and maxWidth are different, and the picture must be
                 // rotated by one quarter (in either direction)
                 //
                 if (scale < 1) {
-                    // With number rouding, it can happen that width or size
+                    // With number rounding, it can happen that width or size
                     // became one pixel too big. Let's correct it.
-                    if ((maxWidth > 0 && maxWidth < (int) (scale * nonScaledRotatedWidth))
-                            || (maxHeight > 0 && maxHeight < (int) (scale * nonScaledRotatedHeight))) {
-                        scaleWidth = ((maxWidth < 0) ? 1 : ((float) maxWidth)
-                                / (nonScaledRotatedWidth - 1));
+                    double d = Math.cos(theta);
+                    if ((maxWidth > 0 && maxWidth < (int) (scale * Math.cos(theta) * nonScaledRotatedWidth))
+                            || (maxHeight > 0 && maxHeight < (int) (scale * Math.cos(theta)*nonScaledRotatedHeight))) {
+                        scaleWidth = ((maxWidth < 0) ? 1 : ((double) maxWidth - 1)
+                                / (nonScaledRotatedWidth));
                         scaleHeight = ((maxHeight < 0) ? 1
-                                : ((float) maxHeight)
-                                        / (nonScaledRotatedHeight - 1));
+                                : ((double) maxHeight - 1)
+                                        / (nonScaledRotatedHeight));
                         scale = Math.min(scaleWidth, scaleHeight);
                     }
                 }
@@ -570,9 +579,24 @@ public class PictureFileData extends DefaultFileData {
                     scaledWidth *= scale;
                     scaledHeight *= scale;
                 }
+                this.uploadPolicy.displayDebug("Resizing factor (scale): " + scale,
+                        10);
+                // Due to rounded numbers, the resulting targetWidth or
+                // targetHeight
+                // may be one pixel too big. Let's check that.
+                if (scaledWidth > maxWidth) {
+                    this.uploadPolicy.displayDebug("Correcting rounded width: "
+                            + scaledWidth + " to " + maxWidth, 10);
+                    scaledWidth = maxWidth;
+                }
+                if (scaledHeight > maxHeight) {
+                    this.uploadPolicy.displayDebug("Correcting rounded height: "
+                            + scaledHeight + " to " + maxHeight, 10);
+                    scaledHeight = maxHeight;
+                }
 
+                
                 if (this.quarterRotation != 0) {
-                    double theta = Math.toRadians(90 * this.quarterRotation);
                     double translationX = 0, translationY = 0;
                     this.uploadPolicy.displayDebug("quarter: "
                             + this.quarterRotation, 30);
@@ -665,30 +689,6 @@ public class PictureFileData extends DefaultFileData {
                             "localBufferedImage.getColorModel(): "
                                     + localBufferedImage.getColorModel()
                                             .toString(), 80);
-                    /*
-                     * break; case 1: //This options create black pictures !
-                     * affineTransformOp = new AffineTransformOp(transform,
-                     * AffineTransformOp.TYPE_BILINEAR); bufferedImage =
-                     * affineTransformOp.createCompatibleDestImage(localBufferedImage,
-                     * ColorModel.getRGBdefault()); break; case 2: //This
-                     * options create also black pictures ! affineTransformOp =
-                     * new AffineTransformOp(transform,
-                     * AffineTransformOp.TYPE_NEAREST_NEIGHBOR); bufferedImage =
-                     * affineTransformOp.createCompatibleDestImage(localBufferedImage,
-                     * ColorModel.getRGBdefault()); break; case 3: //Pictures
-                     * are Ok. affineTransformOp = new
-                     * AffineTransformOp(transform,
-                     * AffineTransformOp.TYPE_BILINEAR); bufferedImage =
-                     * affineTransformOp.createCompatibleDestImage(localBufferedImage,
-                     * null); break; case 100: //This options create black
-                     * pictures ! affineTransformOp = new
-                     * AffineTransformOp(transform,
-                     * AffineTransformOp.TYPE_BILINEAR); //bufferedImage =
-                     * affineTransformOp.createCompatibleDestImage(localBufferedImage,
-                     * ColorModel.getRGBdefault()); bufferedImage = new
-                     * BufferedImage(scaledWidth, scaledHeight,
-                     * BufferedImage.TYPE_INT_RGB); break; }
-                     */
                     affineTransformOp.filter(localBufferedImage, bufferedImage);
                     affineTransformOp = null;
 
@@ -699,7 +699,10 @@ public class PictureFileData extends DefaultFileData {
                 localBufferedImage.flush();
                 localBufferedImage = null;
                 transform = null;
-                freeMemory("end of getBufferedImage");
+
+                // The following line generates a JVM crash in JDK1.6.03, when
+                // debugging.
+                // freeMemory("end of getBufferedImage");
             } catch (Exception e) {
                 throw new JUploadException(e.getClass().getName()
                         + " (createBufferedImage) : " + e.getMessage());
@@ -732,14 +735,34 @@ public class PictureFileData extends DefaultFileData {
      */
     private boolean hasToTransformPicture() throws JUploadException {
 
+        // A first necessary step, is to get the original width and height.
+        try {
+            BufferedImage originalImage = ImageIO.read(getWorkingSourceFile());
+            this.originalWidth = originalImage.getWidth();
+            this.originalHeight = originalImage.getHeight();
+            // Within the navigator, we have to free memory ASAP
+            originalImage = null;
+            freeMemory("hasToTransformPicture");
+        } catch (IOException e) {
+            throw new JUploadException(
+                    "IOException in ImageIO.read (hasToTransformPicture) : "
+                            + e.getMessage());
+        }
+
         // Did we already estimate if transformation is needed ?
         if (this.hasToTransformPicture == null) {
-            // We only tranform pictures.
+            // We only transform pictures.
             if (!this.isPicture) {
                 this.hasToTransformPicture = Boolean.FALSE;
             }
 
-            // First : the easiest test. A rotation is needed ?
+            // First : the easiest test. Should we block metadata ?
+            if (this.hasToTransformPicture == null
+                    && !((PictureUploadPolicy) uploadPolicy)
+                            .getPictureTransmitMetadata()) {
+                this.hasToTransformPicture = Boolean.TRUE;
+            }
+            // Second : another easy test. A rotation is needed ?
             if (this.hasToTransformPicture == null && this.quarterRotation != 0) {
                 this.uploadPolicy
                         .displayDebug(
@@ -777,22 +800,6 @@ public class PictureFileData extends DefaultFileData {
             }
 
             // Third : should we resize the picture ?
-            // If we don't have the original size, we start by calculating it.
-            if (this.hasToTransformPicture == null
-                    && (this.originalWidth < 0 || this.originalHeight < 0)) {
-                try {
-                    BufferedImage originalImage = ImageIO.read(getFile());
-                    this.originalWidth = originalImage.getWidth();
-                    this.originalHeight = originalImage.getHeight();
-                    // Within the navigator, we have to free memory ASAP
-                    originalImage = null;
-                    freeMemory("hasToTransformPicture");
-                } catch (IOException e) {
-                    throw new JUploadException(
-                            "IOException in ImageIO.read (hasToTransformPicture) : "
-                                    + e.getMessage());
-                }
-            }
 
             // Then, we calculated the rotated width and height, that we would
             // have if we rotate or not the picture
@@ -855,7 +862,7 @@ public class PictureFileData extends DefaultFileData {
                 }
             }
 
-            // If we find no reason to tranform the picture, then let's let the
+            // If we find no reason to transform the picture, then let's let the
             // picture unmodified.
             if (this.hasToTransformPicture == null) {
                 this.uploadPolicy.displayDebug(getFileName()
@@ -872,10 +879,23 @@ public class PictureFileData extends DefaultFileData {
      * Therefore the applet provides a callback which is executed during applet
      * termination. This method performs the actual cleanup.
      */
+    public void deleteWorkingCopyPictureFile() {
+        if (null != this.workingCopyTempFile) {
+            this.workingCopyTempFile.delete();
+            this.workingCopyTempFile = null;
+        }
+    }
+
+    /**
+     * File.deleteOnExit() is pretty unreliable, especially in applets.
+     * Therefore the applet provides a callback which is executed during applet
+     * termination. This method performs the actual cleanup.
+     */
     public void deleteTransformedPictureFile() {
         if (null != this.transformedPictureFile) {
             this.transformedPictureFile.delete();
             this.transformedPictureFile = null;
+            this.uploadLength = -1;
         }
     }
 
@@ -884,179 +904,221 @@ public class PictureFileData extends DefaultFileData {
      * instance, it can be resized or rotated. This method doesn't throw
      * exception when there is an IOException within its procedure. If an
      * exception occurs while building the temporary file, the exception is
-     * catched, a warning is displayed,the temporary file is deleted (if it was
+     * caught, a warning is displayed,the temporary file is deleted (if it was
      * created), and the upload will go on with the original file. <BR>
      * Note: any JUploadException thrown by a method called within
      * getTransformedPictureFile() will be thrown within this method.
      */
-    private File getTransformedPictureFile() {
+    private File getTransformedPictureFile() throws JUploadException {
+        int targetMaxWidth;
+        int targetMaxHeight;
+
+        // Should transform the file, and do we already created the transformed
+        // file ?
+        if (hasToTransformPicture() && this.transformedPictureFile == null) {
+            // If the image is rotated, we compare to realMaxWidth and
+            // realMaxHeight, instead of maxWidth and maxHeight. This allows
+            // to have a different picture size for rotated and not rotated
+            // pictures. See the UploadPolicy javadoc for details ... and a
+            // good reason ! ;-)
+            if (this.quarterRotation == 0) {
+                targetMaxWidth = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getMaxWidth();
+                targetMaxHeight = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getMaxHeight();
+            } else {
+                targetMaxWidth = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getRealMaxWidth();
+                targetMaxHeight = ((PictureUploadPolicy) this.uploadPolicy)
+                        .getRealMaxHeight();
+            }
+
+            // originalWidth and originalHeight must be set.
+            if (originalWidth < 0 || originalHeight < 0) {
+                throw new JUploadException(
+                        "originalWidth and originalHeight must be set (originalWidth="
+                                + originalWidth + ", originalHeight="
+                                + originalHeight);
+            }
+
+            // We have to create a resized or rotated picture file, and all
+            // needed information.
+            // ...let's do it
+            createTranformedPictureFile(targetMaxWidth, targetMaxHeight);
+        }
+
+        return this.transformedPictureFile;
+    }// end of getTransformedPictureFile
+
+    /**
+     * Creates a transformed picture file of the given max width and max height.
+     * If the {@link #transformedPictureFile} attribute is not set before
+     * calling this method, it will be set. If set before, the existing
+     * {@link #transformedPictureFile} is replaced by the newly transformed
+     * picture file. It is cleared if an error occured. <BR>
+     * 
+     * @param targetMaxWidth
+     * @param targetMaxHeight
+     */
+    void createTranformedPictureFile(int targetMaxWidth, int targetMaxHeight)
+            throws JUploadException {
         BufferedImage bufferedImage = null;
-        String tmpFileName = null;
         String action = null;
+        File workingSourceFile = getWorkingSourceFile();
 
-        // Do we already created the transformed file ?
-        if (this.transformedPictureFile == null) {
-            try {
-                action = "get temp file";
-                this.transformedPictureFile = File.createTempFile("jupload_",
-                        ".tmp");
-                if (this.transformedPictureFile.exists()) {
-                    // Debug: first try to repeat the problem. Seems to get an
-                    // error when the temporary file already exists. According
-                    // to javadoc, it should not be possible.
-                    this.uploadPolicy
-                            .displayWarn("PictureFileData.getTransformedPictureFile(): temp file already exists "
-                                    + this.transformedPictureFile
-                                            .getAbsolutePath() + ")");
+        try {
+            createTransformedTempFile();
+
+            bufferedImage = getBufferedImage(targetMaxWidth, targetMaxHeight,
+                    true);
+            action = "BufferedImage created";
+
+            // localPictureFormat is currently only used to define the correct
+            // image writer. There is no transformation between to different
+            // picture format (like JPG to GIF)
+            String localPictureFormat = (((PictureUploadPolicy) this.uploadPolicy)
+                    .getTargetPictureFormat() == null) ? getFileExtension()
+                    : ((PictureUploadPolicy) this.uploadPolicy)
+                            .getTargetPictureFormat();
+
+            // Get the writer (to choose the compression quality)
+            Iterator<ImageWriter> iter = ImageIO
+                    .getImageWritersByFormatName(localPictureFormat);
+            if (iter.hasNext()) {
+                ImageWriter writer = iter.next();
+                ImageWriteParam iwp = writer.getDefaultWriteParam();
+
+                // For jpeg pictures, we force the compression level.
+                if (localPictureFormat.equalsIgnoreCase("jpg")
+                        || localPictureFormat.equalsIgnoreCase("jpeg")) {
+                    iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    // Let's select a good compromise between picture size
+                    // and quality.
+                    iwp
+                            .setCompressionQuality(((PictureUploadPolicy) this.uploadPolicy)
+                                    .getPictureCompressionQuality());
                 }
-                this.uploadPolicy.getApplet().registerUnload(this,
-                        "deleteTransformedPictureFile");
-                tmpFileName = this.transformedPictureFile.getAbsolutePath();
-                this.uploadPolicy.displayDebug("Using temp file " + tmpFileName
-                        + " for " + getFileName(), 50);
-                action = "Temp file created";
 
-                String localPictureFormat = (((PictureUploadPolicy) this.uploadPolicy)
-                        .getTargetPictureFormat() == null) ? getFileExtension()
-                        : ((PictureUploadPolicy) this.uploadPolicy)
-                                .getTargetPictureFormat();
-
-                // Prepare (if not already done) the bufferedImage.
-
-                // If the image is rotated, we compare to realMaxWidth and
-                // realMaxHeight, instead of maxWidth and maxHeight. This allows
-                // to have a different picture size for rotated and not rotated
-                // pictures. See the UploadPolicy javadoc for details ... and a
-                // good reason ! ;-)
-                if (this.quarterRotation == 0) {
-                    // TODO: check if getMaxWidth is used at best. We should
-                    // resize only if the image is bigger than maxWidth. If it
-                    // is, we should resize to realMaxWidth (if defined), and
-                    // not to maxWidth.
-                    bufferedImage = getBufferedImage(
-                            ((PictureUploadPolicy) this.uploadPolicy)
-                                    .getMaxWidth(),
-                            ((PictureUploadPolicy) this.uploadPolicy)
-                                    .getMaxHeight(), true);
-                } else {
-                    bufferedImage = getBufferedImage(
-                            ((PictureUploadPolicy) this.uploadPolicy)
-                                    .getRealMaxWidth(),
-                            ((PictureUploadPolicy) this.uploadPolicy)
-                                    .getRealMaxHeight(), true);
+                //
+                try {
+                    this.uploadPolicy.displayDebug(
+                            "ImageWriter1 (used), CompressionQuality="
+                                    + iwp.getCompressionQuality(), 95);
+                } catch (Exception e2) {
+                    // If we come here, compression is not supported for
+                    // this picture format, or parameters are not explicit
+                    // mode, or ... (etc). May trigger several different
+                    // errors. We just ignore them: this par of code is only
+                    // to write some debug info.
                 }
-                action = "BufferedImage created";
 
-                // Get the writer (to choose the compression quality)
-                Iterator<ImageWriter> iter = ImageIO
-                        .getImageWritersByFormatName(localPictureFormat);
-                if (iter.hasNext()) {
-                    ImageWriter writer = iter.next();
-                    ImageWriteParam iwp = writer.getDefaultWriteParam();
+                // Now, we write the metadata from the original file to the
+                // transformed one ... if any exists.
+                uploadPolicy.displayInfo("Start of metadata managing, for "
+                        + getFileName());
+                IIOMetadata metadata = null;
 
-                    // For jpeg pictures, we force the compression level.
-                    if (localPictureFormat.equalsIgnoreCase("jpg")
-                            || localPictureFormat.equalsIgnoreCase("jpeg")) {
-                        iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                        // Let's select a good compromise between picture size
-                        // and quality.
-                        iwp
-                                .setCompressionQuality(((PictureUploadPolicy) this.uploadPolicy)
-                                        .getPictureCompressionQuality());
-                    }
-
-                    //
-                    try {
-                        this.uploadPolicy.displayDebug(
-                                "ImageWriter1 (used), CompressionQuality="
-                                        + iwp.getCompressionQuality(), 95);
-                    } catch (Exception e) {
-                        // If we come here, compression is not supported for
-                        // this picture format, or parameters are not explicit
-                        // mode, or ... (etc). May trigger several different
-                        // errors. We just ignore them: this par of code is only
-                        // to write some debug info.
-                    }
-
-                    // Now, we write the metadata from the original file to the
-                    // transformed one ... if any exists.
-                    uploadPolicy.displayInfo("Start of metadata managing, for "
-                            + getFileName());
-                    IIOMetadata metadata = null;
-                    // Should we add the original metadata to the tranformed
-                    // file ?
-                    action = "Should we transmit metadata ?";
-                    if (((PictureUploadPolicy) uploadPolicy)
-                            .getPictureTransmitMetadata()) {
-                        Iterator<ImageReader> iterator = ImageIO
-                                .getImageReadersBySuffix(getExtension(getFile()));
-                        ImageReader ir;
-                        FileImageInputStream is;
-                        while (iterator.hasNext()) {
-                            ir = iterator.next();
-                            try {
-                                is = new FileImageInputStream(getFile());
-                                ir.setInput(is);
-                                metadata = ir.getImageMetadata(0);
-                                uploadPolicy
-                                        .displayDebug(
-                                                "Found one image reader that can read metadata!",
-                                                20);
-                                // Tests on JRE 1.6.0_03: no other reader can
-                                // read JPEG and metadata.
-                                break;
-                            } catch (Exception e) {
-                                uploadPolicy.displayErr(e);
-                                continue;
+                // Should we add the original metadata to the transformed
+                // file ?
+                // NOTE: THE CURRENT WAY IS NOT MARVELOUS!
+                // Removing metadata from a picture that do not need any other
+                // transformations still leads to a picture creating. With JPEG,
+                // there will a new jpeg compression. That is:
+                // - Good ping: jpeg will probably smaller, according to applet
+                // configuration
+                // - Bad thing: may be longer than needed.
+                action = "Should we transmit metadata ?";
+                if (((PictureUploadPolicy) uploadPolicy)
+                        .getPictureTransmitMetadata()) {
+                    String ext = getExtension(getFile());
+                    uploadPolicy.displayDebug("Looking for a reader for " + ext
+                            + " extension", 80);
+                    Iterator<ImageReader> iterator = ImageIO
+                            .getImageReadersBySuffix(ext);
+                    ImageReader ir;
+                    FileImageInputStream is = null;
+                    while (iterator.hasNext()) {
+                        ir = iterator.next();
+                        try {
+                            is = new FileImageInputStream(workingSourceFile);
+                            ir.setInput(is);
+                            metadata = ir.getImageMetadata(0);
+                        } catch (IOException e2) {
+                            uploadPolicy.displayErr(e2);
+                            continue;
+                        } finally {
+                            ir.reset();
+                            ir.dispose();
+                            if (is != null) {
+                                is.close();
+                                is = null;
                             }
                         }
-
-                        if (metadata == null) {
-                            uploadPolicy.displayWarn("No metadata reader for "
-                                    + getFileName());
+                        if (metadata != null) {
+                            uploadPolicy
+                                    .displayDebug(
+                                            "Found one image reader that can read metadata!",
+                                            20);
+                            // Tested on JRE 1.6.0_03: no other reader can
+                            // read JPEG and metadata.
+                            break;
                         }
-                    }
-
-                    // Let's create the picture file.
-                    action = "Creating FileImageOutputStream";
-                    FileImageOutputStream output = new FileImageOutputStream(
-                            this.transformedPictureFile);
-                    writer.setOutput(output);
-                    action = "Writing IIOImage";
-                    IIOImage image = new IIOImage(bufferedImage, null, metadata);
-                    writer.write(null, image, iwp);
-                    writer.dispose();
-                    output.close();
-                    output = null;
-                    action = "IIOImage written";
-
-                    // For debug: test if any other driver exists.
-                    int i = 2;
-                    while (iter.hasNext()) {
-                        this.uploadPolicy.displayDebug("ImageWriter" + i
-                                + " (not used)", 60);
                     }// while
-                } else {
-                    // Too bad: no writer for the selected picture format
-                    throw new JUploadException("No writer for the '"
-                            + localPictureFormat + "' picture format.");
+
+                    if (metadata == null) {
+                        uploadPolicy
+                                .displayInfo("No metadata found (or no reader for "
+                                        + getFileName()
+                                        + "). No metadata will be transmitted.");
+                    }
                 }
 
-                // Within the navigator, we have to free memory ASAP
-                action = "Finished";
-                if (!this.storeBufferedImage) {
-                    bufferedImage = null;
-                    freeMemory("getTransformedPictureFile");
-                }
-                this.uploadPolicy.displayDebug("transformedPictureFile : "
-                        + this.transformedPictureFile.getName(), 30);
-            } catch (Exception e) {
+                // Let's create the picture file.
+                action = "Creating FileImageOutputStream";
+                FileImageOutputStream output = new FileImageOutputStream(
+                        this.transformedPictureFile);
+                writer.setOutput(output);
+                action = "Writing IIOImage (before new IIOImage)";
+                IIOImage image = new IIOImage(bufferedImage, null, metadata);
+                action = "Writing IIOImage (before write)";
+                writer.write(null, image, iwp);
+                action = "Writing IIOImage (before dispose)";
+                writer.dispose();
+                action = "Writing IIOImage (new before close)";
+                output.close();
+                output = null;
+                action = "IIOImage written";
+
+                // For debug: test if any other driver exists.
+                int i = 2;
+                while (iter.hasNext()) {
+                    this.uploadPolicy.displayDebug("ImageWriter" + i
+                            + " (not used)", 60);
+                }// while
+            } else {
+                // Too bad: no writer for the selected picture format
+                throw new JUploadException("No writer for the '"
+                        + localPictureFormat + "' picture format.");
+            }
+
+            // Within the navigator, we have to free memory ASAP
+            action = "Finished";
+            if (!this.storeBufferedImage) {
+                bufferedImage = null;
+                freeMemory("getTransformedPictureFile");
+            }
+            this.uploadPolicy.displayDebug("transformedPictureFile : "
+                    + this.transformedPictureFile.getName(), 30);
+        } catch (IOException e) {
+
+            if (e != null) {
                 // We mask any exception that occurs within this method. The
-                // called method should raise
-                // JUploadException, so their exceptions won't be catched here.
+                // called method should raise JUploadException, so their
+                // exceptions
+                // won't be catched here.
                 this.uploadPolicy.displayWarn(e.getClass().getName() + " ["
                         + e.getMessage() + "] " + " while writing the "
-                        + tmpFileName
+                        + this.transformedPictureFile.getName()
                         + " file. (picture will not be transformed) {action="
                         + action + "}");
                 if (e instanceof FileNotFoundException) {
@@ -1064,22 +1126,118 @@ public class PictureFileData extends DefaultFileData {
                             .displayInfo(e.getClass().getName()
                                     + " probably means that the directory containing the picture is readonly: the applet can't write its temporary file.");
                 }
-                // We try to remove the temporary file, if it has been created.
-                if (this.transformedPictureFile != null) {
-                    try {
-                        this.transformedPictureFile.delete();
-                    } catch (Exception e2) {
-                        this.uploadPolicy.displayWarn(e2.getClass()
-                                + " while trying to remove temporary file ("
-                                + e2.getMessage() + ")");
-                    }
+            }
+            // We try to remove the temporary file, if it has been created.
+            if (this.transformedPictureFile != null) {
+                try {
+                    this.transformedPictureFile.delete();
+                } catch (Exception e2) {
+                    this.uploadPolicy.displayWarn(e2.getClass()
+                            + " while trying to remove temporary file ("
+                            + e2.getMessage() + ")");
                 }
-                this.transformedPictureFile = null;
+            }
+            this.transformedPictureFile = null;
+        }
+    }
+
+    /**
+     * Get the file that contains the orginal picture. This is used as a
+     * workaround for the following JVM bug: once in the navigator, it can't
+     * transform picture read from a file whose name contains non-ASCII
+     * characters, like French accents.
+     * 
+     * @return The file that contains the original picture, as the source for
+     *         picture transformation
+     * @throws JUploadIOException
+     */
+    private File getWorkingSourceFile() throws JUploadIOException {
+
+        if (this.workingCopyTempFile == null) {
+            uploadPolicy.displayDebug(
+                    "[getWorkingSourceFile] Creating a copy of "
+                            + getFileName() + " as a source working target.",
+                    20);
+            copyOriginalToWorkingCopyTempFile();
+        }
+        return this.workingCopyTempFile;
+
+        /*
+         * 
+         * In the comment below: a try to be intelligent ! ;-)
+         * 
+         * Copy the original file only if it's necessary.
+         * 
+         * try { // If the filename contains only ASCII characters, we use the //
+         * original file. To test it, we encode in UTF-8, and check that the //
+         * number of bytes is the same as the number of characters. byte[] b =
+         * getFileName().getBytes("UTF-8"); if (b.length !=
+         * getFileName().length()) { // First try: copy the original file to the //
+         * transformedPictureFile, to avoid creating another temp file. // on
+         * local hard drive. uploadPolicy.displayDebug( "[getWorkingSourceFile]
+         * Creating a copy of " + getFileName() + " as a source working
+         * target.", 20); copyOriginalToWorkingCopyTempFile(); return
+         * this.workingCopyTempFile; } } catch (UnsupportedEncodingException e) {
+         * uploadPolicy .displayWarn(e.getClass().getName() + " while trying to
+         * encode filename, in PictureUploadPolicy.getWorkingSourceFile. " +
+         * "Using original file, for further treatement"); } catch
+         * (JUploadIOException e) { uploadPolicy
+         * .displayWarn(e.getClass().getName() + " while trying to encode
+         * filename, in PictureUploadPolicy.getWorkingSourceFile. " + "Using
+         * original file, for further treatement"); }
+         * 
+         * uploadPolicy.displayDebug("[getWorkingSourceFile] Using original
+         * file(" + getFileName() + ") as a source working target.", 20); return
+         * getFile();
+         */
+    }
+
+    /**
+     * Copy the existing file into a temporary one. Can be done before
+     * destructive file manipulation, like metadata clearing, if the
+     * pictureTransmitMetadata applet parameter is false, and the picture is not
+     * resized or rotated.
+     */
+    private void copyOriginalToWorkingCopyTempFile() throws JUploadIOException {
+        FileInputStream is = null;
+        FileOutputStream os = null;
+        try {
+            createWorkingCopyTempFile();
+
+            is = new FileInputStream(getFile());
+            os = new FileOutputStream(this.workingCopyTempFile);
+            byte b[] = new byte[1024];
+            int l;
+            while ((l = is.read(b)) > 0) {
+                os.write(b, 0, l);
+            }
+        } catch (IOException e) {
+            throw new JUploadIOException(e);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    uploadPolicy
+                            .displayWarn(e.getClass().getName()
+                                    + " while trying to close FileInputStream, in PictureUploadPolicy.copyOriginalToWorkingCopyTempFile.");
+                } finally {
+                    is = null;
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    uploadPolicy
+                            .displayWarn(e.getClass().getName()
+                                    + " while trying to close FileOutputStream, in PictureUploadPolicy.copyOriginalToWorkingCopyTempFile.");
+                } finally {
+                    os = null;
+                }
             }
         }
-
-        return this.transformedPictureFile;
-    }// end of getTransformedPictureFile
+    }
 
     /**
      * This method is called when an OutOfMemoryError occurs. This can easily
@@ -1110,6 +1268,44 @@ public class PictureFileData extends DefaultFileData {
         this.mimeType = "image/" + ext;
     }
 
+    /**
+     * If {@link #workingCopyTempFile} is null, create a new temporary file, and
+     * assign it to {@link  #transformedPictureFile}. Otherwise, no action.
+     * 
+     * @throws IOException
+     */
+    private void createWorkingCopyTempFile() throws IOException {
+        if (this.workingCopyTempFile == null) {
+            // The temporary file must have the correct extension, so that
+            // native Java method works on it.
+            this.workingCopyTempFile = File.createTempFile("jupload_", ".tmp."
+                    + getExtension(getFile()));
+            this.uploadPolicy.getApplet().registerUnload(this,
+                    "deleteWorkingCopyPictureFile");
+            this.uploadPolicy.displayDebug("Using working copy temp file "
+                    + this.workingCopyTempFile.getAbsolutePath() + " for "
+                    + getFileName(), 50);
+        }
+    }
+
+    /**
+     * If {@link #transformedPictureFile} is null, create a new temporary file,
+     * and assign it to {@link  #transformedPictureFile}. Otherwise, no action.
+     * 
+     * @throws IOException
+     */
+    private void createTransformedTempFile() throws IOException {
+        if (this.transformedPictureFile == null) {
+            this.transformedPictureFile = File.createTempFile("jupload_",
+                    ".tmp");
+            this.uploadPolicy.getApplet().registerUnload(this,
+                    "deleteTransformedPictureFile");
+            this.uploadPolicy.displayDebug("Using transformed temp file "
+                    + this.transformedPictureFile.getAbsolutePath() + " for "
+                    + getFileName(), 50);
+        }
+    }
+
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// static methods
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1132,8 +1328,8 @@ public class PictureFileData extends DefaultFileData {
         // than maxHeight.
         int originalWidth = originalImage.getWidth(uploadPolicy);
         int originalHeight = originalImage.getHeight(uploadPolicy);
-        float widthScale = (float) maxWidth / originalWidth;
-        float heightScale = (float) maxHeight / originalHeight;
+        double widthScale = (double) maxWidth / originalWidth;
+        double heightScale = (double) maxHeight / originalHeight;
         double scale = Math.min(widthScale, heightScale);
         // Picture will not be enlarged.
         scale = (scale > 1) ? 1 : scale;
@@ -1181,10 +1377,10 @@ public class PictureFileData extends DefaultFileData {
         if (pictureFile != null) {
             ImageIcon tmpIcon = new ImageIcon(pictureFile.getPath());
             if (tmpIcon != null) {
-                float scaleWidth = ((float) maxWidth) / tmpIcon.getIconWidth();
-                float scaleHeight = ((float) maxHeight)
+                double scaleWidth = ((double) maxWidth) / tmpIcon.getIconWidth();
+                double scaleHeight = ((double) maxHeight)
                         / tmpIcon.getIconHeight();
-                float scale = Math.min(scaleWidth, scaleHeight);
+                double scale = Math.min(scaleWidth, scaleHeight);
 
                 if (scale < 1) {
                     thumbnail = new ImageIcon(tmpIcon.getImage()
@@ -1200,15 +1396,26 @@ public class PictureFileData extends DefaultFileData {
         return thumbnail;
     }
 
-    private void clearPictureFileMetadata() throws JUploadException {
+    /**
+     * Erases metadata in the transformed picture file, or in a copy of the
+     * original file.<BR>
+     * When the applet should not transmit the picture metadata, nor resize or
+     * rotate the picture before upload, we need to copy the original file to a
+     * temporary one, and erase the metadata in this copy. <BR>
+     * <B>Note:</B> currently unused as there is no standard writter that can
+     * replace metadata (see ImageWriter.canReplaceMetatadata method).
+     * 
+     * @throws JUploadException
+     */
+    @SuppressWarnings("unused")
+    private void clearPictureFileMetadata() throws JUploadIOException {
         boolean metadataClearDone = false;
 
         try {
             Iterator<ImageWriter> iter = ImageIO
                     .getImageWritersByFormatName("JPG");
-            File outFile = (this.transformedPictureFile != null) ? this.transformedPictureFile
-                    : getFile();
-            FileImageOutputStream output = new FileImageOutputStream(outFile);
+            FileImageOutputStream output = new FileImageOutputStream(
+                    this.transformedPictureFile);
 
             while (iter.hasNext()) {
                 ImageWriter writer = iter.next();
@@ -1221,7 +1428,7 @@ public class PictureFileData extends DefaultFileData {
                 }
             }// while
         } catch (IOException ioe) {
-            throw new JUploadException(ioe);
+            throw new JUploadIOException(ioe);
         }
 
         if (!metadataClearDone) {
