@@ -1,5 +1,7 @@
 TODO list:
+- jsString with $: see http://sourceforge.net/forum/forum.php?thread_id=1893545&forum_id=199106
 - PHP sample, for chunked uploaded files.
+- [Picture mode] Better management of maxWidth and maxHeight.
 - Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
 are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
 there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.
@@ -14,17 +16,44 @@ no picture transformation (it's Ok if the file is transformed, either resized or
 - Picture mode: implement target picture format (to be changed to another name ?)
 - Picture mode: applet parameter to control the size of the preview on the file chooser.
 - Restore compatibility with standard Java application (it currently only works as an applet).
+- Check the number of scale calculation in PictureFileData
+- Remove support for the deprecated applet parameter filenameEncoding.
+- Also upload empty sub-directories (must be conditioned by a new applet parameter).
 
 
-V3.2.1
+
+V3.3.0rc1
+(available on SVN, and on the demo site, no official release)
+
+
+Note: since the full HTTP request writing has been rewrited, you should check carefully this applet version, 
+before using it in production. 
+
 
 Changes:
-- [Translation] Add of the Croatian language, thanks to Bruno Simic.
+- [Major] The applet can now manage filename containing non-ASCII characters. Works Ok with French accents. Should
+work with any other language, like Asian characters.
+- [Major] When using formdata, or postURL parameters with non-ASCII characters, their encoding in the upload
+is now correct.
+- [Minor] The applet now transfers for each file, the date/time of last modification (thanks to XXXXXXXXXXXXX). 
+Note: the date format is a "dd/MM/yyyy HH:mm:ss". It's defined as a constant in UploadPolicy, and can not be 
+changed by a 'simple' applet parameter.
+- [Minor] The filenameEncoding applet parameter is now deprecated.
+- [Internal code] UploadPolicy.onAppendHeader: the parameter is changed from StringBuffer to the new class 
+ByteArrayEncoder. This should change only the parameter type, not the code of the method (append works on 
+ByteArrayEncoder).
+- [Minor-FTP] FTP mode: stringUploadSuccess forced to null. The applet won't test the response body against this regexp, as ...
+here is no response body in FTP mode.
 
 Fixes:
-- [Major] (bug 1831234: PostURL Parameter NULL) When postURL contains a parameter with no value (ex: ?param1=&param2=value2), the applet would generate
-an error
+- [Major] (bug 1831234: PostURL Parameter NULL) When postURL contains a parameter with no value 
+(ex: ?param1=&param2=value2), the applet would generate an error.
+- [Minor-Picture] Picture mode: due to wrong number rounding, the resized picture could sometime be one pixel bigger than
+the maximum allowed size. 
 
+
+Translation
+- [Translation] Add of the Croatian language, thanks to Bruno Simic.
 
 
 V3.2.0
