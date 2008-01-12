@@ -355,6 +355,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.applet = theApplet;
         this.logWindow = theApplet.getLogWindow();
 
+        // get the debug level. This control the level of debug messages that
+        // are written in the log window (see displayDebugMessage). In all
+        // cases, the full output is written in the debugBufferString (see also
+        // urlToSendErrorTo)
+        setDebugLevel(UploadPolicyFactory.getParameter(theApplet,
+                PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL, this), false);
+
         // Get resource file. This must be the very first parameter to be set,
         // because during initialization, translations may be needed.
         setLang(UploadPolicyFactory.getParameter(theApplet, PROP_LANG,
@@ -390,13 +397,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         setShowLogWindow(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SHOW_LOGWINDOW, DEFAULT_SHOW_LOGWINDOW, this));
-
-        // get the debug level. This control the level of debug messages that
-        // are written in the log window (see displayDebugMessage). In all
-        // cases, the full output is written in the debugBufferString (see also
-        // urlToSendErrorTo)
-        setDebugLevel(UploadPolicyFactory.getParameter(theApplet,
-                PROP_DEBUG_LEVEL, DEFAULT_DEBUG_LEVEL, this), false);
 
         // get the fileChooserIconFromFileContent.
         setFileChooserIconFromFileContent(UploadPolicyFactory.getParameter(
