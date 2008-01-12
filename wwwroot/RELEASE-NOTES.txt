@@ -53,7 +53,9 @@ the maximum allowed size.
 
 
 Translation
-- [Translation] Add of the Croatian language, thanks to Bruno Simic.
+- Add of the Croatian language, thanks to Bruno Simic.
+- Norvegian translation updated, thanks to .
+- Hebrew translation added, thanks to liorda@gmail.com.
 
 
 V3.2.0

@@ -59,7 +59,7 @@
 	
 	    if (fileItem.isFormField()) {
 	        //This should not occur, in this example.
-	        out.println(" ------------------------------ ");
+	        //out.println(" ------------------------------ ");
 	        out.println(fileItem.getFieldName() + " = " + fileItem.getString());
 	    } else {
 	        //Ok, we've got a file. Let's process it.
@@ -106,17 +106,24 @@
 	        //////////////////////////////////////////////////////////////////////////////////////
 	        
 	        fileItem.delete();
-	    }
-	    
-	    //Do you want to test a successfull upload, or the way the applet react to an error ?
-	    if (true) { 
-	    	out.println("SUCCESS");
-	    } else {
-	    	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp)");
-	    }
+	    }	    
 	}//while
+
+  	out.println(" ------------------------------ ");
+  	out.println(" ------------------------------ ");
+  	out.println("Let's write a status, to finish the server response :");
+  	
+    //Do you want to test a successfull upload, or the way the applet react to an error ?
+    if (true) { 
+    	out.println("SUCCESS");
+    } else {
+    	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp)");
+    }
+
+  	out.println("End of server treatment ");
+
   }catch(Exception e){
-    out.println("Exception e = " + e.toString());
+    out.println("ERROR: Exception e = " + e.toString());
   }
   
   out.close();

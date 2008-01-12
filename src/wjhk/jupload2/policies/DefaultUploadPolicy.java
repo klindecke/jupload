@@ -1432,7 +1432,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         } else {
             // If we have a 5 characters lang string, then it should look like
             // ll_CC, where ll is the language code
-            // and CC is the Contry code.
+            // and CC is the Country code.
             if (lang.length() == 5
                     && (lang.substring(2, 3).equals("_") || lang
                             .substring(2, 3).equals("-"))) {
@@ -1443,6 +1443,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 locale = new Locale(language, country.toUpperCase());
             } else {
                 locale = new Locale(lang);
+                displayDebug("setLang - language read (no country): " + lang, 50);
             }
         }
         this.resourceBundle = ResourceBundle.getBundle(
