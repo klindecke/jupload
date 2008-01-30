@@ -1,31 +1,3 @@
-TODO list:
-- test in debug mode: seems like calling hasToTransform.. always load picture, even is non useful.
-- test with IE7 under XP
-- jsString with $: see http://sourceforge.net/forum/forum.php?thread_id=1893545&forum_id=199106
-	Replace:
-	jsString(getLastResponseBody())); 
-	by:
-	jsString(getLastResponseBody()).replaceAll("\\$", "\\\\\\$")); 
-- In picture mode, when uploading a whole directory, there may be a lot of warning 'this is not a picture file'.
-The user should be able to stop these warning (or stop adding files to the applet).
-- [Picture mode] Better management of maxWidth and maxHeight.
-- Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
-are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
-there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.
-- When pictureTransmit Metadata is false, metadata should be removed from the file to upload, even if there is
-no picture transformation (it's Ok if the file is transformed, either resized or rotated)
-- Manage the 302 Moved Temporarily HTTP return code.
-- Picture mode: use the JMF and Java Advanced Image I/O
-- Add pictureTransmitMetadata to: the js demo and the javadoc
-- All error should result in a question to the user: do you want to send the error log?
-- Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
-- Allows upload from the demo site, or inform that it doesn't work.
-- Picture mode: implement target picture format (to be changed to another name ?)
-- Picture mode: applet parameter to control the size of the preview on the file chooser.
-- Restore compatibility with standard Java application (it currently only works as an applet).
-- Check the number of scale calculation in PictureFileData
-- Remove support for the deprecated applet parameter filenameEncoding.
-- Also upload empty sub-directories (must be conditioned by a new applet parameter).
 
 
 
