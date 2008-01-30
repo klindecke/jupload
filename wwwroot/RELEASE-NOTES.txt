@@ -1,6 +1,13 @@
 TODO list:
+- test in debug mode: seems like calling hasToTransform.. always load picture, even is non useful.
+- test with IE7 under XP
 - jsString with $: see http://sourceforge.net/forum/forum.php?thread_id=1893545&forum_id=199106
-- PHP sample, for chunked uploaded files.
+	Replace:
+	jsString(getLastResponseBody())); 
+	by:
+	jsString(getLastResponseBody()).replaceAll("\\$", "\\\\\\$")); 
+- In picture mode, when uploading a whole directory, there may be a lot of warning 'this is not a picture file'.
+The user should be able to stop these warning (or stop adding files to the applet).
 - [Picture mode] Better management of maxWidth and maxHeight.
 - Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
 are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
@@ -26,19 +33,16 @@ V3.3.0rc1
 (available on SVN, and on the demo site, no official release)
 
 
-Note: since the full HTTP request writing has been rewrited, you should check carefully this applet version, 
-before using it in production. 
-
 
 Changes:
-- [Major] The applet can now manage filename containing non-ASCII characters. Works Ok with French accents. Should
-work with any other language, like Asian characters.
+- [Major] The applet can now correctly manage filename containing non-ASCII characters. Works Ok with French 
+accents. Should work with any other language, like Asian characters (please give me feedback: I can't test that).
 - [Major] When using formdata, or postURL parameters with non-ASCII characters, their encoding in the upload
 is now correct.
+- [Minor] Due to previous point, the filenameEncoding applet parameter is now deprecated.
 - [Minor] The applet now transfers for each file, the date/time of last modification (thanks to XXXXXXXXXXXXX). 
 Note: the date format is a "dd/MM/yyyy HH:mm:ss". It's defined as a constant in UploadPolicy, and can not be 
 changed by a 'simple' applet parameter.
-- [Minor] The filenameEncoding applet parameter is now deprecated.
 - [Internal code] UploadPolicy.onAppendHeader: the parameter is changed from StringBuffer to the new class 
 ByteArrayEncoder. This should change only the parameter type, not the code of the method (append works on 
 ByteArrayEncoder).
@@ -48,6 +52,8 @@ here is no response body in FTP mode.
 Fixes:
 - [Major] (bug 1831234: PostURL Parameter NULL) When postURL contains a parameter with no value 
 (ex: ?param1=&param2=value2), the applet would generate an error.
+- [Major] when the pictureTransmitMetadata applet parameter is set to false, metadata are never transmitted. 
+Previously, non updated (resized, rotated) pictures were uploaded untransformed, that is with their metadata.
 - [Minor-Picture] Picture mode: due to wrong number rounding, the resized picture could sometime be one pixel bigger than
 the maximum allowed size. 
 
@@ -55,7 +61,8 @@ the maximum allowed size.
 Translation
 - Add of the Croatian language, thanks to Bruno Simic.
 - Norvegian translation updated, thanks to .
-- Hebrew translation added, thanks to liorda@gmail.com.
+- Hebrew translation added, thanks to David Lior, liorda@gmail.com
+- Swedish translation added, thanks to Erik Lindahl (erik@fisensmosse.se)
 
 
 V3.2.0
