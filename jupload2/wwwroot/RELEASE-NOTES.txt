@@ -6,7 +6,7 @@ V3.3.0rc1
 
 
 
-Changes:
+Changes (all modes):
 - [Major] The applet can now correctly manage filename containing non-ASCII characters. Works Ok with French 
 accents. Should work with any other language, like Asian characters (please give me feedback: I can't test that).
 - [Major] When using formdata, or postURL parameters with non-ASCII characters, their encoding in the upload
@@ -18,8 +18,17 @@ changed by a 'simple' applet parameter.
 - [Internal code] UploadPolicy.onAppendHeader: the parameter is changed from StringBuffer to the new class 
 ByteArrayEncoder. This should change only the parameter type, not the code of the method (append works on 
 ByteArrayEncoder).
-- [Minor-FTP] FTP mode: stringUploadSuccess forced to null. The applet won't test the response body against this regexp, as ...
-here is no response body in FTP mode.
+- [Minor-FTP] FTP mode: stringUploadSuccess forced to null. The applet won't test the response body against this 
+regexp, as ... there is no response body in FTP mode.
+
+
+Changes (picture mode):
+- [Major] picture mode: quality for uploaded has been downgraded to bad quality resizing. Now corrected.
+- [Minor] Default value for maxPicHeight, maxPicWidth, maxRealHeight, maxRealWidth changed from -1 to 
+Integer.MAX_VALUE
+- [Minor] Default value for pictureTransmitMetadata set to false, to avoid color problem (see explanation
+of this parameter in the given doc).
+
 
 Fixes:
 - [Major] (bug 1831234: PostURL Parameter NULL) When postURL contains a parameter with no value 
