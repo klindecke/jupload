@@ -21,9 +21,8 @@
 
 package wjhk.jupload2.filedata;
 
-import java.awt.AlphaComposite;
 import java.awt.Canvas;
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -256,8 +255,12 @@ public class PictureFileData extends DefaultFileData {
     public void beforeUpload() throws JUploadException {
         if (this.uploadLength < 0) {
             try {
-                if (hasToTransformPicture()) {
-                    getTransformedPictureFile();
+                // Let's read the original picture only once, for the two next
+                // calls.
+                BufferedImage bi = readImage();
+                // Get the transformed picture file, if needed.
+                if (hasToTransformPicture(bi)) {
+                    getTransformedPictureFile(bi);
                 }
             } catch (OutOfMemoryError e) {
                 // Oups ! My EOS 20D has too big pictures to handle more than
@@ -384,26 +387,9 @@ public class PictureFileData extends DefaultFileData {
                 // smaller than the PictureDialog (if maxWidth or maxHeigth are
                 // smaller than the PictureDialog)
                 // bufferedImage
-                localImage = getBufferedImage(canvasWidth, canvasHeight,
+                localImage = getBufferedImage(null, canvasWidth, canvasHeight,
                         ((PictureUploadPolicy) this.uploadPolicy)
                                 .getHighQualityPreview());
-                /**
-                 * getBufferedImage returns a picture of the correct size. There
-                 * is no need to do the checks below. int originalWidth =
-                 * bufferedImage.getWidth (); int originalHeight =
-                 * bufferedImage.getHeight(); debug: getBufferedImage() orw et
-                 * orh float scaleWidth = (float) maxWidth / originalWidth;
-                 * float scaleHeight = (float) maxHeight / originalHeight; float
-                 * scale = Math.min(scaleWidth, scaleHeight); //Should we resize
-                 * this picture ? if (scale < 1) { int width = (int) (scale *
-                 * originalWidth); int height = (int) (scale * originalHeight);
-                 * image = bufferedImage.getScaledInstance(width, height,
-                 * Image.SCALE_DEFAULT); uploadPolicy.displayDebug("Picture
-                 * resized: " + getFileName(), 75); //Diminuer le nombre de
-                 * couleurs ? } else { image = bufferedImage;
-                 * uploadPolicy.displayDebug("Picture not resized: " +
-                 * getFileName(), 75); }
-                 */
             } catch (OutOfMemoryError e) {
                 // Too bad
                 localImage = null;
@@ -468,7 +454,6 @@ public class PictureFileData extends DefaultFileData {
 
     // ///////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////////// private METHODS
-    // ///////////////////////////////////////////
     // ///////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -486,6 +471,8 @@ public class PictureFileData extends DefaultFileData {
      * ~5s for the first (small) preview of the picture, with both highquality
      * to false or true.
      * 
+     * @param sourceBufferedImage The buffered image to transform. If null, a
+     *            new BufferedImage is created from the current file.
      * @param maxWidth Maximum width allowed to the BufferedImage that will be
      *            returned.
      * @param maxHeight Maximum height allowed to the BufferedImage that will be
@@ -497,35 +484,30 @@ public class PictureFileData extends DefaultFileData {
      *         parameters (resizing, rotation...), or null if this is not a
      *         picture.
      */
-    private BufferedImage getBufferedImage(int maxWidth, int maxHeight,
-            boolean highquality) throws JUploadException {
-        BufferedImage bufferedImage = null;
+    private BufferedImage getBufferedImage(BufferedImage sourceBufferedImage,
+            int maxWidth, int maxHeight, boolean highquality)
+            throws JUploadException {
+        long msGetBufferedImage = System.currentTimeMillis();
         double theta = Math.toRadians(90 * this.quarterRotation);
+        BufferedImage returnedBufferedImage = null;
+        
+        //TODO Finish optimization, here
 
-        if (!this.isPicture) {
-            // This case is quite simple !
-            bufferedImage = null;
-            // This test is currently useless. But I hope I'll get the
-            // bufferedImage back as a class attribute, instead of
-            // a local parameter.
-        } else if (bufferedImage == null) {
-            BufferedImage localBufferedImage;
+        this.uploadPolicy.displayDebug("getBufferedImage: start", 10);
 
-            // Before loading a new picture, let's free any unused memory.
-            freeMemory("start of getBufferedImage");
+        // We do something, only if we actually are within a picture file.
+        if (this.isPicture) {
+            if (sourceBufferedImage == null) {
+                sourceBufferedImage = readImage();
+            }
 
             try {
-                this.uploadPolicy.displayDebug("File read: "
-                        + getWorkingSourceFile().getAbsolutePath(), 60);
-                localBufferedImage = ImageIO.read(getWorkingSourceFile());
-
                 AffineTransform transform = new AffineTransform();
 
                 // Let's store the original image width and height. It can be
-                // used elsewhere.
-                // (see hasToTransformPicture, below).
-                this.originalWidth = localBufferedImage.getWidth();
-                this.originalHeight = localBufferedImage.getHeight();
+                // used elsewhere (see hasToTransformPicture, below).
+                this.originalWidth = sourceBufferedImage.getWidth();
+                this.originalHeight = sourceBufferedImage.getHeight();
 
                 // ////////////////////////////////////////////////////////////
                 // Let's calculate by how much we should reduce the picture :
@@ -533,8 +515,8 @@ public class PictureFileData extends DefaultFileData {
                 // ///////////////////////////////////////////////////////////
 
                 // The width and height depend on the current rotation :
-                // calculation of the width and height
-                // of picture after rotation.
+                // calculation of the width and height of picture after
+                // rotation.
                 int nonScaledRotatedWidth = this.originalWidth;
                 int nonScaledRotatedHeight = this.originalHeight;
                 if (this.quarterRotation % 2 != 0) {
@@ -546,8 +528,8 @@ public class PictureFileData extends DefaultFileData {
                 // width and height
                 double scaleWidth = ((maxWidth < 0) ? 1 : ((double) maxWidth)
                         / nonScaledRotatedWidth);
-                double scaleHeight = ((maxHeight < 0) ? 1 : ((double) maxHeight)
-                        / nonScaledRotatedHeight);
+                double scaleHeight = ((maxHeight < 0) ? 1
+                        : ((double) maxHeight) / nonScaledRotatedHeight);
                 double scale = Math.min(scaleWidth, scaleHeight);
                 // FIXME The scaleWidth and scaleHeigth is wrong when the
                 // maxHeight and maxWidth are different, and the picture must be
@@ -556,11 +538,13 @@ public class PictureFileData extends DefaultFileData {
                 if (scale < 1) {
                     // With number rounding, it can happen that width or size
                     // became one pixel too big. Let's correct it.
-                    double d = Math.cos(theta);
-                    if ((maxWidth > 0 && maxWidth < (int) (scale * Math.cos(theta) * nonScaledRotatedWidth))
-                            || (maxHeight > 0 && maxHeight < (int) (scale * Math.cos(theta)*nonScaledRotatedHeight))) {
-                        scaleWidth = ((maxWidth < 0) ? 1 : ((double) maxWidth - 1)
-                                / (nonScaledRotatedWidth));
+                    if ((maxWidth > 0 && maxWidth < (int) (scale
+                            * Math.cos(theta) * nonScaledRotatedWidth))
+                            || (maxHeight > 0 && maxHeight < (int) (scale
+                                    * Math.cos(theta) * nonScaledRotatedHeight))) {
+                        scaleWidth = ((maxWidth < 0) ? 1
+                                : ((double) maxWidth - 1)
+                                        / (nonScaledRotatedWidth));
                         scaleHeight = ((maxHeight < 0) ? 1
                                 : ((double) maxHeight - 1)
                                         / (nonScaledRotatedHeight));
@@ -579,8 +563,8 @@ public class PictureFileData extends DefaultFileData {
                     scaledWidth *= scale;
                     scaledHeight *= scale;
                 }
-                this.uploadPolicy.displayDebug("Resizing factor (scale): " + scale,
-                        10);
+                this.uploadPolicy.displayDebug("Resizing factor (scale): "
+                        + scale, 10);
                 // Due to rounded numbers, the resulting targetWidth or
                 // targetHeight
                 // may be one pixel too big. Let's check that.
@@ -590,12 +574,12 @@ public class PictureFileData extends DefaultFileData {
                     scaledWidth = maxWidth;
                 }
                 if (scaledHeight > maxHeight) {
-                    this.uploadPolicy.displayDebug("Correcting rounded height: "
-                            + scaledHeight + " to " + maxHeight, 10);
+                    this.uploadPolicy.displayDebug(
+                            "Correcting rounded height: " + scaledHeight
+                                    + " to " + maxHeight, 10);
                     scaledHeight = maxHeight;
                 }
 
-                
                 if (this.quarterRotation != 0) {
                     double translationX = 0, translationY = 0;
                     this.uploadPolicy.displayDebug("quarter: "
@@ -629,30 +613,55 @@ public class PictureFileData extends DefaultFileData {
 
                 // If we have to rescale the picture, we first do it:
                 if (scale < 1) {
-                    if (highquality && false) {
+                    if (highquality || true) {
                         this.uploadPolicy.displayDebug(
                                 "Resizing picture(using high quality picture)",
                                 40);
-                        Image img = localBufferedImage.getScaledInstance(
+
+                        // We use SCALE_SMOOTH, as it is quicker (10ms) than
+                        // SCALE_AREA_AVERAGING (30ms), and I can't see
+                        // differences on my test
+                        // picture.
+                        // Other parameter give bad picture quality.
+                        this.uploadPolicy.displayDebug("Before SCALE_SMOOTH",
+                                100);
+                        long msRescale = System.currentTimeMillis();
+                        Image img = sourceBufferedImage.getScaledInstance(
                                 (int) (this.originalWidth * scale),
                                 (int) (this.originalHeight * scale),
                                 Image.SCALE_SMOOTH);
-                        img.flush();
+                        this.uploadPolicy
+                                .displayDebug(
+                                        "After SCALE_SMOOTH (was "
+                                                + (System.currentTimeMillis() - msRescale)
+                                                + " ms long)", 100);
 
                         // the localBufferedImage may be 'unknown'.
-                        int localImageType = localBufferedImage.getType();
+                        int localImageType = sourceBufferedImage.getType();
                         if (localImageType == BufferedImage.TYPE_CUSTOM) {
                             localImageType = BufferedImage.TYPE_INT_BGR;
                         }
 
-                        localBufferedImage = new BufferedImage(
+                        this.uploadPolicy
+                                .displayDebug("new BufferedImage", 100);
+                        BufferedImage tempBufferedImage = new BufferedImage(
                                 (int) (this.originalWidth * scale),
                                 (int) (this.originalHeight * scale),
                                 localImageType);
-                        localBufferedImage.getGraphics().drawImage(img, 0, 0,
-                                null);
-                        localBufferedImage.flush();
+                        this.uploadPolicy.displayDebug("Before getGraphics",
+                                100);
+                        Graphics g = tempBufferedImage.getGraphics();
+                        this.uploadPolicy.displayDebug("Before drawImage", 100);
+                        g.drawImage(img, 0, 0, null);
+                        this.uploadPolicy.displayDebug("Before flush1", 100);
+                        tempBufferedImage.flush();
+                        this.uploadPolicy.displayDebug("Before flush2", 100);
+                        img.flush();
                         img = null;
+                        // tempBufferedImage contains the rescaled picture. It's
+                        // the source image for the next step (rotation).
+                        sourceBufferedImage = tempBufferedImage;
+                        tempBufferedImage = null;
                     } else {
                         // The scale method adds scaling before current
                         // transformation.
@@ -664,64 +673,55 @@ public class PictureFileData extends DefaultFileData {
                     }
                 }
 
+                uploadPolicy.displayDebug("Picture is now rescaled", 80);
+
                 if (transform.isIdentity()) {
-                    // No transformation
-                    bufferedImage = localBufferedImage;
+                    returnedBufferedImage = sourceBufferedImage;
                 } else {
                     AffineTransformOp affineTransformOp = null;
-                    /*
-                     * //This switch is temporary : it allows easy comparison
-                     * between different methods. // The pictures seems Ok, but
-                     * if anyone has a better solution : I take it! // switch
-                     * (0) { case 0:
-                     */
                     // Pictures are Ok.
                     affineTransformOp = new AffineTransformOp(transform,
                             AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-                    bufferedImage = affineTransformOp
-                            .createCompatibleDestImage(localBufferedImage, null);
+                    returnedBufferedImage = affineTransformOp
+                            .createCompatibleDestImage(sourceBufferedImage,
+                                    null);
                     // Checks, after the fact the pictures produces by the Canon
                     // EOS 30D are not properly resized: colors are 'strange'
                     // after resizing.
-                    uploadPolicy.displayDebug("bufferedImage.getColorModel(): "
-                            + bufferedImage.getColorModel().toString(), 80);
                     uploadPolicy.displayDebug(
-                            "localBufferedImage.getColorModel(): "
-                                    + localBufferedImage.getColorModel()
+                            "returnedBufferedImage.getColorModel(): "
+                                    + sourceBufferedImage.getColorModel()
                                             .toString(), 80);
-                    affineTransformOp.filter(localBufferedImage, bufferedImage);
+                    uploadPolicy.displayDebug(
+                            "returnedBufferedImage.getColorModel(): "
+                                    + sourceBufferedImage.getColorModel()
+                                            .toString(), 80);
+                    affineTransformOp.filter(sourceBufferedImage,
+                            returnedBufferedImage);
                     affineTransformOp = null;
 
-                    bufferedImage.flush();
+                    returnedBufferedImage.flush();
                 }
-
-                // Let's free some memory : useful when running as an applet
-                localBufferedImage.flush();
-                localBufferedImage = null;
-                transform = null;
-
-                // The following line generates a JVM crash in JDK1.6.03, when
-                // debugging.
-                // freeMemory("end of getBufferedImage");
             } catch (Exception e) {
                 throw new JUploadException(e.getClass().getName()
                         + " (createBufferedImage) : " + e.getMessage());
             }
 
-            if (bufferedImage != null
+            if (returnedBufferedImage != null
                     && this.uploadPolicy.getDebugLevel() >= 60) {
-                this.uploadPolicy.displayDebug("bufferedImage MinX ("
-                        + bufferedImage + "): " + bufferedImage.getMinX(), 60);
-                this.uploadPolicy.displayDebug("bufferedImage MinY ("
-                        + bufferedImage + "): " + bufferedImage.getMinY(), 60);
-                this.uploadPolicy.displayDebug("bufferedImage Width ("
-                        + bufferedImage + "): " + bufferedImage.getWidth(), 60);
-                this.uploadPolicy
-                        .displayDebug("bufferedImage Height (" + bufferedImage
-                                + "): " + bufferedImage.getHeight(), 60);
+                this.uploadPolicy.displayDebug("bufferedImage: "
+                        + returnedBufferedImage, 60);
+                this.uploadPolicy.displayDebug("bufferedImage MinX: "
+                        + returnedBufferedImage.getMinX(), 60);
+                this.uploadPolicy.displayDebug("bufferedImage MinY: "
+                        + returnedBufferedImage.getMinY(), 60);
             }
         }
-        return bufferedImage;
+
+        this.uploadPolicy.displayDebug("getBufferedImage: was "
+                + (System.currentTimeMillis() - msGetBufferedImage)
+                + " ms long", 100);
+        return returnedBufferedImage;
     }
 
     /**
@@ -733,21 +733,18 @@ public class PictureFileData extends DefaultFileData {
      * @return true if the picture must be transformed. false if the file can be
      *         directly transmitted.
      */
-    private boolean hasToTransformPicture() throws JUploadException {
+    private boolean hasToTransformPicture(BufferedImage originalImage)
+            throws JUploadException {
 
         // A first necessary step, is to get the original width and height.
-        try {
-            BufferedImage originalImage = ImageIO.read(getWorkingSourceFile());
-            this.originalWidth = originalImage.getWidth();
-            this.originalHeight = originalImage.getHeight();
-            // Within the navigator, we have to free memory ASAP
-            originalImage = null;
-            freeMemory("hasToTransformPicture");
-        } catch (IOException e) {
-            throw new JUploadException(
-                    "IOException in ImageIO.read (hasToTransformPicture) : "
-                            + e.getMessage());
+        if (originalImage == null) {
+            originalImage = readImage();
         }
+        this.originalWidth = originalImage.getWidth();
+        this.originalHeight = originalImage.getHeight();
+        // Within the navigator, we have to free memory ASAP
+        originalImage = null;
+        freeMemory("hasToTransformPicture");
 
         // Did we already estimate if transformation is needed ?
         if (this.hasToTransformPicture == null) {
@@ -909,13 +906,15 @@ public class PictureFileData extends DefaultFileData {
      * Note: any JUploadException thrown by a method called within
      * getTransformedPictureFile() will be thrown within this method.
      */
-    private File getTransformedPictureFile() throws JUploadException {
+    private File getTransformedPictureFile(BufferedImage originalImage)
+            throws JUploadException {
         int targetMaxWidth;
         int targetMaxHeight;
 
         // Should transform the file, and do we already created the transformed
         // file ?
-        if (hasToTransformPicture() && this.transformedPictureFile == null) {
+        if (hasToTransformPicture(originalImage)
+                && this.transformedPictureFile == null) {
             // If the image is rotated, we compare to realMaxWidth and
             // realMaxHeight, instead of maxWidth and maxHeight. This allows
             // to have a different picture size for rotated and not rotated
@@ -944,7 +943,8 @@ public class PictureFileData extends DefaultFileData {
             // We have to create a resized or rotated picture file, and all
             // needed information.
             // ...let's do it
-            createTranformedPictureFile(targetMaxWidth, targetMaxHeight);
+            createTranformedPictureFile(targetMaxWidth, targetMaxHeight,
+                    originalImage);
         }
 
         return this.transformedPictureFile;
@@ -960,17 +960,16 @@ public class PictureFileData extends DefaultFileData {
      * @param targetMaxWidth
      * @param targetMaxHeight
      */
-    void createTranformedPictureFile(int targetMaxWidth, int targetMaxHeight)
-            throws JUploadException {
-        BufferedImage bufferedImage = null;
+    void createTranformedPictureFile(int targetMaxWidth, int targetMaxHeight,
+            BufferedImage originalImage) throws JUploadException {
         String action = null;
         File workingSourceFile = getWorkingSourceFile();
 
         try {
             createTransformedTempFile();
 
-            bufferedImage = getBufferedImage(targetMaxWidth, targetMaxHeight,
-                    true);
+            originalImage = getBufferedImage(originalImage, targetMaxWidth,
+                    targetMaxHeight, true);
             action = "BufferedImage created";
 
             // localPictureFormat is currently only used to define the correct
@@ -1079,7 +1078,7 @@ public class PictureFileData extends DefaultFileData {
                         this.transformedPictureFile);
                 writer.setOutput(output);
                 action = "Writing IIOImage (before new IIOImage)";
-                IIOImage image = new IIOImage(bufferedImage, null, metadata);
+                IIOImage image = new IIOImage(originalImage, null, metadata);
                 action = "Writing IIOImage (before write)";
                 writer.write(null, image, iwp);
                 action = "Writing IIOImage (before dispose)";
@@ -1104,7 +1103,7 @@ public class PictureFileData extends DefaultFileData {
             // Within the navigator, we have to free memory ASAP
             action = "Finished";
             if (!this.storeBufferedImage) {
-                bufferedImage = null;
+                originalImage = null;
                 freeMemory("getTransformedPictureFile");
             }
             this.uploadPolicy.displayDebug("transformedPictureFile : "
@@ -1161,35 +1160,6 @@ public class PictureFileData extends DefaultFileData {
             copyOriginalToWorkingCopyTempFile();
         }
         return this.workingCopyTempFile;
-
-        /*
-         * 
-         * In the comment below: a try to be intelligent ! ;-)
-         * 
-         * Copy the original file only if it's necessary.
-         * 
-         * try { // If the filename contains only ASCII characters, we use the //
-         * original file. To test it, we encode in UTF-8, and check that the //
-         * number of bytes is the same as the number of characters. byte[] b =
-         * getFileName().getBytes("UTF-8"); if (b.length !=
-         * getFileName().length()) { // First try: copy the original file to the //
-         * transformedPictureFile, to avoid creating another temp file. // on
-         * local hard drive. uploadPolicy.displayDebug( "[getWorkingSourceFile]
-         * Creating a copy of " + getFileName() + " as a source working
-         * target.", 20); copyOriginalToWorkingCopyTempFile(); return
-         * this.workingCopyTempFile; } } catch (UnsupportedEncodingException e) {
-         * uploadPolicy .displayWarn(e.getClass().getName() + " while trying to
-         * encode filename, in PictureUploadPolicy.getWorkingSourceFile. " +
-         * "Using original file, for further treatement"); } catch
-         * (JUploadIOException e) { uploadPolicy
-         * .displayWarn(e.getClass().getName() + " while trying to encode
-         * filename, in PictureUploadPolicy.getWorkingSourceFile. " + "Using
-         * original file, for further treatement"); }
-         * 
-         * uploadPolicy.displayDebug("[getWorkingSourceFile] Using original
-         * file(" + getFileName() + ") as a source working target.", 20); return
-         * getFile();
-         */
     }
 
     /**
@@ -1311,50 +1281,27 @@ public class PictureFileData extends DefaultFileData {
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * This methods resizes the given picture to the given width and height. It
-     * is largely inspired from the sample available on:
-     * http://java.sun.com/products/java-media/2D/reference/faqs
+     * Read the Image from the source file. This call is the only call in this
+     * class to read the picture file.
      * 
-     * @param originalImage The picture to resize
-     * @param maxWidth The maximum width for the resized picture.
-     * @param maxHeight The maximum height for the resized picture.
-     * @param preserveAlpha
+     * @return
+     * @throws JUploadIOException
      */
-    public static BufferedImage resizePicture(Image originalImage,
-            int maxWidth, int maxHeight, boolean preserveAlpha,
-            PictureUploadPolicy uploadPolicy) {
-        // We calculate the real scale factor, that is must set both width less
-        // than maxWidth and height less
-        // than maxHeight.
-        int originalWidth = originalImage.getWidth(uploadPolicy);
-        int originalHeight = originalImage.getHeight(uploadPolicy);
-        double widthScale = (double) maxWidth / originalWidth;
-        double heightScale = (double) maxHeight / originalHeight;
-        double scale = Math.min(widthScale, heightScale);
-        // Picture will not be enlarged.
-        scale = (scale > 1) ? 1 : scale;
+    private BufferedImage readImage() throws JUploadIOException {
+        BufferedImage bi;
 
-        int scaledWidth = (int) (scale * originalWidth);
-        int scaledHeight = (int) (scale * originalHeight);
-        // Some rounding operation may generate wrong calculation.
-        if (scaledWidth > maxWidth) {
-            scaledWidth = maxWidth;
+        this.uploadPolicy.displayDebug("File read: "
+                + getWorkingSourceFile().getAbsolutePath(), 60);
+        try {
+            bi = ImageIO.read(getWorkingSourceFile());
+        } catch (IOException e) {
+            throw new JUploadIOException(this.getClass().getName(), e);
         }
-        if (scaledHeight > maxHeight) {
-            scaledHeight = maxHeight;
-        }
+        // Before loading a new picture, let's free any unused memory.
+        freeMemory("end of readImage");
 
-        int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB
-                : BufferedImage.TYPE_INT_ARGB;
-        BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight,
-                imageType);
-        Graphics2D g = scaledBI.createGraphics();
-        if (preserveAlpha) {
-            g.setComposite(AlphaComposite.Src);
-        }
-        g.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null);
-        g.dispose();
-        return scaledBI;
+        return bi;
+
     }
 
     /**
@@ -1377,7 +1324,8 @@ public class PictureFileData extends DefaultFileData {
         if (pictureFile != null) {
             ImageIcon tmpIcon = new ImageIcon(pictureFile.getPath());
             if (tmpIcon != null) {
-                double scaleWidth = ((double) maxWidth) / tmpIcon.getIconWidth();
+                double scaleWidth = ((double) maxWidth)
+                        / tmpIcon.getIconWidth();
                 double scaleHeight = ((double) maxHeight)
                         / tmpIcon.getIconHeight();
                 double scale = Math.min(scaleWidth, scaleHeight);

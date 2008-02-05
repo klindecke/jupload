@@ -514,7 +514,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      *         transformed (rotated...) by the applet.
      */
     public int getRealMaxHeight() {
-        return (this.realMaxHeight < 0) ? this.maxHeight : this.realMaxHeight;
+        return (this.realMaxHeight == Integer.MAX_VALUE) ? this.maxHeight : this.realMaxHeight;
     }
 
     /** @param realMaxHeight the realMaxHeight to set */
@@ -527,7 +527,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      *         transformed (rotated...) by the applet.
      */
     public int getRealMaxWidth() {
-        return (this.realMaxWidth < 0) ? this.maxWidth : this.realMaxWidth;
+        return (this.realMaxWidth == Integer.MAX_VALUE) ? this.maxWidth : this.realMaxWidth;
     }
 
     /** @param realMaxWidth the realMaxWidth to set */

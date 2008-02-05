@@ -356,7 +356,8 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>maxPicHeight</td>
- * <td>-1 <br>
+ * <td>Since 3.3.0: Integer.MAX_VALUE<BR>
+ * (was -1)<br>
  * <br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
  * <td>This parameters allows the HTML page to control the maximum height for
@@ -379,7 +380,8 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>maxPicWidth</td>
- * <td>-1 <br>
+ * <td>Since 3.3.0: Integer.MAX_VALUE<BR>
+ * (was -1)<br>
  * <br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
  * <td>Same as maxPicHeight, but for the maximum width of the uploaded picture.
@@ -413,7 +415,8 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>pictureTransmitMetadata</td>
- * <td><i>true</i><br>
+ * <td><i>false since 3.3.0<br>
+ * (was true before)</i><br>
  * since 3.2.0<br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
  * <td>This parameter controls whether the applet transmit metadata of the
@@ -421,11 +424,12 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * net.<br>
  * Note 1: This parameter is especially important for picture coming from the
  * Canon EOS 20D, 30D and 40D: pictures shooted in portrait mode contain
- * metadata that are incompatible with Java 1.6.0_3! The color of transformed
- * pictures become strange...<br>
+ * metadata that are incompatible with Java 1.6.0_3! The colors of transformed
+ * pictures become strange... <B>Since 3.3.0: default to true</B>, to 
+ * avoid this annonying (and currently not explained) problem.<br>
  * Note 2: <Caution> As of 3.2.0, this parameter blocks metadata only for
  * pictures that are updated by the applet. Metadata from picture transmitted
- * 'as is' are not removed. </td>
+ * 'as is' are not removed. This is corrected in 3.3.0.</td>
  * </tr>
  * <tr>
  * <td>postURL</td>
@@ -466,7 +470,8 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>realMaxPicHeight</td>
- * <td>-1 <br>
+ * <td>Since 3.3.0: Integer.MAX_VALUE<BR>
+ * (was -1)<br>
  * <br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}<br>
  * <i>Since v2.8.1</i></td>
@@ -479,11 +484,11 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * <ul>
  * <li>Put a 'big' <i>maxPicHeight</i> (or don't provide the parameter in the
  * APPLET tag), and let the server resize the picture according to the real
- * maxHeight. The <i>maxPicHeight</i> will be used when the picture is not
+ * maxPicHeight. The <i>maxPicHeight</i> will be used when the picture is not
  * tranformed by the user.
- * <li>Put this realMaxHeight to the real configured maxHeight. The applet will
- * then directly produce the final file, when it has to tranform the picture
- * (picture rotation, for instance).
+ * <li>Put this realMaxHeight to the real configured maxPicHeight. The applet
+ * will then directly produce the final file, when it has to tranform the
+ * picture (picture rotation, for instance).
  * </ul>
  * <br>
  * <i>See also maxPicHeight, realMaxPicWidth, maxChunkSize (to override any
@@ -491,7 +496,8 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>realMaxPicWidth</td>
- * <td>-1 <br>
+ * <td>Since 3.3.0: Integer.MAX_VALUE<BR>
+ * (was -1)<br>
  * <br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}<br>
  * <i>Since v2.8.1</i></td>
@@ -1042,12 +1048,12 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "maxPicWidth".
      */
-    final static int DEFAULT_MAX_WIDTH = -1;
+    final static int DEFAULT_MAX_WIDTH = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "maxPicHeight".
      */
-    final static int DEFAULT_MAX_HEIGHT = -1;
+    final static int DEFAULT_MAX_HEIGHT = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "maxPicHeight". Note: the
@@ -1063,7 +1069,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "pictureCompressionQuality".
      */
-    final static boolean DEFAULT_PICTURE_TRANSMIT_METADATA = true;
+    final static boolean DEFAULT_PICTURE_TRANSMIT_METADATA = false;
 
     /**
      * Default value for parameter "postURL".
@@ -1073,12 +1079,12 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "realMaxPicWidth".
      */
-    final static int DEFAULT_REAL_MAX_WIDTH = -1;
+    final static int DEFAULT_REAL_MAX_WIDTH = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "realMaxPicHeight".
      */
-    final static int DEFAULT_REAL_MAX_HEIGHT = -1;
+    final static int DEFAULT_REAL_MAX_HEIGHT = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "serverProtocol".
