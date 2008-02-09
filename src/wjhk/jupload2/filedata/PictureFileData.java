@@ -22,11 +22,11 @@
 package wjhk.jupload2.filedata;
 
 import java.awt.Canvas;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -70,7 +70,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @author Etienne Gauthier
  * @version $Revision$
  */
-public class PictureFileData extends DefaultFileData {
+public class PictureFileData extends DefaultFileData implements ImageObserver {
 
     /**
      * Indicate whether the data for this fileData has already been intialized.
@@ -179,6 +179,30 @@ public class PictureFileData extends DefaultFileData {
     private Boolean hasToTransformPicture = null;
 
     /**
+     * Defines the number of pixel for the current picture. Used to update the
+     * progress bar.
+     * 
+     * @see #getBufferedImage(BufferedImage, int, int, boolean),
+     *      #imageUpdate(Image, int, int, int, int, int)
+     */
+    int nbPixelsTotal = -1;
+
+    /**
+     * Indicates the number of pixels that have been read.
+     * 
+     * @see #nbPixelsTotal, #imageUpdate(Image, int, int, int, int, int)
+     */
+    int nbPixelsRead = 0;
+
+    /**
+     * The value that has the progress bar when starting to load the picture.
+     * The {@link #imageUpdate(Image, int, int, int, int, int)} method will add
+     * from 0 to 100, to indicate progress with a percentage value of picture
+     * loading.
+     */
+    int progressBarBaseValue = 0;
+
+    /**
      * For this class, the UploadPolicy is a PictureUploadPolicy, or one class
      * that inherits from it.
      * 
@@ -211,6 +235,45 @@ public class PictureFileData extends DefaultFileData {
         if (this.isPicture) {
             setMimeTypeByExtension(fileExtension);
         }
+    }
+
+    /**
+     * Implementation of the ImageObserver interface. Used to follow the
+     * drawImage progression, and update the applet progress bar.
+     */
+    public boolean imageUpdate(Image img, int infoflags, int x, int y,
+            int width, int height) {
+        if ((infoflags & ImageObserver.WIDTH) == ImageObserver.WIDTH) {
+            this.progressBarBaseValue = this.uploadPolicy.getApplet()
+                    .getUploadPanel().getProgressBar().getValue();
+            this.uploadPolicy.displayDebug(
+                    "  imageUpdate (start of), progressBar geValue: "
+                            + this.progressBarBaseValue, 100);
+            int max = this.uploadPolicy.getApplet().getUploadPanel()
+                    .getProgressBar().getMaximum();
+            this.uploadPolicy.displayDebug(
+                    "  imageUpdate (start of), progressBar maximum: " + max,
+                    100);
+        } else if ((infoflags & ImageObserver.SOMEBITS) == ImageObserver.SOMEBITS) {
+            this.nbPixelsRead += width * height;
+            int percentage = (int) ((long) this.nbPixelsRead * 100 / this.nbPixelsTotal);
+            this.uploadPolicy.getApplet().getUploadPanel().getProgressBar()
+                    .setValue(this.progressBarBaseValue + percentage);
+            // TODO: drawImage in another thread, to allow repaint of the
+            // progress bar ?
+            // Current status: the progress bar is only updated ... when
+            // draImage returns, that is: when everything is finished. NO
+            // interest.
+            this.uploadPolicy.getApplet().getUploadPanel().getProgressBar()
+                    .repaint(100);
+        } else if ((infoflags & ImageObserver.ALLBITS) == ImageObserver.ALLBITS) {
+            this.uploadPolicy.displayDebug(
+                    "  imageUpdate, total number of pixels: "
+                            + this.nbPixelsRead + " read", 100);
+        }
+
+        // We want to go on, after these bits
+        return true;
     }
 
     /**
@@ -404,6 +467,10 @@ public class PictureFileData extends DefaultFileData {
 
         freeMemory("end of " + this.getClass().getName() + ".getImage()");
 
+        // The picture is now loaded. We clear the progressBar
+        this.uploadPolicy.getApplet().getUploadPanel().getProgressBar()
+                .setValue(this.progressBarBaseValue);
+
         return localImage;
     }// getImage
 
@@ -490,8 +557,8 @@ public class PictureFileData extends DefaultFileData {
         long msGetBufferedImage = System.currentTimeMillis();
         double theta = Math.toRadians(90 * this.quarterRotation);
         BufferedImage returnedBufferedImage = null;
-        
-        //TODO Finish optimization, here
+
+        // TODO Finish optimization, here
 
         this.uploadPolicy.displayDebug("getBufferedImage: start", 10);
 
@@ -613,28 +680,22 @@ public class PictureFileData extends DefaultFileData {
 
                 // If we have to rescale the picture, we first do it:
                 if (scale < 1) {
-                    if (highquality || true) {
+                    if (highquality) {
                         this.uploadPolicy.displayDebug(
                                 "Resizing picture(using high quality picture)",
                                 40);
 
-                        // We use SCALE_SMOOTH, as it is quicker (10ms) than
-                        // SCALE_AREA_AVERAGING (30ms), and I can't see
-                        // differences on my test
-                        // picture.
+                        // We use SCALE_SMOOTH, as it is a (very) little quicker
+                        // than SCALE_AREA_AVERAGING (8.5s against 8.7s on my
+                        // test picture), and I can't see
+                        // differences on the resulting uploaded picture.
                         // Other parameter give bad picture quality.
                         this.uploadPolicy.displayDebug("Before SCALE_SMOOTH",
                                 100);
-                        long msRescale = System.currentTimeMillis();
                         Image img = sourceBufferedImage.getScaledInstance(
                                 (int) (this.originalWidth * scale),
                                 (int) (this.originalHeight * scale),
                                 Image.SCALE_SMOOTH);
-                        this.uploadPolicy
-                                .displayDebug(
-                                        "After SCALE_SMOOTH (was "
-                                                + (System.currentTimeMillis() - msRescale)
-                                                + " ms long)", 100);
 
                         // the localBufferedImage may be 'unknown'.
                         int localImageType = sourceBufferedImage.getType();
@@ -648,13 +709,20 @@ public class PictureFileData extends DefaultFileData {
                                 (int) (this.originalWidth * scale),
                                 (int) (this.originalHeight * scale),
                                 localImageType);
-                        this.uploadPolicy.displayDebug("Before getGraphics",
-                                100);
-                        Graphics g = tempBufferedImage.getGraphics();
+
+                        // drawImage can be long. Let's follow its progress,
+                        // with the applet progress bar.
+                        this.nbPixelsTotal = scaledWidth * scaledHeight;
+                        this.nbPixelsRead = 0;
+
+                        // Let's draw the picture: this code do the rescaling.
                         this.uploadPolicy.displayDebug("Before drawImage", 100);
-                        g.drawImage(img, 0, 0, null);
+                        tempBufferedImage.getGraphics().drawImage(img, 0, 0,
+                                this);
+
                         this.uploadPolicy.displayDebug("Before flush1", 100);
                         tempBufferedImage.flush();
+
                         this.uploadPolicy.displayDebug("Before flush2", 100);
                         img.flush();
                         img = null;
@@ -1384,4 +1452,5 @@ public class PictureFileData extends DefaultFileData {
                     .displayWarn("Image metada not cleared: will be transmitted with pictures");
         }
     }
+
 }
