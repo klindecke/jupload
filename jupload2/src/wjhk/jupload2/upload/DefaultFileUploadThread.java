@@ -246,7 +246,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         for (int i = 0; i < this.filesToUpload.length && !this.stop; i++) {
             if (null != this.progressBar) {
-                this.progressBar.setValue(i);
+                this.progressBar.setValue(i*100);
                 this.progressBar.setString(String.format(this.uploadPolicy
                         .getString("preparingFile"), new Integer(i + 1),
                         new Integer(this.filesToUpload.length)));
@@ -259,7 +259,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         if (null != this.progressBar) {
             this.progressBar.setValue(0);
-            // Setting the maximum value of the progress bar to the total lenght
+            // Setting the maximum value of the progress bar to the total length
             // of all files could easily overflow the int, so we use percent
             // units here.
             this.progressBar.setMaximum(100);
@@ -276,7 +276,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
      *            addtional length is asked.
      * @return The additional number of bytes for this file.
      */
-    abstract long getAdditionnalBytesForUpload(int indexFile) throws JUploadIOException ;
+    abstract long getAdditionnalBytesForUpload(int indexFile)
+            throws JUploadIOException;
 
     /**
      * This method is called before starting of each request. It can be used to
@@ -419,7 +420,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
         try {
             if (null != this.progressBar) {
                 this.progressBar.setValue(0);
-                this.progressBar.setMaximum(this.filesToUpload.length);
+                // We allow percentage to be change, for each uploaded file.
+                // This allows to show how picture preparation is progressing to
+                // the user.
+                this.progressBar.setMaximum(this.filesToUpload.length * 100);
             }
 
             // Prepare upload, for all files to be uploaded.
@@ -622,8 +626,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
                                             + " bytes, getAdditionnalBytesForUpload="
                                             + getAdditionnalBytesForUpload(firstFileToUploadParam
                                                     + i) + " bytes", 80);
-                }//if (debugLevel)
-            }//for
+                }// if (debugLevel)
+            }// for
         } catch (JUploadException e) {
             this.uploadPolicy.displayErr(e);
             this.uploadException = e;
