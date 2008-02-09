@@ -28,6 +28,8 @@ Changes (picture mode):
 Integer.MAX_VALUE
 - [Minor] Default value for pictureTransmitMetadata set to false, to avoid color problem (see explanation
 of this parameter in the given doc).
+- [Minor] the progress bar is now updated while picture resizing is running, when preparing files before upload,
+instead of being changed for each prepared file. Not really necessary, but I'm happy with this one !    :-)
 
 
 Fixes:
