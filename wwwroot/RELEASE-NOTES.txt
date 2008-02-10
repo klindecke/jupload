@@ -2,9 +2,6 @@
 
 
 V3.3.0rc1
-(available on SVN, and on the demo site, no official release)
-
-
 
 Changes (all modes):
 - [Major] The applet can now correctly manage filename containing non-ASCII characters. Works Ok with French 

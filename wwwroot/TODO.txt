@@ -3,6 +3,7 @@ TODO list switched to a separate file: I don't want to make everyone be afraid o
 They often are the tests/enhancements I want to do, before a release.
 
 TODO list:
+- Make animated gif work again. Broken in 3.3.0rc1.
 - generate pictures (rotated or not, without any maxXxx or maxRealXxx applet parameter)
 - test if the basic demo works once on sourceforge. 
 - test in debug mode: seems like calling hasToTransform.. always load picture, even is non useful.
