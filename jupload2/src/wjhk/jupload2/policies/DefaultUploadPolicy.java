@@ -817,16 +817,31 @@ public class DefaultUploadPolicy implements UploadPolicy {
             setDebugLevel(1);
 
         String exceptionMsg = null;
+        String exceptionClassName = null;
         String alertMsg = errorText;
         String logMsg = errorText;
         Exception justToPrintAStackTrace = exception;
 
+        // First, we construct the exception class name.
         if (exception == null) {
             justToPrintAStackTrace = new Exception();
+            exceptionClassName = "";
+        } else if (exception instanceof JUploadException) {
+            exceptionClassName = "["
+                    + ((JUploadException) exception).getClassNameAndClause()
+                    + "] ";
         } else {
+            exceptionClassName = "[" + exception.getClass().getName() + "] ";
+        }
+
+        // Then, the message body can be completed by the exception message.
+        if (exception != null) {
             // Ok, we have an exception.
-            exceptionMsg = exception.getClass().getName() + ": "
-                    + exception.getMessage();
+            if (exception.getCause() != null) {
+                exceptionMsg = exception.getCause().getMessage();
+            } else {
+                exceptionMsg = exception.getMessage();
+            }
             if (errorText == null || errorText.equals("")) {
                 alertMsg = "Unknown error (" + exceptionMsg + ")";
             }
@@ -834,10 +849,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
 
         // Display the message to the user.
-        alertStr(alertMsg);
+        if (getDebugLevel() > 1) {
+            // Debug has been put on, by the user.
+            alertStr(exceptionClassName + logMsg);
+        } else {
+            // Debug level may be set to 1, when an error occurs, even if debug
+            // was not put on by the user.
+            alertStr(alertMsg);
+        }
 
         // Add the message to the log window
-        displayMsg("[ERROR] ", logMsg);
+        displayMsg("[ERROR] ", exceptionClassName + logMsg);
         // Let's display the stack trace, if relevant.
         if (exception != null) {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
@@ -1326,7 +1348,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public JUploadApplet getApplet() {
         return this.applet;
     }
-    
+
     /** @see UploadPolicy#getDateFormat() */
     public String getDateFormat() {
         return UploadPolicy.DEFAULT_DATE_FORMAT;
@@ -1443,7 +1465,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 locale = new Locale(language, country.toUpperCase());
             } else {
                 locale = new Locale(lang);
-                displayDebug("setLang - language read (no country): " + lang, 50);
+                displayDebug("setLang - language read (no country): " + lang,
+                        50);
             }
         }
         this.resourceBundle = ResourceBundle.getBundle(
