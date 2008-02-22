@@ -4,8 +4,7 @@ They often are the tests/enhancements I want to do, before a release.
 
 TODO list:
 - Make animated gif work again. Broken in 3.3.0rc1.
-- generate pictures (rotated or not, without any maxXxx or maxRealXxx applet parameter)
-- test if the basic demo works once on sourceforge. 
+  Doesn't work when pictureTransmitMetadata is false (Ok when true)
 - test in debug mode: seems like calling hasToTransform.. always load picture, even is non useful.
 - test with IE7 under XP
 - jsString with $: see http://sourceforge.net/forum/forum.php?thread_id=1893545&forum_id=199106

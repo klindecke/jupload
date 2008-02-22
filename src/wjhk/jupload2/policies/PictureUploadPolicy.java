@@ -38,6 +38,7 @@ import javax.swing.BorderFactory;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
@@ -173,9 +174,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     private float pictureCompressionQuality = UploadPolicy.DEFAULT_PICTURE_COMPRESSION_QUALITY;
 
     /**
-     * Used to control whether PictureFileData should add metadata to transformed
-     * picture files, before upload (or remove metadata from normally
-     * untransformed picture files).
+     * Used to control whether PictureFileData should add metadata to
+     * transformed picture files, before upload (or remove metadata from
+     * normally untransformed picture files).
      */
     private boolean pictureTransmitMetadata;
 
@@ -263,14 +264,23 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      */
     @Override
     public FileData createFileData(File file, File root) {
-        PictureFileData pfd = new PictureFileData(file, root, this);
-        if (pfd.isPicture()) {
-            return pfd;
+        PictureFileData pfd = null;
+        try {
+            pfd = new PictureFileData(file, root, this);
+        } catch (JUploadIOException e) {
+            displayErr(e);
         }
-        if (!alertShown) {
-            // Alert only once, when several files are not pictures... hum,
-            alertStr(String.format(getString("notAPicture"), file.getName()));
-            alertShown = true;
+        
+        //If we get a pfd, let' check that it's a picture. 
+        if (pfd != null) {
+            if (pfd.isPicture()) {
+                return pfd;
+            } else if (!alertShown) {
+                // Alert only once, when several files are not pictures... hum,
+                alertStr(String
+                        .format(getString("notAPicture"), file.getName()));
+                alertShown = true;
+            }
         }
         return null;
     }
@@ -495,7 +505,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /**
      * @see #pictureTransmitMetadata
-     * @return The current value for transmission (or no transmission) of picture metadata.
+     * @return The current value for transmission (or no transmission) of
+     *         picture metadata.
      */
     public boolean getPictureTransmitMetadata() {
         return this.pictureTransmitMetadata;
@@ -514,7 +525,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      *         transformed (rotated...) by the applet.
      */
     public int getRealMaxHeight() {
-        return (this.realMaxHeight == Integer.MAX_VALUE) ? this.maxHeight : this.realMaxHeight;
+        return (this.realMaxHeight == Integer.MAX_VALUE) ? this.maxHeight
+                : this.realMaxHeight;
     }
 
     /** @param realMaxHeight the realMaxHeight to set */
@@ -527,7 +539,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      *         transformed (rotated...) by the applet.
      */
     public int getRealMaxWidth() {
-        return (this.realMaxWidth == Integer.MAX_VALUE) ? this.maxWidth : this.realMaxWidth;
+        return (this.realMaxWidth == Integer.MAX_VALUE) ? this.maxWidth
+                : this.realMaxWidth;
     }
 
     /** @param realMaxWidth the realMaxWidth to set */
@@ -584,11 +597,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
             setMaxWidth(UploadPolicyFactory
                     .parseInt(value, this.maxWidth, this));
         } else if (prop.equals(PROP_PICTURE_COMPRESSION_QUALITY)) {
-            setPictureCompressionQuality(UploadPolicyFactory
-                    .parseFloat(value, this.pictureCompressionQuality, this));
+            setPictureCompressionQuality(UploadPolicyFactory.parseFloat(value,
+                    this.pictureCompressionQuality, this));
         } else if (prop.equals(PROP_PICTURE_TRANSMIT_METADATA)) {
-            setPictureTransmitMetadata(UploadPolicyFactory
-                    .parseBoolean(value, this.pictureTransmitMetadata, this));
+            setPictureTransmitMetadata(UploadPolicyFactory.parseBoolean(value,
+                    this.pictureTransmitMetadata, this));
         } else if (prop.equals(PROP_REAL_MAX_HEIGHT)) {
             setRealMaxHeight(UploadPolicyFactory.parseInt(value,
                     this.realMaxHeight, this));

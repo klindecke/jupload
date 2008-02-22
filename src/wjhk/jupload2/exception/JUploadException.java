@@ -1,5 +1,7 @@
 //
-// $Id$
+// $Id: JUploadException.java 95 2007-05-02 03:27:05Z
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
 // 
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
@@ -91,5 +93,23 @@ public class JUploadException extends Exception {
      */
     public String getLocation() {
         return (null == this.location) ? "unknown location" : this.location;
+    }
+
+    /**
+     * Returns JUploadExceptionClassName:CauseClassName. For instance:<BR>
+     * wjhk.jupload2.exception.JUploadIOException:FileNotFoundException <BR>
+     * or<BR>
+     * wjhk.jupload2.exception.JUploadIOException (if there is no cause given to
+     * the JUploadException constructor).
+     * 
+     * @return The class name(s) that can be displayed in an error message.
+     */
+    public String getClassNameAndClause() {
+        if (getCause() == null) {
+            return this.getClass().getName();
+        } else {
+            return this.getClass().getName() + ":"
+                    + this.getCause().getClass().getName();
+        }
     }
 }

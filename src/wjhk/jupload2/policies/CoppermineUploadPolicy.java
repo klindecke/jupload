@@ -25,6 +25,7 @@ import java.io.File;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
@@ -115,10 +116,18 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      */
     @Override
     public FileData createFileData(File file, File root) {
-        PictureFileData pfd = new PictureFileData(file, root, this);
+        PictureFileData pfd = null;
+        try {
+            pfd = new PictureFileData(file, root, this);
+        } catch (JUploadIOException e) {
+            displayErr(e);
+        }
 
-        // Is the given file a picture ?
-        if (pfd.isPicture()) {
+        // If we get a pfd, let' check that it's a picture.
+        if (pfd == null) {
+            // An error occurred
+            return null;
+        } else if (pfd.isPicture()) {
             return pfd;
         } else {
             return new DefaultFileData(file, root, this);
@@ -153,7 +162,8 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      */
     @Override
     public void setProperty(String prop, String value) throws JUploadException {
-        displayDebug("[CoppermineUploadPolicy] Call off setProperty: " + prop + " => " + value, 60);
+        displayDebug("[CoppermineUploadPolicy] Call off setProperty: " + prop
+                + " => " + value, 60);
 
         // Check if it's a local property.
         if (prop.equals(PROP_ALBUM_ID)) {
@@ -206,7 +216,8 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         }
 
         // We note the number of files to upload.
-        this.nbPictureInUpload = getApplet().getUploadPanel().getFilePanel().getFilesLength();
+        this.nbPictureInUpload = getApplet().getUploadPanel().getFilePanel()
+                .getFilesLength();
 
         // Default : Let's ask the mother.
         return super.isUploadReady();
@@ -216,7 +227,8 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     @Override
     public void afterUpload(Exception e, @SuppressWarnings("unused")
     String serverOutput) throws JUploadException {
-        int nbPictureAfterUpload = getApplet().getUploadPanel().getFilePanel().getFilesLength();
+        int nbPictureAfterUpload = getApplet().getUploadPanel().getFilePanel()
+                .getFilesLength();
         if (nbPictureAfterUpload > this.nbPictureInUpload) {
             displayErr("CoppermineUploadPolicy.afterUpload: The number of uploaded files is negative! ("
                     + (this.nbPictureInUpload - nbPictureAfterUpload) + ")");
