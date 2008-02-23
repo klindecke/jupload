@@ -36,6 +36,9 @@ Fixes:
 Previously, non updated (resized, rotated) pictures were uploaded untransformed, that is with their metadata.
 - [Minor-Picture] Picture mode: due to wrong number rounding, the resized picture could sometime be one pixel bigger than
 the maximum allowed size. 
+- [Minor] When postUrl is a javascript call, the applet is now able to manage $ characters as $ character, and not
+as 'end of line' (fix given by Jon Gjengset).
+ 
 
 
 Translation

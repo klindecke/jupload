@@ -633,11 +633,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     // A JavaScript expression was specified. Execute it.
                     String expr = url.substring(11);
                     if (expr.contains("%msg%"))
+                        //FIX given by Jon Gjengset, to be able to replace $ characters.
                         expr = expr.replaceAll("%msg%",
-                                jsString(getLastResponseMessage()));
+                                jsString(getLastResponseMessage()).replaceAll("\\$", "\\\\\\$"));
                     if (expr.contains("%body%"))
+                        //FIX given by Jon Gjengset, to be able to replace $ characters.
                         expr = expr.replaceAll("%body%",
-                                jsString(getLastResponseBody()));
+                                jsString(getLastResponseBody()).replaceAll("\\$", "\\\\\\$"));
                     if (expr.contains("%success%"))
                         expr = expr.replaceAll("%success%",
                                 (null == e) ? "true" : "false");
