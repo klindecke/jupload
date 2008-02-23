@@ -1,7 +1,7 @@
 
 
 
-V3.3.0rc1
+V3.3.0
 
 Changes (all modes):
 - [Major] The applet can now correctly manage filename containing non-ASCII characters. Works Ok with French 
@@ -43,7 +43,7 @@ as 'end of line' (fix given by Jon Gjengset).
 
 Translation
 - Add of the Croatian language, thanks to Bruno Simic.
-- Norvegian translation updated, thanks to .
+- Norvegian translation updated, thanks to Pål Knudsen.
 - Hebrew translation added, thanks to David Lior, liorda@gmail.com
 - Swedish translation added, thanks to Erik Lindahl (erik@fisensmosse.se)
 
