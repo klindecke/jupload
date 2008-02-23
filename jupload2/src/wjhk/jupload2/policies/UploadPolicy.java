@@ -425,8 +425,8 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  * Note 1: This parameter is especially important for picture coming from the
  * Canon EOS 20D, 30D and 40D: pictures shooted in portrait mode contain
  * metadata that are incompatible with Java 1.6.0_3! The colors of transformed
- * pictures become strange... <B>Since 3.3.0: default to true</B>, to 
- * avoid this annonying (and currently not explained) problem.<br>
+ * pictures become strange... <B>Since 3.3.0: default to true</B>, to avoid
+ * this annonying (and currently not explained) problem.<br>
  * Note 2: <Caution> As of 3.2.0, this parameter blocks metadata only for
  * pictures that are updated by the applet. Metadata from picture transmitted
  * 'as is' are not removed. This is corrected in 3.3.0.</td>
@@ -730,8 +730,9 @@ import wjhk.jupload2.upload.ByteArrayEncoder;
  *                                       &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
  *                                       Java 1.5 or higher plugin required.
  *                                     &lt;/applet&gt;
- * </pre></code> <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used
- * by Ant build. DO NOT CHANGE!! -->
+ * </pre></code> <BR>
+ * <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used by Ant
+ * build. DO NOT CHANGE!! -->
  * 
  * @author Etienne Gauthier
  * @version $Revision$
