@@ -15,7 +15,8 @@
 
       fileOutS.close();
       fileOutS = null;
-      out.println("SUCCESSFUL : Upload Stream Saved to \"" + fileOut + "\".");
+      out.println("Upload Stream Saved to \"" + fileOut + "\".");
+      out.println("SUCCESS");
     }catch(Exception e){
       out.println("ERROR : Exception \"" + e.getMessage() + "\" Occured.");
     }
