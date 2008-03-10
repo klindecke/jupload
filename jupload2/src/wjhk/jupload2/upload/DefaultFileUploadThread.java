@@ -246,7 +246,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         for (int i = 0; i < this.filesToUpload.length && !this.stop; i++) {
             if (null != this.progressBar) {
-                this.progressBar.setValue(i*100);
+                this.progressBar.setValue(i * 100);
                 this.progressBar.setString(String.format(this.uploadPolicy
                         .getString("preparingFile"), new Integer(i + 1),
                         new Integer(this.filesToUpload.length)));
@@ -615,18 +615,14 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 totalFileLength += this.filesToUpload[firstFileToUploadParam
                         + i].getUploadLength();
 
-                if (this.uploadPolicy.getDebugLevel() >= 80) {
-                    this.uploadPolicy
-                            .displayDebug(
-                                    "file "
-                                            + (firstFileToUploadParam + i)
-                                            + ": content="
-                                            + this.filesToUpload[firstFileToUploadParam
-                                                    + i].getUploadLength()
-                                            + " bytes, getAdditionnalBytesForUpload="
-                                            + getAdditionnalBytesForUpload(firstFileToUploadParam
-                                                    + i) + " bytes", 80);
-                }// if (debugLevel)
+                this.uploadPolicy.displayDebug("file "
+                        + (firstFileToUploadParam + i)
+                        + ": content="
+                        + this.filesToUpload[firstFileToUploadParam + i]
+                                .getUploadLength()
+                        + " bytes, getAdditionnalBytesForUpload="
+                        + getAdditionnalBytesForUpload(firstFileToUploadParam
+                                + i) + " bytes", 80);
             }// for
         } catch (JUploadException e) {
             this.uploadPolicy.displayErr(e);
@@ -749,13 +745,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
                  */
             }
 
-            if (this.uploadPolicy.getDebugLevel() > 80) {
-                this.uploadPolicy.displayDebug(
-                        "-------- Response Body Start --------", 80);
-                this.uploadPolicy.displayDebug(getResponseBody(), 80);
-                this.uploadPolicy.displayDebug(
-                        "--------- Response Body End ---------", 80);
-            }
+            // Debug output: always called, so that the debug file is correctly
+            // filled.
+            this.uploadPolicy.displayDebug(
+                    "-------- Response Body Start --------", 80);
+            this.uploadPolicy.displayDebug(quoteCRLF(getResponseBody()), 80);
+            this.uploadPolicy.displayDebug(
+                    "--------- Response Body End ---------", 80);
         } // while(!bLastChunk && uploadException==null && !stop)
 
         try {
@@ -786,5 +782,15 @@ public abstract class DefaultFileUploadThread extends Thread implements
         } catch (JUploadException e) {
             this.uploadPolicy.displayErr(e);
         }
+    }
+
+    /**
+     * Replace \r and \n by correctly displayed end of line characters. Used to display debug ouptut.
+     * 
+     * @param s The original string
+     * @return The string with \r and \n modified, to be correctly displayed.
+     */
+    public final String quoteCRLF(String s) {
+        return s.replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n\n");
     }
 }

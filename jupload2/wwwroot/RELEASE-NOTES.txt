@@ -1,5 +1,13 @@
 
 
+V3.4.0 (not released)
+
+This version is the up to date version, available only on SVN and on the demo site. 
+
+Fixes:
+- [Minor] the debug output is now always correctly filled, even when debug mode is not enabled. Previously, some
+information would be written in the debug file only when in debug mode. 
+
 
 V3.3.0
 
