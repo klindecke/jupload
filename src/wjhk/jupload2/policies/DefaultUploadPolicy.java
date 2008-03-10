@@ -633,13 +633,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     // A JavaScript expression was specified. Execute it.
                     String expr = url.substring(11);
                     if (expr.contains("%msg%"))
-                        //FIX given by Jon Gjengset, to be able to replace $ characters.
-                        expr = expr.replaceAll("%msg%",
-                                jsString(getLastResponseMessage()).replaceAll("\\$", "\\\\\\$"));
+                        // FIX given by Jon Gjengset, to be able to replace $
+                        // characters.
+                        expr = expr.replaceAll("%msg%", jsString(
+                                getLastResponseMessage()).replaceAll("\\$",
+                                "\\\\\\$"));
                     if (expr.contains("%body%"))
-                        //FIX given by Jon Gjengset, to be able to replace $ characters.
-                        expr = expr.replaceAll("%body%",
-                                jsString(getLastResponseBody()).replaceAll("\\$", "\\\\\\$"));
+                        // FIX given by Jon Gjengset, to be able to replace $
+                        // characters.
+                        expr = expr.replaceAll("%body%", jsString(
+                                getLastResponseBody()).replaceAll("\\$",
+                                "\\\\\\$"));
                     if (expr.contains("%success%"))
                         expr = expr.replaceAll("%success%",
                                 (null == e) ? "true" : "false");
@@ -1207,69 +1211,62 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see UploadPolicy#displayParameterStatus()
      */
     public void displayParameterStatus() {
-        // Let's handle the language:
-        if (getDebugLevel() >= 20) {
-            displayDebug(
-                    "=======================================================================",
-                    20);
-            displayDebug("======= Parameters managed by DefaultUploadPolicy",
-                    20);
-            // /////////////////////////////////////////////////////////////////////////////
-            // Let's display some information to the user, about the received
-            // parameters.
-            displayInfo("JUpload applet, version " + JUploadApplet.VERSION
-                    + " (compiled: " + JUploadApplet.BUILD_DATE
-                    + "), available at http://jupload.sourceforge.net/");
-            displayDebug("Java version: " + System.getProperty("java.version"),
-                    20);
-            displayDebug("Cookie: " + this.cookie, 20);
-            displayDebug("userAgent: " + this.userAgent, 20);
+        displayDebug(
+                "=======================================================================",
+                20);
+        displayDebug("======= Parameters managed by DefaultUploadPolicy", 20);
+        // /////////////////////////////////////////////////////////////////////////////
+        // Let's display some information to the user, about the received
+        // parameters.
+        displayInfo("JUpload applet, version " + JUploadApplet.VERSION
+                + " (compiled: " + JUploadApplet.BUILD_DATE
+                + "), available at http://jupload.sourceforge.net/");
+        displayDebug("Java version: " + System.getProperty("java.version"), 20);
+        displayDebug("Cookie: " + this.cookie, 20);
+        displayDebug("userAgent: " + this.userAgent, 20);
 
-            displayDebug("List of all applet parameters:", 20);
-            displayDebug("  language: "
-                    + this.resourceBundle.getLocale().getLanguage(), 20);
-            displayDebug("  country: "
-                    + this.resourceBundle.getLocale().getCountry(), 20);
+        displayDebug("List of all applet parameters:", 20);
+        displayDebug("  language: "
+                + this.resourceBundle.getLocale().getLanguage(), 20);
+        displayDebug("  country: "
+                + this.resourceBundle.getLocale().getCountry(), 20);
 
-            displayDebug(PROP_AFTER_UPLOAD_URL + ": " + getAfterUploadURL(), 20);
-            displayDebug(PROP_ALLOW_HTTP_PERSISTENT + ": "
-                    + getAllowHttpPersistent(), 20);
-            displayDebug(PROP_ALLOWED_FILE_EXTENSIONS + ": "
-                    + getAllowedFileExtensions(), 20);
-            displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
-                    + " (debugfile: " + debugFile.getAbsolutePath() + ")", 1);
-            displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
-                    + getFileChooserIconFromFileContent(), 20);
-            displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
-                    + getFileChooserIconSize(), 20);
-            displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(),
-                    20);
-            displayDebug("lang: " + this.lang, 20);
-            displayDebug(PROP_MAX_CHUNK_SIZE + ": " + getMaxChunkSize(), 20);
-            if (this.maxFileSize == Long.MAX_VALUE) {
-                // If the maxFileSize was not given, we display its value only
-                // in debug mode.
-                displayDebug(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize(), 20);
-            } else {
-                // If the maxFileSize was given, we always inform the user.
-                displayInfo(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize());
-            }
-            displayDebug(PROP_NB_FILES_PER_REQUEST + ": "
-                    + getNbFilesPerRequest(), 20);
-            displayDebug(PROP_POST_URL + ": " + this.postURL, 20);
-            displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 20);
-            displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 20);
-            displayDebug(PROP_SHOW_STATUSBAR + ": " + showStatusbar, 20);
-            displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(),
-                    20);
-            displayDebug(PROP_STRING_UPLOAD_SUCCESS + ": "
-                    + getStringUploadSuccess(), 20);
-            displayDebug(PROP_STRING_UPLOAD_ERROR + ": "
-                    + getStringUploadError(), 20);
-            displayDebug(PROP_URL_TO_SEND_ERROR_TO + ": "
-                    + getUrlToSendErrorTo(), 20);
-            displayDebug("", 20);
+        displayDebug(PROP_AFTER_UPLOAD_URL + ": " + getAfterUploadURL(), 20);
+        displayDebug(PROP_ALLOW_HTTP_PERSISTENT + ": "
+                + getAllowHttpPersistent(), 20);
+        displayDebug(PROP_ALLOWED_FILE_EXTENSIONS + ": "
+                + getAllowedFileExtensions(), 20);
+        displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
+                + " (debugfile: " + debugFile.getAbsolutePath() + ")", 1);
+        displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
+                + getFileChooserIconFromFileContent(), 20);
+        displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
+                + getFileChooserIconSize(), 20);
+        displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(), 20);
+        displayDebug("lang: " + this.lang, 20);
+        displayDebug(PROP_MAX_CHUNK_SIZE + ": " + getMaxChunkSize(), 20);
+        if (this.maxFileSize == Long.MAX_VALUE) {
+            // If the maxFileSize was not given, we display its value only
+            // in debug mode.
+            displayDebug(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize(), 20);
+        } else {
+            // If the maxFileSize was given, we always inform the user.
+            displayInfo(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize());
         }
+        displayDebug(PROP_NB_FILES_PER_REQUEST + ": " + getNbFilesPerRequest(),
+                20);
+        displayDebug(PROP_POST_URL + ": " + this.postURL, 20);
+        displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 20);
+        displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 20);
+        displayDebug(PROP_SHOW_STATUSBAR + ": " + showStatusbar, 20);
+        displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(), 20);
+        displayDebug(PROP_STRING_UPLOAD_SUCCESS + ": "
+                + getStringUploadSuccess(), 20);
+        displayDebug(PROP_STRING_UPLOAD_ERROR + ": " + getStringUploadError(),
+                20);
+        displayDebug(PROP_URL_TO_SEND_ERROR_TO + ": " + getUrlToSendErrorTo(),
+                20);
+        displayDebug("", 20);
     }
 
     private final String normalizeURL(String url) throws JUploadException {
@@ -1805,7 +1802,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg
      */
-    private void addMsgToDebugLog(String msg) {
+    private synchronized void addMsgToDebugLog(String msg) {
         // If uploading lots of chunks, the buffer gets too large, resulting in
         // a OutOfMemoryError on the heap so we now use a temporary file for the
         // debug log.
@@ -1820,10 +1817,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 }
                 boolean endsLF = msg.endsWith("\n");
                 msg = msg.replaceAll("\n", CRLF);
-                if (endsLF)
+                if (endsLF) {
                     this.debugOut.print(msg);
-                else
+                } else {
                     this.debugOut.println(msg);
+                }
             } catch (IOException e) {
                 this.debugOk = false;
                 System.err.println("IO error on debuglog "

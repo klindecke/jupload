@@ -3,9 +3,12 @@ TODO list switched to a separate file: I don't want to make everyone be afraid o
 They often are the tests/enhancements I want to do, before a release.
 
 TODO list:
-- Make animated gif work again. Broken in 3.3.0rc1.
-  Doesn't work when pictureTransmitMetadata is false (Ok when true)
-- test in debug mode: seems like calling hasToTransform.. always load picture, even is non useful.
+- Debug file output: should be enabled only in debug mode. Also: could be nice to have some more entries in the
+debug menu: paste debug output, open debug file... 
+- Check the wiki
+- Close file (see UploadFileData.getInputStream()) just after upload, and not when all files have been uploaded. 
+Currently: uploading 1000 files in one HTTP request leads to a 'too many files open' error. 
+- Check that files are correctly closed during upload (uploaing 1000 files leads to a 'too many files open' error).
 - test with IE7 under XP
 - jsString with $: see http://sourceforge.net/forum/forum.php?thread_id=1893545&forum_id=199106
 	Replace:

@@ -177,13 +177,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     void afterFile(int index) throws JUploadIOException {
         try {
             this.httpDataOut.write(tails[index].getEncodedByteArray());
-            if (this.uploadPolicy.getDebugLevel() >= 80) {
-                this.uploadPolicy.displayDebug("--- filetail start (len="
-                        + tails[index].getEncodedLength() + "):", 80);
-                this.uploadPolicy.displayDebug(quoteCRLF(tails[index]
-                        .getString()), 80);
-                this.uploadPolicy.displayDebug("--- filetail end", 80);
-            }
+            this.uploadPolicy.displayDebug("--- filetail start (len="
+                    + tails[index].getEncodedLength() + "):", 80);
+            this.uploadPolicy.displayDebug(quoteCRLF(tails[index].getString()),
+                    80);
+            this.uploadPolicy.displayDebug("--- filetail end", 80);
         } catch (IOException e) {
             throw new JUploadIOException(e);
         }
@@ -199,13 +197,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // of this loop, if in chunk mode.
         try {
             this.httpDataOut.write(this.heads[index].getEncodedByteArray());
-            if (this.uploadPolicy.getDebugLevel() >= 80) {
-                this.uploadPolicy.displayDebug("--- fileheader start (len="
-                        + this.heads[index].getEncodedLength() + "):", 80);
-                this.uploadPolicy.displayDebug(quoteCRLF(this.heads[index]
-                        .getString()), 80);
-                this.uploadPolicy.displayDebug("--- fileheader end", 80);
-            }
+
+            // Debug output: always called, so that the debug file is correctly
+            // filled.
+            this.uploadPolicy.displayDebug("--- fileheader start (len="
+                    + this.heads[index].getEncodedLength() + "):", 80);
+            this.uploadPolicy.displayDebug(quoteCRLF(this.heads[index]
+                    .getString()), 80);
+            this.uploadPolicy.displayDebug("--- fileheader end", 80);
         } catch (Exception e) {
             throw new JUploadException(e);
         }
@@ -601,12 +600,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Send http request to server
             this.httpDataOut.write(header.getEncodedByteArray());
 
-            if (this.uploadPolicy.getDebugLevel() >= 80) {
-                this.uploadPolicy.displayDebug("=== main header (len="
-                        + header.getEncodedLength() + "):\n"
-                        + quoteCRLF(header.getString()), 80);
-                this.uploadPolicy.displayDebug("=== main header end", 80);
-            }
+            // Debug output: always called, so that the debug file is correctly
+            // filled.
+            this.uploadPolicy.displayDebug("=== main header (len="
+                    + header.getEncodedLength() + "):\n"
+                    + quoteCRLF(header.getString()), 80);
+            this.uploadPolicy.displayDebug("=== main header end", 80);
         } catch (IOException e) {
             throw new JUploadIOException(e);
         } catch (KeyManagementException e) {
@@ -871,10 +870,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             this.tails[firstFileToUpload + i] = bae;
         }
 
-    }
-
-    private final String quoteCRLF(String s) {
-        return s.replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n\n");
     }
 
     /**
