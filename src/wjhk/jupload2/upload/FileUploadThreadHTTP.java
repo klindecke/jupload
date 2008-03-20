@@ -567,8 +567,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     .append(this.boundary.substring(2)).append("\r\n");
             header.append("Content-Length: ").append(
                     String.valueOf(contentLength)).append("\r\n");
-            header.append("Content-Type: ").append(header.getEncoding())
-                    .append("\r\n");
 
             // Get specific headers for this upload.
             this.uploadPolicy.onAppendHeader(header);
