@@ -1,12 +1,16 @@
 
 
-V3.4.0 (not released)
+V3.3.1 (not released)
 
 This version is the up to date version, available only on SVN and on the demo site. 
 
 Fixes:
-- [Minor] the debug output is now always correctly filled, even when debug mode is not enabled. Previously, some
+- [Major] (to be tested) Correct the "bad header" error on IIS 6, when uploading files. 
+- [Minor] The debug output is now always correctly filled, even when debug mode is not enabled. Previously, some
 information would be written in the debug file only when in debug mode. 
+
+Translation:
+- [Portugese] The Portugese translation is now a native Portugese, not Brasilian Portugese anymore, thanks to Filipe Teixeira 
 
 
 V3.3.0
