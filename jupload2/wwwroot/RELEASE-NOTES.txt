@@ -1,11 +1,9 @@
 
 
-V3.3.1 (not released)
-
-This version is the up to date version, available only on SVN and on the demo site. 
+V3.3.1
 
 Fixes:
-- [Major] (to be tested) Correct the "bad header" error on IIS 6, when uploading files. 
+- [Major] Correct the "bad header" error on IIS 6 and IIS 7, when uploading files. 
 - [Minor] The debug output is now always correctly filled, even when debug mode is not enabled. Previously, some
 information would be written in the debug file only when in debug mode. 
 
