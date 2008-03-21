@@ -35,7 +35,7 @@ import java.util.Iterator;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata; 
+import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.FileImageInputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -485,14 +485,10 @@ public class PictureFileData extends DefaultFileData {
      * instance, it can be resized or rotated. This method doesn't throw
      * exception when there is an IOException within its procedure. If an
      * exception occurs while building the temporary file, the exception is
-     * caught, a warning is displayed,the temporary file is deleted (if it was
+     * caught, a warning is displayed, the temporary file is deleted (if it was
      * created), and the upload will go on with the original file. <BR>
      * Note: any JUploadException thrown by a method called within
      * getTransformedPictureFile() will be thrown within this method.
-     * 
-     * @return Returns the transformed picture file, if a transformation is
-     *         needed, or a temp file, containing a copy of the original picture
-     *         file, if no transformation is needed.
      */
     private void initTransformedPictureFile() throws JUploadException {
         int targetMaxWidth;
@@ -541,8 +537,8 @@ public class PictureFileData extends DefaultFileData {
      * {@link #transformedPictureFile} is replaced by the newly transformed
      * picture file. It is cleared if an error occured. <BR>
      * 
-     * @param targetMaxWidth
-     * @param targetMaxHeight
+     * @param imageHelper The {@link ImageHelper} that was initialized with
+     *            current parameters.
      */
     void createTranformedPictureFile(ImageHelper imageHelper)
             throws JUploadException {
@@ -679,27 +675,9 @@ public class PictureFileData extends DefaultFileData {
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Read the Image from the source file. This call is the only call in this
-     * class to read the picture file.
-     * 
-     * @return
-     * @throws JUploadIOException
-     * 
-     * private BufferedImage readImage2() throws JUploadIOException {
-     * BufferedImage bi;
-     * 
-     * this.uploadPolicy.displayDebug("File read: " +
-     * getWorkingSourceFile().getAbsolutePath(), 60); try { bi =
-     * ImageIO.read(getWorkingSourceFile()); } catch (IOException e) { throw new
-     * JUploadIOException(this.getClass().getName(), e); } // Before loading a
-     * new picture, let's free any unused memory. freeMemory("end of
-     * readImage");
-     * 
-     * return bi; }
-     * 
-     * /** Returns an ImageIcon for the given file, resized according to the
-     * given dimensions. If the original file contains a pictures smaller than
-     * these width and height, the picture is returned as is (nor resized).
+     * Returns an ImageIcon for the given file, resized according to the given
+     * dimensions. If the original file contains a pictures smaller than these
+     * width and height, the picture is returned as is (nor resized).
      * 
      * @param pictureFile The file, containing a picture, from which the user
      *            wants to extract a static picture.

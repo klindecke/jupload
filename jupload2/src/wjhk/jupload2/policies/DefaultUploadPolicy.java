@@ -695,7 +695,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Default implementation of
-     * {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}.
+     * {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}.
      * IT creates a JPanel, containing the three given JButton. It creates the
      * same panel as the original JUpload.
      * 
