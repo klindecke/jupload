@@ -181,7 +181,7 @@ public class FilePanelTableImp extends Panel implements FilePanel {
      * Return the component on which drop event can occur. Used by
      * {@link JUploadPanel}, when initializing the DropTarget.
      * 
-     * @return
+     * @return Component on which the drop event can occur.
      */
     public Component getDropComponent() {
         return this;

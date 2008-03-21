@@ -81,15 +81,16 @@ public class ImageHelper implements ImageObserver {
      * Defines the number of pixel for the current picture. Used to update the
      * progress bar.
      * 
-     * @see #getBufferedImage(BufferedImage, int, int, boolean, BufferedImage),
-     *      #imageUpdate(Image, int, int, int, int, int)
+     * @see #getBufferedImage(boolean, BufferedImage)
+     * @see #imageUpdate(Image, int, int, int, int, int)
      */
     private int nbPixelsTotal = -1;
 
     /**
      * Indicates the number of pixels that have been read.
      * 
-     * @see #nbPixelsTotal, #imageUpdate(Image, int, int, int, int, int)
+     * @see #nbPixelsTotal
+     * @see #imageUpdate(Image, int, int, int, int, int)
      */
     private int nbPixelsRead = 0;
 
@@ -341,7 +342,7 @@ public class ImageHelper implements ImageObserver {
 
     /**
      * This function resizes the picture, if necessary, according to the
-     * {@link #targetMaxWidth} and {@link #targetMaxHeight}, given to the
+     * {@link #maxWidth} and {@link #maxHeight}, given to the
      * ImageHelper constructor. <BR>
      * This function should only be called if isPicture is true. Otherwise, an
      * exception is raised. <BR>
