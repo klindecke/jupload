@@ -387,10 +387,6 @@ public class PictureFileData extends DefaultFileData {
                 BufferedImage sourceImage = irwh.readImage(0);
                 irwh.dispose();
                 irwh = null;
-                // FIXME (minor) getBufferedImage() that can return a picture
-                // smaller than the PictureDialog (if maxWidth or maxHeigth are
-                // smaller than the PictureDialog)
-                // bufferedImage
                 ImageHelper ih = new ImageHelper(
                         (PictureUploadPolicy) this.uploadPolicy, this,
                         canvasWidth, canvasHeight, this.quarterRotation);
@@ -525,7 +521,6 @@ public class PictureFileData extends DefaultFileData {
             // We have to create a resized or rotated picture file, and all
             // needed information.
             // ...let's do it
-            // TODO reuse the above ImageHelper.
             createTranformedPictureFile(imageHelper);
         }
     }// end of initTransformedPictureFile
@@ -636,9 +631,6 @@ public class PictureFileData extends DefaultFileData {
      * This methods set the {@link DefaultFileData#mimeType} to the image mime
      * type, that should be associate with the picture.
      */
-    // FIXME PictureFileData.setMimeTypeByExtension(String): this method take
-    // the mime type from the original picture file (to update according to the
-    // targetPictureFormat parameter).
     private void setMimeTypeByExtension(String fileExtension) {
         String ext = fileExtension.toLowerCase();
         if (ext.equals("jpg")) {

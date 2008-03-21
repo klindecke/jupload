@@ -414,9 +414,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         if (this.picturePanel != null) {
             this.picturePanel.setPictureFile(null, this.rotateLeftButton,
                     this.rotateRightButton);
-            // this.rotateLeftButton.setEnabled(false);
-            // this.rotateRightButton.setEnabled(false);
-            // TODO remove the two lines above, if tests are Ok.
         }
 
         // Then, we call the standard action, if any.

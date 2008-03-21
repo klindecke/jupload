@@ -152,7 +152,6 @@ public class ImageReaderWriterHelper {
             imageWriter.dispose();
             if (fileImageOutputStream != null) {
                 try {
-                    // TODO test if fileImageOutputStream is null
                     fileImageOutputStream.close();
                 } catch (IOException e) {
                     throw new JUploadIOException(
