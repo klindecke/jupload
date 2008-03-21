@@ -1152,10 +1152,10 @@ public interface UploadPolicy {
      * applet part that is above the file list, called here the 'top panel'.
      * That is: the part that contains the Browse, Remove and RemoveAll buttons.
      * The default implementation is defined in
-     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}.
+     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}.
      * <BR>
      * You can see an example in the
-     * {@link PictureUploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel) 
+     * {@link PictureUploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}
      * upload policy implementation. <BR>
      * <B>Note:</B> This method is called by the
      * {@link DefaultUploadPolicy#addComponentsToJUploadPanel(JUploadPanel)}
@@ -1200,7 +1200,7 @@ public interface UploadPolicy {
      * This methods allow the upload policy to override the default disposition
      * of the components on the applet.
      * 
-     * @see #createTopPanel(JButton, JButton, JButton, JPanel)
+     * @see #createTopPanel(JButton, JButton, JButton, JUploadPanel)
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel);
 
@@ -1635,7 +1635,7 @@ public interface UploadPolicy {
      * {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
      * 
      * @param header
-     * @see #onAppendHeader(StringBuffer)
+     * @see #onAppendHeader(ByteArrayEncoder)
      */
     public void addHeader(String header);
 

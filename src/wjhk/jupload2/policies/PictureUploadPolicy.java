@@ -53,7 +53,7 @@ import wjhk.jupload2.gui.PicturePanel;
  * <H4>Functionalities:</H4>
  * <UL>
  * <LI> The top panel (upper part of the applet display) is modified, by using
- * UploadPolicy.{@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JPanel)}.
+ * UploadPolicy.{@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}.
  * It contains a <B>preview</B> picture panel, and two additional buttons to
  * rotate the selected picture in one direction or the other.
  * <LI> Ability to set maximum width or height to a picture (with maxPicWidth
@@ -105,8 +105,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * Indicates that a BufferedImage is to be created when the user selects the
      * file. <BR>
-     * If true : the Image is loaded once from the hard drive. This consumns
-     * memory, but is interessant for big pictures, when they are resized (see
+     * If true : the Image is loaded once from the hard drive. This consumes
+     * memory, but is interesting for big pictures, when they are resized (see
      * {@link #maxWidth} and {@link #maxHeight}). <BR>
      * If false : it is loaded for each display on the applet, then once for the
      * upload. <BR>
@@ -270,8 +270,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         } catch (JUploadIOException e) {
             displayErr(e);
         }
-        
-        //If we get a pfd, let' check that it's a picture. 
+
+        // If we get a pfd, let' check that it's a picture.
         if (pfd != null) {
             if (pfd.isPicture()) {
                 return pfd;

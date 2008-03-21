@@ -202,7 +202,7 @@ public class ImageReaderWriterHelper {
     /**
      * Call to ImageIO.read({@link #fileImageInputStream}).
      * 
-     * @return
+     * @return The BufferedImage read
      * @throws JUploadIOException
      */
     public BufferedImage imageIORead() throws JUploadIOException {
@@ -221,7 +221,7 @@ public class ImageReaderWriterHelper {
      * @param imageIndex The index number of the picture, in the file. 0 for the
      *            first picture (only valid value for picture containing one
      *            picture)
-     * @return
+     * @return The image corresponding to this index, in the picture file.
      * @throws JUploadIOException
      */
     public BufferedImage readImage(int imageIndex) throws JUploadIOException,
@@ -250,7 +250,7 @@ public class ImageReaderWriterHelper {
      * @param imageIndex The index number of the picture, in the file. 0 for the
      *            first picture (only valid value for picture containing one
      *            picture)
-     * @return
+     * @return The full image data for this index
      * @throws JUploadIOException
      */
     public IIOImage readAll(int imageIndex) throws JUploadIOException,
@@ -278,8 +278,8 @@ public class ImageReaderWriterHelper {
      * Load the metadata associated with one picture in the picture file.
      * 
      * @param imageIndex
-     * @return
-     * @throws JUploadIOException
+     * @return The metadata loaded
+     * @throws JUploadIOException Any IOException is encapsulated in this exception 
      */
     public IIOMetadata getImageMetadata(int imageIndex)
             throws JUploadIOException {
@@ -319,7 +319,6 @@ public class ImageReaderWriterHelper {
     /**
      * Write a picture in the output picture file. Called just before an upload.
      * 
-     * @param numIndex The index of the image in the transformed picture file.
      * @param iioImage The image to write.
      */
     public void write(IIOImage iioImage) throws JUploadIOException {

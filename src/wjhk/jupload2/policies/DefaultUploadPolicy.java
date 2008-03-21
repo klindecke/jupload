@@ -273,7 +273,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * This Vector contains headers that will be added for each upload. It may
      * contains specific cookies, for instance.
      * 
-     * @see #onAppendHeader(StringBuffer)
+     * @see #onAppendHeader(ByteArrayEncoder)
      */
     private Vector<String> headers = new Vector<String>();
 
@@ -699,8 +699,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * IT creates a JPanel, containing the three given JButton. It creates the
      * same panel as the original JUpload.
      * 
-     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton,
-     *      JButton, JPanel)
+     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)
      */
     public JPanel createTopPanel(JButton browse, JButton remove,
             JButton removeAll, @SuppressWarnings("unused")
@@ -940,7 +939,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return true;
     }
 
-    /** @see UploadPolicy#onAppendHeader(StringBuffer) */
+    /** @see UploadPolicy#onAppendHeader(ByteArrayEncoder) */
     public ByteArrayEncoder onAppendHeader(ByteArrayEncoder bae)
             throws JUploadIOException {
         Iterator<String> it = this.headers.iterator();
