@@ -754,7 +754,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     /**
-     * @return the filePanel
+     * Setters for {@link #filePanel}.
      */
     public void setFilePanel(FilePanel filePanel) {
         this.filePanel = filePanel;

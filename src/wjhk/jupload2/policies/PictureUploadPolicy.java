@@ -292,8 +292,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * <LI>A Preview area, to view the selected picture
      * </UL>
      * 
-     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(javax.swing.JButton,
-     *      javax.swing.JButton, javax.swing.JButton, javax.swing.JPanel)
+     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)
      */
     @Override
     public JPanel createTopPanel(JButton browse, JButton remove,
@@ -514,7 +513,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /**
      * @see #pictureTransmitMetadata
-     * @param pictureCompressionQuality The new value for picture compression.
+     * @param pictureTransmitMetadata The new value for this attribute.
      */
     void setPictureTransmitMetadata(boolean pictureTransmitMetadata) {
         this.pictureTransmitMetadata = pictureTransmitMetadata;
