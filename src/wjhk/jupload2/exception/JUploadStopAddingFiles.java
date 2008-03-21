@@ -42,6 +42,11 @@ import wjhk.jupload2.policies.UploadPolicy;
 public class JUploadStopAddingFiles extends JUploadException {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 4395228400366722178L;
+
+    /**
      * @param message
      */
     public JUploadStopAddingFiles(String message) {
