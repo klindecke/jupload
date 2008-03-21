@@ -539,7 +539,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // Seems like the Keep-alive doesn't work properly, at least on my
             // local dev (Etienne).
-            // TODO: check, how the new code works
             if (!this.uploadPolicy.getAllowHttpPersistent()) {
                 header.append("Connection: close\r\n");
             } else {

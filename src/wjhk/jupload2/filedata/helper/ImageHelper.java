@@ -190,10 +190,6 @@ public class ImageHelper implements ImageObserver {
         double scaleHeight = ((maxHeight < 0) ? 1 : ((double) maxHeight)
                 / nonScaledRotatedHeight);
         scale = Math.min(scaleWidth, scaleHeight);
-        // FIXME The scaleWidth and scaleHeigth is wrong when the
-        // maxHeight and maxWidth are different, and the picture must be
-        // rotated by one quarter (in either direction)
-        //
         if (scale < 1) {
             // With number rounding, it can happen that width or size
             // became one pixel too big. Let's correct it.
@@ -267,8 +263,8 @@ public class ImageHelper implements ImageObserver {
             irwh.dispose();
             irwh = null;
             if (nbImages > 1) {
-                // Too bad. We can not tranform it.
-                // FIXME Be able to tranform animated gif.
+                // Too bad. We can not transform it.
+                // FIXME Be able to transform animated gif.
                 this.hasToTransformPicture = Boolean.FALSE;
                 uploadPolicy
                         .displayWarn("No transformation for gif picture file, that contain several pictures. (see JUpload documentation for details)");
@@ -427,7 +423,7 @@ public class ImageHelper implements ImageObserver {
 
                     // the localBufferedImage may be 'unknown'.
                     int localImageType = sourceBufferedImage.getType();
-                    // TODO Next line may be responsible for the color problem
+                    // FIXMEs Next line may be responsible for the color problem
                     if (localImageType == BufferedImage.TYPE_CUSTOM) {
                         localImageType = BufferedImage.TYPE_INT_BGR;
                     }
