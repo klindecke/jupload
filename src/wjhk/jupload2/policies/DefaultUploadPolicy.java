@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -699,7 +700,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * IT creates a JPanel, containing the three given JButton. It creates the
      * same panel as the original JUpload.
      * 
-     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)
+     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton,
+     *      JButton, JUploadPanel)
      */
     public JPanel createTopPanel(JButton browse, JButton remove,
             JButton removeAll, @SuppressWarnings("unused")
@@ -1467,8 +1469,80 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         50);
             }
         }
+
+        /*
+         * Patch given by Patrick
+         * 
+         * Use of a specific classloader. The standard ResourceBundle checks
+         * first for a class that has the name of the resource bundle. Since
+         * there is no such class in the jar file, the AppletClassLoader makes a
+         * http request to the server, which will end with a 404 since there is
+         * no such class either. To avoid this unneccessary lookup we use a
+         * clasloader that throws directly a ClassNotFoundException. After
+         * looking for a class (which is unsuccessful) ResourceBundle looks
+         * finally for a properties file. Herefore we delegate that lookup to
+         * the original classloader since this is in the jar file.
+         */
         this.resourceBundle = ResourceBundle.getBundle(
-                "wjhk.jupload2.lang.lang", locale);
+                "wjhk.jupload2.lang.lang", locale,
+                // Special classloader, see description above
+                new ClassLoader(this.getClass().getClassLoader()) {
+                    /** {@inheritDoc} */
+                    @Override
+                    public Class<?> loadClass(String name)
+                            throws ClassNotFoundException {
+                        throw new ClassNotFoundException();
+                    }
+
+                    /** {@inheritDoc} */
+                    @Override
+                    public InputStream getResourceAsStream(String name) {
+                        return this.getClass().getClassLoader()
+                                .getResourceAsStream(name);
+                    }
+                });
+    }
+
+    protected void setLang2(String lang) {
+        Locale locale;
+        this.lang = lang;
+        if (lang == null) {
+            displayInfo("lang = null, taking default language");
+            locale = Locale.getDefault();
+        } else {
+            // If we have a 5 characters lang string, then it should look like
+            // ll_CC, where ll is the language code
+            // and CC is the Contry code.
+            if (lang.length() == 5
+                    && (lang.substring(2, 3).equals("_") || lang
+                            .substring(2, 3).equals("-"))) {
+                String language = lang.substring(0, 2);
+                String country = lang.substring(3, 5);
+                displayDebug("setLang - language read: " + language, 50);
+                displayDebug("setLang - country read: " + country, 50);
+                locale = new Locale(language, country.toUpperCase());
+            } else {
+                locale = new Locale(lang);
+            }
+        }
+        this.resourceBundle = ResourceBundle.getBundle(
+                "wjhk.jupload2.lang.lang", locale,
+                // our special classloader, see description above
+                new ClassLoader(this.getClass().getClassLoader()) {
+                    /** {@inheritDoc} */
+                    @Override
+                    public Class<?> loadClass(String name)
+                            throws ClassNotFoundException {
+                        throw new ClassNotFoundException();
+                    }
+
+                    /** {@inheritDoc} */
+                    @Override
+                    public InputStream getResourceAsStream(String name) {
+                        return this.getClass().getClassLoader()
+                                .getResourceAsStream(name);
+                    }
+                });
     }
 
     protected String getLookAndFeel() {
