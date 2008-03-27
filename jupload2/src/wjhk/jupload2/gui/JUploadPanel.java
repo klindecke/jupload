@@ -44,6 +44,7 @@ import javax.swing.Timer;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 import wjhk.jupload2.upload.FileUploadThread;
@@ -325,7 +326,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * Add files to the current file list.
      */
-    protected void addFiles(File[] f, File root) {
+    protected void addFiles(File[] f, File root) throws JUploadExceptionStopAddingFiles {
         this.filePanel.addFiles(f, root);
         if (0 < this.filePanel.getFilesLength()) {
             this.removeButton.setEnabled(true);

@@ -29,6 +29,7 @@ import java.io.File;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
+import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -80,7 +81,8 @@ public class FilePanelTableImp extends Panel implements FilePanel {
     /**
      * @see wjhk.jupload2.gui.FilePanel#addFiles(java.io.File[],java.io.File)
      */
-    public final void addFiles(File[] f, File root) {
+    public final void addFiles(File[] f, File root)
+            throws JUploadExceptionStopAddingFiles {
         if (null != f) {
             for (int i = 0; i < f.length; i++) {
                 addDirectoryFiles(f[i], root);
@@ -88,7 +90,8 @@ public class FilePanelTableImp extends Panel implements FilePanel {
         }
     }
 
-    private final void addDirectoryFiles(File f, File root) {
+    private final void addDirectoryFiles(File f, File root)
+            throws JUploadExceptionStopAddingFiles {
         if (!f.isDirectory()) {
             addFileOnly(f, root);
         } else {
@@ -103,7 +106,8 @@ public class FilePanelTableImp extends Panel implements FilePanel {
         }
     }
 
-    private final void addFileOnly(File f, File root) {
+    private final void addFileOnly(File f, File root)
+            throws JUploadExceptionStopAddingFiles {
         // Make sure we don't select the same file twice.
         if (!this.model.contains(f)) {
             this.model.addFile(f, root);

@@ -39,7 +39,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @author etienne_sf
  * 
  */
-public class JUploadStopAddingFiles extends JUploadException {
+public class JUploadExceptionStopAddingFiles extends JUploadException {
 
     /**
      * 
@@ -49,7 +49,7 @@ public class JUploadStopAddingFiles extends JUploadException {
     /**
      * @param message
      */
-    public JUploadStopAddingFiles(String message) {
+    public JUploadExceptionStopAddingFiles(String message) {
         super(message);        
         //No action.
     }

@@ -33,11 +33,13 @@ import java.io.File;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.BorderFactory;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
@@ -206,8 +208,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      */
     private PicturePanel picturePanel;
 
-    private static boolean alertShown = false;
-
     /**
      * The standard constructor, which transmit most informations to the
      * super.Constructor().
@@ -263,7 +263,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @see wjhk.jupload2.policies.UploadPolicy#createFileData(File,File)
      */
     @Override
-    public FileData createFileData(File file, File root) {
+    public FileData createFileData(File file, File root)
+            throws JUploadExceptionStopAddingFiles {
         PictureFileData pfd = null;
         try {
             pfd = new PictureFileData(file, root, this);
@@ -275,11 +276,25 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         if (pfd != null) {
             if (pfd.isPicture()) {
                 return pfd;
-            } else if (!alertShown) {
+            } else {
+                // We now use the JUploadExceptionStopAddingFiles exception, to
+                // allow the user to stop adding files.
+                String msg = String.format(getString("notAPicture"), file
+                        .getName());
+
                 // Alert only once, when several files are not pictures... hum,
-                alertStr(String
-                        .format(getString("notAPicture"), file.getName()));
-                alertShown = true;
+                displayWarn(msg);
+                if (JOptionPane.showConfirmDialog(null, msg, "alert",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+                    // The user want to stop to add files to the list. For
+                    // instance,
+                    // when he/she added a whole directory, and it contains a
+                    // lot of
+                    // files that don't match the allowed file extension.
+                    throw new JUploadExceptionStopAddingFiles(
+                            "Stopped by the user");
+                }
             }
         }
         return null;
@@ -292,7 +307,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * <LI>A Preview area, to view the selected picture
      * </UL>
      * 
-     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)
+     * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton,
+     *      JButton, JUploadPanel)
      */
     @Override
     public JPanel createTopPanel(JButton browse, JButton remove,

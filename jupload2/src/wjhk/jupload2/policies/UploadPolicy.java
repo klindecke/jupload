@@ -33,6 +33,7 @@ import javax.swing.JProgressBar;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
@@ -1219,7 +1220,7 @@ public interface UploadPolicy {
      *         example. It's up to the upload policy to display a message to
      *         inform the user that this file won't be added to the file list.
      */
-    public FileData createFileData(File file, File root);
+    public FileData createFileData(File file, File root) throws JUploadExceptionStopAddingFiles;
 
     /**
      * This method displays the applet parameter list, according to the current
@@ -1244,8 +1245,14 @@ public interface UploadPolicy {
      *            (for instance <i>aaa</i> for a number), a warning is
      *            displayed in the log window, and the existing value is not
      *            changed.
+     * @exception JUploadExceptionStopAddingFiles indicates that the applet
+     *                should stop strying adding the current file selection.
+     *                Useful for instance, when a user drop a directory, full of
+     *                unallowed file: it's annoying for the user to click 'Ok'
+     *                for each file in the alert box.
      */
-    public void setProperty(String prop, String value) throws JUploadException;
+    public void setProperty(String prop, String value)
+            throws JUploadException ;
 
     /**
      * Retrieves the current value for the afterUploadURL applet parameter.
