@@ -73,7 +73,7 @@ public class JUploadApplet extends Applet {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    public final static String VERSION = "3.3.1 [SVN-Rev: "
+    public final static String VERSION = "3.3.2 [SVN-Rev: "
             + svnProperties.getProperty("revision") + "]";
 
     /**
@@ -302,14 +302,14 @@ public class JUploadApplet extends Applet {
         Boolean bPropertiesLoaded = false;
 
         // Let's try to load the properties file.
-        // The upload policy is not created yet: we can not use its disply
+        // The upload policy is not created yet: we can not use its display
         // methods to trace what is happening here.
         try {
             properties.load(Class.forName("wjhk.jupload2.JUploadApplet")
                     .getResourceAsStream(svnPropertiesFilename));
             bPropertiesLoaded = true;
         } catch (Exception e) {
-            // An error occured when reading the file. The applet was
+            // An error occurred when reading the file. The applet was
             // probably not built with the build.xml ant file.
             // We'll create a fake property list. See below.
 

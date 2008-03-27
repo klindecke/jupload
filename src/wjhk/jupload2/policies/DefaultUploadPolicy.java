@@ -70,6 +70,7 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.DefaultFileData;
@@ -690,7 +691,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @see UploadPolicy#createFileData(File, File)
      */
-    public FileData createFileData(File file, File root) {
+    public FileData createFileData(File file, File root) throws JUploadExceptionStopAddingFiles {
         return new DefaultFileData(file, root, this);
     }
 

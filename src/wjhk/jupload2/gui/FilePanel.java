@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 
+import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.filedata.FileData;
 
 /**
@@ -36,7 +37,8 @@ public interface FilePanel {
      * @param f An array of files to add.
      * @param root The toplevel of a directory hierarchy to add
      */
-    public void addFiles(File[] f, File root);
+    public void addFiles(File[] f, File root)
+            throws JUploadExceptionStopAddingFiles;
 
     /**
      * Retrieve all currently stored files.

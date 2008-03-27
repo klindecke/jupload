@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -94,20 +95,27 @@ public class DnDListener implements DropTargetListener {
                         .getTransferData(DataFlavor.javaFileListFlavor);
                 // this.uploadPanel.addFiles((File[]) fileList.toArray(), null);
                 Iterator<?> i = fileList.iterator();
-                while (i.hasNext()) {
-                    File[] f = {
-                        (File) i.next()
-                    };
-                    if (f[0].isDirectory()) {
-                        this.uploadPanel.addFiles(f, f[0].getParentFile());
-                    } else {
-                        this.uploadPanel.addFiles(f, null);
+                try {
+                    while (i.hasNext()) {
+                        File[] f = {
+                            (File) i.next()
+                        };
+                        if (f[0].isDirectory()) {
+                            this.uploadPanel.addFiles(f, f[0].getParentFile());
+                        } else {
+                            this.uploadPanel.addFiles(f, null);
+                        }
                     }
+                } catch (JUploadExceptionStopAddingFiles e2) {
+                    // The user want to stop here. Nothing else to do.
+                    uploadPolicy.displayWarn(getClass().getName() + ".drop() ["
+                            + e.getClass().getName() + "]: " + e2.getMessage());
                 }
                 e.getDropTargetContext().dropComplete(true);
 
-                //Let's communicate this to the upload policy: there may be something to do now.
-                uploadPolicy.afterFileDropped(e);                
+                // Let's communicate this to the upload policy: there may be
+                // something to do now.
+                uploadPolicy.afterFileDropped(e);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 e.rejectDrop();
