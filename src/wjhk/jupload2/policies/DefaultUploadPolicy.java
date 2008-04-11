@@ -79,9 +79,10 @@ import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.JUploadTextArea;
-import wjhk.jupload2.upload.ByteArrayEncoder;
 import wjhk.jupload2.upload.HttpConnect;
 import wjhk.jupload2.upload.InteractiveTrustManager;
+import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
+import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
 /**
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy}
@@ -977,7 +978,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#sendDebugInformation(String) */
     public void sendDebugInformation(String description) {
         try {
-            ByteArrayEncoder request = new ByteArrayEncoder();
+            ByteArrayEncoder request = new ByteArrayEncoderHTTP(this, null);
 
             if (null != this.urlToSendErrorTo) {
                 if (JOptionPane.showConfirmDialog(null,

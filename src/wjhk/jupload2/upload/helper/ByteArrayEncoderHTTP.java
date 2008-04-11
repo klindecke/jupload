@@ -19,7 +19,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.upload;
+package wjhk.jupload2.upload.helper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +27,11 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
+import netscape.javascript.JSException;
+import netscape.javascript.JSObject;
+
 import wjhk.jupload2.exception.JUploadIOException;
+import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * This class is a utility, which provide easy encoding for HTTP queries. The
@@ -46,13 +50,19 @@ import wjhk.jupload2.exception.JUploadIOException;
  * 
  */
 
-public class ByteArrayEncoder {
+public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
 
     /**
      * The default encoding. It can be retrieved with
      * {@link #getDefaultEncoding()}.
      */
     private final static String DEFAULT_ENCODING = "UTF-8";
+
+    /**
+     * The boundary, to put between to post variables. Can not be changed during
+     * the object 'life'.
+     */
+    private String bound = "";
 
     /**
      * The current encoding. Can not be changed during the object 'life'.
@@ -73,11 +83,6 @@ public class ByteArrayEncoder {
     private ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
     /**
-     * The writer, that will encode the input parameters to {@link #baos}.
-     */
-    private Writer writer;
-
-    /**
      * The byte array length. Calculated when the ByteArrayOutput is closed.
      */
     private int encodedLength = -1;
@@ -87,6 +92,16 @@ public class ByteArrayEncoder {
      */
     private byte[] encodedByteArray = null;
 
+    /**
+     * The current upload policy.
+     */
+    private UploadPolicy uploadPolicy;
+
+    /**
+     * The writer, that will encode the input parameters to {@link #baos}.
+     */
+    private Writer writer;
+
     // ///////////////////////////////////////////////////////////////////////
     // //////////////// CONSTRUCTORS /////////////////////////////////////////
     // ///////////////////////////////////////////////////////////////////////
@@ -94,28 +109,24 @@ public class ByteArrayEncoder {
     /**
      * Create an encoder, using the {@link #DEFAULT_ENCODING} encoding.
      */
-    public ByteArrayEncoder() throws JUploadIOException {
-        init(DEFAULT_ENCODING);
+    public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String bound)
+            throws JUploadIOException {
+        init(uploadPolicy, DEFAULT_ENCODING, bound);
     }
 
     /**
      * Create an encoder, using the {@link #DEFAULT_ENCODING} encoding.
      */
-    public ByteArrayEncoder(String encoding) throws JUploadIOException {
-        init(encoding);
+    public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String encoding,
+            String bound) throws JUploadIOException {
+        init(uploadPolicy, encoding, bound);
     }
 
     // ///////////////////////////////////////////////////////////////////////
     // //////////////// Public methods ///////////////////////////////////////
     // ///////////////////////////////////////////////////////////////////////
 
-    /**
-     * Closes the encoding writer, and prepares the encoded length and byte
-     * array. This method must be called before call to
-     * {@link #getEncodedLength()} and {@link #getEncodedByteArray()}. <B>Note:</B>
-     * After a call to this method, you can not append any new data to the
-     * encoder.
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#close() */
     synchronized public void close() throws JUploadIOException {
         if (isClosed()) {
             throw new JUploadIOException(
@@ -131,23 +142,19 @@ public class ByteArrayEncoder {
         closed = true;
     }
 
-    /**
-     * Append a string, to be encoded at the current end of the byte array.
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#append(java.lang.String) */
     public ByteArrayEncoder append(String str) throws JUploadIOException {
         try {
             writer.append(str);
         } catch (IOException e) {
             throw new JUploadIOException(e);
         }
-        //Returning the encoder allows calls like:
-        // bae.append("qdqd").append("qsldqd");  (like StringBuffer)
+        // Returning the encoder allows calls like:
+        // bae.append("qdqd").append("qsldqd"); (like StringBuffer)
         return this;
     }
 
-    /**
-     * Append a stream, to be encoded at the current end of the byte array.
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#append(byte[]) */
     public ByteArrayEncoder append(byte[] b) throws JUploadIOException {
         try {
             writer.flush();
@@ -155,29 +162,97 @@ public class ByteArrayEncoder {
         } catch (IOException e) {
             throw new JUploadIOException(e);
         }
-        //Returning the encoder allows calls like:
-        // bae.append("qdqd").append("qsldqd");  (like StringBuffer)
+        // Returning the encoder allows calls like:
+        // bae.append("qdqd").append("qsldqd"); (like StringBuffer)
         return this;
     }
 
-    /**
-     * Append a string, to be encoded at the current end of the byte array.
-     * 
-     * @param bae The ByteArrayEncoder whose encoding result should be appended
-     *            to the current encoder. bae must be closed, before being
-     *            appended.
-     * @throws JUploadIOException This exception is thrown when this method is
-     *             called on a non-closed encoder.
-     */
-    public ByteArrayEncoder append(ByteArrayEncoder bae) throws JUploadIOException {
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#append(wjhk.jupload2.upload.helper.ByteArrayEncoderInterface) */
+    public ByteArrayEncoder append(ByteArrayEncoder bae)
+            throws JUploadIOException {
         this.append(bae.getEncodedByteArray());
-        //Returning the encoder allows calls like:
-        // bae.append("qdqd").append("qsldqd");  (like StringBuffer)
+        // Returning the encoder allows calls like:
+        // bae.append("qdqd").append("qsldqd"); (like StringBuffer)
+        return this;
+    }
+
+    /** @see ByteArrayEncoder#appendFileProperty(String, String) */
+    public ByteArrayEncoder appendFileProperty(String name, String value)
+            throws JUploadIOException {
+        this.append(this.bound).append("\r\n");
+        this.append("Content-Disposition: form-data; name=\"").append(name)
+                .append("\"\r\n");
+        this.append("Content-Transfer-Encoding: 8bit\r\n");
+        this.append("Content-Type: text/plain; ").append(this.getEncoding())
+                .append("\r\n");
+        // An empty line before the actual value.
+        this.append("\r\n");
+        // And then, the value!
+        this.append(value).append("\r\n");
+
+        return this;
+    }
+
+    /** @see ByteArrayEncoder#appendFormVariables(String) */
+    public ByteArrayEncoder appendFormVariables(String formname)
+            throws JUploadIOException {
+        try {
+            JSObject win = JSObject.getWindow(this.uploadPolicy.getApplet());
+            Object o = win.eval("document." + formname + ".elements.length");
+            if (o instanceof Number) {
+                int len = ((Number) o).intValue();
+                if (len <= 0) {
+                    this.uploadPolicy.displayWarn("The specified form \""
+                            + formname + "\" does not contain any elements.");
+                }
+                int i;
+                for (i = 0; i < len; i++) {
+                    try {
+                        Object name = win.eval("document." + formname + "[" + i
+                                + "].name");
+                        Object value = win.eval("document." + formname + "["
+                                + i + "].value");
+                        Object etype = win.eval("document." + formname + "["
+                                + i + "].type");
+                        if (etype instanceof String) {
+                            String t = (String) etype;
+                            if (t.equals("checkbox") || t.equals("radio")) {
+                                Object on = win.eval("document." + formname
+                                        + "[" + i + "].checked");
+                                if (on instanceof Boolean) {
+                                    // Skip unchecked checkboxes and
+                                    // radiobuttons
+                                    if (!((Boolean) on).booleanValue())
+                                        continue;
+                                }
+
+                            }
+                        }
+                        if (name instanceof String) {
+                            if (value instanceof String) {
+                                this.appendFileProperty((String) name,
+                                        (String) value);
+                            }
+                        }
+                    } catch (JSException e1) {
+                        this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
+                                + ": got JSException, bailing out", 80);
+                        i = len;
+                    }
+                }
+            } else {
+                this.uploadPolicy.displayWarn("The specified form \""
+                        + formname + "\" could not be found.");
+            }
+        } catch (JSException e) {
+            this.uploadPolicy.displayDebug(e.getStackTrace()[1]
+                    + ": No JavaScript availabe", 80);
+        }
         return this;
     }
 
     /**
-     * Returns the default encoding
+     * *
      * 
      * @return value of the {@link #DEFAULT_ENCODING} attribute.
      */
@@ -185,28 +260,17 @@ public class ByteArrayEncoder {
         return DEFAULT_ENCODING;
     }
 
-    /**
-     * @return the closed
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#isClosed() */
     public boolean isClosed() {
         return closed;
     }
 
-    /**
-     * @return the encoding
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getEncoding() */
     public String getEncoding() {
         return encoding;
     }
 
-    /**
-     * Get the length of the encoded result. Can be called only once the
-     * encoder has been closed.
-     * 
-     * @return the encodedLength
-     * @throws JUploadIOException This exception is thrown when this method is
-     *             called on a non-closed encoder.
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getEncodedLength() */
     public int getEncodedLength() throws JUploadIOException {
         if (!isClosed()) {
             throw new JUploadIOException(
@@ -215,14 +279,7 @@ public class ByteArrayEncoder {
         return encodedLength;
     }
 
-    /**
-     * Get the encoded result. Can be called only once the encoder has been
-     * closed.
-     * 
-     * @return the encodedByteArray
-     * @throws JUploadIOException This exception is thrown when this method is
-     *             called on a non-closed encoder.
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getEncodedByteArray() */
     public byte[] getEncodedByteArray() throws JUploadIOException {
         if (!isClosed()) {
             throw new JUploadIOException(
@@ -231,14 +288,7 @@ public class ByteArrayEncoder {
         return encodedByteArray;
     }
 
-    /**
-     * Get the String that matches the encoded result. Can be called only once the encoder has been
-     * closed.
-     * 
-     * @return the String that has been encoded.
-     * @throws JUploadIOException This exception is thrown when this method is
-     *             called on a non-closed encoder.
-     */
+    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getString() */
     public String getString() throws JUploadIOException {
         if (!isClosed()) {
             throw new JUploadIOException(
@@ -260,8 +310,11 @@ public class ByteArrayEncoder {
      * 
      * @throws JUploadIOException
      */
-    private void init(String encoding) throws JUploadIOException {
+    private void init(UploadPolicy uploadPolicy, String encoding, String bound)
+            throws JUploadIOException {
+        this.uploadPolicy = uploadPolicy;
         this.encoding = encoding;
+        this.bound = bound;
         try {
             writer = new OutputStreamWriter(baos, encoding);
         } catch (UnsupportedEncodingException e) {

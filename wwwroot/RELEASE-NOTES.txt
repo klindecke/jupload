@@ -1,4 +1,21 @@
 
+V3.3.2
+
+Not released yet: only available on SVN (sources and compiled jar file) and on the demo site (compiled jar file).
+
+Fixes:
+- [Minor] Removed 404 errors on the web server, when the applet was looking for the translation properties files. Thanks
+to Patrick (onkelkarle).
+
+Changes:
+- [Major] It's now easy to add new file properties to a HTTP upload: create a new FileData, and use the new
+FileData.appendFileProperties method. See the UploadPolicy.createFileData method to instanciate this new FileData.
+- [Minor] When dropping several files that should be refused (by the allowedFileExtensions parameter or by the upload 
+policy) the applet now displays a message each time (was only once for PictureUploadPolicy), and allows the user to
+hit 'cancel', so that no more file are added for this drop.
+
+
+  
 
 V3.3.1
 

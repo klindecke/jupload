@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -34,6 +35,7 @@ import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
 /**
  * This class contains all data and methods for a file to upload. The current
@@ -150,6 +152,22 @@ public class DefaultFileData implements FileData {
         if (this.mimeType == null) {
             this.mimeType = "application/octet-stream";
         }
+    }
+
+    /** @throws JUploadIOException 
+     * @see FileData#appendFileProperties(ByteArrayEncoder) */
+    public void appendFileProperties(ByteArrayEncoder bae)
+            throws JUploadIOException {
+        bae.appendFileProperty("mimetype[]", getMimeType());
+        bae.appendFileProperty("pathinfo[]", getDirectory());
+        bae.appendFileProperty("relpathinfo[]", getRelativeDir());
+        // To add the file datetime, we first have to format this date.
+        SimpleDateFormat dateformat = new SimpleDateFormat(uploadPolicy
+                .getDateFormat());
+        String uploadFileModificationDate = dateformat
+                .format(getLastModified());
+        bae.appendFileProperty("filemodificationdate[]",
+                uploadFileModificationDate);
     }
 
     /** @see FileData#beforeUpload() */

@@ -33,6 +33,7 @@ import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
 class UploadFileData implements FileData {
 
@@ -136,7 +137,7 @@ class UploadFileData implements FileData {
             }
             md5InputStream.close();
         } catch (IOException e) {
-            throw new JUploadException(e);
+            throw new JUploadIOException(e);
         } catch (NoSuchAlgorithmException e) {
             throw new JUploadException(e);
         }
@@ -214,6 +215,12 @@ class UploadFileData implements FileData {
 
         // 2. Ask the FileData to release any other locked resource.
         this.fileData.afterUpload();
+    }
+
+    /** @throws JUploadIOException 
+     * @see {@link FileData#appendFileProperties(ByteArrayEncoder)} */
+    public void appendFileProperties(ByteArrayEncoder bae) throws JUploadIOException {
+        this.fileData.appendFileProperties(bae);
     }
 
     /** @see FileData#beforeUpload() */
@@ -315,10 +322,4 @@ class UploadFileData implements FileData {
         return uploadLength;
     }
 
-    /**
-     * @see wjhk.jupload2.filedata.FileData#getRelativeDir()
-     */
-    public String getRelativeDir() {
-        return this.fileData.getRelativeDir();
-    }
 }

@@ -27,8 +27,10 @@ import java.io.InputStream;
 import java.util.Date;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.upload.FileUploadThread;
+import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
 /**
  * This class contains all data and methods for a file to upload. The current
@@ -48,6 +50,17 @@ import wjhk.jupload2.upload.FileUploadThread;
  */
 
 public interface FileData {
+
+    /**
+     * Called during the upload, by the {@link FileUploadThread}. The FileData
+     * instance should then call the
+     * {@link ByteArrayEncoder#appendFileProperty(String, String)} method to
+     * add each file property to the current upload.
+     * 
+     * @param fileVariableAppender
+     */
+    public void appendFileProperties(ByteArrayEncoder bae)
+            throws JUploadIOException;
 
     /**
      * Prepare the fileData to upload. For instance, picture data can be resized
@@ -139,6 +152,5 @@ public interface FileData {
      * @return This instance's relative path or an empty string if it was not
      *         created using a root parameter.
      */
-    public String getRelativeDir();
-
+    // public String getRelativeDir();
 }

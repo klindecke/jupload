@@ -37,7 +37,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,12 +44,12 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLSocket;
 import javax.swing.JProgressBar;
 
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
+import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
 /**
  * This class implements the file upload via HTTP POST request.
@@ -483,7 +482,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     @Override
     void startRequest(long contentLength, boolean bChunkEnabled, int chunkPart,
             boolean bLastChunk) throws JUploadException {
-        ByteArrayEncoder header = new ByteArrayEncoder();
+        ByteArrayEncoder header = new ByteArrayEncoderHTTP(uploadPolicy, boundary);
 
         try {
             String chunkHttpParam = "jupart=" + chunkPart + "&jufinal="
@@ -651,21 +650,18 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * @param value The value of the POST variable
      * @throws JUploadIOException An exception that can be thrown while trying
      *             to encode the given parameter to the current charset.
+     * 
+     * private final ByteArrayEncoder addPostVariable(ByteArrayEncoder bae,
+     * String bound, String name, String value) throws JUploadIOException {
+     * bae.append(bound).append("\r\n"); bae.append("Content-Disposition:
+     * form-data; name=\"").append(name) .append("\"\r\n");
+     * bae.append("Content-Transfer-Encoding: 8bit\r\n");
+     * bae.append("Content-Type: text/plain; UTF-8\r\n"); // An empty line
+     * before the actual value. bae.append("\r\n"); // And then, the value!
+     * bae.append(value).append("\r\n");
+     * 
+     * return bae; }
      */
-    private final ByteArrayEncoder addPostVariable(ByteArrayEncoder bae,
-            String bound, String name, String value) throws JUploadIOException {
-        bae.append(bound).append("\r\n");
-        bae.append("Content-Disposition: form-data; name=\"").append(name)
-                .append("\"\r\n");
-        bae.append("Content-Transfer-Encoding: 8bit\r\n");
-        bae.append("Content-Type: text/plain; UTF-8\r\n");
-        // An empty line before the actual value.
-        bae.append("\r\n");
-        // And then, the value!
-        bae.append(value).append("\r\n");
-
-        return bae;
-    }
 
     /**
      * Creates a mime multipart string snippet, representing a FORM. Extracts
@@ -681,62 +677,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * @throws JUploadIOException An exception that can be thrown while trying
      *             to encode the given parameter to the current charset.
      */
-    private final ByteArrayEncoder addFormVariables(ByteArrayEncoder bae,
-            String bound, String formname) throws JUploadIOException {
-        try {
-            JSObject win = JSObject.getWindow(this.uploadPolicy.getApplet());
-            Object o = win.eval("document." + formname + ".elements.length");
-            if (o instanceof Number) {
-                int len = ((Number) o).intValue();
-                if (len <= 0) {
-                    this.uploadPolicy.displayWarn("The specified form \""
-                            + formname + "\" does not contain any elements.");
-                }
-                int i;
-                for (i = 0; i < len; i++) {
-                    try {
-                        Object name = win.eval("document." + formname + "[" + i
-                                + "].name");
-                        Object value = win.eval("document." + formname + "["
-                                + i + "].value");
-                        Object etype = win.eval("document." + formname + "["
-                                + i + "].type");
-                        if (etype instanceof String) {
-                            String t = (String) etype;
-                            if (t.equals("checkbox") || t.equals("radio")) {
-                                Object on = win.eval("document." + formname
-                                        + "[" + i + "].checked");
-                                if (on instanceof Boolean) {
-                                    // Skip unchecked checkboxes and
-                                    // radiobuttons
-                                    if (!((Boolean) on).booleanValue())
-                                        continue;
-                                }
-
-                            }
-                        }
-                        if (name instanceof String) {
-                            if (value instanceof String) {
-                                addPostVariable(bae, bound, (String) name,
-                                        (String) value);
-                            }
-                        }
-                    } catch (JSException e1) {
-                        this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
-                                + ": got JSException, bailing out", 80);
-                        i = len;
-                    }
-                }
-            } else {
-                this.uploadPolicy.displayWarn("The specified form \""
-                        + formname + "\" could not be found.");
-            }
-        } catch (JSException e) {
-            this.uploadPolicy.displayDebug(e.getStackTrace()[1]
-                    + ": No JavaScript availabe", 80);
-        }
-        return bae;
-    }
 
     /**
      * Returns the header for this file, within the http multipart body.
@@ -757,25 +697,15 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         String mimetype = this.filesToUpload[index].getMimeType();
         String uploadFilename = this.filesToUpload[index]
                 .getUploadFilename(index);
-        ByteArrayEncoder bae = new ByteArrayEncoder();
+        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, bound);
 
         // We'll encode the output stream into UTF-8.
         String form = this.uploadPolicy.getFormdata();
         if (null != form) {
-            addFormVariables(bae, bound, form);
+            bae.appendFormVariables(form);
         }
-        addPostVariable(bae, bound, "mimetype[]", mimetype);
-        addPostVariable(bae, bound, "pathinfo[]", this.filesToUpload[index]
-                .getDirectory());
-        addPostVariable(bae, bound, "relpathinfo[]", this.filesToUpload[index]
-                .getRelativeDir());
-        // To add the file datetime, we first have to format this date.
-        SimpleDateFormat dateformat = new SimpleDateFormat(uploadPolicy
-                .getDateFormat());
-        String uploadFileModificationDate = dateformat
-                .format(this.filesToUpload[index].getLastModified());
-        addPostVariable(bae, bound, "filemodificationdate[]",
-                uploadFileModificationDate);
+        //We ask the current FileData to add itself its properties.
+        this.filesToUpload[index].appendFileProperties(bae);
 
         // boundary.
         bae.append(bound).append("\r\n");
@@ -847,11 +777,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         for (int i = 0; i < nbFilesToUpload; i++) {
             // We'll encode the output stream into UTF-8.
-            ByteArrayEncoder bae = new ByteArrayEncoder();
+            ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, bound);
 
             bae.append("\r\n");
-            addPostVariable(bae, bound, "md5sum[]", this.filesToUpload[i]
-                    .getMD5());
+            bae.appendFileProperty("md5sum[]", this.filesToUpload[i].getMD5());
 
             // The last tail gets an additional "--" in order to tell the
             // Server
@@ -881,7 +810,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         // Use a string buffer
         // We'll encode the output stream into UTF-8.
-        ByteArrayEncoder bae = new ByteArrayEncoder();
+        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, this.boundary);
 
         // Get the query string
         String query = url.getQuery();
@@ -909,8 +838,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // Now add one multipart segment for each
             for (String key : requestParameters.keySet())
-                addPostVariable(bae, this.boundary, key, requestParameters
-                        .get(key));
+                bae.appendFileProperty(key, requestParameters.get(key));
         }
         // Return the body content
         bae.close();
