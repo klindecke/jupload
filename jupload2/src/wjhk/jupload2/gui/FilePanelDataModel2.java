@@ -5,7 +5,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-04-21
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -117,6 +117,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
     private Vector<FileData> rows = new Vector<FileData>();
 
     /**
+     * @param uploadPolicy 
      * 
      */
     public FilePanelDataModel2(UploadPolicy uploadPolicy) {
@@ -169,6 +170,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * 
      * @param file
      * @param root
+     * @throws JUploadExceptionStopAddingFiles 
      */
     public void addFile(File file, File root)
             throws JUploadExceptionStopAddingFiles {

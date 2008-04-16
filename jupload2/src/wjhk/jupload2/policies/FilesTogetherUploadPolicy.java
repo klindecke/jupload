@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 //
 // Created: 10 oct. 07
-// Creator: gauthier-eti
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify
@@ -39,11 +39,18 @@ import wjhk.jupload2.gui.JUploadPanel;
  * starts immediately, when files are dropped on the applet. <BR>
  * The only component displayed on the applet is the progress bar.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * 
  */
 public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
 
+    /**
+     * The JUpload constructor for this upload policy. Like all upload policies,
+     * this constructor is called by the {@link UploadPolicyFactory}
+     * 
+     * @param theApplet
+     * @throws JUploadException
+     */
     public FilesTogetherUploadPolicy(JUploadApplet theApplet)
             throws JUploadException {
         super(theApplet);
@@ -62,7 +69,7 @@ public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
         jUploadPanel.setLayout(new BorderLayout());
         // Then, add on the screen of the only component that is visible.
         jUploadPanel.add(jUploadPanel.getProgressBar(), BorderLayout.CENTER);
-        // Now, we add the log window. 
+        // Now, we add the log window.
         jUploadPanel.showOrHideLogWindow();
         jUploadPanel.add(jUploadPanel.getJLogWindowPane(), BorderLayout.SOUTH);
     }

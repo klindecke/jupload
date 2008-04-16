@@ -5,7 +5,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-06
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -36,12 +36,10 @@ import wjhk.jupload2.JUploadApplet;
  * <LI> uploadPolicy: the class name to be used as a policy. Currently available :
  * not defined (then use DefaultUploadPolicy),
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy},
- * {@link wjhk.jupload2.policies.FileByFileUploadPolicy},
- * {@link wjhk.jupload2.policies.CustomizedNbFilesPerRequestUploadPolicy},
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}
  * </UL>
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  */
 public class UploadPolicyFactory {
@@ -54,6 +52,7 @@ public class UploadPolicyFactory {
      * @param theApplet if not null : use this Applet Parameters. If null, use
      *            System properties.
      * @return The newly created UploadPolicy.
+     * @throws Exception
      */
     public static UploadPolicy getUploadPolicy(JUploadApplet theApplet)
             throws Exception {
@@ -76,8 +75,8 @@ public class UploadPolicyFactory {
                 if (!uploadPolicyStr.contains(".")) {
                     try {
                         uploadPolicyClass = Class
-                        .forName("wjhk.jupload2.policies."
-                            + uploadPolicyStr);
+                                .forName("wjhk.jupload2.policies."
+                                        + uploadPolicyStr);
                     } catch (ClassNotFoundException e1) {
                         uploadPolicyClass = null;
                     }
@@ -170,6 +169,11 @@ public class UploadPolicyFactory {
     /**
      * Get a String parameter value from applet properties or System properties.
      * 
+     * @param theApplet The current applet
+     * @param key The parameter name
+     * @param def The default value
+     * @param uploadPolicy The current upload policy
+     * 
      * @return the parameter value, or the default, if the system is not set.
      */
     static public int getParameter(JUploadApplet theApplet, String key,
@@ -192,6 +196,11 @@ public class UploadPolicyFactory {
     /**
      * Get a String parameter value from applet properties or System properties.
      * 
+     * @param theApplet The current applet
+     * @param key The parameter name
+     * @param def The default value
+     * @param uploadPolicy The current upload policy
+     * 
      * @return the parameter value, or the default, if the system is not set.
      */
     static public float getParameter(JUploadApplet theApplet, String key,
@@ -213,6 +222,11 @@ public class UploadPolicyFactory {
 
     /**
      * Get a String parameter value from applet properties or System properties.
+     * 
+     * @param theApplet The current applet
+     * @param key The parameter name
+     * @param def The default value
+     * @param uploadPolicy The current upload policy
      * 
      * @return the parameter value, or the default, if the system is not set.
      */
@@ -237,6 +251,11 @@ public class UploadPolicyFactory {
      * Get a boolean parameter value from applet properties or System
      * properties.
      * 
+     * @param theApplet The current applet
+     * @param key The parameter name
+     * @param def The default value
+     * @param uploadPolicy The current upload policy
+     * 
      * @return the parameter value, or the default, if the system is not set.
      */
     static public boolean getParameter(JUploadApplet theApplet, String key,
@@ -260,8 +279,9 @@ public class UploadPolicyFactory {
      * This function try to parse value as an integer. If value is not a correct
      * integer, def is returned.
      * 
-     * @param value
-     * @param def
+     * @param value The string value, that must be parsed
+     * @param def The default value
+     * @param uploadPolicy The current upload policy
      * @return The integer value of value, or def if value is not valid.
      */
     static public int parseInt(String value, int def, UploadPolicy uploadPolicy) {
@@ -281,13 +301,16 @@ public class UploadPolicyFactory {
     }
 
     /**
-     * This function try to parse value as a float number. If value is not a correct float, def is returned.
+     * This function try to parse value as a float number. If value is not a
+     * correct float, def is returned.
      * 
-     * @param value
-     * @param def
+     * @param value The string value, that must be parsed
+     * @param def The default value
+     * @param uploadPolicy The current upload policy
      * @return The float value of value, or def if value is not valid.
      */
-    static public float parseFloat(String value, float def, UploadPolicy uploadPolicy) {
+    static public float parseFloat(String value, float def,
+            UploadPolicy uploadPolicy) {
         float ret = def;
         // Then, parse it as an integer.
         try {
@@ -307,8 +330,9 @@ public class UploadPolicyFactory {
      * This function try to parse value as a Long. If value is not a correct
      * long, def is returned.
      * 
-     * @param value
-     * @param def
+     * @param value The string value, that must be parsed
+     * @param def The default value
+     * @param uploadPolicy The current upload policy
      * @return The integer value of value, or def if value is not valid.
      */
     static public long parseLong(String value, long def,

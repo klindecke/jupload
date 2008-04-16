@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2007-01-01
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -62,12 +62,11 @@ import wjhk.jupload2.policies.UploadPolicy;
  * 'true' or 'false' which sets the connection type to either active or passive
  * mode.
  * 
- * @author Evin Callahan (inheritance from DefaultUploadThread built by Etienne
- *         Gauthier)
+ * @author Evin Callahan (inheritance from DefaultUploadThread built by etienne_sf)
  * @author Daystar Computer Services
  * @see FileUploadThread
  * @see DefaultFileUploadThread
- * @version 1.0, 01 Jan 2007 * Update march 2007, Etienne Gauthier Adaptation to
+ * @version 1.0, 01 Jan 2007 * Update march 2007, etienne_sf Adaptation to
  *          match all JUpload functions: <DIR>
  *          <LI>Inheritance from the {@link FileUploadThread} class,
  *          <LI>Use of the UploadFileData class,
@@ -129,6 +128,9 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     /**
      * Creates a new instance. Performs the connection to the server based on
      * the matcher created in the main.
+     * @param filesDataParam 
+     * @param uploadPolicy 
+     * @param progress 
      * 
      * @throws JUploadException
      * @throws IllegalArgumentException if any error occurs. message is error

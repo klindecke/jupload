@@ -33,8 +33,9 @@ import wjhk.jupload2.policies.UploadPolicy;
  * 
  * This exception is a trick, to stop adding files to the file list, when too
  * many files don't match the allowed extension (see
- * {@link wjhk.jupload2.gui.FilePanelDataModel2#addFile(File, File)}, or any other control of the
- * current upload policy (see {@link UploadPolicy#createFileData(File, File)}.
+ * <I>wjhk.jupload2.gui.FilePanelDataModel2#addFile(File, File)</I>), or any
+ * other control of the current upload policy (see
+ * {@link UploadPolicy#createFileData(File, File)}.
  * 
  * @author etienne_sf
  * 
@@ -50,8 +51,8 @@ public class JUploadExceptionStopAddingFiles extends JUploadException {
      * @param message
      */
     public JUploadExceptionStopAddingFiles(String message) {
-        super(message);        
-        //No action.
+        super(message);
+        // No action.
     }
 
 }

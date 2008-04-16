@@ -54,8 +54,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * Chamberland-Larose), available here: To contact Guillaume Chamberland-Larose
  * for bugs, patches, suggestions: Please use the forums on the sourceforge web
  * page for this project, located at:
- * http://sourceforge.net/projects/picture-applet/ Updated : 2006 Etienne
- * Gauthier <BR>
+ * http://sourceforge.net/projects/picture-applet/ Updated : 2006 etienne_sf<BR>
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later

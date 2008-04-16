@@ -5,7 +5,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-06
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@ import wjhk.jupload2.exception.JUploadException;
  * {@link FileByFileUploadPolicy}), and give the nbFilesPerRequest (with a
  * value set to 1) parameter.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  * @deprecated You can use the applet, without the uploadPolicy applet
  *             parameter, and put the nbFilesPerRequest to 1. It does the
@@ -51,6 +51,7 @@ public class FileByFileUploadPolicy extends DefaultUploadPolicy {
 
     /**
      * @param theApplet The applet on which the UploadPolicy should apply.
+     * @throws JUploadException 
      */
     public FileByFileUploadPolicy(JUploadApplet theApplet)
             throws JUploadException {

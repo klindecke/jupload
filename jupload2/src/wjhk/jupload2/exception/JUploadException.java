@@ -7,7 +7,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-09
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -25,7 +25,7 @@ package wjhk.jupload2.exception;
 /**
  * A new kind of exceptions. Currently : no other specialization than its name.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  */
 public class JUploadException extends Exception {

@@ -3,10 +3,71 @@
 
 <BODY>
 
-Implementations of the various protocol-specific tasks. This package
-provides implementations of FTP- and HTTP specific tasks for performing
-the actual upload. Furthermore, it provides a universal class for
-connecting to HTTP and HTTPS using a proxy.
+<H3>What is FileData for ?</H3>
+
+The <href a="FileData.html">FileData</a> interface provides an easy way to add new file type capabilities to the applet. 
+The main entry points allow you to:
+<DIR>
+<LI>Change the file behaviour for the upload. For instance: additional checks, compression before upload, new file properties 
+to be sent to the server.
+<LI>New GUI capabilities: for instance an <href a="AudioFileData.html">AudioFileData</a> has been started, to allow the user to 
+hear the sound in the files he selected.   
+</DIR>
+
+<H3>HowTo create a new FileData instance</H3>
+   
+The core/default implementation is contained in <href a="DefaultFileData.html">DefaultFileData</a>. This class provides a default
+implementation to all FileData interface methods. The easiest way to create a new FileData instance, is to inherit from this default
+implementation, and just override the method you're interested in. Doing this minimizes your work, and insures you the minimum risk
+of incompatibility with next versions.<BR>
+Once you've created your new XxxFileData class, you'll have to create objects of this class. This is done by creating a new 
+{@link wjhk.jupload2.policies.UploadPolicy}, and override the 
+{@link wjhk.jupload2.policies.UploadPolicy#createFileData(java.io.File, java.io.File)} method.
+
+<H3>Description of FileData methods</H3>
+
+<H4>Methods with impact on upload behaviour or content</H4>
+
+<TABLE>
+	<TR>
+		<TD>{@link wjhk.jupload2.filedata.FileData#appendFileProperties(ByteArrayEncoder)}</TD>
+		<TD>Add properties like the filename, or the directory to the upload (useless in FTP mode)</TD>
+	</TR>
+	<TR>
+		<TD>{@link wjhk.jupload2.filedata.FileData#beforeUpload()} </TD>
+		<TD>Allows the FileData to do any necessary work before the upload of the file begin. For instance, in 
+		PictureFileData, the picture can here be resized, according to the upload policies values.</TD>
+	</TR>
+	<TR>
+		<TD>{@link wjhk.jupload2.filedata.FileData#getUploadLength()} </TD>
+		<TD>Returns the actual number of bytes that will be uploaded. Will be different from the file length, if the 
+		file must transformed before upload. For instance: picture resizing, or before upload compression.</TD>
+	</TR>
+	<TR>
+		<TD>{@link wjhk.jupload2.filedata.FileData#afterUpload()}</TD>
+		<TD>Called after the end of the upload. Allows to clear any resource, like temporary files.</TD>
+	</TR>
+	<TR>
+		<TD>{@link wjhk.jupload2.filedata.FileData#getInputStream()}</TD>
+		<TD>Returns an InputStream, that'll contain all bytes to upload.</TD>
+	</TR>
+</TABLE>
+
+<H4>Methods for general file information</H4>
+
+You probably won't have to override these methods.
+
+<DIR>
+<LI>{@link wjhk.jupload2.filedata.FileData#getFileExtension()}
+<LI>{@link wjhk.jupload2.filedata.FileData#getFileLength()}
+<LI>{@link wjhk.jupload2.filedata.FileData#getLastModified()}
+<LI>{@link wjhk.jupload2.filedata.FileData#getDirectory()}
+<LI>{@link wjhk.jupload2.filedata.FileData#getMimeType()}
+<LI>{@link wjhk.jupload2.filedata.FileData#canRead()}
+<LI>{@link wjhk.jupload2.filedata.FileData#getFile()}
+<LI>{@link wjhk.jupload2.filedata.FileData#getRelativeDir()}: Returns the directory, relative to the current selection. Especially useful when 
+dropping entire directories on the applet. 
+</DIR>
 
 </BODY>
 </HTML>

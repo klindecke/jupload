@@ -7,7 +7,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-11-20
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -36,7 +36,12 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * This class contains all data and methods for a file to upload. The current
  * {@link wjhk.jupload2.policies.UploadPolicy} contains the necessary parameters
  * to personalize the way files must be handled. <BR>
- * <BR>
+ * The JUpload package provides a default implementation of this class in
+ * {@link DefaultFileData}. This default implementation contains all necessary
+ * methods to allow upload. You can override it to add new file behaviour. For
+ * instance, you could add a XMLFileData, that would check that XML is valid
+ * before upload. See the <a href="package-summary.html">package summary</a>
+ * for more details about that. <BR>
  * This class is the interface that all FileData must implement. The
  * {@link DefaultFileData} class contains the default implementation for this
  * interface. The {@link  PictureFileData} contains another implementation of
@@ -44,9 +49,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * The instance of FileData is created by the
  * {@link UploadPolicy#createFileData(File, File)} method. This method can be
  * overrided in a new upoad policy, to create an instance of another FileData.
- * See {@link  PictureFileData} for an example of that.
+ * See {@link  PictureFileData} for an example about FileData customization.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  */
 
 public interface FileData {
@@ -54,10 +59,12 @@ public interface FileData {
     /**
      * Called during the upload, by the {@link FileUploadThread}. The FileData
      * instance should then call the
-     * {@link ByteArrayEncoder#appendFileProperty(String, String)} method to
-     * add each file property to the current upload.
+     * {@link ByteArrayEncoder#appendFileProperty(String, String)} method to add
+     * each file property to the current upload.
      * 
-     * @param fileVariableAppender
+     * @param bae The byte encoder, where the properties must be added
+     * @throws JUploadIOException Encapsulation of the IOException, if any would occurs.
+     * @see ByteArrayEncoder#appendFileProperty(String, String)
      */
     public void appendFileProperties(ByteArrayEncoder bae)
             throws JUploadIOException;
@@ -68,6 +75,7 @@ public interface FileData {
      * the upload of this file.
      * 
      * @see FileUploadThread
+     * @throws JUploadException Encapsulation of the Exception, if any would occurs.
      */
     public void beforeUpload() throws JUploadException;
 
@@ -78,6 +86,7 @@ public interface FileData {
      *         file, as it isn't transformed for upload. This size may change if
      *         encoding is necessary (needs a new FileData class), or if picture
      *         is to be resized or rotated.
+     * @throws JUploadException Encapsulation of the Exception, if any would occurs.
      * @see PictureFileData
      */
     public long getUploadLength() throws JUploadException;
@@ -95,6 +104,7 @@ public interface FileData {
      * {@link FileUploadThread} class then reads bytes from it and transfers
      * them to the webserver. The caller is responsible for closing this stream.
      * 
+     * @throws JUploadException Encapsulation of the Exception, if any would occurs.
      * @return An InputStream, representing this instance.
      */
     public InputStream getInputStream() throws JUploadException;
@@ -137,11 +147,16 @@ public interface FileData {
     public String getMimeType();
 
     /**
-     * Indicate if this file can be read.
+     * Indicate if this file can be read. Take care of the File.canRead() methods, that seems to be
+     * wrong from time to time. 
+     * 
+     * @return indicates whether the file can be read or not. 
      */
     public boolean canRead();
 
     /**
+     * Standard getter, for the file described by the FileData instance.
+     * 
      * @return the File instance associated with this row.
      */
     public File getFile();
@@ -152,5 +167,5 @@ public interface FileData {
      * @return This instance's relative path or an empty string if it was not
      *         created using a root parameter.
      */
-    // public String getRelativeDir();
+    public String getRelativeDir();
 }

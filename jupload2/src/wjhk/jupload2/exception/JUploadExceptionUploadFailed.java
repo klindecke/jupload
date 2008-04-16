@@ -5,7 +5,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-09-15
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -26,7 +26,7 @@ package wjhk.jupload2.exception;
  * {@link wjhk.jupload2.policies.UploadPolicy#PROP_STRING_UPLOAD_SUCCESS}
  * regular expression.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @author $Revision$
  */
 public class JUploadExceptionUploadFailed extends JUploadException {

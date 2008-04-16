@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2007-12-11
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date: 2007-07-21 09:42:51 +0200 (sam., 21 juil. 2007) $
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -107,7 +107,10 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     // ///////////////////////////////////////////////////////////////////////
 
     /**
-     * Create an encoder, using the {@link #DEFAULT_ENCODING} encoding.
+     * Create an encoder, using the DEFAULT_ENCODING encoding.
+     * @param uploadPolicy The current upload policy
+     * @param bound The HTTP boundary. Can be null, if not used.
+     * @throws JUploadIOException Any IO exception
      */
     public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String bound)
             throws JUploadIOException {
@@ -115,7 +118,12 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     }
 
     /**
-     * Create an encoder, using the {@link #DEFAULT_ENCODING} encoding.
+     * Create an encoder, and specifies the encoding to use.
+     * 
+     * @param uploadPolicy The current upload policy
+     * @param encoding The encoding to use. For instance, "UTF-8".
+     * @param bound The HTTP boundary. Can be null, if not used.
+     * @throws JUploadIOException Any IO exception
      */
     public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String encoding,
             String bound) throws JUploadIOException {
@@ -126,7 +134,10 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     // //////////////// Public methods ///////////////////////////////////////
     // ///////////////////////////////////////////////////////////////////////
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#close() */
+    /**
+     * @throws JUploadIOException 
+     * @see wjhk.jupload2.upload.helper.ByteArrayEncoder#close() 
+     */
     synchronized public void close() throws JUploadIOException {
         if (isClosed()) {
             throw new JUploadIOException(
@@ -142,7 +153,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         closed = true;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#append(java.lang.String) */
+    /** {@inheritDoc} */
     public ByteArrayEncoder append(String str) throws JUploadIOException {
         try {
             writer.append(str);
@@ -154,7 +165,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         return this;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#append(byte[]) */
+    /** {@inheritDoc} */
     public ByteArrayEncoder append(byte[] b) throws JUploadIOException {
         try {
             writer.flush();
@@ -167,7 +178,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         return this;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#append(wjhk.jupload2.upload.helper.ByteArrayEncoderInterface) */
+    /** {@inheritDoc} */
     public ByteArrayEncoder append(ByteArrayEncoder bae)
             throws JUploadIOException {
         this.append(bae.getEncodedByteArray());
@@ -176,7 +187,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         return this;
     }
 
-    /** @see ByteArrayEncoder#appendFileProperty(String, String) */
+    /** {@inheritDoc} */
     public ByteArrayEncoder appendFileProperty(String name, String value)
             throws JUploadIOException {
         this.append(this.bound).append("\r\n");
@@ -193,7 +204,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         return this;
     }
 
-    /** @see ByteArrayEncoder#appendFormVariables(String) */
+    /** {@inheritDoc} */
     public ByteArrayEncoder appendFormVariables(String formname)
             throws JUploadIOException {
         try {
@@ -254,23 +265,23 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     /**
      * *
      * 
-     * @return value of the {@link #DEFAULT_ENCODING} attribute.
+     * @return value of the DEFAULT_ENCODING constant.
      */
     public static String getDefaultEncoding() {
         return DEFAULT_ENCODING;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#isClosed() */
+    /** {@inheritDoc} */
     public boolean isClosed() {
         return closed;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getEncoding() */
+    /** {@inheritDoc} */
     public String getEncoding() {
         return encoding;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getEncodedLength() */
+    /** {@inheritDoc} */
     public int getEncodedLength() throws JUploadIOException {
         if (!isClosed()) {
             throw new JUploadIOException(
@@ -279,7 +290,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         return encodedLength;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getEncodedByteArray() */
+    /** {@inheritDoc} */
     public byte[] getEncodedByteArray() throws JUploadIOException {
         if (!isClosed()) {
             throw new JUploadIOException(
@@ -288,7 +299,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         return encodedByteArray;
     }
 
-    /** @see wjhk.jupload2.upload.helper.ByteArrayEncoderInterface#getString() */
+    /** {@inheritDoc} */
     public String getString() throws JUploadIOException {
         if (!isClosed()) {
             throw new JUploadIOException(

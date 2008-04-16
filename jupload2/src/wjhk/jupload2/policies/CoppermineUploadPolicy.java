@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-07
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -75,7 +75,7 @@ import wjhk.jupload2.filedata.PictureFileData;
  * document.form_album.album_name.value = '';
  * document.form_album.album_description.value = ''; } } </script> </XMP>
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  */
 public class CoppermineUploadPolicy extends PictureUploadPolicy {
@@ -95,6 +95,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     /**
      * @param theApplet Identifier for the current applet. It's necessary, to
      *            read information from the navigator.
+     * @throws JUploadException 
      */
     public CoppermineUploadPolicy(JUploadApplet theApplet)
             throws JUploadException {

@@ -5,7 +5,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-06
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -28,7 +28,7 @@ import wjhk.jupload2.exception.JUploadException;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}. The DefaultUploadPolicy
  * now reads itself the nbFilesPerRequest applet parameter. <BR>
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  * @see #CustomizedNbFilesPerRequestUploadPolicy(JUploadApplet)
  * @deprecated This class is of no use, as it actually behaves exactly as the
@@ -40,6 +40,7 @@ public class CustomizedNbFilesPerRequestUploadPolicy extends
 
     /**
      * @param theApplet The applet to whom the UploadPolicy must apply.
+     * @throws JUploadException 
      * @see UploadPolicy
      */
     public CustomizedNbFilesPerRequestUploadPolicy(JUploadApplet theApplet)

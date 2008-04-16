@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-04-21
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -47,7 +47,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * control on the files choosen for upload.
  * 
  * @see FileData
- * @author Etienne Gauthier
+ * @author etienne_sf
  */
 public class DefaultFileData implements FileData {
 
@@ -110,6 +110,9 @@ public class DefaultFileData implements FileData {
      * Standard constructor
      * 
      * @param file The file whose data this instance will give.
+     * @param root The directory root, to be able to calculate the result of
+     *            {@link #getRelativeDir()}
+     * @param uploadPolicy The current upload policy.
      */
     public DefaultFileData(File file, File root, UploadPolicy uploadPolicy) {
         this.file = file;
@@ -154,8 +157,7 @@ public class DefaultFileData implements FileData {
         }
     }
 
-    /** @throws JUploadIOException 
-     * @see FileData#appendFileProperties(ByteArrayEncoder) */
+    /** {@inheritDoc} */
     public void appendFileProperties(ByteArrayEncoder bae)
             throws JUploadIOException {
         bae.appendFileProperty("mimetype[]", getMimeType());
@@ -170,7 +172,7 @@ public class DefaultFileData implements FileData {
                 uploadFileModificationDate);
     }
 
-    /** @see FileData#beforeUpload() */
+    /** {@inheritDoc} */
     public void beforeUpload() throws JUploadException {
         // Default : we check that the file is smalled than the maximum upload
         // size.
@@ -180,18 +182,17 @@ public class DefaultFileData implements FileData {
         }
     }
 
-    /** @see FileData#getUploadLength() */
-    @SuppressWarnings("unused")
+    /** {@inheritDoc} */
     public long getUploadLength() throws JUploadException {
         return this.fileSize;
     }
 
-    /** @see FileData#afterUpload() */
+    /** {@inheritDoc} */
     public void afterUpload() {
         // Nothing to do here
     }
 
-    /** @see FileData#getInputStream() */
+    /** {@inheritDoc} */
     public InputStream getInputStream() throws JUploadException {
         // Standard FileData : we read the file.
         try {
@@ -201,46 +202,44 @@ public class DefaultFileData implements FileData {
         }
     }
 
-    /** @see FileData#getFileName() */
+    /** {@inheritDoc} */
     public String getFileName() {
         return this.file.getName();
     }
 
-    /** @see FileData#getFileExtension() */
+    /** {@inheritDoc} */
     public String getFileExtension() {
         return getExtension(this.file);
     }
 
-    /** @see FileData#getFileLength() */
+    /** {@inheritDoc} */
     public long getFileLength() {
         return this.fileSize;
     }
 
-    /** @see FileData#getLastModified() */
+    /** {@inheritDoc} */
     public Date getLastModified() {
         return this.fileModified;
     }
 
-    /** @see FileData#getDirectory() */
+    /** {@inheritDoc} */
     public String getDirectory() {
         return this.fileDir;
     }
 
-    /** @see FileData#getMimeType() */
+    /** {@inheritDoc} */
     public String getMimeType() {
         return this.mimeType;
     }
 
-    /**
-     * The canRead status is read once. This is done in this method, so that
-     * it's available for all subclasses. If it were in the construtor, we would
-     * have to initialize {@link #canRead} in all subclasses.
-     * 
-     * @see FileData#canRead()
-     */
+    /** {@inheritDoc} */
     public boolean canRead() {
         // The commented line below doesn't seems to work.
         // return this.file.canRead();
+
+        // The canRead status is read once. This is done in this method, so that
+        // it's available for all subclasses. If it were in the constructor, we
+        // would have to initialize {@link #canRead} in all subclasses.
 
         // Let's store the status 'readible' only once. It's
         if (canRead == null) {
@@ -257,14 +256,12 @@ public class DefaultFileData implements FileData {
         return canRead.booleanValue();
     }
 
-    /** @see FileData#getFile() */
+    /** {@inheritDoc} */
     public File getFile() {
         return this.file;
     }
 
-    /**
-     * @see wjhk.jupload2.filedata.FileData#getRelativeDir()
-     */
+    /** {@inheritDoc} */
     public String getRelativeDir() {
         if (null != this.fileRoot && (!this.fileRoot.equals(""))
                 && (this.fileDir.startsWith(this.fileRoot))) {
@@ -283,6 +280,9 @@ public class DefaultFileData implements FileData {
     /**
      * Returns the extension of the given file. To be clear: <I>jpg</I> is the
      * extension for the file named <I>picture.jpg</I>.
+     * 
+     * @param file the file whose the extension is wanted!
+     * @return The extension, without the point, for the given file.
      */
     public static String getExtension(File file) {
         String name = file.getName();

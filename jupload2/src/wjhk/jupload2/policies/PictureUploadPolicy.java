@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-06
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -97,7 +97,7 @@ import wjhk.jupload2.gui.PicturePanel;
  * NAME="maxPicWidth" VALUE="1024"> <PARAM NAME="debugLevel" VALUE="0"> Java 1.4
  * or higher plugin required. </APPLET> </XMP>
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  */
 
@@ -213,7 +213,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * super.Constructor().
      * 
      * @param theApplet Reference to the current applet. Allows access to
-     *            javasript functions.
+     *            javascript functions.
+     * @throws JUploadException 
      */
     public PictureUploadPolicy(JUploadApplet theApplet) throws JUploadException {
         super(theApplet);
@@ -442,7 +443,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Getter for {@link #fileChooserImagePreview}.
+     * Getter for fileChooserImagePreview.
      * 
      * @return Current value for the applet parameter: fileChooserImagePreview
      * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
@@ -452,7 +453,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }
 
     /**
-     * Setter for {@link #fileChooserIconFromFileContent}. Current allowed
+     * Setter for fileChooserIconFromFileContent. Current allowed
      * values are: -1, 0, 1. Default value is 0.
      * 
      * @param fileChooserImagePreview new value to store, for the applet
@@ -500,7 +501,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }
 
     /**
-     * @see #pictureCompressionQuality
      * @return The current value for picture compression.
      */
     public float getPictureCompressionQuality() {
@@ -516,7 +516,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }
 
     /**
-     * @see #pictureTransmitMetadata
      * @return The current value for transmission (or no transmission) of
      *         picture metadata.
      */
@@ -727,7 +726,15 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 getFileChooserIconSize());
     }
 
-    /** Implementation of the ImageObserver interface */
+    /** Implementation of the ImageObserver interface 
+     * @param arg0 
+     * @param arg1 
+     * @param arg2 
+     * @param arg3 
+     * @param arg4 
+     * @param arg5 
+     * @return true or false 
+     */
     public boolean imageUpdate(@SuppressWarnings("unused")
     Image arg0, @SuppressWarnings("unused")
     int arg1, @SuppressWarnings("unused")

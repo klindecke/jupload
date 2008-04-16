@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: ?
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date: 2007-10-08 10:02:41 +0200 (lun., 08 oct. 2007) $
 //
 // This program is free software; you can redistribute it and/or modify it under

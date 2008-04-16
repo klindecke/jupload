@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-04
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -108,7 +108,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * management of uploaded files, on the server.
  * </UL>
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  */
 
@@ -692,7 +692,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @see UploadPolicy#createFileData(File, File)
      */
-    public FileData createFileData(File file, File root) throws JUploadExceptionStopAddingFiles {
+    public FileData createFileData(File file, File root)
+            throws JUploadExceptionStopAddingFiles {
         return new DefaultFileData(file, root, this);
     }
 
@@ -1396,7 +1397,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Getter for {@link #fileChooserIconFromFileContent}.
+     * Getter for fileChooserIconFromFileContent.
      * 
      * @return Current value for fileChooserIconFromFileContent
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
@@ -1406,8 +1407,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Setter for {@link #fileChooserIconFromFileContent}. Current allowed
-     * values are: -1, 0, 1. Default value is 0.
+     * Setter for fileChooserIconFromFileContent. Current allowed values are:
+     * -1, 0, 1. Default value is 0.
      * 
      * @param fileChooserIconFromFileContent Value to be set. If the value is
      *            not allowed (not -1, 0 or 1), the current value is unchangeed.
@@ -1419,7 +1420,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Getter for {@link #fileChooserIconSize}.
+     * Getter for fileChooserIconSize.
      * 
      * @return Current value for fileChooserIconSize
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
@@ -1429,7 +1430,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Setter for {@link #fileChooserIconSize}.
+     * Setter for fileChooserIconSize.
      * 
      * @param fileChooserIconSize Value to be set.
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE

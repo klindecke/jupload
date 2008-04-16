@@ -104,6 +104,7 @@ public class ImageReaderWriterHelper {
      * Standard constructor.
      * 
      * @param uploadPolicy The current upload policy.
+     * @param pictureFileData The file data to be 'helped'.
      */
     public ImageReaderWriterHelper(PictureUploadPolicy uploadPolicy,
             PictureFileData pictureFileData) {
@@ -125,8 +126,11 @@ public class ImageReaderWriterHelper {
     // ////////////////////////////////////////////////////////////////////
 
     /**
-     * Creates a FileImageOutputStream, and assign it as the output to
-     * {@link #imageWriter}.
+     * Creates a FileImageOutputStream, and assign it as the output to the
+     * imageWriter.
+     * 
+     * @param file The file where the output stream must write.
+     * @throws JUploadIOException Any error...
      */
     public void setOutput(File file) throws JUploadIOException {
         // We first initialize internal variable.
@@ -144,6 +148,8 @@ public class ImageReaderWriterHelper {
     /**
      * Free all reserved resource by this helper. Includes closing of any input
      * or output stream.
+     * 
+     * @throws JUploadIOException Any IO Exception
      */
     public void dispose() throws JUploadIOException {
         // First: let's free any resource used by ImageWriter.
@@ -199,7 +205,7 @@ public class ImageReaderWriterHelper {
     }
 
     /**
-     * Call to ImageIO.read({@link #fileImageInputStream}).
+     * Call to ImageIO.read(fileImageInputStream).
      * 
      * @return The BufferedImage read
      * @throws JUploadIOException
@@ -222,6 +228,7 @@ public class ImageReaderWriterHelper {
      *            picture)
      * @return The image corresponding to this index, in the picture file.
      * @throws JUploadIOException
+     * @throws IndexOutOfBoundsException Occurs when the imageIndex is wrong.
      */
     public BufferedImage readImage(int imageIndex) throws JUploadIOException,
             IndexOutOfBoundsException {
@@ -251,6 +258,7 @@ public class ImageReaderWriterHelper {
      *            picture)
      * @return The full image data for this index
      * @throws JUploadIOException
+     * @throws IndexOutOfBoundsException Occurs when the imageIndex is wrong.
      */
     public IIOImage readAll(int imageIndex) throws JUploadIOException,
             IndexOutOfBoundsException {
@@ -278,7 +286,8 @@ public class ImageReaderWriterHelper {
      * 
      * @param imageIndex
      * @return The metadata loaded
-     * @throws JUploadIOException Any IOException is encapsulated in this exception 
+     * @throws JUploadIOException Any IOException is encapsulated in this
+     *             exception
      */
     public IIOMetadata getImageMetadata(int imageIndex)
             throws JUploadIOException {
@@ -303,6 +312,8 @@ public class ImageReaderWriterHelper {
      * 
      * @param numIndex The index of the image in the transformed picture file.
      * @param iioImage The image to write.
+     * @param iwp The parameter to use to write this image.
+     * @throws JUploadIOException
      */
     public void writeInsert(int numIndex, IIOImage iioImage, ImageWriteParam iwp)
             throws JUploadIOException {
@@ -319,6 +330,7 @@ public class ImageReaderWriterHelper {
      * Write a picture in the output picture file. Called just before an upload.
      * 
      * @param iioImage The image to write.
+     * @throws JUploadIOException
      */
     public void write(IIOImage iioImage) throws JUploadIOException {
         initImageWriter();
@@ -336,6 +348,8 @@ public class ImageReaderWriterHelper {
     /**
      * Initialize the ImageWriter and the ImageWriteParam for the current
      * picture helper.
+     * 
+     * @throws JUploadIOException
      */
     private void initImageWriter() throws JUploadIOException {
         if (imageWriter == null) {
@@ -360,8 +374,9 @@ public class ImageReaderWriterHelper {
                     imageWriterParam
                             .setCompressionQuality(((PictureUploadPolicy) this.uploadPolicy)
                                     .getPictureCompressionQuality());
-                    //In some case, we need to force the Huffman tables:
-                    ((JPEGImageWriteParam)imageWriterParam).setOptimizeHuffmanTables(true);
+                    // In some case, we need to force the Huffman tables:
+                    ((JPEGImageWriteParam) imageWriterParam)
+                            .setOptimizeHuffmanTables(true);
                 }
 
                 //
@@ -383,6 +398,8 @@ public class ImageReaderWriterHelper {
 
     /**
      * Initialize the ImageReader for the current helper.
+     * 
+     * @throws JUploadIOException
      */
     private void initImageReader() throws JUploadIOException {
         // First: we open a ImageInputStream

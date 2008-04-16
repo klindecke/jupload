@@ -5,7 +5,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2007-01-19
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@
 package wjhk.jupload2.filedata;
 
 import java.io.File;
+
 
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -40,7 +41,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <BR>
  * To be completed
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  */
 
@@ -49,8 +50,10 @@ public class AudioFileData extends DefaultFileData {
     /**
      * Creates a new instance.
      * 
-     * @param file The file to use as data source.
-     * @param uploadPolicy The upload policy to apply.
+     * @param file The files which data are to be handled by this instance.
+     * @param root The root directory, to calculate the relative dir (see
+     *            {@link #getRelativeDir()}.
+     * @param uploadPolicy The current upload policy
      */
     public AudioFileData(File file, File root, UploadPolicy uploadPolicy) {
         super(file, root, uploadPolicy);

@@ -5,7 +5,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-11-20
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -74,7 +74,7 @@ class UploadFileData implements FileData {
     private static final int BUFLEN = 4096;
 
     /**
-     * This field is no more static, as we could decide to upload to field
+     * This field is no more static, as we could decide to upload two files
      * simultaneously.
      */
     private final byte readBuffer[] = new byte[BUFLEN];
@@ -86,6 +86,12 @@ class UploadFileData implements FileData {
 
     /**
      * Standard constructor for the UploadFileData class.
+     * 
+     * @param fileDataParam The file data the this instance must transmist.
+     * @param fileUploadThreadParam The current instance of
+     *            {@link FileUploadThread}
+     * @param uploadPolicyParam The current upload policy, instance of
+     *            {@link UploadPolicy}
      */
     public UploadFileData(FileData fileDataParam,
             FileUploadThread fileUploadThreadParam,
@@ -217,13 +223,13 @@ class UploadFileData implements FileData {
         this.fileData.afterUpload();
     }
 
-    /** @throws JUploadIOException 
-     * @see {@link FileData#appendFileProperties(ByteArrayEncoder)} */
-    public void appendFileProperties(ByteArrayEncoder bae) throws JUploadIOException {
+    /** {@inheritDoc} */
+    public void appendFileProperties(ByteArrayEncoder bae)
+            throws JUploadIOException {
         this.fileData.appendFileProperties(bae);
     }
 
-    /** @see FileData#beforeUpload() */
+    /** {@inheritDoc} */
     public void beforeUpload() throws JUploadException {
         this.fileData.beforeUpload();
 
@@ -231,37 +237,37 @@ class UploadFileData implements FileData {
         this.uploadRemainingLength = this.fileData.getUploadLength();
     }
 
-    /** @see FileData#canRead() */
+    /** {@inheritDoc} */
     public boolean canRead() {
         return this.fileData.canRead();
     }
 
-    /** @see FileData#getDirectory() */
+    /** {@inheritDoc} */
     public String getDirectory() {
         return this.fileData.getDirectory();
     }
 
-    /** @see FileData#getFile() */
+    /** {@inheritDoc} */
     public File getFile() {
         return this.fileData.getFile();
     }
 
-    /** @see FileData#getFileExtension() */
+    /** {@inheritDoc} */
     public String getFileExtension() {
         return this.fileData.getFileExtension();
     }
 
-    /** @see FileData#getFileLength() */
+    /** {@inheritDoc} */
     public long getFileLength() {
         return this.fileData.getFileLength();
     }
 
-    /** @see FileData#getFileName() */
+    /** {@inheritDoc} */
     public String getFileName() {
         return this.fileData.getFileName();
     }
 
-    /** @see FileData#getInputStream() */
+    /** {@inheritDoc} */
     public InputStream getInputStream() throws JUploadException {
         // If you didn't already open the input stream, the remaining length
         // should be non 0.
@@ -284,22 +290,46 @@ class UploadFileData implements FileData {
         return this.inputStream;
     }
 
-    /** @see FileData#getLastModified() */
+    /** {@inheritDoc} */
     public Date getLastModified() {
         return this.fileData.getLastModified();
     }
 
-    /** @see FileData#getMimeType() */
+    /** {@inheritDoc} */
     public String getMimeType() {
         return this.fileData.getMimeType();
     }
 
-    /** @see UploadPolicy#getUploadFilename(FileData, int) */
+    /** {@inheritDoc} */
+    public String getRelativeDir() {
+        return this.fileData.getRelativeDir();
+    }
+
+    /**
+     * Retrieves the file name, that should be used in the server application.
+     * Default is to send the original filename.
+     * 
+     * @param index The index of this file in the current request to the server.
+     * @return The real file name. Not used in FTP upload.
+     * @throws JUploadException Thrown when an error occurs.
+     * 
+     * @see UploadPolicy#getUploadFilename(FileData, int)
+     */
     public String getUploadFilename(int index) throws JUploadException {
         return this.uploadPolicy.getUploadFilename(this.fileData, index);
     }
 
-    /** @see UploadPolicy#getUploadName(FileData, int) */
+    /**
+     * Retrieves the upload file name, that should be sent to the server. It's
+     * the technical name used to retrieve the file content. Default is File0,
+     * File1... This method just calls the
+     * {@link UploadPolicy#getUploadFilename(FileData, int)} method.
+     * 
+     * @param index The index of this file in the current request to the server.
+     * @return The technical upload file name. Not used in FTP upload.
+     * 
+     * @see UploadPolicy#getUploadName(FileData, int)
+     */
     public String getUploadName(int index) {
         return this.uploadPolicy.getUploadName(this.fileData, index);
     }

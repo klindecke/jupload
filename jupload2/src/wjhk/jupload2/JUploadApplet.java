@@ -46,7 +46,7 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}, or created from scratch.
  * </DIR>
  * 
- * @author William JinHua Kwong (updated by Etienne Gauthier)
+ * @author William JinHua Kwong (updated by etienne_sf)
  * @version $Revision$
  */
 public class JUploadApplet extends Applet {
@@ -73,7 +73,7 @@ public class JUploadApplet extends Applet {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    public final static String VERSION = "3.3.2 [SVN-Rev: "
+    public final static String VERSION = "3.3.2rc [SVN-Rev: "
             + svnProperties.getProperty("revision") + "]";
 
     /**
@@ -164,15 +164,6 @@ public class JUploadApplet extends Applet {
     }
 
     /**
-     * Retrieves the FilePanel of this applet.
-     * 
-     * @return the current FilePanel of this instance.
-     *
-    public FilePanel getFilePanel() {
-        return this.jUploadPanel.getFilePanel();
-    }
-
-    /**
      * Retrieves the current log window of this applet. This log window may
      * visible or not depending on various applet parameter.
      * 
@@ -211,8 +202,8 @@ public class JUploadApplet extends Applet {
      * user after full initialization. This methods only calls the
      * UploadPolicy.setProperty method.
      * 
-     * @param prop
-     * @param value
+     * @param prop The property name that must be set.
+     * @param value The value of this property.
      */
     public void setProperty(String prop, String value) {
         try {
@@ -222,22 +213,40 @@ public class JUploadApplet extends Applet {
         }
     }
 
-    /** @see UploadPolicy#displayErr(Exception) */
+    /**
+     * Call to {@link UploadPolicy#displayErr(Exception)}
+     * 
+     * @param err The error text to be displayed.
+     */
     public void displayErr(String err) {
         this.uploadPolicy.displayErr(err);
     }
 
-    /** @see UploadPolicy#displayInfo(String) */
+    /**
+     * Call to {@link UploadPolicy#displayInfo(String)}
+     * 
+     * @param info The info text to display
+     */
     public void displayInfo(String info) {
         this.uploadPolicy.displayInfo(info);
     }
 
-    /** @see UploadPolicy#displayWarn(String) */
+    /**
+     * Call to {@link UploadPolicy#displayWarn(String)}
+     * 
+     * @param warn The error text to be displayed.
+     */
     public void displayWarn(String warn) {
         this.uploadPolicy.displayWarn(warn);
     }
 
-    /** @see UploadPolicy#displayDebug(String, int) */
+    /**
+     * Call to {@link UploadPolicy#displayDebug(String, int)}
+     * 
+     * @param debug The debug message.
+     * @param minDebugLevel The minimum level that debug level should have, to
+     *            display this message. Values can go from 0 to 100.
+     */
     public void displayDebug(String debug, int minDebugLevel) {
         this.uploadPolicy.displayDebug(debug, minDebugLevel);
     }
@@ -288,6 +297,8 @@ public class JUploadApplet extends Applet {
 
     /**
      * Helper function for ant build to retrieve the current version.
+     * 
+     * @param args Standard argument for main method. Not used.
      */
     public static void main(String[] args) {
         System.out.println(VERSION.split(" ")[0]);
@@ -295,7 +306,9 @@ public class JUploadApplet extends Applet {
 
     /**
      * Helper function, to get the Revision number, if available. The applet
-     * must be built fro the build.xml ant file.
+     * must be built from the build.xml ant file.
+     * 
+     * @return The svn properties
      */
     public static Properties getSvnProperties() {
         Properties properties = new Properties();

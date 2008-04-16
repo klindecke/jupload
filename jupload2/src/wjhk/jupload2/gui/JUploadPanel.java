@@ -156,6 +156,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      *            creation of the layout.
      * @param uploadPolicyParam The current UploadPolicy. Null if a new one must
      *            be created.
+     * @throws Exception 
      * @see UploadPolicyFactory#getUploadPolicy(wjhk.jupload2.JUploadApplet)
      */
     public JUploadPanel(@SuppressWarnings("unused")
@@ -755,7 +756,9 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     /**
-     * Setters for {@link #filePanel}.
+     * Standard setter for filePanel.
+     * 
+     * @param filePanel 
      */
     public void setFilePanel(FilePanel filePanel) {
         this.filePanel = filePanel;

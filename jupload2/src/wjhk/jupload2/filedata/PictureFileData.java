@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-09
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -63,7 +63,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * code!
  * </UL>
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  */
 public class PictureFileData extends DefaultFileData {
@@ -94,7 +94,7 @@ public class PictureFileData extends DefaultFileData {
 
     // Will be erased in the constructor.
 
-    /**
+    /*
      * bufferedImage contains a preloaded picture. This buffer is used according
      * to PictureFileDataPolicy.storeBufferedImage.
      * 
@@ -163,17 +163,14 @@ public class PictureFileData extends DefaultFileData {
     private File workingCopyTempFile = null;
 
     /**
-     * For this class, the UploadPolicy is a PictureUploadPolicy, or one class
-     * that inherits from it.
-     * 
-     * @Override
-     */
-    // PictureUploadPolicy uploadPolicy;
-    // ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /**
      * Standard constructor: needs a PictureFileDataPolicy.
      * 
      * @param file The files which data are to be handled by this instance.
+     * @param root The root directory, to calculate the relative dir (see
+     *            {@link #getRelativeDir()}.
+     * @param uploadPolicy The current upload policy
+     * @throws JUploadIOException Encapsulation of the IOException, if any would
+     *             occurs.
      */
     public PictureFileData(File file, File root,
             PictureUploadPolicy uploadPolicy) throws JUploadIOException {
@@ -358,6 +355,8 @@ public class PictureFileData extends DefaultFileData {
      *            picture. Store this picture avoid calculating the image each
      *            time the user selects it in the file panel.
      * @return The rescaled image.
+     * @throws JUploadException Encapsulation of the Exception, if any would
+     *             occurs.
      */
     public Image getImage(Canvas canvas, boolean shadow)
             throws JUploadException {
@@ -418,11 +417,11 @@ public class PictureFileData extends DefaultFileData {
     }// getImage
 
     /**
-     * This function is used to rotate the picture.
+     * This function is used to rotate the picture. The current rotation state
+     * is kept in the quarterRotation private attribute.
      * 
-     * @param quarter Number of quarters (90ï¿½) the picture should rotate. 1
-     *            means rotating of 90ï¿½ clockwise (?). Can be negative.
-     * @see #quarterRotation
+     * @param quarter Number of quarters (90°) the picture should rotate. 1
+     *            means rotating of 90° clockwise. Can be negative.
      */
     public void addRotation(int quarter) {
         this.quarterRotation += quarter;
@@ -447,7 +446,9 @@ public class PictureFileData extends DefaultFileData {
     }
 
     /**
-     * @return the {@link #isPicture} flag.
+     * Indicates if this file is actually a picture or not.
+     * 
+     * @return the isPicture flag.
      */
     public boolean isPicture() {
         return this.isPicture;
@@ -799,14 +800,14 @@ public class PictureFileData extends DefaultFileData {
     }// getWorkingSourceFile()
 
     /**
-     * @return the {@link #originalWidth}
+     * @return the originalWidth of the picture
      */
     public int getOriginalWidth() {
         return originalWidth;
     }
 
     /**
-     * @return the {@link #originalHeight}
+     * @return the originalHeight of the picture
      */
     public int getOriginalHeight() {
         return originalHeight;

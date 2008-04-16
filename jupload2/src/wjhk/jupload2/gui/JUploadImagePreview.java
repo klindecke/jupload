@@ -195,6 +195,7 @@ public class JUploadImagePreview extends JComponent implements
     /**
      * Hum, we're interested in these events: DIRECTORY_CHANGED_PROPERTY and
      * SELECTED_FILE_CHANGED_PROPERTY.
+     * @param e 
      */
     public void propertyChange(PropertyChangeEvent e) {
         String prop = e.getPropertyName();
