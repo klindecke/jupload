@@ -52,6 +52,7 @@ public class JUploadExceptionTooBigFile extends JUploadException {
      * @param filename The name of the file which triggered this exception.
      * @param uploadLength The length of the offending file.
      * @param uploadPolicy The current upload policy.
+     * @return Generate the error text for this exception.
      */
     public static String createErrorMessage(String filename, long uploadLength,
             UploadPolicy uploadPolicy) {

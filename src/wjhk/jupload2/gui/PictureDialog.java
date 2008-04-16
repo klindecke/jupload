@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-07-10
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -40,7 +40,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 /**
  * A maximized modal dialog box, that display the selected picture.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  */
 public class PictureDialog extends JDialog implements ActionListener,
         ComponentListener {
@@ -123,18 +123,22 @@ public class PictureDialog extends JDialog implements ActionListener,
         }
     }
 
+    /** {@inheritDoc} */
     public void componentHidden(ComponentEvent arg0) {
         // No action
     }
 
+    /** {@inheritDoc} */
     public void componentMoved(ComponentEvent arg0) {
         // No action
     }
 
+    /** {@inheritDoc} */
     public void componentResized(ComponentEvent arg0) {
         // No action
     }
 
+    /** {@inheritDoc} */
     public void componentShown(ComponentEvent arg0) {
         // We set the cursor back to normal
         setCursor(new Cursor(Cursor.HAND_CURSOR));

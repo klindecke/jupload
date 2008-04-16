@@ -27,7 +27,7 @@ import wjhk.jupload2.filedata.FileData;
 
 /**
  * Technical class, used to sort rows in the
- * {@link wjhk.jupload2.gui.FilePanelDataModel2} class.
+ * wjhk.jupload2.gui.FilePanelDataModel2 class.
  */
 public class ColumnComparator implements Comparator<FileData> {
     protected int index;
@@ -46,38 +46,42 @@ public class ColumnComparator implements Comparator<FileData> {
     }
 
     /**
+     * @param one 
+     * @param two 
+     * @return -1, 0 or 1, as usual.
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @SuppressWarnings("unchecked")
     public int compare(FileData one, FileData two) {
-        //if (one instanceof DefaultFileData && two instanceof DefaultFileData) {
-            Object oOne;
-            Object oTwo;
-            switch (this.index) {
-                case FilePanelDataModel2.COLINDEX_NAME:
-                    oOne = ((FileData) one).getFileName();
-                    oTwo = ((FileData) two).getFileName();
-                    break;
-                case FilePanelDataModel2.COLINDEX_SIZE:
-                    oOne = new Long(((FileData) one).getFileLength());
-                    oTwo = new Long(((FileData) two).getFileLength());
-                    break;
-                case FilePanelDataModel2.COLINDEX_DIRECTORY:
-                    oOne = ((FileData) one).getDirectory();
-                    oTwo = ((FileData) two).getDirectory();
-                    break;
-                case FilePanelDataModel2.COLINDEX_MODIFIED:
-                    oOne = ((FileData) one).getLastModified();
-                    oTwo = ((FileData) two).getLastModified();
-                    break;
-                default:
-                    return 0;
-            }
-            if (oOne instanceof Comparable && oTwo instanceof Comparable) {
-                return ((Comparable) oOne).compareTo(oTwo)
-                        * (this.ascending ? 1 : -1);
-            }
-        //}
+        // if (one instanceof DefaultFileData && two instanceof DefaultFileData)
+        // {
+        Object oOne;
+        Object oTwo;
+        switch (this.index) {
+            case FilePanelDataModel2.COLINDEX_NAME:
+                oOne = ((FileData) one).getFileName();
+                oTwo = ((FileData) two).getFileName();
+                break;
+            case FilePanelDataModel2.COLINDEX_SIZE:
+                oOne = new Long(((FileData) one).getFileLength());
+                oTwo = new Long(((FileData) two).getFileLength());
+                break;
+            case FilePanelDataModel2.COLINDEX_DIRECTORY:
+                oOne = ((FileData) one).getDirectory();
+                oTwo = ((FileData) two).getDirectory();
+                break;
+            case FilePanelDataModel2.COLINDEX_MODIFIED:
+                oOne = ((FileData) one).getLastModified();
+                oTwo = ((FileData) two).getLastModified();
+                break;
+            default:
+                return 0;
+        }
+        if (oOne instanceof Comparable && oTwo instanceof Comparable) {
+            return ((Comparable) oOne).compareTo(oTwo)
+                    * (this.ascending ? 1 : -1);
+        }
+        // }
         return 0;
     }
 }

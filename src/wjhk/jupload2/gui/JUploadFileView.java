@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2007-04-06
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -53,9 +53,9 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <LI>STATUS_NOT_LOADED: This icon is not loaded, and its loading is not
  * requested. This status is the default one, on creation.
  * <LI>STATUS_TO_BE_LOADED: This icon is on the list of icon to load. This
- * status is written by the {@link JUploadFileView#execute(IconWorker)} method.
- * <LI>STATUS_LOADING: Indicates the the {@link IconWorker#loadIcon()} has been
- * called, but is not finished.
+ * status is written by the JUploadFileView#execute(IconWorker) method.
+ * <LI>STATUS_LOADING: Indicates the IconWorker#loadIcon() has been called, but
+ * is not finished.
  * <LI>STATUS_LOADED: The icon is loaded, and ready to be displayed.
  * <LI>STATUS_ERROR_WHILE_LOADING: Too bad, the applet could not load the icon.
  * It won't be tried again. </DIR>
@@ -187,7 +187,7 @@ class IconWorker implements Runnable {
 /**
  * This class provides the icon view for the file selector.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  */
 public class JUploadFileView extends FileView implements
         PropertyChangeListener, ThreadFactory {
@@ -306,6 +306,8 @@ public class JUploadFileView extends FileView implements
     /**
      * Waiting for JFileChooser events. Currently managed:
      * DIRECTORY_CHANGED_PROPERTY, to stop the to be loaded icons.
+     * 
+     * @param e
      */
     public void propertyChange(PropertyChangeEvent e) {
         String prop = e.getPropertyName();
@@ -389,10 +391,11 @@ public class JUploadFileView extends FileView implements
 
     /**
      * Implementation of ThreadFactory. Creates a thread in the
-     * {@link #iconWorkerThreadGroup} thread group. This thread group has the
-     * lower available priority.
+     * iconWorkerThreadGroup thread group. This thread group has the lower
+     * available priority.
      * 
      * @param runnable The runnable instance to start.
+     * @return The newly created thread
      */
     public Thread newThread(Runnable runnable) {
         Thread thread = new Thread(JUploadFileView.iconWorkerThreadGroup,

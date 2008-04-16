@@ -7,7 +7,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-07-11
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -31,7 +31,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * The picture for the PictureDialog. The difference with the PicturePanel, is
  * that a click on it closes the Dialog.
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  */
 public class DialogPicturePanel extends PicturePanel {
 
@@ -46,6 +46,9 @@ public class DialogPicturePanel extends PicturePanel {
     PictureDialog pictureDialog;
 
     /**
+     * @param pictureDialog 
+     * @param uploadPolicy 
+     * @param pictureFileData 
      * 
      */
     public DialogPicturePanel(PictureDialog pictureDialog,

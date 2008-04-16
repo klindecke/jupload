@@ -37,7 +37,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * This class is the JTable that display file information to the users. Data is
- * handled by the {@link wjhk.jupload2.gui.FilePanelDataModel2} class.
+ * handled by the wjhk.jupload2.gui.FilePanelDataModel2 class.
  */
 public class FilePanelJTable extends JTable implements MouseListener {
     /**

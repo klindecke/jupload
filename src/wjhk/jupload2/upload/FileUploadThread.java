@@ -35,6 +35,7 @@ public interface FileUploadThread {
 
     /**
      * Returns true if someone asks the thread to stop.
+     * @return true if the upload has been requested to stop.
      * 
      * @see #stopUpload()
      */
@@ -85,16 +86,20 @@ public interface FileUploadThread {
     public long getStartTime();
 
     /**
+     * @return true if the thread is currently working.
      * @see java.lang.Thread#isAlive()
      */
     public boolean isAlive();
 
     /**
+     * @throws InterruptedException 
      * @see java.lang.Thread#join()
      */
     public void join() throws InterruptedException;
 
     /**
+     * @param millisec 
+     * @throws InterruptedException 
      * @see java.lang.Thread#join(long)
      */
     public void join(long millisec) throws InterruptedException;

@@ -43,13 +43,13 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <LI>{@link #startRequest}: start of the UploadRequest.
  * <LI>Then, for each file to upload (according to the nbFilesPerRequest and
  * maxChunkSize applet parameters) <DIR>
- * <LI>{@link #beforeFile(int)} is called before writting the bytes for this
+ * <LI>beforeFile(int) is called before writting the bytes for this
  * file (or this chunk)
- * <LI>{@link #afterFile(int)} is called after writting the bytes for this file
+ * <LI>afterFile(int) is called after writting the bytes for this file
  * (or this chunk) </DIR>
- * <LI>{@link #finishRequest()} </DIR> </LI>
- * <I>finally</I> {@link #cleanRequest()}
- * <LI>Call of {@link #cleanAll()}, to clean up any used resources, common to
+ * <LI>finishRequest() </DIR> </LI>
+ * <I>finally</I>cleanRequest()
+ * <LI>Call of cleanAll(), to clean up any used resources, common to
  * the whole upload. </DIR>
  */
 public abstract class DefaultFileUploadThread extends Thread implements
@@ -60,7 +60,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // ////////////////////////////////////////////////////////////////////////////////////
 
     /*
-     * Etienne Gauthier: this parameter is now removed. The incoming list of
+     * etienne_sf: this parameter is now removed. The incoming list of
      * files to upload is now only managed in the constructor: it's up to it to
      * manage files that can't be read. /** The given array containing the files
      * to upload. Stored in the constructor, and used in the run() method.
@@ -227,7 +227,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     }
 
     /**
-     * Used by the {@link UploadFileData#uploadFile(java.io.OutputStream, long)}
+     * Used by the UploadFileData.uploadFile(java.io.OutputStream, long)
      * for each uploaded buffer
      * 
      * @see wjhk.jupload2.upload.FileUploadThread#nbBytesUploaded(long)

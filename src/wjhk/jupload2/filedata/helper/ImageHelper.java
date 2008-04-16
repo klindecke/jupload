@@ -6,7 +6,7 @@
 // Copyright 2008 The JUpload Team
 //
 // Created: 12 févr. 08
-// Creator: gauthier-eti
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify
@@ -146,10 +146,11 @@ public class ImageHelper implements ImageObserver {
     /**
      * Standard constructor.
      * 
-     * @param uploadPolicy
-     * @param pictureFileData
+     * @param uploadPolicy The current upload policy
+     * @param pictureFileData The picture file data to help
      * @param targetMaxWidth
      * @param targetMaxHeight
+     * @param quarterRotation Current quarter rotation (from 0 to 3)
      */
     public ImageHelper(PictureUploadPolicy uploadPolicy,
             PictureFileData pictureFileData, int targetMaxWidth,
@@ -244,13 +245,12 @@ public class ImageHelper implements ImageObserver {
      * This function indicate if the picture has to be modified. For instance :
      * a maximum width, height, a target format...
      * 
-     * @see PictureUploadPolicy
-     * @see #quarterRotation
      * @return true if the picture must be transformed. false if the file can be
      *         directly transmitted.
+     * @throws JUploadException Contains any exception that could be thrown in
+     *             this method
      */
-    public boolean hasToTransformPicture()
-            throws JUploadException {
+    public boolean hasToTransformPicture() throws JUploadException {
         // Animated gif must be transmit as is, as I can't find a way to
         // recreate them.
         if (DefaultFileData.getExtension(pictureFileData.getFile())
@@ -338,8 +338,7 @@ public class ImageHelper implements ImageObserver {
 
     /**
      * This function resizes the picture, if necessary, according to the
-     * {@link #maxWidth} and {@link #maxHeight}, given to the
-     * ImageHelper constructor. <BR>
+     * maxWidth and maxHeight, given to the ImageHelper constructor. <BR>
      * This function should only be called if isPicture is true. Otherwise, an
      * exception is raised. <BR>
      * Note (Update given by David Gnedt): the highquality will condition the
@@ -360,6 +359,8 @@ public class ImageHelper implements ImageObserver {
      * @return A BufferedImage which contains the picture according to current
      *         parameters (resizing, rotation...), or null if this is not a
      *         picture.
+     * @throws JUploadException Contains any exception thrown from within this
+     *             method.
      */
     public BufferedImage getBufferedImage(boolean highquality,
             BufferedImage sourceBufferedImage) throws JUploadException {
@@ -449,8 +450,9 @@ public class ImageHelper implements ImageObserver {
 
                     img.flush();
                     img = null;
-                    pictureFileData.freeMemory("ImageHelper.getBufferedImage()");
-                    
+                    pictureFileData
+                            .freeMemory("ImageHelper.getBufferedImage()");
+
                     // tempBufferedImage contains the rescaled picture. It's
                     // the source image for the next step (rotation).
                     sourceBufferedImage = tempBufferedImage;
@@ -520,6 +522,15 @@ public class ImageHelper implements ImageObserver {
     /**
      * Implementation of the ImageObserver interface. Used to follow the
      * drawImage progression, and update the applet progress bar.
+     * 
+     * @param img 
+     * @param infoflags 
+     * @param x 
+     * @param y 
+     * @param width 
+     * @param height 
+     * @return Whether or not the work must go on.
+     * 
      */
     public boolean imageUpdate(Image img, int infoflags, int x, int y,
             int width, int height) {

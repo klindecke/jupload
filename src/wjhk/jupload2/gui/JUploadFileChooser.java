@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: ?
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date: 2007-05-28 20:24:01 +0000 (lun., 28 mai 2007) $
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -26,7 +26,7 @@ import javax.swing.JFileChooser;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
- * This class allows easy personnalization of the java file chooser. It asks the
+ * This class allows easy personalization of the java file chooser. It asks the
  * current upload policy for all current configuration parameters. It is created
  * by the {@link JUploadPanel} class.
  */
@@ -53,12 +53,16 @@ public class JUploadFileChooser extends JFileChooser {
     // /////////////////////////////// Methods
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /** The 'standard' constructor for our file chooser */
+    /**
+     * The 'standard' constructor for our file chooser
+     * 
+     * @param uploadPolicyParam
+     */
     public JUploadFileChooser(UploadPolicy uploadPolicyParam) {
         this.uploadPolicy = uploadPolicyParam;
 
         this.fileFilter = new JUploadFileFilter(this.uploadPolicy);
-        this.fileView = new JUploadFileView(this.uploadPolicy, this);        
+        this.fileView = new JUploadFileView(this.uploadPolicy, this);
 
         // XXX:
         // This breaks usability. probably use a persistent value of a
@@ -72,7 +76,8 @@ public class JUploadFileChooser extends JFileChooser {
         setFileView(this.fileView);
         if (this.uploadPolicy.fileFilterGetDescription() != null) {
             setFileFilter(this.fileFilter);
-            //If a file filter has been given to the applet, only these file should be allowed.
+            // If a file filter has been given to the applet, only these file
+            // should be allowed.
             setAcceptAllFileFilterUsed(false);
         }
     }

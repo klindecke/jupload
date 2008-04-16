@@ -6,7 +6,7 @@
 // Copyright 2007 The JUpload Team
 // 
 // Created: 2006-05-04
-// Creator: Etienne Gauthier
+// Creator: etienne_sf
 // Last modified: $Date$
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -735,7 +735,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used by Ant
  * build. DO NOT CHANGE!! -->
  * 
- * @author Etienne Gauthier
+ * @author etienne_sf
  * @version $Revision$
  * @see wjhk.jupload2.policies.DefaultUploadPolicy
  */
@@ -1201,6 +1201,8 @@ public interface UploadPolicy {
      * This methods allow the upload policy to override the default disposition
      * of the components on the applet.
      * 
+     * @param jUploadPanel The main applet panel.
+     * 
      * @see #createTopPanel(JButton, JButton, JButton, JUploadPanel)
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel);
@@ -1219,8 +1221,13 @@ public interface UploadPolicy {
      *         {@link PictureUploadPolicy#createFileData(File,File)} for an
      *         example. It's up to the upload policy to display a message to
      *         inform the user that this file won't be added to the file list.
+     * @throws JUploadExceptionStopAddingFiles The exception is not really an
+     *             error. It allows an easy way to indicates that the applet
+     *             should stop adding files when the user clicked on the
+     *             'Cancel' button.
      */
-    public FileData createFileData(File file, File root) throws JUploadExceptionStopAddingFiles;
+    public FileData createFileData(File file, File root)
+            throws JUploadExceptionStopAddingFiles;
 
     /**
      * This method displays the applet parameter list, according to the current
@@ -1245,14 +1252,14 @@ public interface UploadPolicy {
      *            (for instance <i>aaa</i> for a number), a warning is
      *            displayed in the log window, and the existing value is not
      *            changed.
+     * @throws JUploadException
      * @exception JUploadExceptionStopAddingFiles indicates that the applet
      *                should stop strying adding the current file selection.
      *                Useful for instance, when a user drop a directory, full of
      *                unallowed file: it's annoying for the user to click 'Ok'
      *                for each file in the alert box.
      */
-    public void setProperty(String prop, String value)
-            throws JUploadException ;
+    public void setProperty(String prop, String value) throws JUploadException;
 
     /**
      * Retrieves the current value for the afterUploadURL applet parameter.
@@ -1384,6 +1391,7 @@ public interface UploadPolicy {
      * The URL can change during the life of our policy ...
      * 
      * @param postURL
+     * @throws JUploadException
      */
     public void setPostURL(String postURL) throws JUploadException;
 
@@ -1437,10 +1445,12 @@ public interface UploadPolicy {
      * the filename (see the filenameEncoding parameter). By default, the
      * original filename is returned.
      * 
-     * @param fileData
-     * @param index
+     * @param fileData The file data whose upload file name must be calculated.
+     * @param index index of the file in the current request to the server (from
+     *            0 to n)
      * @return The filename the is given in the filename part of the
      *         Content-Disposition header.
+     * @throws JUploadException
      */
     public String getUploadFilename(FileData fileData, int index)
             throws JUploadException;
@@ -1451,8 +1461,9 @@ public interface UploadPolicy {
      * the name under which you can manage the file (for instance in the
      * _FILES[$name] in PHP) and not the filename of the original file.
      * 
-     * @param index index of the file within upload (can be4, ou of 10 for
-     *            instance).
+     * @param fileData The file data whose upload name must be calculated.
+     * @param index index of the file in the current request to the server (from
+     *            0 to n)
      * @return The name part of the Content-Disposition header.
      * @see #getUploadFilename(FileData, int)
      */
@@ -1523,6 +1534,8 @@ public interface UploadPolicy {
      * allow fine control of the way to select files. For instance, the
      * {@link PictureUploadPolicy} creates a file chooser, and add an accessory
      * to preview pictures.
+     * 
+     * @return Return the specific file choose, according to this upload policy.
      */
     public JUploadFileChooser createFileChooser();
 
@@ -1533,6 +1546,9 @@ public interface UploadPolicy {
      * In the {@link DefaultUploadPolicy} upload policy, this filter is based on
      * the applet parameter: <i>allowedFileExtensions</i>.
      * 
+     * @param file Allows the applet to filter files from the file chooser.
+     * @return true or false, whether the file is accepted or not.
+     * 
      * @see JUploadPanel#JUploadPanel(java.awt.Container,
      *      wjhk.jupload2.gui.JUploadTextArea, UploadPolicy)
      */
@@ -1541,6 +1557,8 @@ public interface UploadPolicy {
     /**
      * Return a description for the FileFilter, according to the current upload
      * policy.
+     * 
+     * @return A description for the current filter
      */
     public String fileFilterGetDescription();
 
@@ -1655,6 +1673,7 @@ public interface UploadPolicy {
      * @return The {@link ByteArrayEncoder} given in parameters. This is allows
      *         to work like with StringBuffer.append method:
      *         sb.append(s1).append(s2);
+     * @throws JUploadIOException
      * @see #addHeader(String)
      * @see wjhk.jupload2.upload.FileUploadThread
      */
@@ -1717,6 +1736,7 @@ public interface UploadPolicy {
      *         indicate an error if the code can come to the end of the method,
      *         without finding a 'return' or a throw exception. This return code
      *         can be ignored by the caller.
+     * @throws JUploadException
      */
     public boolean checkUploadSuccess(int status, String msg, String body)
             throws JUploadException;
@@ -1730,6 +1750,7 @@ public interface UploadPolicy {
      * 
      * @param e null if success, or the exception indicating the problem.
      * @param serverOutput The full server output, including the HTTP headers.
+     * @throws JUploadException
      */
     public void afterUpload(Exception e, String serverOutput)
             throws JUploadException;
