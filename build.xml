@@ -66,19 +66,20 @@
 
 	<!--
     *
+    * Properties for the build area
+    *
+  -->
+	<property name="build.dir" value="build" />
+
+	<!--
+    *
     * Properties related to the source tree
     *
     -->
 	<property name="jupload2.package" value="wjhk" />
 
-	<property name="manifest" value="${src.dir}/META-INF/MANIFEST.MF" />
+	<property name="manifest" value="${build.dir}/META-INF/MANIFEST.MF" />
 
-	<!--
-    *
-    * Properties for the build area
-    *
-  -->
-	<property name="build.dir" value="build" />
 
 	<!--
 	*
@@ -124,6 +125,12 @@
     -->
 	<target name="prepare" description="Create the temporary build directories">
 		<mkdir dir="${build.dir}" />
+		<copy toDir="${build.dir}/wjhk/jupload2/lang">
+			<fileset dir="${src.dir}/wjhk/jupload2/lang"/>
+		</copy>
+		<copy toDir="${build.dir}/images">
+			<fileset dir="${src.dir}/images"/>
+		</copy>
 		<tstamp>
 			<format property="now" pattern="yyyy-MMM-dd HH:mm" locale="en" />
 		</tstamp>
@@ -147,7 +154,8 @@
 	<target name="compile_impl">
 		<echo message="Javac current target: ${javac.target}" />
 		<javac 
-			srcdir="${src.dir}" 
+			srcdir="${src.dir}"
+			destdir="${build.dir}"
 			debug="${debug}" 
 			target="${javac.target}"
 			failonerror="${compilation.failonerror}" 
@@ -167,26 +175,42 @@
   -->
 	<target name="clean" description="Remove all class files.">
 		<delete>
-			<fileset dir="${src.dir}">
+			<fileset dir="${build.dir}">
 				<patternset>
 					<include name="**/*.class" />
 				</patternset>
 			</fileset>
 		</delete>
-		<delete dir="${src.dir}/META-INF" />
+		<delete dir="${build.dir}/META-INF" />
 		<delete file="${basedir}/.tmpstore" />
 	</target>
 
 	<target name="cleanup" description="Remove temporary build directory">
 		<delete dir="${build.dir}" />
 		<delete>
-			<fileset dir="${src.dir}" includes="${manifest}" />
-			<fileset dir="${src.dir}" includes="revision.properties" />
+			<fileset dir="${build.dir}" includes="revision.properties" />
 		</delete>
 	</target>
 
 	<target name="javadoc" depends="-proxy,-noproxy" description="Generate javadoc">
-		<javadoc access="package" author="true" classpath="wwwroot/plugin.jar;wwwroot/jakarta-commons-net.jar" destdir="doc" doctitle="JUpload - Multiple file upload applet" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="wjhk.jupload2.policies,wjhk.jupload2.filedata,wjhk.jupload2,wjhk.jupload2.exception,wjhk.jupload2.gui,wjhk.jupload2.upload" source="1.5" sourcepath="src" splitindex="true" use="true" version="true" additionalparam="${javadoc.proxy}">
+		<javadoc 
+				access="package" 
+				author="true" 
+				classpath="wwwroot/plugin.jar;wwwroot/jakarta-commons-net.jar" 
+				destdir="doc" 
+				doctitle="JUpload - Multiple file upload applet" 
+				nodeprecated="false" 
+				nodeprecatedlist="false" 
+				noindex="false" 
+				nonavbar="false" 
+				notree="false" 
+				packagenames="wjhk.jupload2.policies,wjhk.jupload2.filedata,wjhk.jupload2,wjhk.jupload2.exception,wjhk.jupload2.gui,wjhk.jupload2.upload" 
+				source="1.5" 
+				sourcepath="src" 
+				splitindex="true" 
+				use="true" 
+				version="true" 
+				additionalparam="${javadoc.proxy}">
 			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
 		</javadoc>
 		<fixcrlf srcdir="doc" includes="**/*.html">
@@ -213,18 +237,22 @@ revision = ${svn.revision.max}
 #Caution: file by file commit doesn't change this date.
 lastSrcDirModificationDate = ${svn.date}
 		</echo>
+
+		<copy toDir="${build.dir}/conf">
+			<fileset dir="${src.dir}/conf"/>
+		</copy>
 	</target>
 
 	<target name="-getversion" depends="compile" unless="version">
-		<java classname="wjhk.jupload2.JUploadApplet" classpath="${src.dir}" outputproperty="version" failonerror="true" />
+		<java classname="wjhk.jupload2.JUploadApplet" classpath="${build.dir}" outputproperty="version" failonerror="true" />
 	</target>
 
 	<!--
  * Create wjhk.jupload.jar
  -->
 	<target name="jar" depends="-getversion" description="Create unsigned jar in buld/">
-		<echo>Creating manifest file</echo>
-		<mkdir dir="${src.dir}/META-INF" />
+		<echo>Creating manifest file (${manifest})</echo>
+		<mkdir dir="${build.dir}/META-INF" />
 		<manifest file="${manifest}">
 			<attribute name="Built-By" value="${user.name}" />
 			<attribute name="Built-Date" value="${now}" />
@@ -237,13 +265,13 @@ lastSrcDirModificationDate = ${svn.date}
 		</manifest>
 		<echo>Creating manifest seems ready</echo>
 		<jar jarfile="${build.dir}/wjhk.jupload-V${version}.jar" manifest="${manifest}">
-			<fileset dir="${src.dir}">
+			<fileset dir="${build.dir}">
 				<include name="**/*.class" />
 			</fileset>
-			<fileset dir="${src.dir}">
+			<fileset dir="${build.dir}">
 				<include name="**/*.properties" />
 			</fileset>
-			<fileset dir="${src.dir}">
+			<fileset dir="${build.dir}">
 				<include name="images/**" />
 			</fileset>
 		</jar>
@@ -267,8 +295,6 @@ lastSrcDirModificationDate = ${svn.date}
 		<jar jarfile="${build.dir}/jupload-V${version}-src.jar">
 			<fileset dir="${basedir}">
 				<include name="${src.dir}/**/*" />
-				<exclude name="${src.dir}/**/*.class" />
-				<exclude name="${src.dir}/META-INF" />
 				<include name="wwwroot/**/*" />
 				<include name="doc/**/*" />
 				<include name="build.xml" />
