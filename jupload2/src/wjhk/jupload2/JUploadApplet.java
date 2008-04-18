@@ -69,11 +69,16 @@ public class JUploadApplet extends Applet {
     private static Properties svnProperties = getSvnProperties();
 
     /**
+     * variable to hold reference to JavascriptHandler object
+     */
+    private JavascriptHandler jsHandler = null;
+
+    /**
      * The version of this applet. The version itseld is to be updated in the
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    public final static String VERSION = "3.3.2rc [SVN-Rev: "
+    public final static String VERSION = "3.3.2rc2 [SVN-Rev: "
             + svnProperties.getProperty("revision") + "]";
 
     /**
@@ -150,6 +155,11 @@ public class JUploadApplet extends Applet {
                     this.uploadPolicy);
 
             this.add(this.jUploadPanel, BorderLayout.CENTER);
+
+            // We start the jsHandler thread, that allows javascript to send
+            // upload command to the applet.
+            jsHandler = new JavascriptHandler(this.uploadPolicy,
+                    this.jUploadPanel);
         } catch (final Exception e) {
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
@@ -198,9 +208,11 @@ public class JUploadApplet extends Applet {
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////:
 
     /**
-     * This allow runtime modifications of properties. Currently, this is only
-     * user after full initialization. This methods only calls the
-     * UploadPolicy.setProperty method.
+     * This allow runtime modifications of properties, from javascript.
+     * Currently, this can only be used after full initialization. This method
+     * only calls the UploadPolicy.setProperty method.
+     * <BR>
+     * Ex: document.jupload.setProperty(prop, value);
      * 
      * @param prop The property name that must be set.
      * @param value The value of this property.
@@ -211,6 +223,16 @@ public class JUploadApplet extends Applet {
         } catch (Exception e) {
             uploadPolicy.displayErr(e);
         }
+    }
+
+    /**
+     * example public method that can be called by Javascript to start upload
+     * 
+     * @return Returns the upload result. See the constants defined in the
+     *         {@link JavascriptHandler} javadoc.
+     */
+    public String startUpload() {
+        return this.jsHandler.doCommand(JavascriptHandler.COMMAND_START_UPLOAD);
     }
 
     /**
@@ -252,42 +274,10 @@ public class JUploadApplet extends Applet {
     }
 
     /**
-     * Register a callback to be executed during applet termination.
-     * 
-     * @param o The Object instance to be registered
-     * @param method The Method of that object to be registered. The method must
-     *            be of type void and must not take any parameters and must be
-     *            public.
-     */
-    public void registerUnload(Object o, String method) {
-        this.unloadCallbacks.add(new Callback(o, method));
-    }
-
-    private void runUnload() {
-        Iterator<Callback> i = this.unloadCallbacks.iterator();
-        while (i.hasNext()) {
-            try {
-                i.next().invoke();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        this.unloadCallbacks.clear();
-    }
-
-    /**
      * @see java.applet.Applet#stop()
      */
     @Override
     public void stop() {
-        runUnload();
-    }
-
-    /**
-     * @see java.applet.Applet#destroy()
-     */
-    @Override
-    public void destroy() {
         runUnload();
     }
 
@@ -353,4 +343,37 @@ public class JUploadApplet extends Applet {
         }
         return properties;
     }
+
+    /**
+     * Register a callback to be executed during applet termination.
+     * 
+     * @param o The Object instance to be registered
+     * @param method The Method of that object to be registered. The method must
+     *            be of type void and must not take any parameters and must be
+     *            public.
+     */
+    public void registerUnload(Object o, String method) {
+        this.unloadCallbacks.add(new Callback(o, method));
+    }
+
+    private void runUnload() {
+        Iterator<Callback> i = this.unloadCallbacks.iterator();
+        while (i.hasNext()) {
+            try {
+                i.next().invoke();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        this.unloadCallbacks.clear();
+    }
+
+    /**
+     * @see java.applet.Applet#destroy()
+     */
+    @Override
+    public void destroy() {
+        runUnload();
+    }
+
 }
