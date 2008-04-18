@@ -2,16 +2,27 @@
 As always, a lot of things can be made better:
 
 TODO list:
+- Be able to upload text files. Doesn't seem to work ...
+- Implement invoke from javascript
+http://sourceforge.net/forum/forum.php?thread_id=2004499&forum_id=199107
+- Open Discussion: http://sourceforge.net/forum/forum.php?thread_id=1983930&forum_id=199106
+
+Added. Works Ok. Name :  Patrick (onkelkarle)
+
+
+- http://sourceforge.net/forum/forum.php?thread_id=1983954&forum_id=199106
+Add a way to add property file by file, in FileData.
+Patrick (onkelkarle) 
+
+
+
+
 - Debug file output: should be enabled only in debug mode. Also: could be nice to have some more entries in the
 debug menu: paste debug output, open debug file... 
 - Check the wiki
 - Close file (see UploadFileData.getInputStream()) just after upload, and not when all files have been uploaded. 
 Currently: uploading 1000 files in one HTTP request leads to a 'too many files open' error. 
-- Check that files are correctly closed during upload (uploaing 1000 files leads to a 'too many files open' error).
-- test with IE7 under XP
-- In picture mode, when uploading a whole directory, there may be a lot of warning 'this is not a picture file'.
-The user should be able to stop these warning (or stop adding files to the applet).
-- [Picture mode] Better management of maxWidth and maxHeight.
+- Check that files are correctly closed during upload (uploading 1000 files leads to a 'too many files open' error).
 - Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
 are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
 there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.

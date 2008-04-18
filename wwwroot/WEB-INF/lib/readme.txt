@@ -20,5 +20,5 @@ commons-io.jar
 commons-io-1.2.jar package.
 
 
-Etienne Gauthier
+etienne_sf
 etienne_sf@sourceforge.net
