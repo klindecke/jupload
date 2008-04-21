@@ -1581,9 +1581,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @param maxChunkSize the maxChunkSize to set */
     protected void setMaxChunkSize(long maxChunkSize) {
-        if (maxChunkSize < 0) {
+        if (maxChunkSize <= 0) {
             displayDebug(
-                    "maxChunkSize<0 which is invalid. Switched to the default value (Long.MAX_VALUE)",
+                    "maxChunkSize<=0 which is invalid. Switched to the default value (Long.MAX_VALUE)",
                     1);
             maxChunkSize = Long.MAX_VALUE;
         }
