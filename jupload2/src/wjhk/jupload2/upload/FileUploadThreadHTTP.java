@@ -482,7 +482,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     @Override
     void startRequest(long contentLength, boolean bChunkEnabled, int chunkPart,
             boolean bLastChunk) throws JUploadException {
-        ByteArrayEncoder header = new ByteArrayEncoderHTTP(uploadPolicy, boundary);
+        ByteArrayEncoder header = new ByteArrayEncoderHTTP(uploadPolicy,
+                boundary);
 
         try {
             String chunkHttpParam = "jupart=" + chunkPart + "&jufinal="
@@ -704,7 +705,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         if (null != form) {
             bae.appendFormVariables(form);
         }
-        //We ask the current FileData to add itself its properties.
+        // We ask the current FileData to add itself its properties.
         this.filesToUpload[index].appendFileProperties(bae);
 
         // boundary.
@@ -780,7 +781,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, bound);
 
             bae.append("\r\n");
-            bae.appendFileProperty("md5sum[]", this.filesToUpload[i].getMD5());
+            bae.appendFileProperty("md5sum[]",
+                    this.filesToUpload[firstFileToUpload + i].getMD5());
 
             // The last tail gets an additional "--" in order to tell the
             // Server
@@ -810,7 +812,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         // Use a string buffer
         // We'll encode the output stream into UTF-8.
-        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, this.boundary);
+        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy,
+                this.boundary);
 
         // Get the query string
         String query = url.getQuery();
