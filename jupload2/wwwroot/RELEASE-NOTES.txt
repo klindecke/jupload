@@ -1,5 +1,5 @@
 
-V3.3.2 rc2
+V3.3.2 rc3
 
 Not released yet: only available on SVN (sources and compiled jar file) and on the demo site (compiled jar file).
 
@@ -7,6 +7,9 @@ Fixes:
 - [Minor] Removed 404 errors on the web server, when the applet was looking for the translation properties files. Thanks
 to Patrick (onkelkarle).
 - [Minor] The build.xml file no more pollute the src directory: all files are now generated into the build directory.
+- [Minor] Correction of an error in md5 sum calculation, when files are uploaded into different HTTP requests, for instance
+when nbFilesPerRequest is 1 and several files are uploaded. This bug was a regression while developping the 3.3.2 (did not
+occur in any official release).
 
 Changes:
 - [Major] Thanks to huotte, it's now possible to start an upload from javascript. See in the demo site, the

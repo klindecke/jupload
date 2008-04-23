@@ -2,14 +2,10 @@
 As always, a lot of things can be made better:
 
 TODO list:
-- Be able to upload text files. Doesn't seem to work ...
-- Implement invoke from javascript
-http://sourceforge.net/forum/forum.php?thread_id=2004499&forum_id=199107
-- Open Discussion: http://sourceforge.net/forum/forum.php?thread_id=1983930&forum_id=199106
-
-Added. Works Ok. Name :  Patrick (onkelkarle)
-
-
+- Another thing i noticed is, when you have nbFilesPerRequest > 1 than the
+maxFileSize directive isn't working proper, its uploading more per request
+than it should. (i set maxFileSize to the post_max_size in bytes right? i
+used 268435456 bytes = 256M)
 - http://sourceforge.net/forum/forum.php?thread_id=1983954&forum_id=199106
 Add a way to add property file by file, in FileData.
 Patrick (onkelkarle) 

@@ -108,7 +108,7 @@ policies are :</a></p>
     the DefaultUploadPolicy, when nbFilesPerRequest parameter (see
     below) is 1.</li>
     <li><b>PictureUploadPolicy</b> adds picture handling the the
-    applet. The main functionnalities are :
+    applet. The main functionalities are :
     <ul>
         <li>Filter: only picture files can be uploaded.</li>
         <li>Preview picture: The look of the applet changes, to
@@ -116,7 +116,7 @@ policies are :</a></p>
         <li>Rotation: you can rotate the picture by quarter of
         turn.</li>
         <li>Resizing: the applet can resize picture before upload,
-        to lower network (and time) transfert. Just specify a maximum
+        to lower network (and time) transfer. Just specify a maximum
         width and/or height, in pixels.</li>
     </ul>
     </li>
@@ -134,7 +134,7 @@ policies are :</a></p>
 <h2><a name="NewUploadPolicy">Customization by creating a new
 Java Upload Policy (simple java coding)</a></h2>
 
-<h3>Presentation</h3>
+<P><B>All details on the <A href="howto-new_UploadPolicy.html">policies package summary</A>.</B></P> 
 
 <p>If these customization possibilities are not enough, you can
 create a new upload policy. To do this, you need to create a new java
@@ -142,8 +142,8 @@ class: the easiest way is to inherit from DefaultUploadPolicy. You can
 then override methods of the UploadPolicy interface.</p>
 <p>This kind of customization will be compatible within next JUpload
 applet release. If you need other hooks (method within the UploadPolicy
-interface, to allow other customizations), please let me know by <a
-    href="mailto:etienne_sf@sourceforge.net">sending me a mail</a>, or
+interface, to allow other customizations), please let me know by posting a message
+on the sourceforge jupload forums (open discussions for instance), or
 post a new Feature Request in the jupload sourceforge project page.</p>
 <p>Here is a description of the customization that you can do by
 using the creating a new policy, using the UploadPolicy interface:</p>
@@ -172,47 +172,15 @@ using the creating a new policy, using the UploadPolicy interface:</p>
     pictures on the top part of the applet.</li>
 </ul>
 
-<h3>Note: UploadPolicyFactory</h3>
 
-<p>The JuploadApplet asks the UploadPolicyFactory to create
-(instanciate) needed UploadPolicy. That is</p>
-<dir>
-    <li>During intialization of the applet, the
-    UploadPolicyFactory.getUploadPolicy() method is called. This method
-    checks the <i>uploadPolicy</i> parameter. If this uploadPolicy is
-    unknown or not set, the DefaultUploadPolicy is used. If a specific
-    uploadPolicy is found, it can of course read specific parameters
-    from the APPLET tag.</li>
-    <li>Then, UploadPolicyFactory.getUploadPolicy() creates the
-    class implementing the UploadPolicy factory, and returns the
-    reference to this class.</li>
-    <li>The upload policy can not be changed while the applet is
-    running.</li>
-</dir>
 
-<h3>Creation of a new UploadPolicy: detailed steps</h3>
-<p>To create a new UploadPolicy, you'll need to:</p>
-<ul>
-    <li><b>Create a new class, implementing the UploadPolicy
-    interface</b>. The easiest way is to inherit from an existing
-    UploadPolicy. This insure that your new policy will be compatible
-    with next JUpload releases. <br>
-    <i>Note: The upload policies are created by UploadPolicyFactory.
-    Their constructor must:
-    <ul>
-        <li>Be public, to be called by this class,</li>
-        <li>Have one parameter: the current JUploadApplet.</li>
-    </ul>
-    </i></li>
-    <li><b>Override some UploadPolicy methods</b>, to have your
-    specific behaviour.</li>
-    <li>Don't change any other java code, so that your upload
-    policy will work with next JUpload releases. <br>
-    <i>Note: if you need another 'hook', to be able to add specific
-    customization, please add a new Feature Request in sourceforge,
-    and/or <a href="mailto:etienne_sf@sourceforge.net">send me a
-    mail</a>, as I don't read forums every day.</i></li>
-</ul>
+<h2><a name="NewFileData">Customization by creating a new
+Java FileData</a></h2>
+
+<P><B>All details on the <A href="howto-new_FileData.html">new FileData howto page</A>.</B></P> 
+
+<P>This allows you to change the file relative behaviour. You can for instance add data compression, preload check,
+new data about files in the upload to the server..</P>
 
 
 <h2><a name="parameters">Parameters</a></h2>

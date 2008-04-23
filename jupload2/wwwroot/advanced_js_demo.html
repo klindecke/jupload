@@ -11,7 +11,7 @@
 <!-- --------------------------------------------------------------------------------------------------- -->
 <!--"CONVERTED_APPLET"--> 
 <!-- HTML CONVERTER -->
-<script language="JavaScript" type="tex<t/javascript"><!--
+<script language="JavaScript" type="text/javascript"><!--
     var _info = navigator.userAgent;
     var _ns = false;
     var _ns6 = false;
@@ -67,6 +67,19 @@ Java 1.5 or higher plugin required.
 <!-- ---------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------     END OF THE DUMMY APPLET TAG            ------------------------------ -->
 <!-- ---------------------------------------------------------------------------------------------------- -->
+
+<H2>In this page, you can test all the applet parameters !</H2>
+<P><B>Caution:</B> The upload will work only if a valid postURL parameter is given.  By default, postURL points to 
+sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot webapp of  jupload is deployed.</P>
+<P>See the <a href="howto-customization.html#parameters">parameters list</a>, in the 
+<a href="howto-customization.html#parameters">HowTo customize it</a> page, for all details on the applet parameters.</P>
+
+<P>To add files to the applet, you can either drop files on it or browse to find them. Then you can <B>upload files by</B>:</P>
+<DIR>
+<LI> Clicking on the upload button, on the applet,
+<LI> Using the FilesTogetherUploadPolicy: upload will start as soon as you dropped file(s) onto it,
+<LI> Using this <A HREF="javascript:doUpload();">javascript link</A>, thanks to <a href="http://sourceforge.net/users/huotte/">huotte</a>.
+</DIR>
 
 
 <script language="javascript" src="common.js" type="text/javascript"> </script>
@@ -200,12 +213,6 @@ Java 1.5 or higher plugin required.
 	}
 
 	//Let's write one APPLET tag for the selected language	
-	document.writeln('<H2>In this page, you can test all the applet parameters !</H2>');
-	document.writeln('<P><B>Caution:</B> The upload will work only if a valid postURL parameter is given. '
-		+ 'By default, postURL points to sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot webapp of '
-		+ 'jupload is deployed.</P>');
-	document.writeln('<P>See the <a href="howto-customization.html#parameters">parameters list</a>, in the '
-		+ ' <a href="howto-customization.html#parameters">HowTo customize it</a> page, for all details on the applet parameters.</P>');
 	document.writeln('<P><APPLET ');
 	document.writeln('	CODE    = "wjhk.jupload2.JUploadApplet" ');
 	document.writeln('	ARCHIVE = "wjhk.jupload.jar, jakarta-commons-oro.jar, jakarta-commons-net.jar" ');
@@ -250,17 +257,7 @@ Java 1.5 or higher plugin required.
 		document.jupload.startUpload();	
 	}
 
-</script>
 
-</CENTER>
-<BR>You can upload files by:<BR>
-<DIR>
-<LI> Clicking on the upload button, on the applet,
-<LI> Use the FilesTogetherUploadPolicy: upload will start as soon as you dropped file onto it,
-<LI> By using this <A HREF="javascript:doUpload();">javascript link</A>, thanks to <a href="http://sourceforge.net/users/huotte/">huotte</a>.
-</DIR>
-<CENTER>
-<script language="JavaScript">
 	//First the form, with default values given by the query parameters.
 	document.writeln('<FORM>');
 
