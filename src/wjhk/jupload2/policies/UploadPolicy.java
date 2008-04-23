@@ -751,34 +751,34 @@ public interface UploadPolicy {
     /**
      * Parameter/Property name for URL to be loaded after an successful upload.
      */
-    final static String PROP_AFTER_UPLOAD_URL = "afterUploadURL";
+    public final static String PROP_AFTER_UPLOAD_URL = "afterUploadURL";
 
     /**
      * Parameter/Property name for allowing persistent HTTP connections.
      */
-    final static String PROP_ALLOW_HTTP_PERSISTENT = "allowHttpPersistent";
+    public final static String PROP_ALLOW_HTTP_PERSISTENT = "allowHttpPersistent";
 
     /**
      * Parameter/Property name for specifying the allowed file extensions
      */
-    final static String PROP_ALLOWED_FILE_EXTENSIONS = "allowedFileExtensions";
+    public final static String PROP_ALLOWED_FILE_EXTENSIONS = "allowedFileExtensions";
 
     /**
      * Parameter/Property name for specifying the album id
      */
-    final static String PROP_ALBUM_ID = "albumId";
+    public final static String PROP_ALBUM_ID = "albumId";
 
     /**
      * Parameter/Property name for specifying if images should be cached in
      * memory. Be careful: if set to true, you'll probably have memory problems
      * while in a navigator.
      */
-    final static String PROP_STORE_BUFFERED_IMAGE = "storeBufferedImage";
+    public final static String PROP_STORE_BUFFERED_IMAGE = "storeBufferedImage";
 
     /**
      * Parameter/Property name for specifying the debug level
      */
-    final static String PROP_DEBUG_LEVEL = "debugLevel";
+    public final static String PROP_DEBUG_LEVEL = "debugLevel";
 
     /**
      * This parameter allows to control whether the file icons in the file
@@ -794,39 +794,39 @@ public interface UploadPolicy {
      * {@link  PictureUploadPolicy}
      * <LI>1: available for all upload policies. </DIR>
      */
-    final static String PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = "fileChooserIconFromFileContent";
+    public final static String PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = "fileChooserIconFromFileContent";
 
     /**
      * This parameter allows to control the size of icons, in pixels, in the
      * file chooser. Used only when fileChooserIconFromFileContent is activated.
      */
-    final static String PROP_FILE_CHOOSER_ICON_SIZE = "fileChooserIconSize";
+    public final static String PROP_FILE_CHOOSER_ICON_SIZE = "fileChooserIconSize";
 
     /**
      * Allows control on the preview on the file chooser. Only for
      * {@link PictureUploadPolicy} and its inheritants.
      */
-    final static String PROP_FILE_CHOOSER_IMAGE_PREVIEW = "fileChooserImagePreview";
+    public final static String PROP_FILE_CHOOSER_IMAGE_PREVIEW = "fileChooserImagePreview";
 
     /**
      * Parameter/Property name for specifying the encoding of file names.
      */
-    final static String PROP_FILENAME_ENCODING = "filenameEncoding";
+    public final static String PROP_FILENAME_ENCODING = "filenameEncoding";
 
     /**
      * Parameter/Property name for specifying additional form data.
      */
-    final static String PROP_FORMDATA = "formdata";
+    public final static String PROP_FORMDATA = "formdata";
 
     /**
      * Parameter/Property name for specifying high quality previews.
      */
-    final static String PROP_HIGH_QUALITY_PREVIEW = "highQualityPreview";
+    public final static String PROP_HIGH_QUALITY_PREVIEW = "highQualityPreview";
 
     /**
      * Parameter/Property name for specifying the UI language
      */
-    final static String PROP_LANG = "lang";
+    public final static String PROP_LANG = "lang";
 
     /**
      * Parameter/Property name for specifying a list of specific headers, that
@@ -834,319 +834,319 @@ public interface UploadPolicy {
      * used for Basic Authentication, by adding this header: Authorization:
      * Basic [Bae64 encoding of the string "user:password"]
      */
-    final static String PROP_SPECIFIC_HEADERS = "specificHeaders";
+    public final static String PROP_SPECIFIC_HEADERS = "specificHeaders";
 
     /**
      * Parameter/Property name for specifying a PLAF class to load.
      */
-    final static String PROP_LOOK_AND_FEEL = "lookAndFeel";
+    public final static String PROP_LOOK_AND_FEEL = "lookAndFeel";
 
     /**
      * Parameter/Property name for specifying the maximum size of a chunk of
      * uploaded data.
      */
-    final static String PROP_MAX_CHUNK_SIZE = "maxChunkSize";
+    public final static String PROP_MAX_CHUNK_SIZE = "maxChunkSize";
 
     /**
      * Parameter/Property name for specifying the maximum size of a single file.
      */
-    final static String PROP_MAX_FILE_SIZE = "maxFileSize";
+    public final static String PROP_MAX_FILE_SIZE = "maxFileSize";
 
     /**
      * Parameter/Property name for specifying the maximum height of a picture.
      */
-    final static String PROP_MAX_HEIGHT = "maxPicHeight";
+    public final static String PROP_MAX_HEIGHT = "maxPicHeight";
 
     /**
      * Parameter/Property name for specifying the maximum width of a picture.
      */
-    final static String PROP_MAX_WIDTH = "maxPicWidth";
+    public final static String PROP_MAX_WIDTH = "maxPicWidth";
 
     /**
      * Parameter/Property name for specifying the maximum number of file to be
      * uploaded in a single request.
      */
-    final static String PROP_NB_FILES_PER_REQUEST = "nbFilesPerRequest";
+    public final static String PROP_NB_FILES_PER_REQUEST = "nbFilesPerRequest";
 
     /**
      * Parameter/Property name for specifying compression of the written picture
      * file, if any.
      */
-    final static String PROP_PICTURE_COMPRESSION_QUALITY = "pictureCompressionQuality";
+    public final static String PROP_PICTURE_COMPRESSION_QUALITY = "pictureCompressionQuality";
 
     /**
      * Parameter/Property name for specifying whether picture metadata (EXIF
      * coming from the camera for instance.
      */
-    final static String PROP_PICTURE_TRANSMIT_METADATA = "pictureTransmitMetadata";
+    public final static String PROP_PICTURE_TRANSMIT_METADATA = "pictureTransmitMetadata";
 
     /**
      * Parameter/Property name for specifying URL of the upload post request.
      */
-    final static String PROP_POST_URL = "postURL";
+    public final static String PROP_POST_URL = "postURL";
 
     /**
      * Parameter/Property name for specifying URL of the upload post request.
      */
-    final static String PROP_AFTER_UPLOAD_TARGET = "afterUploadTarget";
+    public final static String PROP_AFTER_UPLOAD_TARGET = "afterUploadTarget";
 
     /**
      * Parameter/Property name for specifying the real (server-side-desired)
      * picture height.
      */
-    final static String PROP_REAL_MAX_HEIGHT = "realMaxPicHeight";
+    public final static String PROP_REAL_MAX_HEIGHT = "realMaxPicHeight";
 
     /**
      * Parameter/Property name for specifying the real (server-side-desired)
      * picture width.
      */
-    final static String PROP_REAL_MAX_WIDTH = "realMaxPicWidth";
+    public final static String PROP_REAL_MAX_WIDTH = "realMaxPicWidth";
 
     /**
      * Parameter/Property name for specifying the server protocol version.
      */
-    final static String PROP_SERVER_PROTOCOL = "serverProtocol";
+    public final static String PROP_SERVER_PROTOCOL = "serverProtocol";
 
     /**
      * Parameter/Property name for specifying if the log window should be
      * visible.
      */
-    final static String PROP_SHOW_LOGWINDOW = "showLogWindow";
+    public final static String PROP_SHOW_LOGWINDOW = "showLogWindow";
 
     /**
      * Parameter/Property name for specifying if the status bar should be
      * visible.
      */
-    final static String PROP_SHOW_STATUSBAR = "showStatusbar";
+    public final static String PROP_SHOW_STATUSBAR = "showStatusbar";
 
     /**
      * Parameter/Property name for specifying how certificates are handled when
      * uploading via SSL.
      */
-    final static String PROP_SSL_VERIFY_CERT = "sslVerifyCert";
+    public final static String PROP_SSL_VERIFY_CERT = "sslVerifyCert";
 
     /**
      * Parameter/Property name for specifying if the pattern that indicates an
      * error in the server's response-body.
      */
-    final static String PROP_STRING_UPLOAD_ERROR = "stringUploadError";
+    public final static String PROP_STRING_UPLOAD_ERROR = "stringUploadError";
 
     /**
      * Parameter/Property name for specifying if the pattern that indicates
      * success in the server's response-body.
      */
-    final static String PROP_STRING_UPLOAD_SUCCESS = "stringUploadSuccess";
+    public final static String PROP_STRING_UPLOAD_SUCCESS = "stringUploadSuccess";
 
     /**
      * Parameter/Property name for specifying the target picture format.
      */
-    final static String PROP_TARGET_PICTURE_FORMAT = "targetPictureFormat";
+    public final static String PROP_TARGET_PICTURE_FORMAT = "targetPictureFormat";
 
     /**
      * Parameter/Property name for specifying the upload policy class.
      */
-    final static String PROP_UPLOAD_POLICY = "uploadPolicy";
+    public final static String PROP_UPLOAD_POLICY = "uploadPolicy";
 
     /**
      * Parameter/Property name for specifying the URL for delivering error
      * reports.
      */
-    final static String PROP_URL_TO_SEND_ERROR_TO = "urlToSendErrorTo";
+    public final static String PROP_URL_TO_SEND_ERROR_TO = "urlToSendErrorTo";
 
     /**
      * Default value for parameter "afterUploadTarget".
      */
-    final static String DEFAULT_AFTER_UPLOAD_TARGET = null;
+    public final static String DEFAULT_AFTER_UPLOAD_TARGET = null;
 
     /**
      * Default value for parameter "afterUploadURL"
      */
-    final static String DEFAULT_AFTER_UPLOAD_URL = null;
+    public final static String DEFAULT_AFTER_UPLOAD_URL = null;
 
     /**
      * Default value for parameter "allowHttpPersisten".
      */
-    final static boolean DEFAULT_ALLOW_HTTP_PERSISTENT = true;
+    public final static boolean DEFAULT_ALLOW_HTTP_PERSISTENT = true;
 
     /**
      * Default value for parameter "allowedFileExtensions".
      */
-    final static String DEFAULT_ALLOWED_FILE_EXTENSIONS = "";
+    public final static String DEFAULT_ALLOWED_FILE_EXTENSIONS = "";
 
     /**
      * Default value for parameter "albumId".
      */
-    final static int DEFAULT_ALBUM_ID = 0;
+    public final static int DEFAULT_ALBUM_ID = 0;
 
     /**
      * Default value for parameter "storeBufferedImage". Be careful: if set to
      * true, you'll probably have memory problems while in a navigator.
      */
-    final static boolean DEFAULT_STORE_BUFFERED_IMAGE = false;
+    public final static boolean DEFAULT_STORE_BUFFERED_IMAGE = false;
 
     /**
      * Default value for date format when changing date/time variable to String.
      */
-    final static String DEFAULT_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
+    public final static String DEFAULT_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
     /**
      * Default value for parameter "debugLevel".
      */
-    final static int DEFAULT_DEBUG_LEVEL = 0;
+    public final static int DEFAULT_DEBUG_LEVEL = 0;
 
     /**
      * Default value for applet parameter "fileChooserIconFromFileContent".
      * 
      * @see #PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
-    final static int DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = 0;
+    public final static int DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = 0;
 
     /**
      * Default value for applet parameter "fileChooserIconSize".
      * 
      * @see #PROP_FILE_CHOOSER_ICON_SIZE
      */
-    final static int DEFAULT_FILE_CHOOSER_ICON_SIZE = 20;
+    public final static int DEFAULT_FILE_CHOOSER_ICON_SIZE = 20;
 
     /**
      * Default value for applet parameter "fileChooserImagePreview".
      * 
      * @see #PROP_FILE_CHOOSER_IMAGE_PREVIEW
      */
-    final static boolean DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW = true;
+    public final static boolean DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW = true;
 
     /**
      * Default value for parameter "lang".
      */
-    final static String DEFAULT_LANG = null;
+    public final static String DEFAULT_LANG = null;
 
     /**
      * Default value for parameter "filenameEncoding". Note: the
      * CoppermineUploadPolicy forces it to "UTF8".
      */
-    final static String DEFAULT_FILENAME_ENCODING = null;
+    public final static String DEFAULT_FILENAME_ENCODING = null;
 
     /**
      * Default value for parameter "highQualityPreview".
      */
-    final static boolean DEFAULT_HIGH_QUALITY_PREVIEW = false;
+    public final static boolean DEFAULT_HIGH_QUALITY_PREVIEW = false;
 
     /**
      * Default value for parameter "lookAndFeel".
      */
-    final static String DEFAULT_LOOK_AND_FEEL = "";
+    public final static String DEFAULT_LOOK_AND_FEEL = "";
 
     /**
      * Default value for parameter "maxChunkSize".
      */
-    final static long DEFAULT_MAX_CHUNK_SIZE = Long.MAX_VALUE;
+    public final static long DEFAULT_MAX_CHUNK_SIZE = Long.MAX_VALUE;
 
     /**
      * Default value for parameter "maxFileSize". Take care of this parameter if
      * chunk upload is activated! See comment above.
      */
-    final static long DEFAULT_MAX_FILE_SIZE = Long.MAX_VALUE;
+    public final static long DEFAULT_MAX_FILE_SIZE = Long.MAX_VALUE;
 
     /**
      * Default value for parameter "maxPicWidth".
      */
-    final static int DEFAULT_MAX_WIDTH = Integer.MAX_VALUE;
+    public final static int DEFAULT_MAX_WIDTH = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "maxPicHeight".
      */
-    final static int DEFAULT_MAX_HEIGHT = Integer.MAX_VALUE;
+    public final static int DEFAULT_MAX_HEIGHT = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "maxPicHeight". Note: the
      * CoppermineUploadPolicy forces it to 1.
      */
-    final static int DEFAULT_NB_FILES_PER_REQUEST = -1;
+    public final static int DEFAULT_NB_FILES_PER_REQUEST = -1;
 
     /**
      * Default value for parameter "pictureCompressionQuality".
      */
-    final static float DEFAULT_PICTURE_COMPRESSION_QUALITY = (float) 0.8;
+    public final static float DEFAULT_PICTURE_COMPRESSION_QUALITY = (float) 0.8;
 
     /**
      * Default value for parameter "pictureCompressionQuality".
      */
-    final static boolean DEFAULT_PICTURE_TRANSMIT_METADATA = false;
+    public final static boolean DEFAULT_PICTURE_TRANSMIT_METADATA = false;
 
     /**
      * Default value for parameter "postURL".
      */
-    final static String DEFAULT_POST_URL = null;
+    public final static String DEFAULT_POST_URL = null;
 
     /**
      * Default value for parameter "realMaxPicWidth".
      */
-    final static int DEFAULT_REAL_MAX_WIDTH = Integer.MAX_VALUE;
+    public final static int DEFAULT_REAL_MAX_WIDTH = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "realMaxPicHeight".
      */
-    final static int DEFAULT_REAL_MAX_HEIGHT = Integer.MAX_VALUE;
+    public final static int DEFAULT_REAL_MAX_HEIGHT = Integer.MAX_VALUE;
 
     /**
      * Default value for parameter "serverProtocol".
      */
-    final static String DEFAULT_SERVER_PROTOCOL = null;
+    public final static String DEFAULT_SERVER_PROTOCOL = null;
 
     /**
      * Default value for parameter "showLogWindow".
      */
-    final static boolean DEFAULT_SHOW_LOGWINDOW = true;
+    public final static boolean DEFAULT_SHOW_LOGWINDOW = true;
 
     /**
      * Default value for parameter "showStatusBar".
      */
-    final static boolean DEFAULT_SHOW_STATUSBAR = true;
+    public final static boolean DEFAULT_SHOW_STATUSBAR = true;
 
     /**
      * Default value for parameter "sslVerifyCert"
      */
-    final static String DEFAULT_SPECIFIC_HEADERS = null;
+    public final static String DEFAULT_SPECIFIC_HEADERS = null;
 
     /**
      * Default value for parameter "sslVerifyCert"
      */
-    final static String DEFAULT_SSL_VERIFY_CERT = "none";
+    public final static String DEFAULT_SSL_VERIFY_CERT = "none";
 
     /**
      * Default value for parameter "stringUploadError".
      * 
      * @since 2.9.2rc4
      */
-    final static String DEFAULT_STRING_UPLOAD_ERROR = "^ERROR: (.*)$";
+    public final static String DEFAULT_STRING_UPLOAD_ERROR = "^ERROR: (.*)$";
 
     /**
      * Default value for parameter "stringUploadSuccess". Note: was ".* 200 OK$"
      * before 2.9.0
      */
-    final static String DEFAULT_STRING_UPLOAD_SUCCESS = "^SUCCESS$";
+    public final static String DEFAULT_STRING_UPLOAD_SUCCESS = "^SUCCESS$";
 
     /**
      * Default value for parameter "targetPictureFormat".
      */
-    final static String DEFAULT_TARGET_PICTURE_FORMAT = null;
+    public final static String DEFAULT_TARGET_PICTURE_FORMAT = null;
 
     /**
      * Default value for parameter "uploadPolicy".
      */
-    final static String DEFAULT_UPLOAD_POLICY = "DefaultUploadPolicy";
+    public final static String DEFAULT_UPLOAD_POLICY = "DefaultUploadPolicy";
 
     /**
      * Default value for parameter "urlToSendErrorTo".
      */
-    final static String DEFAULT_URL_TO_SEND_ERROR_TO = null;
+    public final static String DEFAULT_URL_TO_SEND_ERROR_TO = null;
 
     /**
      * Default value for parameter "formdata"
      * 
      * @since 2.9.2rc4
      */
-    final static String DEFAULT_FORMDATA = null;
+    public final static String DEFAULT_FORMDATA = null;
 
     /**
      * This method allows the upolad policy to override the content of the
@@ -1515,7 +1515,7 @@ public interface UploadPolicy {
     public String getFormdata();
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////// miscellanneous methods
+    // /////////////////// miscellaneous methods
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
