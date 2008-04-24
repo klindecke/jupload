@@ -758,8 +758,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      */
     private final void setAllHead(int firstFileToUpload, int nbFilesToUpload,
             String bound) throws JUploadException {
-        for (int i = 0; i < nbFilesToUpload; i++) {
-            this.heads[i] = getFileHeader(firstFileToUpload + i, bound, -1);
+        for (int i = firstFileToUpload; i < firstFileToUpload + nbFilesToUpload; i++) {
+            this.heads[i] = getFileHeader(i, bound, -1);
         }
     }
 
@@ -776,26 +776,23 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     private final void setAllTail(int firstFileToUpload, int nbFilesToUpload,
             String bound) throws JUploadException {
 
-        for (int i = 0; i < nbFilesToUpload; i++) {
+        for (int i = firstFileToUpload; i < firstFileToUpload + nbFilesToUpload; i++) {
             // We'll encode the output stream into UTF-8.
             ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, bound);
 
             bae.append("\r\n");
-            bae.appendFileProperty("md5sum[]",
-                    this.filesToUpload[firstFileToUpload + i].getMD5());
+            bae.appendFileProperty("md5sum[]", this.filesToUpload[i].getMD5());
 
             // The last tail gets an additional "--" in order to tell the
-            // Server
-            // we
-            // have finished.
-            if (nbFilesToUpload == i + 1) {
+            // server we have finished.
+            if (i == firstFileToUpload + nbFilesToUpload - 1) {
                 bae.append(bound).append("--\r\n");
             }
 
             // Let's store this tail.
             bae.close();
 
-            this.tails[firstFileToUpload + i] = bae;
+            this.tails[i] = bae;
         }
 
     }
