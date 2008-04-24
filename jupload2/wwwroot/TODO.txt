@@ -2,7 +2,7 @@
 As always, a lot of things can be made better:
 
 TODO list:
-- Another thing i noticed is, when you have nbFilesPerRequest > 1 than the
+- RESPONSE TO (can't repeat the problem): Another thing i noticed is, when you have nbFilesPerRequest > 1 than the
 maxFileSize directive isn't working proper, its uploading more per request
 than it should. (i set maxFileSize to the post_max_size in bytes right? i
 used 268435456 bytes = 256M)
