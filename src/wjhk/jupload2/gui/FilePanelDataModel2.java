@@ -117,7 +117,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
     private Vector<FileData> rows = new Vector<FileData>();
 
     /**
-     * @param uploadPolicy 
+     * @param uploadPolicy
      * 
      */
     public FilePanelDataModel2(UploadPolicy uploadPolicy) {
@@ -170,7 +170,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * 
      * @param file
      * @param root
-     * @throws JUploadExceptionStopAddingFiles 
+     * @throws JUploadExceptionStopAddingFiles
      */
     public void addFile(File file, File root)
             throws JUploadExceptionStopAddingFiles {
@@ -224,7 +224,10 @@ class FilePanelDataModel2 extends AbstractTableModel {
         try {
             return this.rows.get(row);
         } catch (ArrayIndexOutOfBoundsException e) {
-            // Nothing to do
+            // Nothing to do. It seems that it can occurs when upload is very
+            // fast (for instance: small files to localhost).
+            uploadPolicy.displayWarn(e.getClass().getName()
+                    + " in FilePanelDataModel2.getFileDataAt(" + row + ")");
         }
         return null;
     }
@@ -234,7 +237,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * 
      * @param row The row to remove.
      */
-    public void removeRow(int row) {
+    public synchronized void removeRow(int row) {
         this.rows.remove(row);
         fireTableDataChanged();
     }
@@ -244,7 +247,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * 
      * @param fileData
      */
-    public void removeRow(FileData fileData) {
+    public synchronized void removeRow(FileData fileData) {
         Iterator<FileData> i = this.rows.iterator();
         FileData item;
         while (i.hasNext()) {
