@@ -38,12 +38,15 @@
 	<property name="alias" value="jupload" />
 
 	<!-- If you leave this undefined, the password is requested
-	     interactively during build 
+	     interactively during build, or loaded from the global parameters
 	
 		<property name="storepass" value="test123" /> 
     -->
 
-	<property name="src.dir" value="src" />
+	<property name="path.build" value="${basedir}/build" />
+	<property name="path.doc" value="${basedir}/doc" />
+	<property name="path.src" value="${basedir}/src" />
+	<property name="path.wwwroot" value="${basedir}/wwwroot" />
 
 	<property name="standard.compile.excludes" value="**/*.class" />
 
@@ -66,19 +69,12 @@
 
 	<!--
     *
-    * Properties for the build area
-    *
-  -->
-	<property name="build.dir" value="build" />
-
-	<!--
-    *
     * Properties related to the source tree
     *
     -->
 	<property name="jupload2.package" value="wjhk" />
 
-	<property name="manifest" value="${build.dir}/META-INF/MANIFEST.MF" />
+	<property name="manifest" value="${path.build}/META-INF/MANIFEST.MF" />
 
 
 	<!--
@@ -87,9 +83,9 @@
 	*
    -->
 	<path id="standard.class.path">
-		<pathelement location="${src.dir}" />
-		<pathelement location="${basedir}/wwwroot/plugin.jar" />
-		<pathelement location="${basedir}/wwwroot/jakarta-commons-net.jar" />
+		<pathelement location="${path.src}" />
+		<pathelement location="${path.wwwroot}/plugin.jar" />
+		<pathelement location="${path.wwwroot}/jakarta-commons-net.jar" />
 	</path>
 
 	<!-- path to the svnant libraries. -->
@@ -124,12 +120,12 @@
 	<!-- Prepare the build
     -->
 	<target name="prepare" description="Create the temporary build directories">
-		<mkdir dir="${build.dir}" />
-		<copy toDir="${build.dir}/wjhk/jupload2/lang">
-			<fileset dir="${src.dir}/wjhk/jupload2/lang"/>
+		<mkdir dir="${path.build}" />
+		<copy toDir="${path.build}/wjhk/jupload2/lang">
+			<fileset dir="${path.src}/wjhk/jupload2/lang"/>
 		</copy>
-		<copy toDir="${build.dir}/images">
-			<fileset dir="${src.dir}/images"/>
+		<copy toDir="${path.build}/images">
+			<fileset dir="${path.src}/images"/>
 		</copy>
 		<tstamp>
 			<format property="now" pattern="yyyy-MMM-dd HH:mm" locale="en" />
@@ -154,8 +150,8 @@
 	<target name="compile_impl">
 		<echo message="Javac current target: ${javac.target}" />
 		<javac 
-			srcdir="${src.dir}"
-			destdir="${build.dir}"
+			srcdir="${path.src}"
+			destdir="${path.build}"
 			debug="${debug}" 
 			target="${javac.target}"
 			failonerror="${compilation.failonerror}" 
@@ -175,20 +171,20 @@
   -->
 	<target name="clean" description="Remove all class files.">
 		<delete>
-			<fileset dir="${build.dir}">
+			<fileset dir="${path.build}">
 				<patternset>
 					<include name="**/*.class" />
 				</patternset>
 			</fileset>
 		</delete>
-		<delete dir="${build.dir}/META-INF" />
+		<delete dir="${path.build}/META-INF" />
 		<delete file="${basedir}/.tmpstore" />
 	</target>
 
 	<target name="cleanup" description="Remove temporary build directory">
-		<delete dir="${build.dir}" />
+		<delete dir="${path.build}" />
 		<delete>
-			<fileset dir="${build.dir}" includes="revision.properties" />
+			<fileset dir="${path.build}" includes="revision.properties" />
 		</delete>
 	</target>
 
@@ -196,8 +192,8 @@
 		<javadoc 
 				access="package" 
 				author="true" 
-				classpath="wwwroot/plugin.jar;wwwroot/jakarta-commons-net.jar" 
-				destdir="doc" 
+				classpath="${path.wwwroot}/plugin.jar;${path.wwwroot}/jakarta-commons-net.jar" 
+				destdir="${path.doc}" 
 				doctitle="JUpload - Multiple file upload applet" 
 				nodeprecated="false" 
 				nodeprecatedlist="false" 
@@ -213,17 +209,21 @@
 				additionalparam="${javadoc.proxy}">
 			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
 		</javadoc>
-		<fixcrlf srcdir="doc" includes="**/*.html">
+		<fixcrlf srcdir="${path.doc}" includes="**/*.html">
 		</fixcrlf>
+		<!-- Let's copy doc files to the wwwroot/doc directory -->
+		<copy toDir="${path.wwwroot}/doc">
+			<fileset dir="${path.doc}"/>
+		</copy>
 	</target>
 
 	<target name="-version_applet">
 		<svn javahl="${svn.use.javahl}">
-			<status path="${src.dir}" lastChangedDateProperty="svn.date" />
-			<wcversion path="${src.dir}" prefix="svn." />
-			<ignore file="${src.dir}/conf/svn.properties"/>
+			<status path="${path.src}" lastChangedDateProperty="svn.date" />
+			<wcversion path="${path.src}" prefix="svn." />
+			<ignore file="${path.src}/conf/svn.properties"/>
 		</svn>
-		<echo file="${src.dir}/conf/svn.properties">
+		<echo file="${path.src}/conf/svn.properties">
 # WARNING - This file is auto-generated
 # ANY CHANGES WILL BE OVERWRITTEN BY THE BUILD-PROCESS!
 
@@ -238,13 +238,13 @@ revision = ${svn.revision.max}
 lastSrcDirModificationDate = ${svn.date}
 		</echo>
 
-		<copy toDir="${build.dir}/conf">
-			<fileset dir="${src.dir}/conf"/>
+		<copy toDir="${path.build}/conf">
+			<fileset dir="${path.src}/conf"/>
 		</copy>
 	</target>
 
 	<target name="-getversion" depends="compile" unless="version">
-		<java classname="wjhk.jupload2.JUploadApplet" classpath="${build.dir}" outputproperty="version" failonerror="true" />
+		<java classname="wjhk.jupload2.JUploadApplet" classpath="${path.build}" outputproperty="version" failonerror="true" />
 	</target>
 
 	<!--
@@ -252,7 +252,7 @@ lastSrcDirModificationDate = ${svn.date}
  -->
 	<target name="jar" depends="-getversion" description="Create unsigned jar in buld/">
 		<echo>Creating manifest file (${manifest})</echo>
-		<mkdir dir="${build.dir}/META-INF" />
+		<mkdir dir="${path.build}/META-INF" />
 		<manifest file="${manifest}">
 			<attribute name="Built-By" value="${user.name}" />
 			<attribute name="Built-Date" value="${now}" />
@@ -264,39 +264,39 @@ lastSrcDirModificationDate = ${svn.date}
 			</section>
 		</manifest>
 		<echo>Creating manifest seems ready</echo>
-		<jar jarfile="${build.dir}/wjhk.jupload-V${version}.jar" manifest="${manifest}">
-			<fileset dir="${build.dir}">
+		<jar jarfile="${path.build}/wjhk.jupload-V${version}.jar" manifest="${manifest}">
+			<fileset dir="${path.build}">
 				<include name="**/*.class" />
 			</fileset>
-			<fileset dir="${build.dir}">
+			<fileset dir="${path.build}">
 				<include name="**/*.properties" />
 			</fileset>
-			<fileset dir="${build.dir}">
+			<fileset dir="${path.build}">
 				<include name="images/**" />
 			</fileset>
 		</jar>
 	</target>
 
 	<target name="customhowto" depends="javadoc" description="Creates the howto-customization.html">
-		<copy file="${basedir}/doc/wjhk/jupload2/policies/UploadPolicy.html" tofile="${build.dir}/tmpdoc.html" />
+		<copy file="${path.doc}/wjhk/jupload2/policies/UploadPolicy.html" tofile="${path.build}/tmpdoc.html" />
 		<echo>Extracting parameter section from javadoc of JUloadPolicy class</echo>
-		<replaceregexp file="${build.dir}/tmpdoc.html" match=".*!-- ANT_COPYDOC_START -->(.*?).!-- ANT_COPYDOC_END -->.*" replace="\1" flags="s" />
-		<replaceregexp file="${build.dir}/tmpdoc.html" match="a href=(.)\.\./\.\./\.\./" replace="a href=\1doc/" flags="sig" />
-		<loadfile srcfile="${build.dir}/tmpdoc.html" property="doc.param.section">
+		<replaceregexp file="${path.build}/tmpdoc.html" match=".*!-- ANT_COPYDOC_START -->(.*?).!-- ANT_COPYDOC_END -->.*" replace="\1" flags="s" />
+		<replaceregexp file="${path.build}/tmpdoc.html" match="a href=(.)\.\./\.\./\.\./" replace="a href=\1doc/" flags="sig" />
+		<loadfile srcfile="${path.build}/tmpdoc.html" property="doc.param.section">
 		</loadfile>
 		<echo>Inserting parameter section into howto-customization.html</echo>
-		<replaceregexp file="${basedir}/wwwroot/howto-customization.html" match="(.*!-- ANT_INSERTDOC_START -->.)(.*?)(.!-- ANT_INSERTDOC_END -->.*)" replace="\1${doc.param.section}\3" flags="s" />
+		<replaceregexp file="${path.wwwroot}/howto-customization.html" match="(.*!-- ANT_INSERTDOC_START -->.)(.*?)(.!-- ANT_INSERTDOC_END -->.*)" replace="\1${doc.param.section}\3" flags="s" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: srcjar                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="srcjar" depends="clean,prepare,customhowto,deploy" description="Create source jar in build/">
-		<jar jarfile="${build.dir}/jupload-V${version}-src.jar">
+		<jar jarfile="${path.build}/jupload-V${version}-src.jar">
 			<fileset dir="${basedir}">
-				<include name="${src.dir}/**/*" />
-				<include name="wwwroot/**/*" />
-				<include name="doc/**/*" />
+				<include name="${path.src}/**/*" />
+				<include name="${path.wwwroot}/**/*" />
+				<include name="${path.doc}/**/*" />
 				<include name="build.xml" />
 				<include name="readme.txt" />
 				<!-- svn-ant stuff -->
@@ -334,11 +334,11 @@ lastSrcDirModificationDate = ${svn.date}
 	</target>
 
 	<target name="signedjar" depends="jar,-createstore,-askpasswd" description="Create signed jar in build/">
-		<signjar jar="${build.dir}/wjhk.jupload-V${version}.jar" keystore="${keystore}" storepass="${storepass}" alias="${alias}" />
+		<signjar jar="${path.build}/wjhk.jupload-V${version}.jar" keystore="${keystore}" storepass="${storepass}" alias="${alias}" />
 	</target>
 
 	<target name="deploy" depends="clean,signedjar" description="Build and copy signed jar into wwwroot/">
-		<copy file="${build.dir}/wjhk.jupload-V${version}.jar" tofile="${basedir}/wwwroot/wjhk.jupload.jar" overwrite="true" />
+		<copy file="${path.build}/wjhk.jupload-V${version}.jar" tofile="${path.wwwroot}/wjhk.jupload.jar" overwrite="true" />
 	</target>
 
 	<target name="dist" depends="clean,deploy,srcjar" description="Make a distribution (buld and pack everything)">
