@@ -512,11 +512,11 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * (before: "HTTP/1.1")<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>This parameter allows the control of the protocol toward the server.
- * Currently, only HTTP is supported, so valid values are HTTP/0.9 (not tested),
- * HTTP/1.0 and HTTP/1.1. Since version 2.9.2rc4, the default is <i>null</i>,
- * introducing a new facility of automatically adjusting the protocol according
- * to the server response.<br>
+ * <td>This parameter allows the control of the protocol toward the server. It
+ * can be HTTP/0.9 (not tested), HTTP/1.0, HTTP/1.1 and FTP. HTTP supports
+ * https. Since version 2.9.2rc4, the default is <i>null</i>, introducing a new
+ * facility of automatically adjusting the protocol according to the server
+ * response.<br>
  * This parameter is really useful only in
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine
  * application also controls that the requests send within an HTTP session uses
@@ -1542,7 +1542,8 @@ public interface UploadPolicy {
     /**
      * This methods is called by the {@link JUploadFileFilter#accept(File)}. It
      * allows the current upload policy to filter files, according to any
-     * choosen applet behaviour.<br>
+     * choosen applet behaviour. This filter applied only when using the
+     * fileChooser. Files dropped onto the applet won't trigger this function.<br>
      * In the {@link DefaultUploadPolicy} upload policy, this filter is based on
      * the applet parameter: <i>allowedFileExtensions</i>.
      * 
