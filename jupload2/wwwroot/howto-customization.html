@@ -228,7 +228,7 @@ new data about files in the upload to the server..</P>
  the specified name is created, and the document is shown there.</li>
  </ul>
  See also:
- <CODE>AppletContext.showDocument(java.net.URL, java.lang.String)</CODE>
+ <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/applet/AppletContext.html?is-external=true#showDocument(java.net.URL, java.lang.String)" title="class or interface in java.applet"><CODE>AppletContext.showDocument(java.net.URL, java.lang.String)</CODE></A>
  </td>
  </tr>
  <tr>
@@ -652,11 +652,11 @@ new data about files in the upload to the server..</P>
  (before: "HTTP/1.1")<br>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
- <td>This parameter allows the control of the protocol toward the server.
- Currently, only HTTP is supported, so valid values are HTTP/0.9 (not tested),
- HTTP/1.0 and HTTP/1.1. Since version 2.9.2rc4, the default is <i>null</i>,
- introducing a new facility of automatically adjusting the protocol according
- to the server response.<br>
+ <td>This parameter allows the control of the protocol toward the server. It
+ can be HTTP/0.9 (not tested), HTTP/1.0, HTTP/1.1 and FTP. HTTP supports
+ https. Since version 2.9.2rc4, the default is <i>null</i>, introducing a new
+ facility of automatically adjusting the protocol according to the server
+ response.<br>
  This parameter is really useful only in
  <a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>CoppermineUploadPolicy</CODE></A>, as the coppermine
  application also controls that the requests send within an HTTP session uses
