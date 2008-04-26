@@ -130,5 +130,4 @@
     out.println("ERROR: Exception e = " + e.toString());
   }
   
-  out.close();
 %>
