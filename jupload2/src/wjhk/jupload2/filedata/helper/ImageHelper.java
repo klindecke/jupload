@@ -413,14 +413,11 @@ public class ImageHelper implements ImageObserver {
                                     "getBufferedImage: Resizing picture(using high quality picture)",
                                     40);
 
-                    // We use SCALE_SMOOTH, as it is a (very) little quicker
-                    // than SCALE_AREA_AVERAGING (8.5s against 8.7s on my
-                    // test picture), and I can't see
-                    // differences on the resulting uploaded picture.
-                    // Other parameter give bad picture quality.
+                    // SCALE_AREA_AVERAGING forces the picture calculation algorithm.
+                    // Other parameters give bad picture quality.
                     Image img = sourceBufferedImage.getScaledInstance(
                             scaledNonRotatedWidth, scaledNonRotatedHeight,
-                            Image.SCALE_SMOOTH);
+                            Image.SCALE_AREA_AVERAGING);
 
                     // the localBufferedImage may be 'unknown'.
                     int localImageType = sourceBufferedImage.getType();
@@ -429,9 +426,10 @@ public class ImageHelper implements ImageObserver {
                         localImageType = BufferedImage.TYPE_INT_BGR;
                     }
 
-                    BufferedImage tempBufferedImage = new BufferedImage(
+                    BufferedImage tempBufferedImage = new BufferedImage( 
                             scaledNonRotatedWidth, scaledNonRotatedHeight,
-                            localImageType);
+                            localImageType
+                            );
 
                     // drawImage can be long. Let's follow its progress,
                     // with the applet progress bar.
