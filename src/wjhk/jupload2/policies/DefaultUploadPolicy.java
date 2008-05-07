@@ -1680,6 +1680,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     value = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
                 }
             }
+        } else if (value.startsWith("HTTP")) {
+            // In HTTP mode, we always give a try to HTTPConnect, to check if
+            // the page has moved, and other stuff. 
+            // But we keep the given parameter.
+            try {
+                new HttpConnect(this).getProtocol();
+            } catch (Exception e) {
+                // If we throw an error here, we prevent the applet to
+                // start. So we just log it, and try the default protocol
+                displayErr("Unable to access to the postURL: '"
+                        + getPostURL() + "'", e);
+            }
         }
         this.serverProtocol = value;
     }
