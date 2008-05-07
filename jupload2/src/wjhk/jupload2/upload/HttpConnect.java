@@ -61,6 +61,13 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class HttpConnect {
 
+    private final static String DEFAULT_PROTOCOL = "HTTP/1.1";
+
+    /**
+     * The current upload policy. Used for logging, and to get the post URL.
+     * Also used to change this URL, when it has moved (301, 302 or 303 return
+     * code)
+     */
     private UploadPolicy uploadPolicy;
 
     /**
@@ -82,7 +89,8 @@ public class HttpConnect {
         int pport = sa.getPort();
         // 
         Socket proxysock = new Socket(phost, pport);
-        String req = "CONNECT " + host + ":" + port + " HTTP/1.1\r\n\r\n";
+        String req = "CONNECT " + host + ":" + port + " " + DEFAULT_PROTOCOL
+                + "\r\n\r\n";
         proxysock.getOutputStream().write(req.getBytes());
         BufferedReader proxyIn = new BufferedReader(new InputStreamReader(
                 proxysock.getInputStream()));
@@ -234,11 +242,18 @@ public class HttpConnect {
      * @throws UnknownHostException
      * @throws NoSuchAlgorithmException
      * @throws KeyManagementException
+     * @throws JUploadException
      */
     public String getProtocol() throws URISyntaxException,
             KeyManagementException, NoSuchAlgorithmException,
             UnknownHostException, KeyStoreException, CertificateException,
-            IllegalArgumentException, UnrecoverableKeyException, IOException {
+            IllegalArgumentException, UnrecoverableKeyException, IOException,
+            JUploadException {
+
+        String protocol = DEFAULT_PROTOCOL;
+        String returnCode = null;
+        // bRedirect indicates a return code of 301, 302 or 303.
+        boolean bRedirect = false;
         URL url = new URL(this.uploadPolicy.getPostURL());
         Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
         boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
@@ -248,6 +263,7 @@ public class HttpConnect {
         // InputStreamReader(s.getInputStream()));
         InputStream in = s.getInputStream();
         StringBuffer req = new StringBuffer();
+
         req.append("HEAD ");
         if (useProxy && (!useSSL)) {
             // with a proxy we need the absolute URL, but only if not
@@ -260,51 +276,146 @@ public class HttpConnect {
          * if (null != url.getQuery() && !"".equals(url.getQuery()))
          * req.append("?").append(url.getQuery());
          */
-        req.append(" ").append("HTTP/1.1").append("\r\n");
+        req.append(" ").append(DEFAULT_PROTOCOL).append("\r\n");
         req.append("Host: ").append(url.getHost()).append("\r\n");
         req.append("Connection: close\r\n\r\n");
         OutputStream os = s.getOutputStream();
         os.write(req.toString().getBytes());
         os.flush();
-        if (!(s instanceof SSLSocket))
+        if (!(s instanceof SSLSocket)) {
             s.shutdownOutput();
+        }
+
+        // Let's read the first line, and try to guess the HTTP protocol, and
+        // look for 301, 302 or 303 HTTP Return code.
         String firstLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
+        if (null == firstLine) {
+            // Using default value. Already initialized.
+            this.uploadPolicy.displayErr("EMPTY HEAD response");
+        } else {
+            Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(.*)\\s.*")
+                    .matcher(firstLine);
+            if (!m.matches()) {
+                // Using default value. Already initialized.
+                this.uploadPolicy.displayErr("Unexpected HEAD response: '"
+                        + firstLine + "'");
+            }
+            this.uploadPolicy.displayDebug("HEAD response: " + firstLine, 40);
+
+            // We will return the found protocol.
+            protocol = m.group(1);
+
+            // Do we have some URL to change ?
+            returnCode = m.group(2);
+            if (returnCode.equals("301") || returnCode.equals("302")
+                    || returnCode.equals("303")) {
+                bRedirect = true;
+                this.uploadPolicy.displayInfo("Received " + returnCode
+                        + " (current postURL: "
+                        + this.uploadPolicy.getPostURL() + ")");
+            }
+        }
+
         // Let's check if we're facing an IIS server. The applet is compatible
         // with IIS, only if allowHttpPersistent is false.
         String nextLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
+        Pattern pLocation = Pattern.compile("^Location: (.*)$");
+        Matcher mLocation;
         while ((nextLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false))
                 .length() > 0) {
             if (nextLine.matches("^Server: .*IIS")) {
                 try {
                     uploadPolicy.setProperty(
                             UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT, "false");
-                    uploadPolicy.displayWarn(UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
-                            + "' forced to false, for IIS compatibility (in HttpConnect.getProtocol())");
+                    uploadPolicy
+                            .displayWarn(UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
+                                    + "' forced to false, for IIS compatibility (in HttpConnect.getProtocol())");
                 } catch (JUploadException e) {
                     uploadPolicy.displayWarn("Can't set property '"
                             + UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
                             + "' to false, in HttpConnect.getProtocol()");
                 }
                 break;
+            } else if (bRedirect) {
+                mLocation = pLocation.matcher(nextLine);
+                if (mLocation.matches()) {
+                    // We found the location where we should go instead of the
+                    // original postURL
+                    this.uploadPolicy.displayDebug("Location read: "
+                            + mLocation.group(1), 50);
+                    changePostURL(mLocation.group(1));
+                }
             }
         }
         // Let's look for the web server kind: the applet works IIS only if
         // allowHttpPersistent is false
-        // A finir
         s.close();
-        if (null == firstLine) {
-            this.uploadPolicy.displayErr("EMPTY HEAD response");
-            return "HTTP/1.1";
-        }
-        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s.*").matcher(firstLine);
-        if (!m.matches()) {
-            this.uploadPolicy.displayErr("Unexpected HEAD response: '" + firstLine
-                    + "'");
-            return "HTTP/1.1";
-        }
-        this.uploadPolicy.displayDebug("HEAD response: " + firstLine, 40);
-        return m.group(1);
+
+        return protocol;
     } // getProtocol()
+
+    /**
+     * Reaction of the applet when a 301, 302 et 303 return code is returned.
+     * The postURL is changed according to the Location header returned.
+     * 
+     * @param newLocation This new location may contain the
+     *            http://host.name.domain part of the URL ... or not
+     */
+    private void changePostURL(String newLocation) throws JUploadException {
+        String currentPostURL = this.uploadPolicy.getPostURL();
+        String newPostURL;
+        Pattern pHostName = Pattern.compile("http://(.*)/.*");
+        Matcher mOldPostURL = Pattern.compile("(.*)\\?(.*)").matcher(
+                currentPostURL);
+
+        // If there is an interrogation point in the original postURL, we'll
+        // keep the parameters, and just changed the URI part.
+        if (mOldPostURL.matches()) {
+            newPostURL = newLocation + '?' + mOldPostURL.group(2);
+            // Otherwise, we change the whole URL.
+        } else {
+            newPostURL = newLocation;
+        }
+
+        // There are three main cases or newLocation:
+        // 1- It's a full URL, with host name...
+        // 2- It's a local full path on the same server (begins with /)
+        // 3- It's a relative path (for instance, add of a prefix in the
+        // filename) (doesn't begin with /)
+
+        Matcher mHostOldPostURL = pHostName.matcher(currentPostURL);
+        if (!mHostOldPostURL.matches()) {
+            // Oups ! There is a little trouble here !
+            throw new JUploadException(
+                    "[HttpConnect.changePostURL()] No host found in the old postURL !");
+        }
+
+        // Let's analyze the given newLocation for these three cases.
+        Matcher mHostNewLocation = pHostName.matcher(newLocation);
+        if (mHostNewLocation.matches()) {
+            // 1- It's a full URL, with host name. We already got this URL, in
+            // the newPostURL initialization.
+        } else if (newLocation.startsWith("/")) {
+            // 2- It's a local full path on the same server (begins with /)
+            newPostURL = "http://" + mHostOldPostURL.group(1) + newPostURL;
+        } else {
+            // 3- It's a relative path (for instance, add of a prefix in the
+            // filename) (doesn't begin with /)
+            Matcher mOldPostURLAllButFilename = Pattern
+                    .compile("(.*)/([^/]*)$").matcher(currentPostURL);
+            if (!mOldPostURLAllButFilename.matches()) {
+                // Hum, that won't be easy.
+                throw new JUploadException(
+                        "[HttpConnect.changePostURL()] Can't find the filename in the URL !");
+            }
+            newPostURL = mOldPostURLAllButFilename.group(1) + "/" + newPostURL;
+        }
+
+        // Let's store this new postURL, and display some info about the change
+        this.uploadPolicy.setPostURL(newPostURL);
+        this.uploadPolicy.displayInfo("postURL switched from " + currentPostURL
+                + " to " + newPostURL);
+    }
 
     /**
      * Creates a new instance.
