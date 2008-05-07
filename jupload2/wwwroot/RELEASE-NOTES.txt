@@ -1,5 +1,5 @@
 
-V3.3.2 rc3
+V3.4.0
 
 Not released yet: only available on SVN (sources and compiled jar file) and on the demo site (compiled jar file).
 
@@ -14,6 +14,7 @@ occur in any official release).
 Changes:
 - [Major] Thanks to huotte, it's now possible to start an upload from javascript. See in the demo site, the
 advanced demo. The link is below the applet.
+- [Major] The applet can now manage the 301, 302 and 303 HTTP return code for the postURL parameter. 
 - [Major] It's now easy to add new file properties to a HTTP upload: create a new FileData, and use the new
 FileData.appendFileProperties method. See the UploadPolicy.createFileData method to instanciate this new FileData.
 - [Minor] When dropping several files that should be refused (by the allowedFileExtensions parameter or by the upload 
