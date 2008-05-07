@@ -19,12 +19,9 @@ debug menu: paste debug output, open debug file...
 - Close file (see UploadFileData.getInputStream()) just after upload, and not when all files have been uploaded. 
 Currently: uploading 1000 files in one HTTP request leads to a 'too many files open' error. 
 - Check that files are correctly closed during upload (uploading 1000 files leads to a 'too many files open' error).
-- Metadata coming from Canon (10D, 20D, 30D) doesn't work with picture resizing: colors of the picture resized
-are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata parameter corrects the problem:
-there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.
-- When pictureTransmit Metadata is false, metadata should be removed from the file to upload, even if there is
-no picture transformation (it's Ok if the file is transformed, either resized or rotated)
-- Manage the 302 Moved Temporarily HTTP return code.
+- Depending on the camera configuration, metadata coming from Canon (10D, 20D, 30D) may not work with picture 
+resizing: colors of the picture resized are wrong. Prevent transmition of metadata, with the pictureTransmitMetadata 
+parameter corrects the problem: there is a big in the SUN JRE. TODO: make a sample, and create defect for SUN.
 - Picture mode: use the JMF and Java Advanced Image I/O
 - All error should result in a question to the user: do you want to send the error log?
 - Add (at least) a link to the sample in http://sourceforge.net/forum/forum.php?thread_id=1807811&forum_id=199107
