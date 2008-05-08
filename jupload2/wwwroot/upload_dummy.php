@@ -2,7 +2,7 @@
 
 //Choose true or false here, to generate a success or an error message.
 //Note: the error 
-$bSuccess=false;
+$bSuccess=true;
 
 
 
