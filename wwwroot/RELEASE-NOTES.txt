@@ -1,7 +1,12 @@
+V3.4.1
+
+No code change. 'Just' a package correction. The 3.4.0 release was almost empty.
+
+Sorry for the inconvenience.
+
+
 
 V3.4.0
-
-Not released yet: only available on SVN (sources and compiled jar file) and on the demo site (compiled jar file).
 
 Fixes:
 - [Minor] Removed 404 errors on the web server, when the applet was looking for the translation properties files. Thanks
