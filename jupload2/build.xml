@@ -294,9 +294,9 @@ lastSrcDirModificationDate = ${svn.date}
 	<target name="srcjar" depends="clean,prepare,customhowto,deploy" description="Create source jar in build/">
 		<jar jarfile="${path.build}/jupload-V${version}-src.jar">
 			<fileset dir="${basedir}">
-				<include name="${path.src}/**/*" />
-				<include name="${path.wwwroot}/**/*" />
-				<include name="${path.doc}/**/*" />
+				<include name="src/**/*" />
+				<include name="wwwroot/**/*" />
+				<include name="doc/**/*" />
 				<include name="build.xml" />
 				<include name="readme.txt" />
 				<!-- svn-ant stuff -->
