@@ -210,8 +210,7 @@ public class JUploadApplet extends Applet {
     /**
      * This allow runtime modifications of properties, from javascript.
      * Currently, this can only be used after full initialization. This method
-     * only calls the UploadPolicy.setProperty method.
-     * <BR>
+     * only calls the UploadPolicy.setProperty method. <BR>
      * Ex: document.jupload.setProperty(prop, value);
      * 
      * @param prop The property name that must be set.
@@ -326,12 +325,8 @@ public class JUploadApplet extends Applet {
                     + ")");
         }
 
-        /*
-         * } catch (NullPointerException e) { } catch (IOException e) { // An
-         * error occured when reading the file. The applet was // probably not
-         * built with the build.xml ant file. // We'll create a fake propery
-         * list. See below. }
-         */
+        // If we could not read the property file. The applet was probably not
+        // built with the build.xml ant file, we create a fake property list.
         if (!bPropertiesLoaded) {
             properties.setProperty("buildDate",
                     "Unknown build date (please use the build.xml ant script)");
