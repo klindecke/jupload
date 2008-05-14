@@ -364,7 +364,7 @@ public class HttpConnect {
     private void changePostURL(String newLocation) throws JUploadException {
         String currentPostURL = this.uploadPolicy.getPostURL();
         String newPostURL;
-        Pattern pHostName = Pattern.compile("http://(.*)/.*");
+        Pattern pHostName = Pattern.compile("http://([^/]*)/.*");
         Matcher mOldPostURL = Pattern.compile("(.*)\\?(.*)").matcher(
                 currentPostURL);
 
@@ -382,7 +382,6 @@ public class HttpConnect {
         // 2- It's a local full path on the same server (begins with /)
         // 3- It's a relative path (for instance, add of a prefix in the
         // filename) (doesn't begin with /)
-
         Matcher mHostOldPostURL = pHostName.matcher(currentPostURL);
         if (!mHostOldPostURL.matches()) {
             // Oups ! There is a little trouble here !
