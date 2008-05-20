@@ -866,7 +866,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     /**
      * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * Line-Ending is <b>always</b> "\r\n".
+     * Line-Ending is <b>always</b> "\r\n". Update done by TedA (sourceforge
+     * account: tedaaa). Allows to manage response from web server that send LF
+     * instead of CRLF ! Here is a part of the RFC: <I>"we recommend that
+     * applications, when parsing such headers, recognize a single LF as a line
+     * terminator and ignore the leading CR"</I>.
      * 
      * @param includeCR Set to true, if the terminating CR/LF should be included
      *            in the returned byte array.
@@ -889,20 +893,29 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     }
                     return null;
                 case 10:
-                    if ((len > 0) && (buf[len - 1] == 13)) {
-                        if (includeCR) {
-                            ret = new byte[len + 1];
-                            if (len > 0)
-                                System.arraycopy(buf, 0, ret, 0, len);
-                            ret[len] = 10;
+                    if (len > 0) {
+                        if (buf[len - 1] == 13) {
+                            if (includeCR) {
+                                ret = new byte[len + 1];
+                                if (len > 0)
+                                    System.arraycopy(buf, 0, ret, 0, len);
+                                ret[len] = 10;
+                            } else {
+                                len--;
+                                ret = new byte[len];
+                                if (len > 0)
+                                    System.arraycopy(buf, 0, ret, 0, len);
+                            }
                         } else {
-                            len--;
                             ret = new byte[len];
                             if (len > 0)
                                 System.arraycopy(buf, 0, ret, 0, len);
                         }
-                        return ret;
+                    } else // line feed for empty line between headers and body
+                    {
+                        ret = new byte[0];
                     }
+                    return ret;
                 default:
                     buf[len++] = (byte) b;
                     if (len >= buflen) {
