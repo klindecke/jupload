@@ -134,7 +134,7 @@ policies are :</a></p>
 <h2><a name="NewUploadPolicy">Customization by creating a new
 Java Upload Policy (simple java coding)</a></h2>
 
-<P><B>All details on the <A href="howto-new_UploadPolicy.html">policies package summary</A>.</B></P> 
+<P><B>All details on the <A href="howto-new_UploadPolicy.html">new UploadPolivy HowTo</A>.</B></P> 
 
 <p>If these customization possibilities are not enough, you can
 create a new upload policy. To do this, you need to create a new java
@@ -170,6 +170,9 @@ using the creating a new policy, using the UploadPolicy interface:</p>
     do any action about this file. The
     PictureUploadPolicy.onSelectFile(FileData) displays a preview
     pictures on the top part of the applet.</li>
+    <li>Change applet output. You can 'interfere' with some attributes (debugFile 
+    and debugOK) and with the addMsgToDebugLog methods. All these are not in the UploadPolicy 
+    interface, but in the DefaultUploadPolicy implementation.</li>
 </ul>
 
 

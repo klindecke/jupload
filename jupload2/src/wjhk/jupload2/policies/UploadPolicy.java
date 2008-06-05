@@ -1348,6 +1348,17 @@ public interface UploadPolicy {
     public String getFilenameEncoding();
 
     /**
+     * This method sets the current language to take into account. It loads the
+     * lang resourceBundle, which will allow the applet to display the texts in
+     * the correct language.
+     * 
+     * @param lang The new language to take into account. See the
+     *            java.util.Locale(String) constructor for a list of valid
+     *            values.
+     */
+    public void setLang(String lang);
+
+    /**
      * Returns the value of the applet parameter maxChunkSize (see above for a
      * description of all applet parameters)
      * 
@@ -1476,6 +1487,13 @@ public interface UploadPolicy {
      * @return the urlToSendErrorTo
      */
     public String getUrlToSendErrorTo();
+
+    /**
+     * @param urlToSendErrorTo the urlToSendErrorTo to set
+     * @throws JUploadException
+     */
+    public void setUrlToSendErrorTo(String urlToSendErrorTo)
+            throws JUploadException;
 
     /**
      * Retrieve the regular expression that will be tested against each line of

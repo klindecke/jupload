@@ -1,6 +1,33 @@
-V3.4.1
 
-No code change. 'Just' a package correction. The 3.4.0 release was almost empty.
+
+V3.4.2  (not releases yet)
+
+
+Changes:
+- [Minor] Setters added in UploadPolicy for the following applet parameters: lang, urlToSendErrorTo 
+- [Minor] Attributes switched to protected, as there is no getter/setter for these ones: userAgent, 
+cookie, debugFile and debugOK: switched to protected, as there is no getter or setter on these ones. 
+- debugOut. The addMsgToDebugLog(String msg) method has been switched to protected.
+  Note:
+   1) There are existing methods to generate output.
+   2) The whole debug output will be changed sooner or later. I want to embed log4j, or a log4j like API.
+   So addMsgToDebugLog(String msg) will be renamed ... a day in the future.
+- resourceBundle => set with the setLang parameter (you know it, you patched it !   :-) ).
+
+
+Fixes:
+- [Minor] Redirection (HTTP code 301, 302, 303) would not work with original URL containing more than one slash ('/').
+- [Minor] When a "Empty HEAD response" occurs in HttpConnect (during applet start), it's now logged as a warning, and no more
+displayed as an error. 
+
+
+Translation:
+- [Chinese] Chinese translation updated by bluesway
+
+
+V3.4.1f
+
+No code change. 'Just' a package correction. The 3.4.0 release was almost empty, and original 3.4.1 jar upload to sourceforge was corrupted !!!
 
 Sorry for the inconvenience.
 
