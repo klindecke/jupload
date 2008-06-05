@@ -296,27 +296,28 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * This stream is used to store all information that could be useful, in
      * case a problem occurs. Is content can then be sent to the webmaster.
      */
-    private PrintStream debugOut = null;
+    protected PrintStream debugOut = null;
 
     /**
      * The actual file, used for the debug log.
      */
-    private File debugFile = null;
+    protected File debugFile = null;
 
     /**
      * This flag prevents endless repeats of opening the debug log, if that
      * failed for some reason.
      */
-    private boolean debugOk = true;
+    protected boolean debugOk = true;
 
     /** cookie is the value of the javascript <I>document.cookie</I> property. */
-    private String cookie = null;
+    protected String cookie = null;
 
     /**
      * userAgent is the value of the javascript <I>navigator.userAgent</I>
      * property.
+     * Protected as there is no setter for it, and no other way to update it.
      */
-    private String userAgent = null;
+    protected String userAgent = null;
 
     /**
      * This constant defines the upper limit of lines, kept in the log window.
@@ -1439,16 +1440,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         this.fileChooserIconSize = fileChooserIconSize;
     }
 
-    /**
-     * This method sets the current language to take into account. It loads the
-     * {@link #resourceBundle}, which will allow the applet to display the
-     * texts in the correct language.
-     * 
-     * @param lang The new language to take into account. See the
-     *            java.util.Locale(String) constructor for a list of valid
-     *            values.
-     */
-    protected void setLang(String lang) {
+    /** @see wjhk.jupload2.policies.UploadPolicy#setLang(String) */
+    public void setLang(String lang) {
         Locale locale;
         this.lang = lang;
         if (lang == null) {
@@ -1506,48 +1499,27 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 });
     }
 
-    protected void setLang2(String lang) {
-        Locale locale;
-        this.lang = lang;
-        if (lang == null) {
-            displayInfo("lang = null, taking default language");
-            locale = Locale.getDefault();
-        } else {
-            // If we have a 5 characters lang string, then it should look like
-            // ll_CC, where ll is the language code
-            // and CC is the Contry code.
-            if (lang.length() == 5
-                    && (lang.substring(2, 3).equals("_") || lang
-                            .substring(2, 3).equals("-"))) {
-                String language = lang.substring(0, 2);
-                String country = lang.substring(3, 5);
-                displayDebug("setLang - language read: " + language, 50);
-                displayDebug("setLang - country read: " + country, 50);
-                locale = new Locale(language, country.toUpperCase());
-            } else {
-                locale = new Locale(lang);
-            }
-        }
-        this.resourceBundle = ResourceBundle.getBundle(
-                "wjhk.jupload2.lang.lang", locale,
-                // our special classloader, see description above
-                new ClassLoader(this.getClass().getClassLoader()) {
-                    /** {@inheritDoc} */
-                    @Override
-                    public Class<?> loadClass(String name)
-                            throws ClassNotFoundException {
-                        throw new ClassNotFoundException();
-                    }
-
-                    /** {@inheritDoc} */
-                    @Override
-                    public InputStream getResourceAsStream(String name) {
-                        return this.getClass().getClassLoader()
-                                .getResourceAsStream(name);
-                    }
-                });
-    }
-
+    /*
+     * protected void setLang2(String lang) { Locale locale; this.lang = lang;
+     * if (lang == null) { displayInfo("lang = null, taking default language");
+     * locale = Locale.getDefault(); } else { // If we have a 5 characters lang
+     * string, then it should look like // ll_CC, where ll is the language code //
+     * and CC is the Contry code. if (lang.length() == 5 && (lang.substring(2,
+     * 3).equals("_") || lang .substring(2, 3).equals("-"))) { String language =
+     * lang.substring(0, 2); String country = lang.substring(3, 5);
+     * displayDebug("setLang - language read: " + language, 50);
+     * displayDebug("setLang - country read: " + country, 50); locale = new
+     * Locale(language, country.toUpperCase()); } else { locale = new
+     * Locale(lang); } } this.resourceBundle = ResourceBundle.getBundle(
+     * "wjhk.jupload2.lang.lang", locale, // our special classloader, see
+     * description above new ClassLoader(this.getClass().getClassLoader()) { /**
+     * {@inheritDoc} * @Override public Class<?> loadClass(String name) throws
+     * ClassNotFoundException { throw new ClassNotFoundException(); }
+     * 
+     * /** {@inheritDoc} * @Override public InputStream
+     * getResourceAsStream(String name) { return
+     * this.getClass().getClassLoader() .getResourceAsStream(name); } }); }
+     */
     protected String getLookAndFeel() {
         return this.lookAndFeel;
     }
@@ -1682,15 +1654,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
             }
         } else if (value.startsWith("HTTP")) {
             // In HTTP mode, we always give a try to HTTPConnect, to check if
-            // the page has moved, and other stuff. 
+            // the page has moved, and other stuff.
             // But we keep the given parameter.
             try {
                 new HttpConnect(this).getProtocol();
             } catch (Exception e) {
                 // If we throw an error here, we prevent the applet to
                 // start. So we just log it, and try the default protocol
-                displayErr("Unable to access to the postURL: '"
-                        + getPostURL() + "'", e);
+                displayErr("Unable to access to the postURL: '" + getPostURL()
+                        + "'", e);
             }
         }
         this.serverProtocol = value;
@@ -1817,11 +1789,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.urlToSendErrorTo;
     }
 
-    /**
-     * @param urlToSendErrorTo the urlToSendErrorTo to set
-     * @throws JUploadException
-     */
-    protected void setUrlToSendErrorTo(String urlToSendErrorTo)
+    /** {@inheritDoc} */
+    public void setUrlToSendErrorTo(String urlToSendErrorTo)
             throws JUploadException {
         if (null == urlToSendErrorTo)
             return;
@@ -1890,7 +1859,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg
      */
-    private synchronized void addMsgToDebugLog(String msg) {
+    protected synchronized void addMsgToDebugLog(String msg) {
         // If uploading lots of chunks, the buffer gets too large, resulting in
         // a OutOfMemoryError on the heap so we now use a temporary file for the
         // debug log.
