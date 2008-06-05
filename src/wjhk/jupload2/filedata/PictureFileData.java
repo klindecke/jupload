@@ -544,11 +544,6 @@ public class PictureFileData extends DefaultFileData {
         BufferedImage transformedImage = null;
         ImageReaderWriterHelper imageWriterHelper = new ImageReaderWriterHelper(
                 (PictureUploadPolicy) uploadPolicy, this);
-        /*
-         * ImageHelper imageHelper = new ImageHelper( (PictureUploadPolicy)
-         * uploadPolicy, this, targetMaxWidth, targetMaxHeight,
-         * this.quarterRotation);
-         */
         boolean transmitMetadata = ((PictureUploadPolicy) uploadPolicy)
                 .getPictureTransmitMetadata();
 

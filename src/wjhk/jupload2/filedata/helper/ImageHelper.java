@@ -413,7 +413,8 @@ public class ImageHelper implements ImageObserver {
                                     "getBufferedImage: Resizing picture(using high quality picture)",
                                     40);
 
-                    // SCALE_AREA_AVERAGING forces the picture calculation algorithm.
+                    // SCALE_AREA_AVERAGING forces the picture calculation
+                    // algorithm.
                     // Other parameters give bad picture quality.
                     Image img = sourceBufferedImage.getScaledInstance(
                             scaledNonRotatedWidth, scaledNonRotatedHeight,
@@ -421,15 +422,13 @@ public class ImageHelper implements ImageObserver {
 
                     // the localBufferedImage may be 'unknown'.
                     int localImageType = sourceBufferedImage.getType();
-                    // FIXMEs Next line may be responsible for the color problem
                     if (localImageType == BufferedImage.TYPE_CUSTOM) {
                         localImageType = BufferedImage.TYPE_INT_BGR;
                     }
 
-                    BufferedImage tempBufferedImage = new BufferedImage( 
+                    BufferedImage tempBufferedImage = new BufferedImage(
                             scaledNonRotatedWidth, scaledNonRotatedHeight,
-                            localImageType
-                            );
+                            localImageType);
 
                     // drawImage can be long. Let's follow its progress,
                     // with the applet progress bar.
@@ -496,8 +495,9 @@ public class ImageHelper implements ImageObserver {
                 returnedBufferedImage.flush();
             }
         } catch (Exception e) {
-            throw new JUploadException(e.getClass().getName()
-                    + " (createBufferedImage) : " + e.getMessage());
+            throw new JUploadException(e.getClass().getName() + " ("
+                    + this.getClass().getName() + ".getBufferedImage()) : "
+                    + e.getMessage());
         }
 
         if (returnedBufferedImage != null
@@ -521,12 +521,12 @@ public class ImageHelper implements ImageObserver {
      * Implementation of the ImageObserver interface. Used to follow the
      * drawImage progression, and update the applet progress bar.
      * 
-     * @param img 
-     * @param infoflags 
-     * @param x 
-     * @param y 
-     * @param width 
-     * @param height 
+     * @param img
+     * @param infoflags
+     * @param x
+     * @param y
+     * @param width
+     * @param height
      * @return Whether or not the work must go on.
      * 
      */
