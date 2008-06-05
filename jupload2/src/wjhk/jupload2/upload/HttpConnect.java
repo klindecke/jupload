@@ -291,7 +291,8 @@ public class HttpConnect {
         String firstLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
         if (null == firstLine) {
             // Using default value. Already initialized.
-            this.uploadPolicy.displayErr("EMPTY HEAD response");
+            //This can occur, for instance, when Kaspersky antivirus is on !
+            this.uploadPolicy.displayWarn("EMPTY HEAD response");
         } else {
             Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(.*)\\s.*")
                     .matcher(firstLine);
