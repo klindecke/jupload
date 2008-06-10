@@ -32,8 +32,8 @@ function footer() {
   document.writeln("            <A HREF='howto-compile.html'>HowTo compile it</A>, &nbsp; ");
   document.writeln("            <A HREF='howto-support.html'>HowTo get support</A>, &nbsp; ");
   document.writeln("            <A HREF='howto-customization.html'>HowTo customize it</A>");
-  document.writeln("            	(<A HREF='howto-newUploadPolicy.html'>UploadPolicy</A>, ");
-  document.writeln("            <A HREF='howto-newFileData.html'>FileData</A>) &nbsp; ");
+  document.writeln("            	(<A HREF='doc/wjhk/jupload2/policies/package-summary.html'>UploadPolicy</A>, ");
+  document.writeln("            	<A HREF='doc/wjhk/jupload2/filedata/package-summary.html'>FileData</A>) &nbsp; ");
   document.writeln("            <A HREF='howto-translation.html'>HowTo translate it</A>");
   document.writeln("        </td>");
   document.writeln("       </tr>");
