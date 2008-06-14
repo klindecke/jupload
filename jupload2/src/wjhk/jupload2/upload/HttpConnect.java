@@ -272,10 +272,12 @@ public class HttpConnect {
             req.append(url.getProtocol()).append("://").append(url.getHost());
         }
         req.append(url.getPath());
-        /*
-         * if (null != url.getQuery() && !"".equals(url.getQuery()))
-         * req.append("?").append(url.getQuery());
-         */
+
+        // We must transmit the postURL as is. There may be some redirection
+        // when parameters are missing (eg: Coppermine)
+        if (null != url.getQuery() && !"".equals(url.getQuery()))
+            req.append("?").append(url.getQuery());
+
         req.append(" ").append(DEFAULT_PROTOCOL).append("\r\n");
         req.append("Host: ").append(url.getHost()).append("\r\n");
         req.append("Connection: close\r\n\r\n");
@@ -291,7 +293,7 @@ public class HttpConnect {
         String firstLine = FileUploadThreadHTTP.readLine(in, "US-ASCII", false);
         if (null == firstLine) {
             // Using default value. Already initialized.
-            //This can occur, for instance, when Kaspersky antivirus is on !
+            // This can occur, for instance, when Kaspersky antivirus is on !
             this.uploadPolicy.displayWarn("EMPTY HEAD response");
         } else {
             Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(.*)\\s.*")
