@@ -296,7 +296,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         this.jLogWindowPane.setPreferredSize(null);
 
         // -------- statusLabel --------
-        this.statusLabel = new JLabel("JUpload V" + JUploadApplet.VERSION);
+        this.statusLabel = new JLabel("JUpload applet V" + JUploadApplet.VERSION);
     }
 
     /**
