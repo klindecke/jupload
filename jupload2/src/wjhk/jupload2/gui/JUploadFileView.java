@@ -257,7 +257,7 @@ public class JUploadFileView extends FileView implements
     }
 
     synchronized void execute(IconWorker iconWorker) {
-        this.uploadPolicy.displayDebug("[JUploadFileView.execute] Adding "
+        this.uploadPolicy.displayDebug("[JUploadFileView.execute] Adding (to FileChooser) "
                 + iconWorker.file.getAbsolutePath(), 90);
         if (this.executorService == null || this.executorService.isShutdown()) {
             this.uploadPolicy
