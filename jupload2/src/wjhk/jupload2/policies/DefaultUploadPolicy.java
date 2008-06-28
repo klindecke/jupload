@@ -241,6 +241,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String stringUploadSuccess = UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS;
 
     /**
+     * @see UploadPolicy#getStringUploadWarning()
+     */
+    private String stringUploadWarning = UploadPolicy.DEFAULT_STRING_UPLOAD_WARNING;
+
+    /**
      * If an error occurs during upload, and this attribute is not null, the
      * applet asks the user if wants to send the debug ouput to the
      * administrator. If yes, the full debug information is POSTed to this URL.
@@ -314,8 +319,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * userAgent is the value of the javascript <I>navigator.userAgent</I>
-     * property.
-     * Protected as there is no setter for it, and no other way to update it.
+     * property. Protected as there is no setter for it, and no other way to
+     * update it.
      */
     protected String userAgent = null;
 
@@ -323,6 +328,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * This constant defines the upper limit of lines, kept in the log window.
      */
     private final static int MAX_DEBUG_LINES = 10000;
+
+    /**
+     * Same as {@link #patternSuccess}, but for the error message. If found,
+     * then the upload was accepted by the remote HTTP server, but rejected by
+     * the remote application. This pattern should also find the error message
+     * in the first matching string.
+     */
+    protected Pattern patternError = Pattern
+            .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_ERROR);
 
     /**
      * The regexp pattern that is used to find the success string in the HTTP
@@ -333,13 +347,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
             .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_SUCCESS);
 
     /**
-     * Same as {@link #patternSuccess}, but for the error message. If found,
-     * then the upload was accepted by the remote HTTP server, but rejected by
-     * the remote application. This pattern should also find the error message
-     * in the first matching string.
+     * Same as {@link #patternSuccess}, but for the warning message. Each time
+     * it is found, a message is displayed to the user.
      */
-    protected Pattern patternError = Pattern
-            .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_ERROR);
+    protected Pattern patternWarning = Pattern
+            .compile(UploadPolicy.DEFAULT_STRING_UPLOAD_WARNING);
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// CONSTRUCTORS
@@ -437,25 +449,23 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // get any additional headers.
         setSpecificHeaders(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SPECIFIC_HEADERS, DEFAULT_SPECIFIC_HEADERS, this));
-
         setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
-
         setStringUploadError(UploadPolicyFactory.getParameter(theApplet,
                 PROP_STRING_UPLOAD_ERROR, DEFAULT_STRING_UPLOAD_ERROR, this));
-
         setStringUploadSuccess(UploadPolicyFactory
                 .getParameter(theApplet, PROP_STRING_UPLOAD_SUCCESS,
                         DEFAULT_STRING_UPLOAD_SUCCESS, this));
+        setStringUploadWarning(UploadPolicyFactory
+                .getParameter(theApplet, PROP_STRING_UPLOAD_WARNING,
+                        DEFAULT_STRING_UPLOAD_WARNING, this));
 
         // get the URL where the full debug output can be sent when an error
         // occurs.
         setUrlToSendErrorTo(UploadPolicyFactory.getParameter(theApplet,
                 PROP_URL_TO_SEND_ERROR_TO, DEFAULT_URL_TO_SEND_ERROR_TO, this));
-
         this.formData = UploadPolicyFactory.getParameter(theApplet,
                 PROP_FORMDATA, DEFAULT_FORMDATA, this);
-
         this.afterUploadTarget = UploadPolicyFactory.getParameter(theApplet,
                 PROP_AFTER_UPLOAD_TARGET, DEFAULT_AFTER_UPLOAD_TARGET, this);
 
@@ -542,14 +552,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * The default behaviour (see {@link DefaultUploadPolicy}) is to check that
      * the stringUploadSuccess applet parameter is present in the response from
      * the server. The return is tested, in the order below: <DIR>
-     * <LI>True, if the stringUploadSuccess was not given as an applet
-     * parameter (no test at all).
+     * <LI>False, if the stringUploadError is found. An error message is then
+     * displayed.
+     * <LI>True, if the stringUploadSuccess is null or empty (no test at all).
      * <LI>True, if the stringUploadSuccess string is present in the
      * serverOutputBody.
      * <LI>True, If previous condition is not filled, but the HTTP header
      * "HTTP(.*)200OK$" is present: the test is currently non blocking, because
      * I can not test all possible HTTP configurations.<BR>
      * <LI>False if the previous conditions are not fullfilled. </DIR>
+     * 
+     * <BR>
+     * This method also looks for the stringUploadWarning regular expression.
+     * Each time it is matched, the found message is displayed to the user.
      * 
      * @param status The HTTP response code
      * @param msg The full HTTP response message (e.g. "404 Not found").
@@ -559,6 +574,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public boolean checkUploadSuccess(int status, String msg, String body)
             throws JUploadException {
+        boolean bReturn = false;
+
         this.lastResponseBody = body;
         this.lastResponseMessage = msg;
         displayDebug("HTTP status: " + msg, 40);
@@ -569,7 +586,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // Let's analyze the body returned, line by line.
         StringTokenizer st = new StringTokenizer(body, "\n\r");
-        Matcher matcherError;
+        Matcher matcherError, matcherWarning;
         String line;
         while (st.hasMoreTokens()) {
             line = (String) st.nextToken();
@@ -578,8 +595,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
             // The success string should be in the http body
             if (getStringUploadSuccess() != null
                     && !getStringUploadSuccess().equals("")) {
-                if (this.patternSuccess.matcher(line).matches())
-                    return true;
+                if (this.patternSuccess.matcher(line).matches()) {
+                    // We go on. There may be some WARNING message, hereafter.
+                    bReturn = true;
+                }
             }
 
             // Check if this is an error
@@ -589,20 +608,39 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 if (matcherError.matches()) {
                     String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
                     if (matcherError.groupCount() > 0) {
-                        errmsg = matcherError.group(1);
-                        if (errmsg.equals("")) {
+                        if (!matcherError.group(1).equals("")) {
                             errmsg = "An unknown error occurs during upload.";
                         }
                     }
                     this.lastResponseMessage = errmsg;
                     throw new JUploadExceptionUploadFailed(errmsg);
                 }
-            }
+            }// getStringUploadError
 
+            // Check if this is an warning
+            if (getStringUploadWarning() != null
+                    && !getStringUploadWarning().equals("")) {
+                matcherWarning = this.patternWarning.matcher(line);
+                if (matcherWarning.matches()) {
+                    String warnmsg = "A warning occurs during upload (but the applet couldn't find the warning message)";
+                    if (matcherWarning.groupCount() > 0) {
+                        if (!matcherWarning.group(1).equals("")) {
+                            warnmsg = matcherWarning.group(1);
+                        }
+                    }
+                    this.lastResponseMessage = warnmsg;
+                    displayWarn(warnmsg);
+                    alertStr(warnmsg);
+                }
+            }// getStringUploadWarning
+
+        }// while(st.hasMoreTokens())
+
+        if (bReturn) {
+            return true;
         }
 
         // We found no stringUploadSuccess nor stringUploadError
-
         if (getStringUploadSuccess() == null
                 || getStringUploadSuccess().equals("")) {
             // No chance to check the correctness of this upload. -> Assume Ok
@@ -1265,10 +1303,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 20);
         displayDebug(PROP_SHOW_STATUSBAR + ": " + showStatusbar, 20);
         displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(), 20);
-        displayDebug(PROP_STRING_UPLOAD_SUCCESS + ": "
-                + getStringUploadSuccess(), 20);
         displayDebug(PROP_STRING_UPLOAD_ERROR + ": " + getStringUploadError(),
                 20);
+        displayDebug(PROP_STRING_UPLOAD_SUCCESS + ": "
+                + getStringUploadSuccess(), 20);
+        displayDebug(PROP_STRING_UPLOAD_WARNING + ": "
+                + getStringUploadWarning(), 20);
         displayDebug(PROP_URL_TO_SEND_ERROR_TO + ": " + getUrlToSendErrorTo(),
                 20);
         displayDebug("", 20);
@@ -1750,6 +1790,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.stringUploadSuccess;
     }
 
+    /** @see wjhk.jupload2.policies.UploadPolicy#getStringUploadWarning() */
+    public String getStringUploadWarning() {
+        return this.stringUploadWarning;
+    }
+
     /**
      * @param stringUploadError the stringUploadError to set
      * @throws JUploadException
@@ -1780,6 +1825,23 @@ public class DefaultUploadPolicy implements UploadPolicy {
             } catch (PatternSyntaxException e) {
                 throw new JUploadException(
                         "Invalid regex in parameter stringUploadSuccess");
+            }
+        }
+    }
+
+    /**
+     * @param stringUploadWarning the stringUploadWarning to set
+     * @throws JUploadException
+     */
+    protected void setStringUploadWarning(String stringUploadWarning)
+            throws JUploadException {
+        this.stringUploadWarning = stringUploadWarning;
+        if (stringUploadWarning != null) {
+            try {
+                this.patternWarning = Pattern.compile(stringUploadWarning);
+            } catch (PatternSyntaxException e) {
+                throw new JUploadException(
+                        "Invalid regex in parameter stringUploadWarning");
             }
         }
     }

@@ -141,7 +141,7 @@
 
 	<target name="compile" depends="compile_all" />
 
-	<target name="compile_all" depends="prepare,-version_applet">
+	<target name="compile_all" depends="prepare,-generate_svn_properties">
 		<antcall target="compile_impl">
 			<param name="includes" value="wjhk/**" />
 		</antcall>
@@ -170,15 +170,15 @@
 =================================================
   -->
 	<target name="clean" description="Remove all class files.">
-		<delete>
+		<delete failonerror="false">
 			<fileset dir="${path.build}">
 				<patternset>
 					<include name="**/*.class" />
 				</patternset>
 			</fileset>
 		</delete>
-		<delete dir="${path.build}/META-INF" />
-		<delete file="${basedir}/.tmpstore" />
+		<delete failonerror="false" dir="${path.build}/META-INF" />
+		<delete failonerror="false" file="${basedir}/.tmpstore" />
 	</target>
 
 	<target name="cleanup" description="Remove temporary build directory">
@@ -217,12 +217,22 @@
 		</copy>
 	</target>
 
-	<target name="-version_applet">
-		<svn javahl="${svn.use.javahl}">
+	<!-- When compiling offline, or not connected to a SVN, the info in '-generate_svn_properties' doesn't
+	work. We then put the available revision in svn.revision.max -->
+	<target name="-get_svn_properties">
+		<svn javahl="${svn.use.javahl}" failonerror="false">
 			<status path="${path.src}" lastChangedDateProperty="svn.date" />
-			<wcversion path="${path.src}" prefix="svn." />
+			<!-- info gives the up to date info, but need to be connected ...-->
+			<info target="${path.src}" propPrefix="svn." />
 			<ignore file="${path.src}/conf/svn.properties"/>
 		</svn>
+	</target>
+	<target name="-default_version" unless="svn.revision.max">
+		<svn javahl="${svn.use.javahl}" failonerror="false">
+			<wcVersion path="${path.src}" prefix="svn." />
+		</svn>
+	</target>
+	<target name="-generate_svn_properties" depends="-get_svn_properties,-default_version">
 		<echo file="${path.src}/conf/svn.properties">
 # WARNING - This file is auto-generated
 # ANY CHANGES WILL BE OVERWRITTEN BY THE BUILD-PROCESS!

@@ -1,6 +1,6 @@
 
 
-V3.4.2  (not releases yet)
+V3.4.2  (not released yet)
 
 
 Changes:
@@ -16,6 +16,8 @@ cookie, debugFile and debugOK: switched to protected, as there is no getter or s
 
 
 Fixes:
+- [Major] The query is appended (again) to the URL when quering the HEAD to guess protocol: would block some
+access, like Coppermine upload (was getting a wrong 302 HTTP return code). 
 - [Minor] Redirection (HTTP code 301, 302, 303) would not work with original URL containing more than one slash ('/').
 - [Minor] When a "Empty HEAD response" occurs in HttpConnect (during applet start), it's now logged as a warning, and no more
 displayed as an error. 
