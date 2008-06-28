@@ -298,7 +298,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         // This is US-ASCII! (See RFC 2616, Section 2.2)
                         line = readLine(httpDataIn, "US-ASCII", false);
                         if (null == line)
-                            throw new JUploadException("unexpected EOF");
+                            throw new JUploadException("unexpected EOF (in HTTP Body, chunked mode)");
                         // Handle a single chunk of the response
                         // We cut off possible chunk extensions and ignore them.
                         // The length is hex-encoded (RFC 2616, Section 3.6.1)
@@ -360,7 +360,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                                                 this.chunkbuf, ofs, rlen - ofs);
                                         if (res < 0)
                                             throw new JUploadException(
-                                                    "unexpected EOF");
+                                                    "unexpected EOF (in HTTP body, not chunked mode)");
                                         clen -= res;
                                         ofs += res;
                                     }
@@ -385,13 +385,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             break;
                         }
                     }
-                } else {
+                } else { // if (readingHttpBody)
                     // readingHttpBody is false, so we are still in headers.
                     // Headers are US-ASCII (See RFC 2616, Section 2.2)
                     String tmp = readLine(httpDataIn, "US-ASCII", false);
                     if (null == tmp)
-                        throw new JUploadException("unexpected EOF");
+                        throw new JUploadException("unexpected EOF (in header)");
                     if (status == 0) {
+                        // We must be reading the first line of the HTTP header.
                         this.uploadPolicy.displayDebug(
                                 "-------- Response Headers Start --------", 80);
                         Matcher m = pHttpStatus.matcher(tmp);
@@ -456,8 +457,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // the charset attribute of the Content-Type header (if any).
             // See RFC 2616, Sections 3.4.1 and 3.7.1.
             this.sbHttpResponseBody.append(new String(body, charset));
-        } catch (JUploadException e) {
-            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             throw new JUploadException(e);
