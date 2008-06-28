@@ -14,7 +14,9 @@ than it should. (i set maxFileSize to the post_max_size in bytes right? i
 used 268435456 bytes = 256M)
 
 
-
+- Replace socket network access by UrlConnection
+- Check compiling on a fresh eclipse install, with the given build.xml
+  (see http://sourceforge.net/forum/forum.php?thread_id=2048291&forum_id=199107).
 - Debug file output: should be enabled only in debug mode. Also: could be nice to have some more entries in the
 debug menu: paste debug output, open debug file... 
 - Check the wiki

@@ -116,6 +116,8 @@
 	}//while
 
   	out.println("[parseRequest.jsp] " + "Let's write a status, to finish the server response :");
+    out.println("WARNING: just a warning message");
+
   	
     //Do you want to test a successful upload, or the way the applet reacts to an error ?
     if (true) { 
@@ -124,6 +126,7 @@
     	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp)");
     }
 
+    out.println("WARNING: just another warning message (after the SUCCESS string in the server response");
   	out.println("[parseRequest.jsp] " + "End of server treatment ");
 
   }catch(Exception e){
