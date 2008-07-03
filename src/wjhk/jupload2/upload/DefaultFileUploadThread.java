@@ -22,6 +22,7 @@
 package wjhk.jupload2.upload;
 
 import java.io.OutputStream;
+import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 
@@ -43,14 +44,14 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <LI>{@link #startRequest}: start of the UploadRequest.
  * <LI>Then, for each file to upload (according to the nbFilesPerRequest and
  * maxChunkSize applet parameters) <DIR>
- * <LI>beforeFile(int) is called before writting the bytes for this
- * file (or this chunk)
- * <LI>afterFile(int) is called after writting the bytes for this file
- * (or this chunk) </DIR>
+ * <LI>beforeFile(int) is called before writting the bytes for this file (or
+ * this chunk)
+ * <LI>afterFile(int) is called after writting the bytes for this file (or this
+ * chunk) </DIR>
  * <LI>finishRequest() </DIR> </LI>
  * <I>finally</I>cleanRequest()
- * <LI>Call of cleanAll(), to clean up any used resources, common to
- * the whole upload. </DIR>
+ * <LI>Call of cleanAll(), to clean up any used resources, common to the whole
+ * upload. </DIR>
  */
 public abstract class DefaultFileUploadThread extends Thread implements
         FileUploadThread {
@@ -60,10 +61,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // ////////////////////////////////////////////////////////////////////////////////////
 
     /*
-     * etienne_sf: this parameter is now removed. The incoming list of
-     * files to upload is now only managed in the constructor: it's up to it to
-     * manage files that can't be read. /** The given array containing the files
-     * to upload. Stored in the constructor, and used in the run() method.
+     * etienne_sf: this parameter is now removed. The incoming list of files to
+     * upload is now only managed in the constructor: it's up to it to manage
+     * files that can't be read. /** The given array containing the files to
+     * upload. Stored in the constructor, and used in the run() method.
      */
     // FileData[] filesDataParam = null;
     /**
@@ -128,9 +129,20 @@ public abstract class DefaultFileUploadThread extends Thread implements
     private long startTime;
 
     /**
-     * The response message from the server, if any
+     * The full response message from the server, if any. For instance, in HTTP
+     * mode, this contains both the headers and the body.
      */
-    private String responseMsg;
+    String responseMsg = ""; // was responseMsg
+
+    /**
+     * The response message from the application. For instance, in HTTP mode,
+     * this contains the body response.<BR>
+     * Note: for easier management on the various server configurations, all end
+     * or line characters (CR, LF or CRLF) are changed to uniform CRLF.
+     */
+    String responseBody = ""; // was
+
+    // FileUploadThreadHTTP.sbHttpResponseBody
 
     /**
      * Creates a new instance.
@@ -209,15 +221,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
     }
 
     /**
-     * Get the server Output.
-     * 
-     * @return The StringBuffer that contains the full server HTTP response.
-     */
-    public String getResponseMsg() {
-        return this.responseMsg;
-    }
-
-    /**
      * Get the exception that occurs during upload.
      * 
      * @return The exception, or null if no exception were thrown.
@@ -227,8 +230,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
     }
 
     /**
-     * Used by the UploadFileData.uploadFile(java.io.OutputStream, long)
-     * for each uploaded buffer
+     * Used by the UploadFileData.uploadFile(java.io.OutputStream, long) for
+     * each uploaded buffer
      * 
      * @see wjhk.jupload2.upload.FileUploadThread#nbBytesUploaded(long)
      */
@@ -365,19 +368,42 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * Return the the body for the server response. That is: the server response
-     * without the http header. This the real functionnal response from the
-     * server application, that would be outputed, for instance, by any 'echo'
-     * PHP command.
+     * without the http header. This is the functional response from the server
+     * application, that has been as the HTTP reply body, for instance: all
+     * 'echo' PHP commands. <BR>
+     * 
+     * @return The last application response (HTTP body, in HTTP upload)
      */
-    abstract String getResponseBody();
+    public String getResponseBody() {
+        return this.responseBody;
+    }
+
+    /**
+     * Get the server Output.
+     * 
+     * @return The StringBuffer that contains the full server HTTP response.
+     */
+    public String getResponseMsg() {
+        return this.responseMsg;
+    }
+
+    /**
+     * Store the String that contains the server response.
+     * 
+     * @param msg The server message to be set.
+     */
+    void setServerResponse(String msg) {
+        this.responseMsg = normalizeCRLF(msg);
+    }
 
     /**
      * Add a String that has been read from the server response.
      * 
-     * @param msg The server message to be set.
+     * @param msg The server message to be set.The {@link #quoteCRLF(String)}
+     *            will be applied to this parameter.
      */
-    void setResponseMsg(String msg) {
-        this.responseMsg = msg;
+    void setResponseBody(String msg) {
+        this.responseBody = normalizeCRLF(msg);
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////
@@ -748,8 +774,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // Debug output: always called, so that the debug file is correctly
             // filled.
             this.uploadPolicy.displayDebug(
-                    "-------- Response Body Start --------", 80);
-            this.uploadPolicy.displayDebug(quoteCRLF(getResponseBody()), 80);
+                    "-------- Response Body Start (CRLF normalized) --------", 80);
+            this.uploadPolicy.displayDebug(quoteCRLF(getResponseBody()), 80); 
             this.uploadPolicy.displayDebug(
                     "--------- Response Body End ---------", 80);
         } // while(!bLastChunk && uploadException==null && !stop)
@@ -785,12 +811,35 @@ public abstract class DefaultFileUploadThread extends Thread implements
     }
 
     /**
-     * Replace \r and \n by correctly displayed end of line characters. Used to display debug ouptut.
+     * Replace single \r and \n by uniform end of line characters (CRLF). This
+     * makes it easier, to search for string within the body.
+     * 
+     * @param s The original string
+     * @return The string with single \r and \n modified changed to CRLF (\r\n).
+     */
+    public final String normalizeCRLF(String s) {
+        Pattern p = Pattern.compile("\\r\\n|\\r|\\n", Pattern.MULTILINE);
+        String[] lines = p.split(s);
+        // Worst case: the s string contains only \n or \r characters: we then
+        // need to triple the string length. Let's say double is enough.
+        StringBuffer sb = new StringBuffer(s.length() * 2);
+        for (int i = 0; i < lines.length; i += 1) {
+            String line = lines[i];
+            sb.append(lines[i]).append("\r\n");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Replace \r and \n by correctly displayed end of line characters. Used to
+     * display debug output. It also replace any single \r or \n by \r\n, to
+     * make it easier, to search for string within the body.
      * 
      * @param s The original string
      * @return The string with \r and \n modified, to be correctly displayed.
      */
     public final String quoteCRLF(String s) {
-        return s.replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n\n");
+        return s.replaceAll("\r\n", "\\\\r\\\\n\n");
     }
 }

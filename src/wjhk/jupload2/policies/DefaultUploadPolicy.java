@@ -48,7 +48,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -584,12 +583,22 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throw new JUploadExceptionUploadFailed("Received HTTP status "
                     + msg);
 
-        // Let's analyze the body returned, line by line.
-        StringTokenizer st = new StringTokenizer(body, "\n\r");
+        // Let's analyze the body returned, line by line. The end of line
+        // character may be CR, LF, or CRLF. We navigate through the body, and
+        // replace any end of line character by a uniform CRLF.
         Matcher matcherError, matcherWarning;
         String line;
-        while (st.hasMoreTokens()) {
-            line = (String) st.nextToken();
+        Pattern p = Pattern.compile("[\\r\\n]", Pattern.MULTILINE);
+        String[] lines = p.split(body);
+        StringBuffer sbBodyWithUniformCRLF = new StringBuffer(body.length());
+        for (int i = 0; i < lines.length; i += 1) {
+            line = lines[i];
+            sbBodyWithUniformCRLF.append(line).append("\r\n");
+
+            if (line == null || line.equals("")) {
+                // An empty line. Let's go the next line.
+                continue;
+            }
 
             // Check if this is a success
             // The success string should be in the http body

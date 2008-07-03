@@ -62,12 +62,13 @@ import wjhk.jupload2.policies.UploadPolicy;
  * 'true' or 'false' which sets the connection type to either active or passive
  * mode.
  * 
- * @author Evin Callahan (inheritance from DefaultUploadThread built by etienne_sf)
+ * @author Evin Callahan (inheritance from DefaultUploadThread built by
+ *         etienne_sf)
  * @author Daystar Computer Services
  * @see FileUploadThread
  * @see DefaultFileUploadThread
- * @version 1.0, 01 Jan 2007 * Update march 2007, etienne_sf Adaptation to
- *          match all JUpload functions: <DIR>
+ * @version 1.0, 01 Jan 2007 * Update march 2007, etienne_sf Adaptation to match
+ *          all JUpload functions: <DIR>
  *          <LI>Inheritance from the {@link FileUploadThread} class,
  *          <LI>Use of the UploadFileData class,
  *          <LI>Before upload file preparation,
@@ -128,9 +129,10 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     /**
      * Creates a new instance. Performs the connection to the server based on
      * the matcher created in the main.
-     * @param filesDataParam 
-     * @param uploadPolicy 
-     * @param progress 
+     * 
+     * @param filesDataParam
+     * @param uploadPolicy
+     * @param progress
      * 
      * @throws JUploadException
      * @throws IllegalArgumentException if any error occurs. message is error
@@ -303,12 +305,6 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     int indexFile) {
         // Default: no additional byte.
         return 0;
-    }
-
-    /** @see DefaultFileUploadThread#getResponseBody() */
-    @Override
-    String getResponseBody() {
-        return "";
     }
 
     /** @see DefaultFileUploadThread#getOutputStream() */

@@ -23,8 +23,8 @@ package wjhk.jupload2.upload;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PushbackInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.net.ProxySelector;
@@ -128,15 +128,15 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * This stream allows the applet to get the server response. It is opened
      * and closed as the {@link #httpDataOut}.
      */
-    private InputStream httpDataIn = null;
+    private PushbackInputStream httpDataIn = null;
 
     /**
      * This StringBuffer contains the body for the server response. That is: the
      * server response without the http header. This the real functionnal
      * response from the server application, that would be outputed, for
      * instance, by any 'echo' PHP command.
-     */
-    private StringBuffer sbHttpResponseBody = null;
+     *
+    private StringBuffer sbHttpResponseBody = null;*/
 
     /**
      * Creates a new instance.
@@ -281,7 +281,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         byte[] body = new byte[0];
         String charset = "ISO-8859-1";
 
-        this.sbHttpResponseBody = new StringBuffer();
+        StringBuffer sbHttpResponseBody = new StringBuffer();
         try {
             // If the user requested abort, we are not going to send
             // anymore, so shutdown the outgoing half of the socket.
@@ -298,7 +298,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         // This is US-ASCII! (See RFC 2616, Section 2.2)
                         line = readLine(httpDataIn, "US-ASCII", false);
                         if (null == line)
-                            throw new JUploadException("unexpected EOF (in HTTP Body, chunked mode)");
+                            throw new JUploadException(
+                                    "unexpected EOF (in HTTP Body, chunked mode)");
                         // Handle a single chunk of the response
                         // We cut off possible chunk extensions and ignore them.
                         // The length is hex-encoded (RFC 2616, Section 3.6.1)
@@ -385,7 +386,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             break;
                         }
                     }
-                } else { // if (readingHttpBody)
+                } else { // (! readingHttpBody)
                     // readingHttpBody is false, so we are still in headers.
                     // Headers are US-ASCII (See RFC 2616, Section 2.2)
                     String tmp = readLine(httpDataIn, "US-ASCII", false);
@@ -398,7 +399,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         Matcher m = pHttpStatus.matcher(tmp);
                         if (m.matches()) {
                             status = Integer.parseInt(m.group(2));
-                            setResponseMsg(m.group(1));
+                            setServerResponse(m.group(1));
                         } else {
                             // The status line must be the first line of the
                             // response. (See RFC 2616, Section 6.1) so this
@@ -456,7 +457,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // The default for charset ISO-8859-1, but overridden by
             // the charset attribute of the Content-Type header (if any).
             // See RFC 2616, Sections 3.4.1 and 3.7.1.
-            this.sbHttpResponseBody.append(new String(body, charset));
+            setResponseBody(sbHttpResponseBody.append(new String(body, charset)).toString());
         } catch (Exception e) {
             e.printStackTrace();
             throw new JUploadException(e);
@@ -464,11 +465,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         return status;
     }
 
-    /** @see DefaultFileUploadThread#getResponseBody() */
+    /** @see DefaultFileUploadThread#getResponseBody() 
     @Override
     String getResponseBody() {
         return this.sbHttpResponseBody.toString();
-    }
+    }*/
 
     /** @see DefaultFileUploadThread#getOutputStream() */
     @SuppressWarnings("unused")
@@ -587,7 +588,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                         proxy);
                 this.httpDataOut = new DataOutputStream(
                         new BufferedOutputStream(this.sock.getOutputStream()));
-                this.httpDataIn = this.sock.getInputStream();
+                this.httpDataIn = new PushbackInputStream(this.sock
+                        .getInputStream(), 1);
             }
 
             // The header is now constructed.
@@ -857,7 +859,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * @param includeCR Set to true, if the terminating CR/LF should be included
      *            in the returned byte array.
      */
-    static String readLine(InputStream inputStream, String charset,
+    static String readLine(PushbackInputStream inputStream, String charset,
             boolean includeCR) throws IOException {
         byte[] line = readLine(inputStream, includeCR);
         return (null == line) ? null : new String(line, charset);
@@ -865,66 +867,112 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     /**
      * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * Line-Ending is <b>always</b> "\r\n". Update done by TedA (sourceforge
-     * account: tedaaa). Allows to manage response from web server that send LF
-     * instead of CRLF ! Here is a part of the RFC: <I>"we recommend that
-     * applications, when parsing such headers, recognize a single LF as a line
-     * terminator and ignore the leading CR"</I>.
+     * According to RFC 2616, and of line may be CR (13), LF (10) or CRLF.
+     * Line-Ending is <b>always</b> "\r\n" in header, but not in text bodies.
+     * Update done by TedA (sourceforge account: tedaaa). Allows to manage
+     * response from web server that send LF instead of CRLF ! Here is a part of
+     * the RFC: <I>"we recommend that applications, when parsing such headers,
+     * recognize a single LF as a line terminator and ignore the leading CR"</I>.
+     * <BR>
+     * Corrected again to manage line finished by CR only.
      * 
      * @param includeCR Set to true, if the terminating CR/LF should be included
-     *            in the returned byte array.
+     *            in the returned byte array. In this case, CR/LF is always
+     *            returned to the caller, wether the input stream got CR, LF or
+     *            CRLF.
      */
-    static byte[] readLine(InputStream inputStream, boolean includeCR)
+    static byte[] readLine(PushbackInputStream inputStream, boolean includeCR)
             throws IOException {
+        final byte EOS = -1;
+        final byte CR = 13;
+        final byte LF = 10;
         int len = 0;
         int buflen = 128; // average line length
         byte[] buf = new byte[buflen];
         byte[] ret = null;
         int b;
-        while (true) {
+        boolean lineRead = false;
+
+        while (!lineRead) {
             b = inputStream.read();
             switch (b) {
-                case -1:
-                    if (len > 0) {
-                        ret = new byte[len];
-                        System.arraycopy(buf, 0, ret, 0, len);
-                        return ret;
+                case EOS:
+                    // We've finished reading the stream, and so the line is
+                    // finished too.
+                    lineRead = true;
+                    break;
+                /*
+                 * if (len > 0) { ret = new byte[len]; System.arraycopy(buf, 0,
+                 * ret, 0, len); return ret; } return null;
+                 */
+                case LF:
+                    // We found the end of the current line.
+                    lineRead = true;
+                    break;
+                /*
+                 * if (len > 0) { // We got a LF. Was it a CRLF ? if (buf[len -
+                 * 1] == 13) { if (includeCR) { ret = new byte[len + 1]; if (len >
+                 * 0) System.arraycopy(buf, 0, ret, 0, len); ret[len] = 10; }
+                 * else { len--; ret = new byte[len]; if (len > 0)
+                 * System.arraycopy(buf, 0, ret, 0, len); } } else { ret = new
+                 * byte[len]; if (len > 0) System.arraycopy(buf, 0, ret, 0,
+                 * len); } } else // line feed for empty line between headers
+                 * and body { ret = new byte[0]; } return ret;
+                 */
+                case CR:
+                    // We got a CR. It can be the end of line.
+                    // Is it followed by a LF ? (not mandatory in RFC 2616)
+                    b = inputStream.read();
+
+                    if (b != LF) {
+                        // The end of line was a simple LF: the next one blongs
+                        // to the next line.
+                        inputStream.unread(b);
                     }
-                    return null;
-                case 10:
-                    if (len > 0) {
-                        if (buf[len - 1] == 13) {
-                            if (includeCR) {
-                                ret = new byte[len + 1];
-                                if (len > 0)
-                                    System.arraycopy(buf, 0, ret, 0, len);
-                                ret[len] = 10;
-                            } else {
-                                len--;
-                                ret = new byte[len];
-                                if (len > 0)
-                                    System.arraycopy(buf, 0, ret, 0, len);
-                            }
-                        } else {
-                            ret = new byte[len];
-                            if (len > 0)
-                                System.arraycopy(buf, 0, ret, 0, len);
-                        }
-                    } else // line feed for empty line between headers and body
-                    {
-                        ret = new byte[0];
-                    }
-                    return ret;
+                    lineRead = true;
+                    break;
+
+                /*
+                 * buf[len++] = (byte) b; if (buf[len] == 10) { //We got a CRLF }
+                 * else { //It was the end of line. Let's forget } A finir
+                 * return ret;
+                 */
                 default:
                     buf[len++] = (byte) b;
-                    if (len >= buflen) {
+                    // If the buffer is too small, we let enough space to add CR
+                    // and LF, in case of ...
+                    if (len + 2 >= buflen) {
                         buflen *= 2;
                         byte[] tmp = new byte[buflen];
                         System.arraycopy(buf, 0, tmp, 0, len);
                         buf = tmp;
                     }
             }
+        } // while
+
+        // Let's go back to before any CR and LF.
+        while (len > 0 && (buf[len] == CR || buf[len] == LF)) {
+            len -= 1;
         }
+
+        // Ok, now len indicates the end of the actual line.
+        // Should we add a proper CRLF, or nothing ?
+        if (includeCR) {
+            // We have enough space to add these two characters (see the default
+            // here above)
+            buf[len++] = CR;
+            buf[len++] = LF;
+        }
+
+        if (len > 0) {
+            ret = new byte[len];
+            if (len > 0)
+                System.arraycopy(buf, 0, ret, 0, len);
+        } else // line feed for empty line between headers and body
+        {
+            ret = new byte[0];
+        }
+        return ret;
     }
 
     /**

@@ -35,6 +35,7 @@ public interface FileUploadThread {
 
     /**
      * Returns true if someone asks the thread to stop.
+     * 
      * @return true if the upload has been requested to stop.
      * 
      * @see #stopUpload()
@@ -42,12 +43,20 @@ public interface FileUploadThread {
     public boolean isUploadStopped();
 
     /**
-     * Get the server response message.
+     * Get the server response message.<BR>
+     * Note: was getResponseMsg until release 3.4.1.
      * 
-     * @return The String that contains the HTTP response message (e.g. "200
-     *         OK")
+     * @return The String that contains the HTTP response message (e.g.
+     *         "SUCCESS")
      */
     public String getResponseMsg();
+
+    /**
+     * Get the server response message.
+     * 
+     * @return The String that contains the HTTP body (e.g. "SUCCESS")
+     */
+    public String getResponseBody();
 
     /**
      * Get the exception that occurs during upload.
@@ -92,14 +101,14 @@ public interface FileUploadThread {
     public boolean isAlive();
 
     /**
-     * @throws InterruptedException 
+     * @throws InterruptedException
      * @see java.lang.Thread#join()
      */
     public void join() throws InterruptedException;
 
     /**
-     * @param millisec 
-     * @throws InterruptedException 
+     * @param millisec
+     * @throws InterruptedException
      * @see java.lang.Thread#join(long)
      */
     public void join(long millisec) throws InterruptedException;
