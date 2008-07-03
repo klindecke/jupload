@@ -2,6 +2,16 @@
 <%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.disk.*, org.apache.commons.fileupload.servlet.*" %>
 <%
 
+	byte[] cr = {13}; 
+	byte[] lf = {10}; 
+	String CR = new String(cr);
+	String LF = new String(lf);
+	String CRLF = CR + LF;
+	out.println("Before a LF=chr(10)" + LF 
+		+ "Before a CR=chr(13)" + CR 
+		+ "Before a CRLF" + CRLF); 
+
+
   //Initialization for chunk management.
   boolean bLastChunk = false;
   int numChunk = 0;
@@ -117,7 +127,6 @@
 
   	out.println("[parseRequest.jsp] " + "Let's write a status, to finish the server response :");
     out.println("WARNING: just a warning message");
-
   	
     //Do you want to test a successful upload, or the way the applet reacts to an error ?
     if (true) { 
@@ -126,7 +135,7 @@
     	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp)");
     }
 
-    out.println("WARNING: just another warning message (after the SUCCESS string in the server response");
+    out.println("WARNING: just another warning message (after the SUCCESS string in the server response)");
   	out.println("[parseRequest.jsp] " + "End of server treatment ");
 
   }catch(Exception e){

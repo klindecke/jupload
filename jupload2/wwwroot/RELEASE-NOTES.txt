@@ -21,6 +21,8 @@ access, like Coppermine upload (was getting a wrong 302 HTTP return code).
 - [Minor] Redirection (HTTP code 301, 302, 303) would not work with original URL containing more than one slash ('/').
 - [Minor] When a "Empty HEAD response" occurs in HttpConnect (during applet start), it's now logged as a warning, and no more
 displayed as an error. 
+- [Minor] Better management of CR, LF and CRLF end of line. Now the server output is changed to have CRLF for all
+end of line characters.
 
 
 Translation:

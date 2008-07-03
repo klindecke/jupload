@@ -28,9 +28,9 @@ package wjhk.jupload2.upload;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PushbackInputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -261,7 +261,7 @@ public class HttpConnect {
         Socket s = Connect(url, proxy);
         // BufferedReader in = new BufferedReader(new
         // InputStreamReader(s.getInputStream()));
-        InputStream in = s.getInputStream();
+        PushbackInputStream in = new PushbackInputStream(s.getInputStream());
         StringBuffer req = new StringBuffer();
 
         req.append("HEAD ");
