@@ -27,6 +27,7 @@ end of line characters.
 
 Translation:
 - [Chinese] Chinese translation updated by bluesway
+- [Slovak] Translation in Slovak, thanks to wradgio
 
 
 V3.4.1f
