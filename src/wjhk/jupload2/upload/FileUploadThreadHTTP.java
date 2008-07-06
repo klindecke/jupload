@@ -899,6 +899,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 case EOS:
                     // We've finished reading the stream, and so the line is
                     // finished too.
+                    if (len ==0) {
+                        return null;
+                    }
                     lineRead = true;
                     break;
                 /*
