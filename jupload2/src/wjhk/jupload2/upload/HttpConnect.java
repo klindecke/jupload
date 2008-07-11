@@ -255,6 +255,7 @@ public class HttpConnect {
         // bRedirect indicates a return code of 301, 302 or 303.
         boolean bRedirect = false;
         URL url = new URL(this.uploadPolicy.getPostURL());
+        this.uploadPolicy.displayDebug("Checking protocol with URL: " + url, 40);
         Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
         boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
         boolean useSSL = url.getProtocol().equals("https");
