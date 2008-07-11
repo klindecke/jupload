@@ -285,9 +285,6 @@ public class HttpConnect {
         OutputStream os = s.getOutputStream();
         os.write(req.toString().getBytes());
         os.flush();
-        if (!(s instanceof SSLSocket)) {
-            s.shutdownOutput();
-        }
 
         // Let's read the first line, and try to guess the HTTP protocol, and
         // look for 301, 302 or 303 HTTP Return code.
@@ -351,6 +348,13 @@ public class HttpConnect {
                 }
             }
         }
+
+        //output is now done at the end of the method, as a remark of Brian Moran
+        //This corrects a bug when hitting an NGINX proxy server.
+        if (!(s instanceof SSLSocket)) {
+            s.shutdownOutput();
+        }
+
         // Let's look for the web server kind: the applet works IIS only if
         // allowHttpPersistent is false
         s.close();
