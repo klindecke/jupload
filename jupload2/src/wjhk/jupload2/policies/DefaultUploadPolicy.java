@@ -1116,6 +1116,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                                     request.getEncoding()));
                         }
                         debugIn.close();
+                        request.close();
+                        
                         // We are done with the debug log, so re-enable it.
                         this.debugOk = localDebugOk;
                         action = "flush";
@@ -2073,7 +2075,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see wjhk.jupload2.policies.UploadPolicy#getLastResponseBody()
      */
     public String getLastResponseBody() {
-        return (null != this.lastResponseBody) ? this.lastResponseBody : "";
+        return this.lastResponseBody;
     }
 
     /**

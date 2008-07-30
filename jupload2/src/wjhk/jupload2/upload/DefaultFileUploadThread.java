@@ -391,7 +391,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * Store the String that contains the server response.
      * 
      * @param msg The server message to be set.
-     */
+     *
     void setServerResponse(String msg) {
         this.responseMsg = normalizeCRLF(msg);
     }
@@ -401,7 +401,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * 
      * @param msg The server message to be set.The {@link #quoteCRLF(String)}
      *            will be applied to this parameter.
-     */
+     *
     void setResponseBody(String msg) {
         this.responseBody = normalizeCRLF(msg);
     }
@@ -824,7 +824,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // need to triple the string length. Let's say double is enough.
         StringBuffer sb = new StringBuffer(s.length() * 2);
         for (int i = 0; i < lines.length; i += 1) {
-            String line = lines[i];
             sb.append(lines[i]).append("\r\n");
         }
 

@@ -156,7 +156,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      *            creation of the layout.
      * @param uploadPolicyParam The current UploadPolicy. Null if a new one must
      *            be created.
-     * @throws Exception 
+     * @throws Exception
      * @see UploadPolicyFactory#getUploadPolicy(wjhk.jupload2.JUploadApplet)
      */
     public JUploadPanel(@SuppressWarnings("unused")
@@ -296,7 +296,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
         this.jLogWindowPane.setPreferredSize(null);
 
         // -------- statusLabel --------
-        this.statusLabel = new JLabel("JUpload applet V" + JUploadApplet.VERSION);
+        this.statusLabel = new JLabel("JUpload applet V"
+                + JUploadApplet.VERSION);
     }
 
     /**
@@ -307,13 +308,9 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * <LI>debugLevel (must be 0 or less) </DIR>
      */
     public void showOrHideLogWindow() {
-        // Etienne: we should not more remove and re-add the component, as it
-        // will be added at a different place, that where it was placed by
-        // the upload policy! (see addComponentsToJUploadPanel)
         if (this.uploadPolicy.getShowLogWindow()
                 || this.uploadPolicy.getDebugLevel() > 0) {
             // The log window should be visible.
-            //
             this.jLogWindowPane.setVisible(true);
         } else {
             // It should be hidden.
@@ -327,7 +324,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * Add files to the current file list.
      */
-    protected void addFiles(File[] f, File root) throws JUploadExceptionStopAddingFiles {
+    protected void addFiles(File[] f, File root)
+            throws JUploadExceptionStopAddingFiles {
         this.filePanel.addFiles(f, root);
         if (0 < this.filePanel.getFilesLength()) {
             this.removeButton.setEnabled(true);
@@ -758,7 +756,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * Standard setter for filePanel.
      * 
-     * @param filePanel 
+     * @param filePanel
      */
     public void setFilePanel(FilePanel filePanel) {
         this.filePanel = filePanel;

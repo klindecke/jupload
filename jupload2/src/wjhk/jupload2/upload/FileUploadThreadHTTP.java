@@ -50,6 +50,7 @@ import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
+import wjhk.jupload2.upload.helper.HTTPConnectionHelper;
 
 /**
  * This class implements the file upload via HTTP POST request.
@@ -59,39 +60,11 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  */
 public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
-    private final static int CHUNKBUF_SIZE = 4096;
-
-    private final static Pattern pChunked = Pattern.compile(
-            "^Transfer-Encoding:\\s+chunked", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pClose = Pattern.compile(
-            "^Connection:\\s+close", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pProxyClose = Pattern.compile(
-            "^Proxy-Connection:\\s+close", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pHttpStatus = Pattern
-            .compile("^HTTP/\\d\\.\\d\\s+((\\d+)\\s+.*)$");
-
-    private final static Pattern pContentLen = Pattern.compile(
-            "^Content-Length:\\s+(\\d+)$", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pContentTypeCs = Pattern.compile(
-            "^Content-Type:\\s+.*;\\s*charset=([^;\\s]+).*$",
-            Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pSetCookie = Pattern.compile(
-            "^Set-Cookie:\\s+(.*)$", Pattern.CASE_INSENSITIVE);
-
-    private final byte chunkbuf[] = new byte[CHUNKBUF_SIZE];
-
-    private CookieJar cookies = new CookieJar();
-
     /**
-     * http boundary, for the posting multipart post.
+     * The current connection helper. No initialization now: we need to wait for
+     * the startRequest method, to have all needed information.
      */
-    private String boundary = "-----------------------------"
-            + getRandomString();
+    private HTTPConnectionHelper connectionHelper = null;
 
     /**
      * local head within the multipart post, for each file. This is
@@ -110,35 +83,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     private ByteArrayEncoder tails[] = null;
 
     /**
-     * This stream is open by {@link #startRequest(long, boolean, int, boolean)}.
-     * It is closed by the {@link #cleanRequest()} method.
-     * 
-     * @see #startRequest(long, boolean, int, boolean)
-     * @see #cleanRequest()
-     * @see #getOutputStream()
-     */
-    private DataOutputStream httpDataOut = null;
-
-    /**
-     * The network socket where the bytes should be written.
-     */
-    private Socket sock = null;
-
-    /**
-     * This stream allows the applet to get the server response. It is opened
-     * and closed as the {@link #httpDataOut}.
-     */
-    private PushbackInputStream httpDataIn = null;
-
-    /**
-     * This StringBuffer contains the body for the server response. That is: the
-     * server response without the http header. This the real functionnal
-     * response from the server application, that would be outputed, for
-     * instance, by any 'echo' PHP command.
-     *
-    private StringBuffer sbHttpResponseBody = null;*/
-
-    /**
      * Creates a new instance.
      * 
      * @param filesDataParam The files to upload.
@@ -154,14 +98,17 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         setName("FileUploadThreadHTTP");
         this.heads = new ByteArrayEncoder[filesDataParam.length];
         this.tails = new ByteArrayEncoder[filesDataParam.length];
+        this.connectionHelper = new HTTPConnectionHelper(uploadPolicy);
     }
 
     /** @see DefaultFileUploadThread#beforeRequest(int, int) */
     @Override
     void beforeRequest(int firstFileToUploadParam, int nbFilesToUploadParam)
             throws JUploadException {
-        setAllHead(firstFileToUploadParam, nbFilesToUploadParam, this.boundary);
-        setAllTail(firstFileToUploadParam, nbFilesToUploadParam, this.boundary);
+        setAllHead(firstFileToUploadParam, nbFilesToUploadParam,
+                this.connectionHelper.getBoundary());
+        setAllTail(firstFileToUploadParam, nbFilesToUploadParam,
+                this.connectionHelper.getBoundary());
     }
 
     /** @see DefaultFileUploadThread#getAdditionnalBytesForUpload(int) */
@@ -174,16 +121,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /** @see DefaultFileUploadThread#afterFile(int) */
     @Override
     void afterFile(int index) throws JUploadIOException {
-        try {
-            this.httpDataOut.write(tails[index].getEncodedByteArray());
-            this.uploadPolicy.displayDebug("--- filetail start (len="
-                    + tails[index].getEncodedLength() + "):", 80);
-            this.uploadPolicy.displayDebug(quoteCRLF(tails[index].getString()),
-                    80);
-            this.uploadPolicy.displayDebug("--- filetail end", 80);
-        } catch (IOException e) {
-            throw new JUploadIOException(e);
-        }
+        this.connectionHelper.write(tails[index].getEncodedByteArray());
+        this.uploadPolicy.displayDebug("--- filetail start (len="
+                + tails[index].getEncodedLength() + "):", 80);
+        this.uploadPolicy.displayDebug(quoteCRLF(tails[index].getString()), 80);
+        this.uploadPolicy.displayDebug("--- filetail end", 80);
     }
 
     /** @see DefaultFileUploadThread#beforeFile(int) */
@@ -195,7 +137,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // override at the beginning
         // of this loop, if in chunk mode.
         try {
-            this.httpDataOut.write(this.heads[index].getEncodedByteArray());
+            this.connectionHelper
+                    .write(this.heads[index].getEncodedByteArray());
 
             // Debug output: always called, so that the debug file is correctly
             // filled.
@@ -219,271 +162,39 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /** @see DefaultFileUploadThread#cleanRequest() */
     @Override
     void cleanRequest() throws JUploadException {
-        JUploadException localException = null;
-
         try {
-            // Throws java.io.IOException
-            this.httpDataOut.close();
-        } catch (NullPointerException e) {
-            // httpDataOut is already null ...
-        } catch (IOException e) {
-            localException = new JUploadException(e);
+            this.connectionHelper.dispose();
+        } catch (JUploadIOException e) {
             this.uploadPolicy.displayErr(this.uploadPolicy
                     .getString("errDuringUpload"), e);
-        } finally {
-            this.httpDataOut = null;
-        }
-
-        try {
-            // Throws java.io.IOException
-            this.httpDataIn.close();
-        } catch (NullPointerException e) {
-            // httpDataIn is already null ...
-        } catch (IOException e) {
-            if (localException != null) {
-                localException = new JUploadException(e);
-                this.uploadPolicy.displayErr(this.uploadPolicy
-                        .getString("errDuringUpload"), localException);
-            }
-        } finally {
-            this.httpDataIn = null;
-        }
-
-        try {
-            // Throws java.io.IOException
-            this.sock.close();
-        } catch (NullPointerException e) {
-            // sock is already null ...
-        } catch (IOException e) {
-            if (localException != null) {
-                localException = new JUploadException(e);
-                this.uploadPolicy.displayErr(this.uploadPolicy
-                        .getString("errDuringUpload"), e);
-            }
-        } finally {
-            this.sock = null;
-        }
-
-        if (localException != null) {
-            throw localException;
+            throw e;
         }
     }
 
     @Override
     int finishRequest() throws JUploadException {
-        boolean readingHttpBody = false;
-        boolean gotClose = false;
-        boolean gotChunked = false;
-        boolean gotContentLength = false;
-        int status = 0;
-        int clen = 0;
-        String line = "";
-        byte[] body = new byte[0];
-        String charset = "ISO-8859-1";
-
-        StringBuffer sbHttpResponseBody = new StringBuffer();
-        try {
-            // If the user requested abort, we are not going to send
-            // anymore, so shutdown the outgoing half of the socket.
-            // This helps the server to speed up with it's response.
-            if (this.stop && !(this.sock instanceof SSLSocket))
-                this.sock.shutdownOutput();
-
-            // && is evaluated from left to right so !stop must come first!
-            while (!this.stop && ((!gotContentLength) || (clen > 0))) {
-                if (readingHttpBody) {
-                    // Read the http body
-                    if (gotChunked) {
-                        // Read the chunk header.
-                        // This is US-ASCII! (See RFC 2616, Section 2.2)
-                        line = readLine(httpDataIn, "US-ASCII", false);
-                        if (null == line)
-                            throw new JUploadException(
-                                    "unexpected EOF (in HTTP Body, chunked mode)");
-                        // Handle a single chunk of the response
-                        // We cut off possible chunk extensions and ignore them.
-                        // The length is hex-encoded (RFC 2616, Section 3.6.1)
-                        int len = Integer.parseInt(line.replaceFirst(";.*", "")
-                                .trim(), 16);
-                        this.uploadPolicy.displayDebug("Chunk: " + line
-                                + " dec: " + len, 80);
-                        if (len == 0) {
-                            // RFC 2616, Section 3.6.1: A length of 0 denotes
-                            // the last chunk of the body.
-
-                            // This code wrong if the server sends chunks
-                            // with trailers! (trailers are HTTP Headers that
-                            // are send *after* the body. These are announced
-                            // in the regular HTTP header "Trailer".
-                            // Fritz: Never seen them so far ...
-                            // TODO: Implement trailer-handling.
-                            break;
-                        }
-
-                        // Loop over the chunk (len == length of the chunk)
-                        while (len > 0) {
-                            int rlen = (len > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
-                                    : len;
-                            int ofs = 0;
-                            if (rlen > 0) {
-                                while (ofs < rlen) {
-                                    int res = this.httpDataIn.read(
-                                            this.chunkbuf, ofs, rlen - ofs);
-                                    if (res < 0)
-                                        throw new JUploadException(
-                                                "unexpected EOF");
-                                    len -= res;
-                                    ofs += res;
-                                }
-                                if (ofs < rlen)
-                                    throw new JUploadException("short read");
-                                if (rlen < CHUNKBUF_SIZE)
-                                    body = byteAppend(body, this.chunkbuf, rlen);
-                                else
-                                    body = byteAppend(body, this.chunkbuf);
-                            }
-                        }
-                        // Got the whole chunk, read the trailing CRLF.
-                        readLine(httpDataIn, false);
-                    } else {
-                        // Not chunked. Use either content-length (if available)
-                        // or read until EOF.
-                        if (gotContentLength) {
-                            // Got a Content-Length. Read exactly that amount of
-                            // bytes.
-                            while (clen > 0) {
-                                int rlen = (clen > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
-                                        : clen;
-                                int ofs = 0;
-                                if (rlen > 0) {
-                                    while (ofs < rlen) {
-                                        int res = this.httpDataIn.read(
-                                                this.chunkbuf, ofs, rlen - ofs);
-                                        if (res < 0)
-                                            throw new JUploadException(
-                                                    "unexpected EOF (in HTTP body, not chunked mode)");
-                                        clen -= res;
-                                        ofs += res;
-                                    }
-                                    if (ofs < rlen)
-                                        throw new JUploadException("short read");
-                                    if (rlen < CHUNKBUF_SIZE)
-                                        body = byteAppend(body, this.chunkbuf,
-                                                rlen);
-                                    else
-                                        body = byteAppend(body, this.chunkbuf);
-                                }
-                            }
-                        } else {
-                            // No Content-length available, read until EOF
-                            // 
-                            while (true) {
-                                byte[] lbuf = readLine(httpDataIn, true);
-                                if (null == lbuf)
-                                    break;
-                                body = byteAppend(body, lbuf);
-                            }
-                            break;
-                        }
-                    }
-                } else { // (! readingHttpBody)
-                    // readingHttpBody is false, so we are still in headers.
-                    // Headers are US-ASCII (See RFC 2616, Section 2.2)
-                    String tmp = readLine(httpDataIn, "US-ASCII", false);
-                    if (null == tmp)
-                        throw new JUploadException("unexpected EOF (in header)");
-                    if (status == 0) {
-                        // We must be reading the first line of the HTTP header.
-                        this.uploadPolicy.displayDebug(
-                                "-------- Response Headers Start --------", 80);
-                        Matcher m = pHttpStatus.matcher(tmp);
-                        if (m.matches()) {
-                            status = Integer.parseInt(m.group(2));
-                            setServerResponse(m.group(1));
-                        } else {
-                            // The status line must be the first line of the
-                            // response. (See RFC 2616, Section 6.1) so this
-                            // is an error.
-
-                            // We first display the wrong line.
-                            this.uploadPolicy
-                                    .displayDebug("First line of response: '"
-                                            + tmp + "'", 80);
-                            // Then, we throw the exception.
-                            throw new JUploadException(
-                                    "HTTP response did not begin with status line.");
-                        }
-                    }
-                    // Handle folded headers (RFC 2616, Section 2.2). This is
-                    // handled after the status line, because that line may
-                    // not be folded (RFC 2616, Section 6.1).
-                    if (tmp.startsWith(" ") || tmp.startsWith("\t"))
-                        line += " " + tmp.trim();
-                    else
-                        line = tmp;
-                    this.uploadPolicy.displayDebug(line, 80);
-                    if (pClose.matcher(line).matches())
-                        gotClose = true;
-                    if (pProxyClose.matcher(line).matches())
-                        gotClose = true;
-                    if (pChunked.matcher(line).matches())
-                        gotChunked = true;
-                    Matcher m = pContentLen.matcher(line);
-                    if (m.matches()) {
-                        gotContentLength = true;
-                        clen = Integer.parseInt(m.group(1));
-                    }
-                    m = pContentTypeCs.matcher(line);
-                    if (m.matches())
-                        charset = m.group(1);
-                    m = pSetCookie.matcher(line);
-                    if (m.matches())
-                        this.cookies.parseCookieHeader(m.group(1));
-                    if (line.length() == 0) {
-                        // RFC 2616, Section 6. Body is separated by the
-                        // header with an empty line.
-                        readingHttpBody = true;
-                        this.uploadPolicy.displayDebug(
-                                "--------- Response Headers End ---------", 80);
-                    }
-                }
-            } // while
-
-            if (gotClose) {
-                // RFC 2868, section 8.1.2.1
-                cleanRequest();
-            }
-            // Convert the whole body according to the charset.
-            // The default for charset ISO-8859-1, but overridden by
-            // the charset attribute of the Content-Type header (if any).
-            // See RFC 2616, Sections 3.4.1 and 3.7.1.
-            setResponseBody(sbHttpResponseBody.append(new String(body, charset)).toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new JUploadException(e);
-        }
+        int status=connectionHelper.readHttpResponseBody(sbHttpResponseBody);
+        setServerResponse(connectionHelper.getServerResponse());
         return status;
     }
 
-    /** @see DefaultFileUploadThread#getResponseBody() 
-    @Override
-    String getResponseBody() {
-        return this.sbHttpResponseBody.toString();
-    }*/
+    /**
+     * @see DefaultFileUploadThread#getResponseBody()
+     * @Override String getResponseBody() { return
+     *           this.sbHttpResponseBody.toString(); }
+     */
 
     /** @see DefaultFileUploadThread#getOutputStream() */
     @SuppressWarnings("unused")
     @Override
     OutputStream getOutputStream() throws JUploadException {
-        return this.httpDataOut;
+        return this.connectionHelper.getHttpDataOut();
     }
 
     /** @see DefaultFileUploadThread#startRequest(long, boolean, int, boolean) */
     @Override
     void startRequest(long contentLength, boolean bChunkEnabled, int chunkPart,
             boolean bLastChunk) throws JUploadException {
-        ByteArrayEncoder header = new ByteArrayEncoderHTTP(uploadPolicy,
-                boundary);
 
         try {
             String chunkHttpParam = "jupart=" + chunkPart + "&jufinal="
@@ -502,146 +213,62 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 }
             }
 
-            Proxy proxy = null;
-            proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
-            boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
-            boolean useSSL = url.getProtocol().equals("https");
+            connectionHelper.initRequest(url, bChunkEnabled, bLastChunk);
 
-            // Header: Request line
-            // Let's clear it. Useful only for chunked uploads.
-            header.append("POST ");
-            if (useProxy && (!useSSL)) {
-                // with a proxy we need the absolute URL, but only if not
-                // using SSL. (with SSL, we first use the proxy CONNECT method,
-                // and then a plain request.)
-                header.append(url.getProtocol()).append("://").append(
-                        url.getHost());
-            }
-            header.append(url.getPath());
-
-            // Append the query params.
-            // TODO: This probably can be removed as we now
-            // have everything in POST data. However in order to be
-            // backwards-compatible, it stays here for now. So we now provide
-            // *both* GET and POST params.
-            if (null != url.getQuery() && !"".equals(url.getQuery()))
-                header.append("?").append(url.getQuery());
-
-            header.append(" ").append(this.uploadPolicy.getServerProtocol())
-                    .append("\r\n");
-
-            // Header: General
-            header.append("Host: ").append(url.getHost()).append(
-                    "\r\nAccept: */*\r\n");
-            // We do not want gzipped or compressed responses, so we must
-            // specify that here (RFC 2616, Section 14.3)
-            header.append("Accept-Encoding: identity\r\n");
-
-            // Seems like the Keep-alive doesn't work properly, at least on my
-            // local dev (Etienne).
-            if (!this.uploadPolicy.getAllowHttpPersistent()) {
-                header.append("Connection: close\r\n");
-            } else {
-                if (!bChunkEnabled
-                        || bLastChunk
-                        || useProxy
-                        || !this.uploadPolicy.getServerProtocol().equals(
-                                "HTTP/1.1")) { // RFC 2086, section 19.7.1
-                    header.append("Connection: close\r\n");
-                } else {
-                    header.append("Keep-Alive: 300\r\n");
-                    if (useProxy)
-                        header.append("Proxy-Connection: keep-alive\r\n");
-                    else
-                        header.append("Connection: keep-alive\r\n");
-                }
-            }
+            ByteArrayEncoder bae = connectionHelper.getByteArrayEncoder();
 
             // Get the GET parameters from the URL and convert them to
             // post form params
             ByteArrayEncoder formParams = getFormParamsForPostRequest(url);
             contentLength += formParams.getEncodedLength();
 
-            header.append("Content-Type: multipart/form-data; boundary=")
-                    .append(this.boundary.substring(2)).append("\r\n");
-            header.append("Content-Length: ").append(
-                    String.valueOf(contentLength)).append("\r\n");
+            bae.append("Content-Type: multipart/form-data; boundary=").append(
+                    connectionHelper.getBoundary().substring(2)).append("\r\n");
+            bae.append("Content-Length: ")
+                    .append(String.valueOf(contentLength)).append("\r\n");
 
             // Get specific headers for this upload.
-            this.uploadPolicy.onAppendHeader(header);
+            this.uploadPolicy.onAppendHeader(bae);
 
             // Blank line (end of header)
-            header.append("\r\n");
+            bae.append("\r\n");
 
             // formParams are not really part of the main header, but we add
             // them here anyway. We write directly into the
             // ByteArrayOutputStream, as we already encoded them, to get the
             // encoded length. We need to flush the writer first, before
             // directly writting to the ByteArrayOutputStream.
-            header.append(formParams);
-
-            // Only connect, if sock is null!!
-            // ... or if we don't persist HTTP connections (patch for IIS, based
-            // on Marc Reidy's patch)
-            if (this.sock == null || !uploadPolicy.getAllowHttpPersistent()) {
-                this.sock = new HttpConnect(this.uploadPolicy).Connect(url,
-                        proxy);
-                this.httpDataOut = new DataOutputStream(
-                        new BufferedOutputStream(this.sock.getOutputStream()));
-                this.httpDataIn = new PushbackInputStream(this.sock
-                        .getInputStream(), 1);
-            }
+            bae.append(formParams);
 
             // The header is now constructed.
-            header.close();
+            bae.close();
 
-            // Send http request to server
-            this.httpDataOut.write(header.getEncodedByteArray());
+            // Let's call the server
+            connectionHelper.sendRequest();
 
             // Debug output: always called, so that the debug file is correctly
             // filled.
             this.uploadPolicy.displayDebug("=== main header (len="
-                    + header.getEncodedLength() + "):\n"
-                    + quoteCRLF(header.getString()), 80);
+                    + bae.getEncodedLength() + "):\n"
+                    + quoteCRLF(bae.getString()), 80);
             this.uploadPolicy.displayDebug("=== main header end", 80);
         } catch (IOException e) {
             throw new JUploadIOException(e);
-        } catch (KeyManagementException e) {
-            throw new JUploadException(e);
-        } catch (UnrecoverableKeyException e) {
-            throw new JUploadException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new JUploadException(e);
-        } catch (KeyStoreException e) {
-            throw new JUploadException(e);
-        } catch (CertificateException e) {
-            throw new JUploadException(e);
         } catch (IllegalArgumentException e) {
             throw new JUploadException(e);
-        } catch (URISyntaxException e) {
-            throw new JUploadException(e);
         }
+    }
+
+    /** @see FileUploadThread#stopUpload() */
+    @Override
+    public void stopUpload() {
+        super.stopUpload();
+        connectionHelper.stopUpload();
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// PRIVATE METHODS
-    // ///////////////////////////////////////
     // ////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Construction of a random string, to separate the uploaded files, in the
-     * HTTP upload request.
-     */
-    private final String getRandomString() {
-        StringBuffer sbRan = new StringBuffer(11);
-        String alphaNum = "1234567890abcdefghijklmnopqrstuvwxyz";
-        int num;
-        for (int i = 0; i < 11; i++) {
-            num = (int) (Math.random() * (alphaNum.length() - 1));
-            sbRan.append(alphaNum.charAt(num));
-        }
-        return sbRan.toString();
-    }
 
     /**
      * Creates a mime multipart string snippet, representing a POST variable.
@@ -811,7 +438,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // Use a string buffer
         // We'll encode the output stream into UTF-8.
         ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy,
-                this.boundary);
+                this.connectionHelper.getBoundary());
 
         // Get the query string
         String query = url.getQuery();
@@ -846,167 +473,5 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         return bae;
     }// getFormParamsForPostRequest
-
-    // //////////////////////////////////////////////////////////////////////////////////////
-    // //////////////////// Various utilities
-    // //////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * Line-Ending is <b>always</b> "\r\n".
-     * 
-     * @param charset The input charset of the stream.
-     * @param includeCR Set to true, if the terminating CR/LF should be included
-     *            in the returned byte array.
-     */
-    static String readLine(PushbackInputStream inputStream, String charset,
-            boolean includeCR) throws IOException {
-        byte[] line = readLine(inputStream, includeCR);
-        return (null == line) ? null : new String(line, charset);
-    }
-
-    /**
-     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * According to RFC 2616, and of line may be CR (13), LF (10) or CRLF.
-     * Line-Ending is <b>always</b> "\r\n" in header, but not in text bodies.
-     * Update done by TedA (sourceforge account: tedaaa). Allows to manage
-     * response from web server that send LF instead of CRLF ! Here is a part of
-     * the RFC: <I>"we recommend that applications, when parsing such headers,
-     * recognize a single LF as a line terminator and ignore the leading CR"</I>.
-     * <BR>
-     * Corrected again to manage line finished by CR only.
-     * 
-     * @param includeCR Set to true, if the terminating CR/LF should be included
-     *            in the returned byte array. In this case, CR/LF is always
-     *            returned to the caller, wether the input stream got CR, LF or
-     *            CRLF.
-     */
-    static byte[] readLine(PushbackInputStream inputStream, boolean includeCR)
-            throws IOException {
-        final byte EOS = -1;
-        final byte CR = 13;
-        final byte LF = 10;
-        int len = 0;
-        int buflen = 128; // average line length
-        byte[] buf = new byte[buflen];
-        byte[] ret = null;
-        int b;
-        boolean lineRead = false;
-
-        while (!lineRead) {
-            b = inputStream.read();
-            switch (b) {
-                case EOS:
-                    // We've finished reading the stream, and so the line is
-                    // finished too.
-                    if (len ==0) {
-                        return null;
-                    }
-                    lineRead = true;
-                    break;
-                /*
-                 * if (len > 0) { ret = new byte[len]; System.arraycopy(buf, 0,
-                 * ret, 0, len); return ret; } return null;
-                 */
-                case LF:
-                    // We found the end of the current line.
-                    lineRead = true;
-                    break;
-                /*
-                 * if (len > 0) { // We got a LF. Was it a CRLF ? if (buf[len -
-                 * 1] == 13) { if (includeCR) { ret = new byte[len + 1]; if (len >
-                 * 0) System.arraycopy(buf, 0, ret, 0, len); ret[len] = 10; }
-                 * else { len--; ret = new byte[len]; if (len > 0)
-                 * System.arraycopy(buf, 0, ret, 0, len); } } else { ret = new
-                 * byte[len]; if (len > 0) System.arraycopy(buf, 0, ret, 0,
-                 * len); } } else // line feed for empty line between headers
-                 * and body { ret = new byte[0]; } return ret;
-                 */
-                case CR:
-                    // We got a CR. It can be the end of line.
-                    // Is it followed by a LF ? (not mandatory in RFC 2616)
-                    b = inputStream.read();
-
-                    if (b != LF) {
-                        // The end of line was a simple LF: the next one blongs
-                        // to the next line.
-                        inputStream.unread(b);
-                    }
-                    lineRead = true;
-                    break;
-
-                /*
-                 * buf[len++] = (byte) b; if (buf[len] == 10) { //We got a CRLF }
-                 * else { //It was the end of line. Let's forget } A finir
-                 * return ret;
-                 */
-                default:
-                    buf[len++] = (byte) b;
-                    // If the buffer is too small, we let enough space to add CR
-                    // and LF, in case of ...
-                    if (len + 2 >= buflen) {
-                        buflen *= 2;
-                        byte[] tmp = new byte[buflen];
-                        System.arraycopy(buf, 0, tmp, 0, len);
-                        buf = tmp;
-                    }
-            }
-        } // while
-
-        // Let's go back to before any CR and LF.
-        while (len > 0 && (buf[len] == CR || buf[len] == LF)) {
-            len -= 1;
-        }
-
-        // Ok, now len indicates the end of the actual line.
-        // Should we add a proper CRLF, or nothing ?
-        if (includeCR) {
-            // We have enough space to add these two characters (see the default
-            // here above)
-            buf[len++] = CR;
-            buf[len++] = LF;
-        }
-
-        if (len > 0) {
-            ret = new byte[len];
-            if (len > 0)
-                System.arraycopy(buf, 0, ret, 0, len);
-        } else // line feed for empty line between headers and body
-        {
-            ret = new byte[0];
-        }
-        return ret;
-    }
-
-    /**
-     * Concatenates two byte arrays.
-     * 
-     * @param buf1 The first array
-     * @param buf2 The second array
-     * @return A byte array, containing buf2 appended to buf2
-     */
-    static byte[] byteAppend(byte[] buf1, byte[] buf2) {
-        byte[] ret = new byte[buf1.length + buf2.length];
-        System.arraycopy(buf1, 0, ret, 0, buf1.length);
-        System.arraycopy(buf2, 0, ret, buf1.length, buf2.length);
-        return ret;
-    }
-
-    /**
-     * Concatenates two byte arrays.
-     * 
-     * @param buf1 The first array
-     * @param buf2 The second array
-     * @param len Number of bytes to copy from buf2
-     * @return A byte array, containing buf2 appended to buf2
-     */
-    static byte[] byteAppend(byte[] buf1, byte[] buf2, int len) {
-        if (len > buf2.length)
-            len = buf2.length;
-        byte[] ret = new byte[buf1.length + len];
-        System.arraycopy(buf1, 0, ret, 0, buf1.length);
-        System.arraycopy(buf2, 0, ret, buf1.length, len);
-        return ret;
-    }
 
 }

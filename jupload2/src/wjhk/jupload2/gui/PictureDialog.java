@@ -144,9 +144,4 @@ public class PictureDialog extends JDialog implements ActionListener,
         setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
-    /**
-     * Free all locked data. protected void finalize () throws Throwable {
-     * super.finalize(); uploadPolicy.displayDebug("Within
-     * PictureDialog.finalize()", 90); picturePanel = null; buttonClose = null; }
-     */
 }

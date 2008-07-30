@@ -21,12 +21,18 @@
 
 package wjhk.jupload2.gui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -34,7 +40,8 @@ import wjhk.jupload2.policies.UploadPolicy;
  * entry.
  */
 
-final class JUploadPopupMenu extends JPopupMenu implements ItemListener {
+final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
+        ItemListener, PopupMenuListener {
 
     /** A generated serialVersionUID */
     private static final long serialVersionUID = -5473337111643079720L;
@@ -45,6 +52,9 @@ final class JUploadPopupMenu extends JPopupMenu implements ItemListener {
      */
     JCheckBoxMenuItem cbMenuItemDebugOnOff = null;
 
+    JMenuItem jMenuItemViewLastResponseBody = null;
+    JMenuItem jMenuItemCopyLogWindowContent = null;
+
     /**
      * The current upload policy.
      */
@@ -53,16 +63,28 @@ final class JUploadPopupMenu extends JPopupMenu implements ItemListener {
     JUploadPopupMenu(UploadPolicy uploadPolicy) {
         this.uploadPolicy = uploadPolicy;
 
+        this.addPopupMenuListener(this);
+
         // ////////////////////////////////////////////////////////////////////////
         // Creation of the menu items
         // ////////////////////////////////////////////////////////////////////////
         // First: debug on or off
-        this.cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug on");
+        this.cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug enabled");
         this.cbMenuItemDebugOnOff
                 .setState(this.uploadPolicy.getDebugLevel() == 100);
         add(this.cbMenuItemDebugOnOff);
-        // ////////////////////////////////////////////////////////////////////////
         this.cbMenuItemDebugOnOff.addItemListener(this);
+        // Copy the last responseBody
+        this.jMenuItemCopyLogWindowContent = new JMenuItem(
+                "Copy the log window content");
+        add(this.jMenuItemCopyLogWindowContent);
+        this.jMenuItemCopyLogWindowContent.addActionListener(this);
+        // View the last responseBody
+        this.jMenuItemViewLastResponseBody = new JMenuItem(
+                "View last response body");
+        add(this.jMenuItemViewLastResponseBody);
+        this.jMenuItemViewLastResponseBody.addActionListener(this);
+        // ////////////////////////////////////////////////////////////////////////
     }
 
     /**
@@ -73,5 +95,44 @@ final class JUploadPopupMenu extends JPopupMenu implements ItemListener {
             this.uploadPolicy.setDebugLevel((this.cbMenuItemDebugOnOff
                     .isSelected() ? 100 : 0));
         }
+    }
+
+    /**
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e) {
+        if (this.jMenuItemViewLastResponseBody == e.getSource()) {
+            try {
+                new DebugDialog(null, uploadPolicy.getLastResponseBody(),
+                        uploadPolicy);
+            } catch (JUploadIOException e1) {
+                uploadPolicy.displayErr(e1);
+            }
+        } else if (this.jMenuItemCopyLogWindowContent == e.getSource()) {
+            JUploadTextArea logWindow = uploadPolicy.getApplet().getUploadPanel().getLogWindow();
+            logWindow.selectAll();
+            logWindow.copy();
+        }
+    }
+
+    
+    /** @see javax.swing.event.PopupMenuListener#popupMenuCanceled(javax.swing.event.PopupMenuEvent) */
+    public void popupMenuCanceled(PopupMenuEvent arg0) {
+        // Nothing to do.
+    }
+
+    /** @see javax.swing.event.PopupMenuListener#popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent) */
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+        // Nothing to do.
+    }
+
+    /**
+     * Set the "View last response body" menu enabled or disabled.
+     * 
+     * @see javax.swing.event.PopupMenuListener#popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent)
+     */
+    public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+        String s = uploadPolicy.getLastResponseBody();
+        jMenuItemViewLastResponseBody.setEnabled(s != null && !s.equals(""));
     }
 }
