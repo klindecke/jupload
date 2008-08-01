@@ -1207,7 +1207,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public void setProperty(String prop, String value) throws JUploadException {
 
-        displayDebug("[DefaultUploadPolicy] Call off setProperty: " + prop
+        displayDebug("[DefaultUploadPolicy] Call of setProperty: " + prop
                 + " => " + value, 60);
 
         if (prop.equals(PROP_AFTER_UPLOAD_URL)) {

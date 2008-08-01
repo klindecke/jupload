@@ -163,7 +163,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      */
     @Override
     public void setProperty(String prop, String value) throws JUploadException {
-        displayDebug("[CoppermineUploadPolicy] Call off setProperty: " + prop
+        displayDebug("[CoppermineUploadPolicy] Call of setProperty: " + prop
                 + " => " + value, 60);
 
         // Check if it's a local property.
