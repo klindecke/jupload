@@ -566,7 +566,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Each time it is matched, the found message is displayed to the user.
      * 
      * @param status The HTTP response code
-     * @param msg The full HTTP response message (e.g. "404 Not found").
+     * @param msg The status message from the first line of the response (e.g.
+     *            "200 OK").
      * @param body The body of the HTTP answer.
      * @return True or False, indicating if the upload is a success or not.
      * @see UploadPolicy#checkUploadSuccess(int, String, String)

@@ -20,7 +20,7 @@
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
 package wjhk.jupload2.upload;
- 
+
 import java.io.OutputStream;
 import java.util.regex.Pattern;
 
@@ -381,29 +381,30 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * Get the server Output.
      * 
-     * @return The StringBuffer that contains the full server HTTP response.
+     * @return The status message from the first line of the response (e.g. "200
+     *         OK").
      */
     public String getResponseMsg() {
         return this.responseMsg;
     }
 
     /**
-     * Store the String that contains the server response.
+     * Unused Store the String that contains the server response.
      * 
      * @param msg The server message to be set.
      */
-    void setServerResponse(String msg) {
-        this.responseMsg = normalizeCRLF(msg);
+    void setResponseBody(String body) {
+        this.responseBody = normalizeCRLF(body);
     }
 
     /**
      * Add a String that has been read from the server response.
      * 
-     * @param msg The server message to be set.The {@link #quoteCRLF(String)}
-     *            will be applied to this parameter.
+     * @param msg The status message from the first line of the response (e.g.
+     *            "200 OK").
      */
-    void setResponseBody(String msg) {
-        this.responseBody = normalizeCRLF(msg);
+    void setResponseMsg(String msg) {
+        this.responseMsg = normalizeCRLF(msg);
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////
@@ -774,8 +775,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // Debug output: always called, so that the debug file is correctly
             // filled.
             this.uploadPolicy.displayDebug(
-                    "-------- Response Body Start (CRLF normalized) --------", 80);
-            this.uploadPolicy.displayDebug(quoteCRLF(getResponseBody()), 80); 
+                    "-------- Response Body Start (CRLF normalized) --------",
+                    80);
+            this.uploadPolicy.displayDebug(quoteCRLF(getResponseBody()), 80);
             this.uploadPolicy.displayDebug(
                     "--------- Response Body End ---------", 80);
         } // while(!bLastChunk && uploadException==null && !stop)
@@ -824,7 +826,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // need to triple the string length. Let's say double is enough.
         StringBuffer sb = new StringBuffer(s.length() * 2);
         for (int i = 0; i < lines.length; i += 1) {
-            String line = lines[i];
             sb.append(lines[i]).append("\r\n");
         }
 
