@@ -53,7 +53,7 @@ import javax.net.ssl.SSLSocket;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.helper.HTTPConnectionHelper;
+import wjhk.jupload2.upload.helper.HTTPInputStreamReader;
 
 /**
  * This class implements the task of connecting to a HTTP(S) url using a proxy.
@@ -289,7 +289,7 @@ public class HttpConnect {
 
         // Let's read the first line, and try to guess the HTTP protocol, and
         // look for 301, 302 or 303 HTTP Return code.
-        String firstLine = HTTPConnectionHelper.readLine(in, "US-ASCII", false);
+        String firstLine = HTTPInputStreamReader.readLine(in, "US-ASCII", false);
         if (null == firstLine) {
             // Using default value. Already initialized.
             // This can occur, for instance, when Kaspersky antivirus is on !
@@ -320,10 +320,10 @@ public class HttpConnect {
 
         // Let's check if we're facing an IIS server. The applet is compatible
         // with IIS, only if allowHttpPersistent is false.
-        String nextLine = HTTPConnectionHelper.readLine(in, "US-ASCII", false);
+        String nextLine = HTTPInputStreamReader.readLine(in, "US-ASCII", false);
         Pattern pLocation = Pattern.compile("^Location: (.*)$");
         Matcher mLocation;
-        while ((nextLine = HTTPConnectionHelper.readLine(in, "US-ASCII", false))
+        while ((nextLine = HTTPInputStreamReader.readLine(in, "US-ASCII", false))
                 .length() > 0) {
             if (nextLine.matches("^Server: .*IIS")) {
                 try {

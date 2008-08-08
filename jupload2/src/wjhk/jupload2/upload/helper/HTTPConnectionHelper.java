@@ -34,15 +34,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.net.ssl.SSLSocket;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.CookieJar;
 import wjhk.jupload2.upload.FileUploadThread;
 import wjhk.jupload2.upload.HttpConnect;
 
@@ -55,22 +50,6 @@ import wjhk.jupload2.upload.HttpConnect;
  * 
  */
 public class HTTPConnectionHelper {
-
-    // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////// ATTRIBUTE CONTAINING DATA COMING FROM THE RESPONSE
-    // ////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * The status message from the first line of the response (e.g. "200 OK").
-     */
-    String responseMsg = null;
-
-    /**
-     * The string buffer that will contain the HTTP response body, that is: the
-     * server response, without the headers.
-     */
-    String responseBody = null;
-
-    private CookieJar cookies = new CookieJar();
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// ATTRIBUTE USED TO CONTROL THE OUTPUT TO THE SERVER
@@ -106,6 +85,13 @@ public class HTTPConnectionHelper {
      * @see #getOutputStream()
      */
     private DataOutputStream httpDataOut = null;
+
+    /**
+     * Contains the HTTP reader. All data coming from the server response are
+     * read from it. If this attribute is null, it means that the server
+     * response has not been read.
+     */
+    private HTTPInputStreamReader httpInputStreamReader = null;
 
     /**
      * This stream allows the applet to get the server response. It is opened
@@ -147,35 +133,6 @@ public class HTTPConnectionHelper {
      * The current URL
      */
     private URL url = null;
-
-    // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////// CONSTANTS USED TO CONTROL THE OUTPUT
-    // ////////////////////////////////////////////////////////////////////////////////////
-    private final static int CHUNKBUF_SIZE = 4096;
-
-    private final byte chunkbuf[] = new byte[CHUNKBUF_SIZE];
-
-    private final static Pattern pChunked = Pattern.compile(
-            "^Transfer-Encoding:\\s+chunked", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pClose = Pattern.compile(
-            "^Connection:\\s+close", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pProxyClose = Pattern.compile(
-            "^Proxy-Connection:\\s+close", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pHttpStatus = Pattern
-            .compile("^HTTP/\\d\\.\\d\\s+((\\d+)\\s+.*)$");
-
-    private final static Pattern pContentLen = Pattern.compile(
-            "^Content-Length:\\s+(\\d+)$", Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pContentTypeCs = Pattern.compile(
-            "^Content-Type:\\s+.*;\\s*charset=([^;\\s]+).*$",
-            Pattern.CASE_INSENSITIVE);
-
-    private final static Pattern pSetCookie = Pattern.compile(
-            "^Set-Cookie:\\s+(.*)$", Pattern.CASE_INSENSITIVE);
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// PUBLIC METHODS
@@ -379,19 +336,38 @@ public class HTTPConnectionHelper {
     /**
      * Get the last response body.
      * 
-     * @return
+     * @return The full response body, that is: the HTTP body of the server
+     *         response.
      */
     public String getResponseBody() {
-        return responseBody;
+        return httpInputStreamReader.getResponseBody();
     }
 
     /**
-     * Get the last response body.
+     * Get the last response message.
+     * 
+     * @return the response message, like "200 OK"
+     */
+    public String getResponseMsg() {
+        return httpInputStreamReader.getResponseMsg();
+    }
+
+    /**
+     * Get the current socket.
      * 
      * @return
      */
-    public String getResponseMsg() {
-        return responseMsg;
+    Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * Return true is the upload is stopped.
+     * 
+     * @return Current value of the stop attribute.
+     */
+    public boolean gotStopped() {
+        return stop;
     }
 
     /**
@@ -410,206 +386,27 @@ public class HTTPConnectionHelper {
     }
 
     /**
-     * Read the response of the server. This method handles the chunk HTTP
-     * response.
+     * Read the response of the server. This method delegates the work to the
+     * HTTPInputStreamReader. handles the chunk HTTP response.
      * 
-     * @param sbHttpResponseBody
      * @return The HTTP status. Should be 200, when everything is right.
      * @throws JUploadException
      */
     public int readHttpResponse() throws JUploadException {
-        boolean readingHttpBody = false;
-        boolean gotClose = false;
-        boolean gotChunked = false;
-        boolean gotContentLength = false;
-        int status = 0;
-        int clen = 0;
-        String line = "";
-        byte[] body = new byte[0];
-        String charset = "ISO-8859-1";
-
-        try {
-            // If the user requested abort, we are not going to send
-            // anymore, so shutdown the outgoing half of the socket.
-            // This helps the server to speed up with it's response.
-            if (this.stop && !(this.socket instanceof SSLSocket))
-                this.socket.shutdownOutput();
-
-            // && is evaluated from left to right so !stop must come first!
-            while (!this.stop && ((!gotContentLength) || (clen > 0))) {
-                if (readingHttpBody) {
-                    // Read the http body
-                    if (gotChunked) {
-                        // Read the chunk header.
-                        // This is US-ASCII! (See RFC 2616, Section 2.2)
-                        line = readLine(httpDataIn, "US-ASCII", false);
-                        if (null == line)
-                            throw new JUploadException(
-                                    "unexpected EOF (in HTTP Body, chunked mode)");
-                        // Handle a single chunk of the response
-                        // We cut off possible chunk extensions and ignore them.
-                        // The length is hex-encoded (RFC 2616, Section 3.6.1)
-                        int len = Integer.parseInt(line.replaceFirst(";.*", "")
-                                .trim(), 16);
-                        this.uploadPolicy.displayDebug("Chunk: " + line
-                                + " dec: " + len, 80);
-                        if (len == 0) {
-                            // RFC 2616, Section 3.6.1: A length of 0 denotes
-                            // the last chunk of the body.
-
-                            // This code wrong if the server sends chunks
-                            // with trailers! (trailers are HTTP Headers that
-                            // are send *after* the body. These are announced
-                            // in the regular HTTP header "Trailer".
-                            // Fritz: Never seen them so far ...
-                            // TODO: Implement trailer-handling.
-                            break;
-                        }
-
-                        // Loop over the chunk (len == length of the chunk)
-                        while (len > 0) {
-                            int rlen = (len > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
-                                    : len;
-                            int ofs = 0;
-                            if (rlen > 0) {
-                                while (ofs < rlen) {
-                                    int res = this.httpDataIn.read(
-                                            this.chunkbuf, ofs, rlen - ofs);
-                                    if (res < 0)
-                                        throw new JUploadException(
-                                                "unexpected EOF");
-                                    len -= res;
-                                    ofs += res;
-                                }
-                                if (ofs < rlen)
-                                    throw new JUploadException("short read");
-                                if (rlen < CHUNKBUF_SIZE)
-                                    body = byteAppend(body, this.chunkbuf, rlen);
-                                else
-                                    body = byteAppend(body, this.chunkbuf);
-                            }
-                        }
-                        // Got the whole chunk, read the trailing CRLF.
-                        readLine(httpDataIn, false);
-                    } else {
-                        // Not chunked. Use either content-length (if available)
-                        // or read until EOF.
-                        if (gotContentLength) {
-                            // Got a Content-Length. Read exactly that amount of
-                            // bytes.
-                            while (clen > 0) {
-                                int rlen = (clen > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
-                                        : clen;
-                                int ofs = 0;
-                                if (rlen > 0) {
-                                    while (ofs < rlen) {
-                                        int res = this.httpDataIn.read(
-                                                this.chunkbuf, ofs, rlen - ofs);
-                                        if (res < 0)
-                                            throw new JUploadException(
-                                                    "unexpected EOF (in HTTP body, not chunked mode)");
-                                        clen -= res;
-                                        ofs += res;
-                                    }
-                                    if (ofs < rlen)
-                                        throw new JUploadException("short read");
-                                    if (rlen < CHUNKBUF_SIZE)
-                                        body = byteAppend(body, this.chunkbuf,
-                                                rlen);
-                                    else
-                                        body = byteAppend(body, this.chunkbuf);
-                                }
-                            }
-                        } else {
-                            // No Content-length available, read until EOF
-                            // 
-                            while (true) {
-                                byte[] lbuf = readLine(httpDataIn, true);
-                                if (null == lbuf)
-                                    break;
-                                body = byteAppend(body, lbuf);
-                            }
-                            break;
-                        }
-                    }
-                } else { // (! readingHttpBody)
-                    // readingHttpBody is false, so we are still in headers.
-                    // Headers are US-ASCII (See RFC 2616, Section 2.2)
-                    String tmp = readLine(httpDataIn, "US-ASCII", false);
-                    if (null == tmp)
-                        throw new JUploadException("unexpected EOF (in header)");
-                    if (status == 0) {
-                        // We must be reading the first line of the HTTP header.
-                        this.uploadPolicy.displayDebug(
-                                "-------- Response Headers Start --------", 80);
-                        Matcher m = pHttpStatus.matcher(tmp);
-                        if (m.matches()) {
-                            status = Integer.parseInt(m.group(2));
-                            responseMsg = m.group(1);
-                        } else {
-                            // The status line must be the first line of the
-                            // response. (See RFC 2616, Section 6.1) so this
-                            // is an error.
-
-                            // We first display the wrong line.
-                            this.uploadPolicy
-                                    .displayDebug("First line of response: '"
-                                            + tmp + "'", 80);
-                            // Then, we throw the exception.
-                            throw new JUploadException(
-                                    "HTTP response did not begin with status line.");
-                        }
-                    }
-                    // Handle folded headers (RFC 2616, Section 2.2). This is
-                    // handled after the status line, because that line may
-                    // not be folded (RFC 2616, Section 6.1).
-                    if (tmp.startsWith(" ") || tmp.startsWith("\t"))
-                        line += " " + tmp.trim();
-                    else
-                        line = tmp;
-                    this.uploadPolicy.displayDebug(line, 80);
-                    if (pClose.matcher(line).matches())
-                        gotClose = true;
-                    if (pProxyClose.matcher(line).matches())
-                        gotClose = true;
-                    if (pChunked.matcher(line).matches())
-                        gotChunked = true;
-                    Matcher m = pContentLen.matcher(line);
-                    if (m.matches()) {
-                        gotContentLength = true;
-                        clen = Integer.parseInt(m.group(1));
-                    }
-                    m = pContentTypeCs.matcher(line);
-                    if (m.matches())
-                        charset = m.group(1);
-                    m = pSetCookie.matcher(line);
-                    if (m.matches())
-                        this.cookies.parseCookieHeader(m.group(1));
-                    if (line.length() == 0) {
-                        // RFC 2616, Section 6. Body is separated by the
-                        // header with an empty line.
-                        readingHttpBody = true;
-                        this.uploadPolicy.displayDebug(
-                                "--------- Response Headers End ---------", 80);
-                    }
-                }
-            } // while
-
-            if (gotClose) {
-                // RFC 2868, section 8.1.2.1
-                dispose();
-            }
-            // Convert the whole body according to the charset.
-            // The default for charset ISO-8859-1, but overridden by
-            // the charset attribute of the Content-Type header (if any).
-            // See RFC 2616, Sections 3.4.1 and 3.7.1.
-            responseBody = new String(body, charset);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new JUploadException(e);
+        if (httpInputStreamReader == null) {
+            httpInputStreamReader = new HTTPInputStreamReader(this,
+                    uploadPolicy);
         }
 
-        return status;
+        // Let's do the job
+        httpInputStreamReader.readHttpResponse();
+
+        if (httpInputStreamReader.gotClose) {
+            // RFC 2868, section 8.1.2.1
+            dispose();
+        }
+
+        return httpInputStreamReader.gethttpStatusCode();
     }
 
     /** @see FileUploadThread#stopUpload() */
@@ -648,15 +445,15 @@ public class HTTPConnectionHelper {
             byteArrayEncoder = null;
         }
         this.byteArrayEncoder = new ByteArrayEncoderHTTP(uploadPolicy, boundary);
-        Proxy proxy = null;
+        proxy = null;
         try {
             proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
         } catch (URISyntaxException e) {
             throw new JUploadIOException("Error while managing url "
                     + url.toExternalForm(), e);
         }
-        boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
-        boolean useSSL = url.getProtocol().equals("https");
+        useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
+        useSSL = url.getProtocol().equals("https");
 
         // Header: Request line
         // Let's clear it. Useful only for chunked uploads.
@@ -730,153 +527,4 @@ public class HTTPConnectionHelper {
             }
         }
     }
-
-    // //////////////////////////////////////////////////////////////////////////////////////
-    // //////////////////// Various utilities
-    // //////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Concatenates two byte arrays.
-     * 
-     * @param buf1 The first array
-     * @param buf2 The second array
-     * @return A byte array, containing buf2 appended to buf2
-     */
-    static byte[] byteAppend(byte[] buf1, byte[] buf2) {
-        byte[] ret = new byte[buf1.length + buf2.length];
-        System.arraycopy(buf1, 0, ret, 0, buf1.length);
-        System.arraycopy(buf2, 0, ret, buf1.length, buf2.length);
-        return ret;
-    }
-
-    /**
-     * Concatenates two byte arrays.
-     * 
-     * @param buf1 The first array
-     * @param buf2 The second array
-     * @param len Number of bytes to copy from buf2
-     * @return A byte array, containing buf2 appended to buf2
-     */
-    static byte[] byteAppend(byte[] buf1, byte[] buf2, int len) {
-        if (len > buf2.length)
-            len = buf2.length;
-        byte[] ret = new byte[buf1.length + len];
-        System.arraycopy(buf1, 0, ret, 0, buf1.length);
-        System.arraycopy(buf2, 0, ret, buf1.length, len);
-        return ret;
-    }
-
-    /**
-     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * Line-Ending is <b>always</b> "\r\n".
-     * 
-     * @param charset The input charset of the stream.
-     * @param includeCR Set to true, if the terminating CR/LF should be included
-     *            in the returned byte array.
-     */
-    public static String readLine(PushbackInputStream inputStream,
-            String charset, boolean includeCR) throws IOException {
-        byte[] line = readLine(inputStream, includeCR);
-        return (null == line) ? null : new String(line, charset);
-    }
-
-    /**
-     * Similar like BufferedInputStream#readLine() but operates on raw bytes.
-     * According to RFC 2616, and of line may be CR (13), LF (10) or CRLF.
-     * Line-Ending is <b>always</b> "\r\n" in header, but not in text bodies.
-     * Update done by TedA (sourceforge account: tedaaa). Allows to manage
-     * response from web server that send LF instead of CRLF ! Here is a part of
-     * the RFC: <I>"we recommend that applications, when parsing such headers,
-     * recognize a single LF as a line terminator and ignore the leading CR"</I>.
-     * <BR>
-     * Corrected again to manage line finished by CR only. This is not allowed
-     * in headers, but this method is also used to read lines in the body.
-     * 
-     * @param includeCR Set to true, if the terminating CR/LF should be included
-     *            in the returned byte array. In this case, CR/LF is always
-     *            returned to the caller, wether the input stream got CR, LF or
-     *            CRLF.
-     */
-    public static byte[] readLine(PushbackInputStream inputStream,
-            boolean includeCR) throws IOException {
-        final byte EOS = -1;
-        final byte CR = 13;
-        final byte LF = 10;
-        int len = 0;
-        int buflen = 128; // average line length
-        byte[] buf = new byte[buflen];
-        byte[] ret = null;
-        int b;
-        boolean lineRead = false;
-
-        while (!lineRead) {
-            b = inputStream.read();
-            switch (b) {
-                case EOS:
-                    // We've finished reading the stream, and so the line is
-                    // finished too.
-                    if (len == 0) {
-                        return null;
-                    }
-                    lineRead = true;
-                    break;
-                /*
-                 * if (len > 0) { ret = new byte[len]; System.arraycopy(buf, 0,
-                 * ret, 0, len); return ret; } return null;
-                 */
-                case LF:
-                    // We found the end of the current line.
-                    lineRead = true;
-                    break;
-                case CR:
-                    // We got a CR. It can be the end of line.
-                    // Is it followed by a LF ? (not mandatory in RFC 2616)
-                    b = inputStream.read();
-
-                    if (b != LF) {
-                        // The end of line was a simple LF: the next one blongs
-                        // to the next line.
-                        inputStream.unread(b);
-                    }
-                    lineRead = true;
-                    break;
-                default:
-                    buf[len++] = (byte) b;
-                    // If the buffer is too small, we let enough space to add CR
-                    // and LF, in case of ...
-                    if (len + 2 >= buflen) {
-                        buflen *= 2;
-                        byte[] tmp = new byte[buflen];
-                        System.arraycopy(buf, 0, tmp, 0, len);
-                        buf = tmp;
-                    }
-            }
-        } // while
-
-        // Let's go back to before any CR and LF.
-        while (len > 0 && (buf[len] == CR || buf[len] == LF)) {
-            len -= 1;
-        }
-
-        // Ok, now len indicates the end of the actual line.
-        // Should we add a proper CRLF, or nothing ?
-        if (includeCR) {
-            // We have enough space to add these two characters (see the default
-            // here above)
-            buf[len++] = CR;
-            buf[len++] = LF;
-        }
-
-        if (len > 0) {
-            ret = new byte[len];
-            if (len > 0)
-                System.arraycopy(buf, 0, ret, 0, len);
-        } else {
-            // line feed for empty line between headers and body, or within the
-            // body.
-            ret = new byte[0];
-        }
-        return ret;
-    }
-
 }
