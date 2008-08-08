@@ -77,8 +77,8 @@ public class JavascriptHandler extends Thread {
             JUploadPanel theJUploadPanel) {
         this.uploadPolicy = uploadPolicy;
         this.jUploadPanel = theJUploadPanel;
-        
-        //Let's start our thread.
+
+        // Let's start our thread.
         this.start();
     }
 
@@ -99,7 +99,7 @@ public class JavascriptHandler extends Thread {
         }
 
         this.jsCommand = command;
-        uploadPolicy.displayDebug(
+        this.uploadPolicy.displayDebug(
                 "JavascriptHandler - doCommand(): jsCommand is: ["
                         + this.jsCommand + "]", 50);
 
@@ -116,7 +116,7 @@ public class JavascriptHandler extends Thread {
      * @return Returns the current command
      */
     public synchronized String getCommand() {
-        uploadPolicy.displayDebug("getCommand(): jsCommand is: ["
+        this.uploadPolicy.displayDebug("getCommand(): jsCommand is: ["
                 + this.jsCommand + "]", 50);
         return this.jsCommand;
     }
@@ -126,7 +126,7 @@ public class JavascriptHandler extends Thread {
      */
     public synchronized void clearCommand() {
         this.jsCommand = null;
-        uploadPolicy.displayDebug("clearCommand(): jsCommand is: ["
+        this.uploadPolicy.displayDebug("clearCommand(): jsCommand is: ["
                 + this.jsCommand + "]", 50);
     }
 
@@ -142,33 +142,34 @@ public class JavascriptHandler extends Thread {
     /**
      * Method to run when thread is started.
      */
+    @Override
     public void run() {
         // Run in continuous loop waiting for commands to execute
         while (true) {
             try {
                 // simply wait to be notified that a command is ready to run
                 doWait();
-                uploadPolicy.displayDebug("run(): Exited doWait()...", 50);
+                this.uploadPolicy.displayDebug("run(): Exited doWait()...", 50);
 
                 // handle new command
                 String curCommand = getCommand();
                 if (curCommand != null) {
                     if (curCommand.equals(COMMAND_START_UPLOAD)) {
                         // start the upload
-                        uploadPolicy.displayDebug(
+                        this.uploadPolicy.displayDebug(
                                 "run(): Calling doStartUpload()", 50);
-                        jUploadPanel.doStartUpload();
+                        this.jUploadPanel.doStartUpload();
                     }
 
                     // prepare for next command by resetting jsCommand variable
                     clearCommand();
                 }
             } catch (InterruptedException eInterrupted) {
-                uploadPolicy.displayDebug("Interrupted: ["
+                this.uploadPolicy.displayDebug("Interrupted: ["
                         + eInterrupted.getMessage() + "]", 50);
             } catch (Exception eOther) {
-                uploadPolicy.displayDebug("Exception: [" + eOther.getMessage()
-                        + "]", 50);
+                this.uploadPolicy.displayDebug("Exception: ["
+                        + eOther.getMessage() + "]", 50);
             }
         }
     } // run()

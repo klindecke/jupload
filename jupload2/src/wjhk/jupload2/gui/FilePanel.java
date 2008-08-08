@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -36,7 +36,7 @@ public interface FilePanel {
      * 
      * @param f An array of files to add.
      * @param root The toplevel of a directory hierarchy to add
-     * @throws JUploadExceptionStopAddingFiles 
+     * @throws JUploadExceptionStopAddingFiles
      */
     public void addFiles(File[] f, File root)
             throws JUploadExceptionStopAddingFiles;

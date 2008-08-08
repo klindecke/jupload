@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -43,7 +43,8 @@ public interface FileUploadThread {
     public boolean isUploadStopped();
 
     /**
-     * Get the server response message. In HTTP mode, it's the body part, without the HTTP headers.<BR>
+     * Get the server response message. In HTTP mode, it's the body part,
+     * without the HTTP headers.<BR>
      * Note: was getResponseMsg until release 3.4.1.
      * 
      * @return The String that contains the HTTP response message (e.g.

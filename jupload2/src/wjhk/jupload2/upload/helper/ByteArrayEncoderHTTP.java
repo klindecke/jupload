@@ -1,10 +1,10 @@
 //
 // $Id: FileUploadThreadFTP.java 136 2007-05-12 20:15:36 +0000 (sam., 12 mai
 // 2007) etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2007-12-11
 // Creator: etienne_sf
 // Last modified: $Date: 2007-07-21 09:42:51 +0200 (sam., 21 juil. 2007) $
@@ -29,7 +29,6 @@ import java.io.Writer;
 
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
-
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -108,6 +107,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
 
     /**
      * Create an encoder, using the DEFAULT_ENCODING encoding.
+     * 
      * @param uploadPolicy The current upload policy
      * @param bound The HTTP boundary. Can be null, if not used.
      * @throws JUploadIOException Any IO exception
@@ -135,8 +135,8 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     // ///////////////////////////////////////////////////////////////////////
 
     /**
-     * @throws JUploadIOException 
-     * @see wjhk.jupload2.upload.helper.ByteArrayEncoder#close() 
+     * @throws JUploadIOException
+     * @see wjhk.jupload2.upload.helper.ByteArrayEncoder#close()
      */
     synchronized public void close() throws JUploadIOException {
         if (isClosed()) {
@@ -144,19 +144,19 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                     "Trying to close an already closed ByteArrayEncoded");
         }
         try {
-            writer.close();
+            this.writer.close();
         } catch (IOException e) {
             throw new JUploadIOException(e);
         }
-        encodedByteArray = baos.toByteArray();
-        encodedLength = encodedByteArray.length;
-        closed = true;
+        this.encodedByteArray = this.baos.toByteArray();
+        this.encodedLength = this.encodedByteArray.length;
+        this.closed = true;
     }
 
     /** {@inheritDoc} */
     public ByteArrayEncoder append(String str) throws JUploadIOException {
         try {
-            writer.append(str);
+            this.writer.append(str);
         } catch (IOException e) {
             throw new JUploadIOException(e);
         }
@@ -168,8 +168,8 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     /** {@inheritDoc} */
     public ByteArrayEncoder append(byte[] b) throws JUploadIOException {
         try {
-            writer.flush();
-            baos.write(b);
+            this.writer.flush();
+            this.baos.write(b);
         } catch (IOException e) {
             throw new JUploadIOException(e);
         }
@@ -273,12 +273,12 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
 
     /** {@inheritDoc} */
     public boolean isClosed() {
-        return closed;
+        return this.closed;
     }
 
     /** {@inheritDoc} */
     public String getEncoding() {
-        return encoding;
+        return this.encoding;
     }
 
     /** {@inheritDoc} */
@@ -287,7 +287,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
             throw new JUploadIOException(
                     "Trying to get length of a on non-closed ByteArrayEncoded");
         }
-        return encodedLength;
+        return this.encodedLength;
     }
 
     /** {@inheritDoc} */
@@ -296,7 +296,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
             throw new JUploadIOException(
                     "Trying to get the byte array of a on non-closed ByteArrayEncoded");
         }
-        return encodedByteArray;
+        return this.encodedByteArray;
     }
 
     /** {@inheritDoc} */
@@ -306,7 +306,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                     "Trying to get the byte array of a on non-closed ByteArrayEncoded");
         }
         try {
-            return new String(encodedByteArray, getEncoding());
+            return new String(this.encodedByteArray, getEncoding());
         } catch (UnsupportedEncodingException e) {
             throw new JUploadIOException(e);
         }
@@ -327,7 +327,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         this.encoding = encoding;
         this.bound = bound;
         try {
-            writer = new OutputStreamWriter(baos, encoding);
+            this.writer = new OutputStreamWriter(this.baos, encoding);
         } catch (UnsupportedEncodingException e) {
             throw new JUploadIOException(e);
         }

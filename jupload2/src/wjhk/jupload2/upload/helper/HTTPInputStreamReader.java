@@ -115,7 +115,7 @@ public class HTTPInputStreamReader {
      * @return The last read http response
      */
     public int gethttpStatusCode() {
-        return httpStatusCode;
+        return this.httpStatusCode;
     }
 
     /**
@@ -124,16 +124,17 @@ public class HTTPInputStreamReader {
      * @return The last read response body.
      */
     public String getResponseBody() {
-        return responseBody;
+        return this.responseBody;
     }
 
     /**
      * Get the last response message.
      * 
-     * @return The response message from the first line of the response (e.g. "200 OK"). 
+     * @return The response message from the first line of the response (e.g.
+     *         "200 OK").
      */
     public String getResponseMsg() {
-        return responseMsg;
+        return this.responseMsg;
     }
 
     /**
@@ -156,22 +157,22 @@ public class HTTPInputStreamReader {
 
             // && is evaluated from left to right so !stop must come first!
             while (!this.httpConnectionHelper.gotStopped()
-                    && ((!gotContentLength) || (clen > 0))) {
-                if (readingHttpBody) {
+                    && ((!this.gotContentLength) || (this.clen > 0))) {
+                if (this.readingHttpBody) {
                     // Read the http body
-                    if (gotChunked) {
+                    if (this.gotChunked) {
                         // Read the chunk header.
                         // This is US-ASCII! (See RFC 2616, Section 2.2)
-                        line = readLine(httpDataIn, "US-ASCII", false);
-                        if (null == line)
+                        this.line = readLine(httpDataIn, "US-ASCII", false);
+                        if (null == this.line)
                             throw new JUploadException(
                                     "unexpected EOF (in HTTP Body, chunked mode)");
                         // Handle a single chunk of the response
                         // We cut off possible chunk extensions and ignore them.
                         // The length is hex-encoded (RFC 2616, Section 3.6.1)
-                        int len = Integer.parseInt(line.replaceFirst(";.*", "")
-                                .trim(), 16);
-                        this.uploadPolicy.displayDebug("Chunk: " + line
+                        int len = Integer.parseInt(this.line.replaceFirst(
+                                ";.*", "").trim(), 16);
+                        this.uploadPolicy.displayDebug("Chunk: " + this.line
                                 + " dec: " + len, 80);
                         if (len == 0) {
                             // RFC 2616, Section 3.6.1: A length of 0 denotes
@@ -204,9 +205,11 @@ public class HTTPInputStreamReader {
                                 if (ofs < rlen)
                                     throw new JUploadException("short read");
                                 if (rlen < CHUNKBUF_SIZE)
-                                    body = byteAppend(body, this.chunkbuf, rlen);
+                                    this.body = byteAppend(this.body,
+                                            this.chunkbuf, rlen);
                                 else
-                                    body = byteAppend(body, this.chunkbuf);
+                                    this.body = byteAppend(this.body,
+                                            this.chunkbuf);
                             }
                         }
                         // Got the whole chunk, read the trailing CRLF.
@@ -214,12 +217,12 @@ public class HTTPInputStreamReader {
                     } else {
                         // Not chunked. Use either content-length (if available)
                         // or read until EOF.
-                        if (gotContentLength) {
+                        if (this.gotContentLength) {
                             // Got a Content-Length. Read exactly that amount of
                             // bytes.
-                            while (clen > 0) {
-                                int rlen = (clen > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
-                                        : clen;
+                            while (this.clen > 0) {
+                                int rlen = (this.clen > CHUNKBUF_SIZE) ? CHUNKBUF_SIZE
+                                        : this.clen;
                                 int ofs = 0;
                                 if (rlen > 0) {
                                     while (ofs < rlen) {
@@ -228,26 +231,27 @@ public class HTTPInputStreamReader {
                                         if (res < 0)
                                             throw new JUploadException(
                                                     "unexpected EOF (in HTTP body, not chunked mode)");
-                                        clen -= res;
+                                        this.clen -= res;
                                         ofs += res;
                                     }
                                     if (ofs < rlen)
                                         throw new JUploadException("short read");
                                     if (rlen < CHUNKBUF_SIZE)
-                                        body = byteAppend(body, this.chunkbuf,
-                                                rlen);
+                                        this.body = byteAppend(this.body,
+                                                this.chunkbuf, rlen);
                                     else
-                                        body = byteAppend(body, this.chunkbuf);
+                                        this.body = byteAppend(this.body,
+                                                this.chunkbuf);
                                 }
                             }
                         } else {
                             // No Content-length available, read until EOF
-                            // 
+                            //
                             while (true) {
                                 byte[] lbuf = readLine(httpDataIn, true);
                                 if (null == lbuf)
                                     break;
-                                body = byteAppend(body, lbuf);
+                                this.body = byteAppend(this.body, lbuf);
                             }
                             break;
                         }
@@ -258,14 +262,14 @@ public class HTTPInputStreamReader {
                     String tmp = readLine(httpDataIn, "US-ASCII", false);
                     if (null == tmp)
                         throw new JUploadException("unexpected EOF (in header)");
-                    if (httpStatusCode == 0) {
+                    if (this.httpStatusCode == 0) {
                         // We must be reading the first line of the HTTP header.
                         this.uploadPolicy.displayDebug(
                                 "-------- Response Headers Start --------", 80);
                         Matcher m = pHttpStatus.matcher(tmp);
                         if (m.matches()) {
-                            httpStatusCode = Integer.parseInt(m.group(2));
-                            responseMsg = m.group(1);
+                            this.httpStatusCode = Integer.parseInt(m.group(2));
+                            this.responseMsg = m.group(1);
                         } else {
                             // The status line must be the first line of the
                             // response. (See RFC 2616, Section 6.1) so this
@@ -284,31 +288,31 @@ public class HTTPInputStreamReader {
                     // handled after the status line, because that line may
                     // not be folded (RFC 2616, Section 6.1).
                     if (tmp.startsWith(" ") || tmp.startsWith("\t"))
-                        line += " " + tmp.trim();
+                        this.line += " " + tmp.trim();
                     else
-                        line = tmp;
-                    this.uploadPolicy.displayDebug(line, 80);
-                    if (pClose.matcher(line).matches())
-                        gotClose = true;
-                    if (pProxyClose.matcher(line).matches())
-                        gotClose = true;
-                    if (pChunked.matcher(line).matches())
-                        gotChunked = true;
-                    Matcher m = pContentLen.matcher(line);
+                        this.line = tmp;
+                    this.uploadPolicy.displayDebug(this.line, 80);
+                    if (pClose.matcher(this.line).matches())
+                        this.gotClose = true;
+                    if (pProxyClose.matcher(this.line).matches())
+                        this.gotClose = true;
+                    if (pChunked.matcher(this.line).matches())
+                        this.gotChunked = true;
+                    Matcher m = pContentLen.matcher(this.line);
                     if (m.matches()) {
-                        gotContentLength = true;
-                        clen = Integer.parseInt(m.group(1));
+                        this.gotContentLength = true;
+                        this.clen = Integer.parseInt(m.group(1));
                     }
-                    m = pContentTypeCs.matcher(line);
+                    m = pContentTypeCs.matcher(this.line);
                     if (m.matches())
-                        charset = m.group(1);
-                    m = pSetCookie.matcher(line);
+                        this.charset = m.group(1);
+                    m = pSetCookie.matcher(this.line);
                     if (m.matches())
                         this.cookies.parseCookieHeader(m.group(1));
-                    if (line.length() == 0) {
+                    if (this.line.length() == 0) {
                         // RFC 2616, Section 6. Body is separated by the
                         // header with an empty line.
-                        readingHttpBody = true;
+                        this.readingHttpBody = true;
                         this.uploadPolicy.displayDebug(
                                 "--------- Response Headers End ---------", 80);
                     }
@@ -319,13 +323,13 @@ public class HTTPInputStreamReader {
             // The default for charset ISO-8859-1, but overridden by
             // the charset attribute of the Content-Type header (if any).
             // See RFC 2616, Sections 3.4.1 and 3.7.1.
-            responseBody = new String(body, charset);
+            this.responseBody = new String(this.body, this.charset);
         } catch (Exception e) {
             e.printStackTrace();
             throw new JUploadException(e);
         }
 
-        return httpStatusCode;
+        return this.httpStatusCode;
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////

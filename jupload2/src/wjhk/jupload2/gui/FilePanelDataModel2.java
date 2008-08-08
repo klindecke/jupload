@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-04-21
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -226,7 +226,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
         } catch (ArrayIndexOutOfBoundsException e) {
             // Nothing to do. It seems that it can occurs when upload is very
             // fast (for instance: small files to localhost).
-            uploadPolicy.displayWarn(e.getClass().getName()
+            this.uploadPolicy.displayWarn(e.getClass().getName()
                     + " in FilePanelDataModel2.getFileDataAt(" + row + ")");
         }
         return null;

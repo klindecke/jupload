@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-09-15
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -38,6 +38,7 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 
     /**
      * Constructs a new exception with the specified detail message.
+     * 
      * @param msg The message for this instance.
      */
     public JUploadExceptionUploadFailed(String msg) {
@@ -46,6 +47,7 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 
     /**
      * Constructs a new exception with the specified cause.
+     * 
      * @param cause The cause for this instance.
      */
     public JUploadExceptionUploadFailed(Throwable cause) {
@@ -54,6 +56,7 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 
     /**
      * Constructs a new exception with the specified detail message and cause.
+     * 
      * @param msg The message for this instance.
      * @param cause The cause for this instance.
      */

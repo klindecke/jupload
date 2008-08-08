@@ -88,7 +88,7 @@ public class HttpConnect {
         String phost = (sa.isUnresolved()) ? sa.getHostName() : sa.getAddress()
                 .getHostAddress();
         int pport = sa.getPort();
-        // 
+        //
         Socket proxysock = new Socket(phost, pport);
         String req = "CONNECT " + host + ":" + port + " " + DEFAULT_PROTOCOL
                 + "\r\n\r\n";
@@ -256,7 +256,8 @@ public class HttpConnect {
         // bRedirect indicates a return code of 301, 302 or 303.
         boolean bRedirect = false;
         URL url = new URL(this.uploadPolicy.getPostURL());
-        this.uploadPolicy.displayDebug("Checking protocol with URL: " + url, 40);
+        this.uploadPolicy
+                .displayDebug("Checking protocol with URL: " + url, 40);
         Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
         boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
         boolean useSSL = url.getProtocol().equals("https");
@@ -289,7 +290,8 @@ public class HttpConnect {
 
         // Let's read the first line, and try to guess the HTTP protocol, and
         // look for 301, 302 or 303 HTTP Return code.
-        String firstLine = HTTPInputStreamReader.readLine(in, "US-ASCII", false);
+        String firstLine = HTTPInputStreamReader
+                .readLine(in, "US-ASCII", false);
         if (null == firstLine) {
             // Using default value. Already initialized.
             // This can occur, for instance, when Kaspersky antivirus is on !
@@ -323,17 +325,17 @@ public class HttpConnect {
         String nextLine = HTTPInputStreamReader.readLine(in, "US-ASCII", false);
         Pattern pLocation = Pattern.compile("^Location: (.*)$");
         Matcher mLocation;
-        while ((nextLine = HTTPInputStreamReader.readLine(in, "US-ASCII", false))
-                .length() > 0) {
+        while ((nextLine = HTTPInputStreamReader
+                .readLine(in, "US-ASCII", false)).length() > 0) {
             if (nextLine.matches("^Server: .*IIS")) {
                 try {
-                    uploadPolicy.setProperty(
+                    this.uploadPolicy.setProperty(
                             UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT, "false");
-                    uploadPolicy
+                    this.uploadPolicy
                             .displayWarn(UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
                                     + "' forced to false, for IIS compatibility (in HttpConnect.getProtocol())");
                 } catch (JUploadException e) {
-                    uploadPolicy.displayWarn("Can't set property '"
+                    this.uploadPolicy.displayWarn("Can't set property '"
                             + UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
                             + "' to false, in HttpConnect.getProtocol()");
                 }
@@ -350,8 +352,9 @@ public class HttpConnect {
             }
         }
 
-        //output is now done at the end of the method, as a remark of Brian Moran
-        //This corrects a bug when hitting an NGINX proxy server.
+        // output is now done at the end of the method, as a remark of Brian
+        // Moran
+        // This corrects a bug when hitting an NGINX proxy server.
         if (!(s instanceof SSLSocket)) {
             s.shutdownOutput();
         }

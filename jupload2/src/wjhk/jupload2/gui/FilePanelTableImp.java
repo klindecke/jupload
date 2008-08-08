@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -177,8 +177,8 @@ public class FilePanelTableImp extends Panel implements FilePanel {
 
     /** @see wjhk.jupload2.gui.FilePanel#getFileDataAt(Point) */
     public FileData getFileDataAt(Point point) {
-        int row = jtable.rowAtPoint(point);
-        return model.getFileDataAt(row);
+        int row = this.jtable.rowAtPoint(point);
+        return this.model.getFileDataAt(row);
     }
 
     /**

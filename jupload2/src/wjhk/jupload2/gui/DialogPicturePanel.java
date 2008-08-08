@@ -2,10 +2,10 @@
 // $Id: DialogPicturePanel.java 95 2007-05-02 03:27:05 +0000 (mer., 02 mai 2007)
 // /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
 // Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-07-11
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -46,9 +46,9 @@ public class DialogPicturePanel extends PicturePanel {
     PictureDialog pictureDialog;
 
     /**
-     * @param pictureDialog 
-     * @param uploadPolicy 
-     * @param pictureFileData 
+     * @param pictureDialog
+     * @param uploadPolicy
+     * @param pictureFileData
      * 
      */
     public DialogPicturePanel(PictureDialog pictureDialog,

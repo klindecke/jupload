@@ -1,10 +1,10 @@
 //
 // $Id: CoppermineUploadPolicy.java 143 2007-05-14 02:07:27 +0000 (lun., 14 mai
 // 2007) felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-05-07
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -95,7 +95,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     /**
      * @param theApplet Identifier for the current applet. It's necessary, to
      *            read information from the navigator.
-     * @throws JUploadException 
+     * @throws JUploadException
      */
     public CoppermineUploadPolicy(JUploadApplet theApplet)
             throws JUploadException {

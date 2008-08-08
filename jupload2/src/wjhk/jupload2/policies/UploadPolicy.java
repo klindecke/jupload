@@ -1,10 +1,10 @@
 //
 // $Id: UploadPolicy.java 287 2007-06-17 09:07:04 +0000 (dim., 17 juin 2007)
 // felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-05-04
 // Creator: etienne_sf
 // Last modified: $Date$

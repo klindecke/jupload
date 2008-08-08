@@ -1,10 +1,10 @@
 //
 // $Id: JUploadPanel.java 303 2007-07-21 07:42:51 +0000 (sam., 21 juil. 2007)
 // etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -174,24 +174,24 @@ public class JUploadPanel extends JPanel implements ActionListener,
         this.uploadPolicy.addComponentsToJUploadPanel(this);
 
         // Define the drop target.
-        dndListener = new DnDListener(this, uploadPolicy);
-        new DropTarget(this, dndListener);
-        new DropTarget(this.filePanel.getDropComponent(), dndListener);
-        new DropTarget(this.logWindow, dndListener);
+        this.dndListener = new DnDListener(this, this.uploadPolicy);
+        new DropTarget(this, this.dndListener);
+        new DropTarget(this.filePanel.getDropComponent(), this.dndListener);
+        new DropTarget(this.logWindow, this.dndListener);
 
         // The JUploadPanel will listen to Mouse messages for the standard
         // component. The current only application of this, it the CTRL+Righ
         // Click, that triggers the popup menu, which allow to switch debug on.
-        browseButton.addMouseListener(this);
-        removeAllButton.addMouseListener(this);
-        removeButton.addMouseListener(this);
-        stopButton.addMouseListener(this);
-        uploadButton.addMouseListener(this);
+        this.browseButton.addMouseListener(this);
+        this.removeAllButton.addMouseListener(this);
+        this.removeButton.addMouseListener(this);
+        this.stopButton.addMouseListener(this);
+        this.uploadButton.addMouseListener(this);
 
-        jLogWindowPane.addMouseListener(this);
+        this.jLogWindowPane.addMouseListener(this);
         logWindow.addMouseListener(this);
-        progressBar.addMouseListener(this);
-        statusLabel.addMouseListener(this);
+        this.progressBar.addMouseListener(this);
+        this.statusLabel.addMouseListener(this);
 
         /*
          * // Setup Top Panel setupTopPanel(); // Setup File Panel. //
@@ -266,7 +266,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         this.uploadButton.addActionListener(this);
 
         // -------- JProgressBar progress --------
-        filePanel = new FilePanelTableImp(this, this.uploadPolicy);
+        this.filePanel = new FilePanelTableImp(this, this.uploadPolicy);
 
         // -------- JProgressBar progress --------
         if (null == this.progressBar) {
@@ -526,7 +526,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                             this.progressBar);
                 } catch (JUploadException e1) {
                     // Too bad !
-                    uploadPolicy.displayErr(e1);
+                    this.uploadPolicy.displayErr(e1);
                 }
             } else {
                 // fileUploadThread = new
@@ -637,7 +637,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         if (mouseEvent.getClickCount() == 2) {
             // We have a double-click. Let's tell it to the current upload
             // policy...
-            this.uploadPolicy.onFileDoubleClicked(filePanel
+            this.uploadPolicy.onFileDoubleClicked(this.filePanel
                     .getFileDataAt(mouseEvent.getPoint()));
         } else {
             maybeOpenPopupMenu(mouseEvent);
@@ -667,14 +667,14 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @return the browseButton
      */
     public JButton getBrowseButton() {
-        return browseButton;
+        return this.browseButton;
     }
 
     /**
      * @return the dndListener
      */
     public DnDListener getDndListener() {
-        return dndListener;
+        return this.dndListener;
     }
 
     /**
@@ -691,7 +691,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @return the jLogWindowPane
      */
     public JScrollPane getJLogWindowPane() {
-        return jLogWindowPane;
+        return this.jLogWindowPane;
     }
 
     /**
@@ -708,49 +708,49 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @return the logWindow
      */
     protected JUploadTextArea getLogWindow() {
-        return logWindow;
+        return this.logWindow;
     }
 
     /**
      * @return the progressBar
      */
     public JProgressBar getProgressBar() {
-        return progressBar;
+        return this.progressBar;
     }
 
     /**
      * @return the removeAllButton
      */
     public JButton getRemoveAllButton() {
-        return removeAllButton;
+        return this.removeAllButton;
     }
 
     /**
      * @return the removeButton
      */
     public JButton getRemoveButton() {
-        return removeButton;
+        return this.removeButton;
     }
 
     /**
      * @return the statusLabel
      */
     public JLabel getStatusLabel() {
-        return statusLabel;
+        return this.statusLabel;
     }
 
     /**
      * @return the stopButton
      */
     public JButton getStopButton() {
-        return stopButton;
+        return this.stopButton;
     }
 
     /**
      * @return the uploadButton
      */
     public JButton getUploadButton() {
-        return uploadButton;
+        return this.uploadButton;
     }
 
     /**

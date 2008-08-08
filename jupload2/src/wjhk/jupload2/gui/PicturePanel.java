@@ -2,11 +2,11 @@
 // $Id: PicturePanel.java 95 2007-05-02 03:27:05 +0000 (mer., 02 mai 2007)
 // /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
 // Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
 // Copyright 2002 Guillaume Chamberland-Larose
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -219,7 +219,7 @@ public class PicturePanel extends Canvas implements MouseListener,
      */
     public void rotate(int quarter) {
         if (this.pictureFileData != null) {
-            Cursor previousCursor = uploadPolicy.setWaitCursor();
+            Cursor previousCursor = this.uploadPolicy.setWaitCursor();
             this.pictureFileData.addRotation(quarter);
             // The previously calculated picture is now wrong.
             this.offscreenImage.flush();
@@ -227,7 +227,7 @@ public class PicturePanel extends Canvas implements MouseListener,
             calculateOffscreenImage();
 
             repaint();
-            uploadPolicy.setCursor(previousCursor);
+            this.uploadPolicy.setCursor(previousCursor);
         } else {
             this.uploadPolicy
                     .displayWarn("Hum, this is really strange: there is no pictureFileData in the PicturePanel! Command is ignored.");
@@ -305,7 +305,7 @@ public class PicturePanel extends Canvas implements MouseListener,
     MouseEvent arg0) {
         if (this.pictureFileData != null) {
             // Ok, we have a picture. Let's display it.
-            this.uploadPolicy.onFileDoubleClicked(pictureFileData);
+            this.uploadPolicy.onFileDoubleClicked(this.pictureFileData);
         }
     }
 

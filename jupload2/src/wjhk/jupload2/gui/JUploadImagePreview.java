@@ -1,10 +1,10 @@
 //
 // $Id: JUploadPanel.java 295 2007-06-27 08:43:25 +0000 (mer., 27 juin 2007)
 // etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Last modified: $Date: 2007-06-27 08:43:25 +0000 (mer., 27 juin 2007) $
 //
 // This program is free software; you can redistribute it and/or modify it under
@@ -74,10 +74,10 @@ class LoadImageThread extends Thread {
     @Override
     public void run() {
 
-        jUploadImagePreview.uploadPolicy.displayDebug(
+        this.jUploadImagePreview.uploadPolicy.displayDebug(
                 "LoadImageThread.start (start)", 100);
-        jUploadImagePreview.jFileChooser.setCursor(waitCursor);
-        ImageIcon thumbnail = PictureFileData.getImageIcon(file,
+        this.jUploadImagePreview.jFileChooser.setCursor(waitCursor);
+        ImageIcon thumbnail = PictureFileData.getImageIcon(this.file,
                 this.jUploadImagePreview.getWidth(), this.jUploadImagePreview
                         .getHeight());
 
@@ -86,10 +86,10 @@ class LoadImageThread extends Thread {
 
         // if not interrupted, we display the picture to our jUploadImagePreview
         if (!isInterrupted() && thumbnail != null) {
-            jUploadImagePreview.setThumbnail(thumbnail);
-            jUploadImagePreview.jFileChooser.setCursor(null);
+            this.jUploadImagePreview.setThumbnail(thumbnail);
+            this.jUploadImagePreview.jFileChooser.setCursor(null);
         }
-        jUploadImagePreview.uploadPolicy.displayDebug(
+        this.jUploadImagePreview.uploadPolicy.displayDebug(
                 "LoadImageThread.start (end)", 100);
     }
 }
@@ -133,7 +133,8 @@ public class JUploadImagePreview extends JComponent implements
     /**
      * The standard constructor for this class.
      * 
-     * @param jFileChooser The current file chooser, which will contain this acessory.
+     * @param jFileChooser The current file chooser, which will contain this
+     *            acessory.
      * @param uploadPolicy The current upload policy.
      */
     public JUploadImagePreview(JFileChooser jFileChooser,
@@ -174,20 +175,20 @@ public class JUploadImagePreview extends JComponent implements
         repaint();
 
         // If a thread is running, let's stop it.
-        if (loadImageThread != null && loadImageThread.isAlive()) {
+        if (this.loadImageThread != null && this.loadImageThread.isAlive()) {
             // Let's forget this thread.
-            loadImageThread.interrupt();
-            loadImageThread = null;
+            this.loadImageThread.interrupt();
+            this.loadImageThread = null;
         }
 
         // Next: load aysnchronously the picture.
         if (this.file != null) {
-            loadImageThread = new LoadImageThread(this, this.file);
+            this.loadImageThread = new LoadImageThread(this, this.file);
             // We want this thread to be executed before the icon loading
             // threads.
-            loadImageThread.setPriority(Thread.MAX_PRIORITY);
+            this.loadImageThread.setPriority(Thread.MAX_PRIORITY);
             // Let's start the thread, and exit: the applet is not blocked.
-            loadImageThread.start();
+            this.loadImageThread.start();
             repaint();
         }
     }
@@ -195,7 +196,8 @@ public class JUploadImagePreview extends JComponent implements
     /**
      * Hum, we're interested in these events: DIRECTORY_CHANGED_PROPERTY and
      * SELECTED_FILE_CHANGED_PROPERTY.
-     * @param e 
+     * 
+     * @param e
      */
     public void propertyChange(PropertyChangeEvent e) {
         String prop = e.getPropertyName();
@@ -226,7 +228,7 @@ public class JUploadImagePreview extends JComponent implements
                 x = 5;
             }
             this.thumbnail.paintIcon(this, g, x, y);
-            uploadPolicy.displayDebug(
+            this.uploadPolicy.displayDebug(
                     "JUploadImagePreview.paintComponent, after paintIcon", 100);
         }
     }

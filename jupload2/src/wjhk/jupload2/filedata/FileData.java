@@ -2,10 +2,10 @@
 // $Id: FileData.java 95 2007-05-02 03:27:05Z
 // /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
 // Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-11-20
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -63,7 +63,8 @@ public interface FileData {
      * each file property to the current upload.
      * 
      * @param bae The byte encoder, where the properties must be added
-     * @throws JUploadIOException Encapsulation of the IOException, if any would occurs.
+     * @throws JUploadIOException Encapsulation of the IOException, if any would
+     *             occurs.
      * @see ByteArrayEncoder#appendFileProperty(String, String)
      */
     public void appendFileProperties(ByteArrayEncoder bae)
@@ -75,7 +76,8 @@ public interface FileData {
      * the upload of this file.
      * 
      * @see FileUploadThread
-     * @throws JUploadException Encapsulation of the Exception, if any would occurs.
+     * @throws JUploadException Encapsulation of the Exception, if any would
+     *             occurs.
      */
     public void beforeUpload() throws JUploadException;
 
@@ -86,7 +88,8 @@ public interface FileData {
      *         file, as it isn't transformed for upload. This size may change if
      *         encoding is necessary (needs a new FileData class), or if picture
      *         is to be resized or rotated.
-     * @throws JUploadException Encapsulation of the Exception, if any would occurs.
+     * @throws JUploadException Encapsulation of the Exception, if any would
+     *             occurs.
      * @see PictureFileData
      */
     public long getUploadLength() throws JUploadException;
@@ -104,7 +107,8 @@ public interface FileData {
      * {@link FileUploadThread} class then reads bytes from it and transfers
      * them to the webserver. The caller is responsible for closing this stream.
      * 
-     * @throws JUploadException Encapsulation of the Exception, if any would occurs.
+     * @throws JUploadException Encapsulation of the Exception, if any would
+     *             occurs.
      * @return An InputStream, representing this instance.
      */
     public InputStream getInputStream() throws JUploadException;
@@ -147,10 +151,10 @@ public interface FileData {
     public String getMimeType();
 
     /**
-     * Indicate if this file can be read. Take care of the File.canRead() methods, that seems to be
-     * wrong from time to time. 
+     * Indicate if this file can be read. Take care of the File.canRead()
+     * methods, that seems to be wrong from time to time.
      * 
-     * @return indicates whether the file can be read or not. 
+     * @return indicates whether the file can be read or not.
      */
     public boolean canRead();
 

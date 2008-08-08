@@ -1,10 +1,10 @@
 //
 // $Id: PictureFileData.java 287 2007-06-17 09:07:04 +0000 (dim., 17 juin 2007)
 // felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-05-09
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -382,7 +382,7 @@ public class PictureFileData extends DefaultFileData {
             try {
                 // First: load the picture.
                 ImageReaderWriterHelper irwh = new ImageReaderWriterHelper(
-                        (PictureUploadPolicy) uploadPolicy, this);
+                        (PictureUploadPolicy) this.uploadPolicy, this);
                 BufferedImage sourceImage = irwh.readImage(0);
                 irwh.dispose();
                 irwh = null;
@@ -511,7 +511,7 @@ public class PictureFileData extends DefaultFileData {
         // Some Helper will .. help us !
         // I like useful comment :-)
         ImageHelper imageHelper = new ImageHelper(
-                (PictureUploadPolicy) uploadPolicy, this, targetMaxWidth,
+                (PictureUploadPolicy) this.uploadPolicy, this, targetMaxWidth,
                 targetMaxHeight, this.quarterRotation);
 
         // Should transform the file, and do we already created the transformed
@@ -543,8 +543,8 @@ public class PictureFileData extends DefaultFileData {
         BufferedImage originalImage = null;
         BufferedImage transformedImage = null;
         ImageReaderWriterHelper imageWriterHelper = new ImageReaderWriterHelper(
-                (PictureUploadPolicy) uploadPolicy, this);
-        boolean transmitMetadata = ((PictureUploadPolicy) uploadPolicy)
+                (PictureUploadPolicy) this.uploadPolicy, this);
+        boolean transmitMetadata = ((PictureUploadPolicy) this.uploadPolicy)
                 .getPictureTransmitMetadata();
 
         // Creation of the transformed picture file.
@@ -559,7 +559,7 @@ public class PictureFileData extends DefaultFileData {
         if (getExtension(getFile()).equalsIgnoreCase("gif")) {
             nbPictures = Integer.MAX_VALUE;
         }
-        uploadPolicy.displayDebug(
+        this.uploadPolicy.displayDebug(
                 "Reading image with imageWriterHelper.readImage(i)", 50);
         // Now, we have to read each picture from the original file, apply
         // the calculated transformation, and write each transformed picture
@@ -594,7 +594,7 @@ public class PictureFileData extends DefaultFileData {
             // Was sent by imageWriterHelper.readImage(i)
             // Ok, no more picture to read. We just want to go out of
             // the loop. No error.
-            uploadPolicy.displayDebug(
+            this.uploadPolicy.displayDebug(
                     "IndexOutOfBoundsException catched: end of reading for file "
                             + getFileName(), 50);
         }
@@ -747,7 +747,7 @@ public class PictureFileData extends DefaultFileData {
     public File getWorkingSourceFile() throws JUploadIOException {
 
         if (this.workingCopyTempFile == null) {
-            uploadPolicy.displayDebug(
+            this.uploadPolicy.displayDebug(
                     "[getWorkingSourceFile] Creating a copy of "
                             + getFileName() + " as a source working target.",
                     20);
@@ -771,7 +771,7 @@ public class PictureFileData extends DefaultFileData {
                     try {
                         is.close();
                     } catch (IOException e) {
-                        uploadPolicy
+                        this.uploadPolicy
                                 .displayWarn(e.getClass().getName()
                                         + " while trying to close FileInputStream, in PictureUploadPolicy.copyOriginalToWorkingCopyTempFile.");
                     } finally {
@@ -782,7 +782,7 @@ public class PictureFileData extends DefaultFileData {
                     try {
                         os.close();
                     } catch (IOException e) {
-                        uploadPolicy
+                        this.uploadPolicy
                                 .displayWarn(e.getClass().getName()
                                         + " while trying to close FileOutputStream, in PictureUploadPolicy.copyOriginalToWorkingCopyTempFile.");
                     } finally {
@@ -798,13 +798,13 @@ public class PictureFileData extends DefaultFileData {
      * @return the originalWidth of the picture
      */
     public int getOriginalWidth() {
-        return originalWidth;
+        return this.originalWidth;
     }
 
     /**
      * @return the originalHeight of the picture
      */
     public int getOriginalHeight() {
-        return originalHeight;
+        return this.originalHeight;
     }
 }

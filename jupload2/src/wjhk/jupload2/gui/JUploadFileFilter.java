@@ -1,9 +1,11 @@
 //
-// $Id$
-// 
+// $Id: JUploadFileFilter.java 95 2007-05-02 03:27:05Z
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -27,9 +29,9 @@ import javax.swing.filechooser.FileFilter;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
- * Default File Filter used by the {@link wjhk.jupload2.policies.DefaultUploadPolicy} to filter the
- * allowed file in the JFileChooser. This class is an empty one: it just calls
- * the {
+ * Default File Filter used by the
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy} to filter the allowed file
+ * in the JFileChooser. This class is an empty one: it just calls the {
  */
 public class JUploadFileFilter extends FileFilter {
 

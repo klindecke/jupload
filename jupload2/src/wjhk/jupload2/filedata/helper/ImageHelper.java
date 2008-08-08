@@ -177,67 +177,71 @@ public class ImageHelper implements ImageObserver {
         // The width and height depend on the current rotation :
         // calculation of the width and height of picture after
         // rotation.
-        int nonScaledRotatedWidth = pictureFileData.getOriginalWidth();
-        int nonScaledRotatedHeight = pictureFileData.getOriginalHeight();
+        int nonScaledRotatedWidth = this.pictureFileData.getOriginalWidth();
+        int nonScaledRotatedHeight = this.pictureFileData.getOriginalHeight();
         if (this.quarterRotation % 2 != 0) {
             // 90° or 270° rotation: width and height are switched.
-            nonScaledRotatedWidth = pictureFileData.getOriginalHeight();
-            nonScaledRotatedHeight = pictureFileData.getOriginalWidth();
+            nonScaledRotatedWidth = this.pictureFileData.getOriginalHeight();
+            nonScaledRotatedHeight = this.pictureFileData.getOriginalWidth();
         }
         // Now, we can compare these width and height to the maximum
         // width and height
-        double scaleWidth = ((maxWidth < 0) ? 1 : ((double) maxWidth)
+        double scaleWidth = ((this.maxWidth < 0) ? 1 : ((double) this.maxWidth)
                 / nonScaledRotatedWidth);
-        double scaleHeight = ((maxHeight < 0) ? 1 : ((double) maxHeight)
-                / nonScaledRotatedHeight);
-        scale = Math.min(scaleWidth, scaleHeight);
-        if (scale < 1) {
+        double scaleHeight = ((this.maxHeight < 0) ? 1
+                : ((double) this.maxHeight) / nonScaledRotatedHeight);
+        this.scale = Math.min(scaleWidth, scaleHeight);
+        if (this.scale < 1) {
             // With number rounding, it can happen that width or size
             // became one pixel too big. Let's correct it.
-            if ((maxWidth > 0 && maxWidth < (int) (scale * Math.cos(theta) * nonScaledRotatedWidth))
-                    || (maxHeight > 0 && maxHeight < (int) (scale
+            if ((this.maxWidth > 0 && this.maxWidth < (int) (this.scale
+                    * Math.cos(theta) * nonScaledRotatedWidth))
+                    || (this.maxHeight > 0 && this.maxHeight < (int) (this.scale
                             * Math.cos(theta) * nonScaledRotatedHeight))) {
-                scaleWidth = ((maxWidth < 0) ? 1 : ((double) maxWidth - 1)
-                        / (nonScaledRotatedWidth));
-                scaleHeight = ((maxHeight < 0) ? 1 : ((double) maxHeight - 1)
-                        / (nonScaledRotatedHeight));
-                scale = Math.min(scaleWidth, scaleHeight);
+                scaleWidth = ((this.maxWidth < 0) ? 1
+                        : ((double) this.maxWidth - 1)
+                                / (nonScaledRotatedWidth));
+                scaleHeight = ((this.maxHeight < 0) ? 1
+                        : ((double) this.maxHeight - 1)
+                                / (nonScaledRotatedHeight));
+                this.scale = Math.min(scaleWidth, scaleHeight);
             }
         }
 
         // These variables contain the actual width and height after
         // rescaling, and before rotation.
-        scaledRotatedWidth = nonScaledRotatedWidth;
-        scaledRotatedHeight = nonScaledRotatedHeight;
+        this.scaledRotatedWidth = nonScaledRotatedWidth;
+        this.scaledRotatedHeight = nonScaledRotatedHeight;
         // Is there any rescaling to do ?
         // Patch for the first bug, tracked in the sourceforge bug
         // tracker ! ;-)
-        if (scale < 1) {
-            scaledRotatedWidth *= scale;
-            scaledRotatedHeight *= scale;
+        if (this.scale < 1) {
+            this.scaledRotatedWidth *= this.scale;
+            this.scaledRotatedHeight *= this.scale;
         }
-        this.uploadPolicy.displayDebug("Resizing factor (scale): " + scale, 10);
+        this.uploadPolicy.displayDebug(
+                "Resizing factor (scale): " + this.scale, 10);
         // Due to rounded numbers, the resulting targetWidth or
         // targetHeight
         // may be one pixel too big. Let's check that.
-        if (scaledRotatedWidth > maxWidth) {
+        if (this.scaledRotatedWidth > this.maxWidth) {
             this.uploadPolicy.displayDebug("Correcting rounded width: "
-                    + scaledRotatedWidth + " to " + maxWidth, 10);
-            scaledRotatedWidth = maxWidth;
+                    + this.scaledRotatedWidth + " to " + this.maxWidth, 10);
+            this.scaledRotatedWidth = this.maxWidth;
         }
-        if (scaledRotatedHeight > maxHeight) {
+        if (this.scaledRotatedHeight > this.maxHeight) {
             this.uploadPolicy.displayDebug("Correcting rounded height: "
-                    + scaledRotatedHeight + " to " + maxHeight, 10);
-            scaledRotatedHeight = maxHeight;
+                    + this.scaledRotatedHeight + " to " + this.maxHeight, 10);
+            this.scaledRotatedHeight = this.maxHeight;
         }
 
         // getBufferedImage will need the two following value:
         if (this.quarterRotation % 2 == 0) {
-            scaledNonRotatedWidth = scaledRotatedWidth;
-            scaledNonRotatedHeight = scaledRotatedHeight;
+            this.scaledNonRotatedWidth = this.scaledRotatedWidth;
+            this.scaledNonRotatedHeight = this.scaledRotatedHeight;
         } else {
-            scaledNonRotatedWidth = scaledRotatedHeight;
-            scaledNonRotatedHeight = scaledRotatedWidth;
+            this.scaledNonRotatedWidth = this.scaledRotatedHeight;
+            this.scaledNonRotatedHeight = this.scaledRotatedWidth;
         }
     }
 
@@ -253,12 +257,12 @@ public class ImageHelper implements ImageObserver {
     public boolean hasToTransformPicture() throws JUploadException {
         // Animated gif must be transmit as is, as I can't find a way to
         // recreate them.
-        if (DefaultFileData.getExtension(pictureFileData.getFile())
+        if (DefaultFileData.getExtension(this.pictureFileData.getFile())
                 .equalsIgnoreCase("gif")) {
             // If this is an animated gif, no transformation... I can't succeed
             // to create a transformed picture file for them.
             ImageReaderWriterHelper irwh = new ImageReaderWriterHelper(
-                    uploadPolicy, pictureFileData);
+                    this.uploadPolicy, this.pictureFileData);
             int nbImages = irwh.getNumImages(true);
             irwh.dispose();
             irwh = null;
@@ -266,7 +270,7 @@ public class ImageHelper implements ImageObserver {
                 // Too bad. We can not transform it.
                 // FIXME Be able to transform animated gif.
                 this.hasToTransformPicture = Boolean.FALSE;
-                uploadPolicy
+                this.uploadPolicy
                         .displayWarn("No transformation for gif picture file, that contain several pictures. (see JUpload documentation for details)");
             }
         }
@@ -276,15 +280,14 @@ public class ImageHelper implements ImageObserver {
 
             // First : the easiest test. Should we block metadata ?
             if (this.hasToTransformPicture == null
-                    && !((PictureUploadPolicy) uploadPolicy)
-                            .getPictureTransmitMetadata()) {
+                    && !(this.uploadPolicy).getPictureTransmitMetadata()) {
                 this.hasToTransformPicture = Boolean.TRUE;
             }
             // Second : another easy test. A rotation is needed ?
             if (this.hasToTransformPicture == null && this.quarterRotation != 0) {
                 this.uploadPolicy
                         .displayDebug(
-                                pictureFileData.getFileName()
+                                this.pictureFileData.getFileName()
                                         + " : hasToTransformPicture = true (quarterRotation != 0)",
                                 20);
                 this.hasToTransformPicture = Boolean.TRUE;
@@ -292,13 +295,13 @@ public class ImageHelper implements ImageObserver {
 
             // Second : the picture format is the same ?
             if (this.hasToTransformPicture == null
-                    && ((PictureUploadPolicy) this.uploadPolicy)
-                            .getTargetPictureFormat() != null) {
+                    && (this.uploadPolicy).getTargetPictureFormat() != null) {
                 // A target format is positioned: is it the same as the current
                 // file format ?
-                String target = ((PictureUploadPolicy) this.uploadPolicy)
-                        .getTargetPictureFormat().toLowerCase();
-                String ext = pictureFileData.getFileExtension().toLowerCase();
+                String target = (this.uploadPolicy).getTargetPictureFormat()
+                        .toLowerCase();
+                String ext = this.pictureFileData.getFileExtension()
+                        .toLowerCase();
 
                 if (target.equals("jpg"))
                     target = "jpeg";
@@ -308,7 +311,7 @@ public class ImageHelper implements ImageObserver {
                 if (!target.equals(ext)) {
                     this.uploadPolicy
                             .displayDebug(
-                                    pictureFileData.getFileName()
+                                    this.pictureFileData.getFileName()
                                             + " : hasToTransformPicture = true (targetPictureFormat)",
                                     20);
                     // Correction given by David Gnedt: the following line was
@@ -318,8 +321,9 @@ public class ImageHelper implements ImageObserver {
             }
 
             // Third : should we resize the picture ?
-            if (this.hasToTransformPicture == null && scale < 1) {
-                this.uploadPolicy.displayDebug(pictureFileData.getFileName()
+            if (this.hasToTransformPicture == null && this.scale < 1) {
+                this.uploadPolicy.displayDebug(this.pictureFileData
+                        .getFileName()
                         + " : hasToTransformPicture = true (scale < 1)", 20);
                 this.hasToTransformPicture = Boolean.TRUE;
             }
@@ -327,7 +331,8 @@ public class ImageHelper implements ImageObserver {
             // If we find no reason to transform the picture, then let's let the
             // picture unmodified.
             if (this.hasToTransformPicture == null) {
-                this.uploadPolicy.displayDebug(pictureFileData.getFileName()
+                this.uploadPolicy.displayDebug(this.pictureFileData
+                        .getFileName()
                         + " : hasToTransformPicture = false", 20);
                 this.hasToTransformPicture = Boolean.FALSE;
             }
@@ -384,14 +389,14 @@ public class ImageHelper implements ImageObserver {
                 switch (this.quarterRotation) {
                     case 1:
                         translationX = 0;
-                        translationY = -scaledRotatedWidth;
+                        translationY = -this.scaledRotatedWidth;
                         break;
                     case 2:
-                        translationX = -scaledRotatedWidth;
-                        translationY = -scaledRotatedHeight;
+                        translationX = -this.scaledRotatedWidth;
+                        translationY = -this.scaledRotatedHeight;
                         break;
                     case 3:
-                        translationX = -scaledRotatedHeight;
+                        translationX = -this.scaledRotatedHeight;
                         translationY = 0;
                         break;
                     default:
@@ -406,7 +411,7 @@ public class ImageHelper implements ImageObserver {
             }
 
             // If we have to rescale the picture, we first do it:
-            if (scale < 1) {
+            if (this.scale < 1) {
                 if (highquality) {
                     this.uploadPolicy
                             .displayDebug(
@@ -417,7 +422,8 @@ public class ImageHelper implements ImageObserver {
                     // algorithm.
                     // Other parameters give bad picture quality.
                     Image img = sourceBufferedImage.getScaledInstance(
-                            scaledNonRotatedWidth, scaledNonRotatedHeight,
+                            this.scaledNonRotatedWidth,
+                            this.scaledNonRotatedHeight,
                             Image.SCALE_AREA_AVERAGING);
 
                     // the localBufferedImage may be 'unknown'.
@@ -427,13 +433,13 @@ public class ImageHelper implements ImageObserver {
                     }
 
                     BufferedImage tempBufferedImage = new BufferedImage(
-                            scaledNonRotatedWidth, scaledNonRotatedHeight,
-                            localImageType);
+                            this.scaledNonRotatedWidth,
+                            this.scaledNonRotatedHeight, localImageType);
 
                     // drawImage can be long. Let's follow its progress,
                     // with the applet progress bar.
-                    this.nbPixelsTotal = scaledNonRotatedWidth
-                            * scaledNonRotatedHeight;
+                    this.nbPixelsTotal = this.scaledNonRotatedWidth
+                            * this.scaledNonRotatedHeight;
                     this.nbPixelsRead = 0;
 
                     // Let's draw the picture: this code do the rescaling.
@@ -447,7 +453,7 @@ public class ImageHelper implements ImageObserver {
 
                     img.flush();
                     img = null;
-                    pictureFileData
+                    this.pictureFileData
                             .freeMemory("ImageHelper.getBufferedImage()");
 
                     // tempBufferedImage contains the rescaled picture. It's
@@ -461,11 +467,11 @@ public class ImageHelper implements ImageObserver {
                             .displayDebug(
                                     "getBufferedImage: Resizing picture(using standard quality picture)",
                                     40);
-                    transform.scale(scale, scale);
+                    transform.scale(this.scale, this.scale);
                 }
             }
 
-            uploadPolicy.displayDebug(
+            this.uploadPolicy.displayDebug(
                     "getBufferedImage: Picture is now rescaled", 80);
 
             if (transform.isIdentity()) {
@@ -480,11 +486,11 @@ public class ImageHelper implements ImageObserver {
                 // Checks, after the fact the pictures produces by the Canon
                 // EOS 30D are not properly resized: colors are 'strange'
                 // after resizing.
-                uploadPolicy.displayDebug(
+                this.uploadPolicy.displayDebug(
                         "getBufferedImage: returnedBufferedImage.getColorModel(): "
                                 + sourceBufferedImage.getColorModel()
                                         .toString(), 80);
-                uploadPolicy.displayDebug(
+                this.uploadPolicy.displayDebug(
                         "getBufferedImage: returnedBufferedImage.getColorModel(): "
                                 + sourceBufferedImage.getColorModel()
                                         .toString(), 80);
@@ -513,7 +519,7 @@ public class ImageHelper implements ImageObserver {
         this.uploadPolicy.displayDebug("getBufferedImage: was "
                 + (System.currentTimeMillis() - msGetBufferedImage)
                 + " ms long", 100);
-        pictureFileData.freeMemory("ImageHelper.getBufferedImage()");
+        this.pictureFileData.freeMemory("ImageHelper.getBufferedImage()");
         return returnedBufferedImage;
     }
 

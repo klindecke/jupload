@@ -1,10 +1,10 @@
 //
 // $Id: FileUploadThreadFTP.java 136 2007-05-12 20:15:36 +0000 (sam., 12 mai
 // 2007) felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2007-01-01
 // Creator: etienne_sf
 // Last modified: $Date$

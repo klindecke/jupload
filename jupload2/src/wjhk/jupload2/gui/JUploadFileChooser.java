@@ -1,10 +1,10 @@
 //
 // $Id: JUploadPanel.java 205 2007-05-28 20:24:01 +0000 (lun., 28 mai 2007)
 // felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: etienne_sf
 // Last modified: $Date: 2007-05-28 20:24:01 +0000 (lun., 28 mai 2007) $

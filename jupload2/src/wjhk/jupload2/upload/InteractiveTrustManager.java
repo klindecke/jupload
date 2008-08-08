@@ -174,12 +174,12 @@ public class InteractiveTrustManager implements X509TrustManager,
      * Create a new instance.
      * 
      * @param p The UploadPolicy to use for this instance.
-     * @param hostname 
+     * @param hostname
      * @param passwd An optional password for the truststore.
      * @throws NoSuchAlgorithmException
      * @throws KeyStoreException
      * @throws CertificateException
-     * @throws IllegalArgumentException 
+     * @throws IllegalArgumentException
      * @throws UnrecoverableKeyException
      */
     public InteractiveTrustManager(UploadPolicy p, String hostname,

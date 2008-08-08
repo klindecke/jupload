@@ -1,10 +1,10 @@
 //
 // $Id: PictureDialog.java 298 2007-07-12 10:17:32 +0000 (jeu., 12 juil. 2007)
 // etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-07-10
 // Creator: etienne_sf
 // Last modified: $Date$
