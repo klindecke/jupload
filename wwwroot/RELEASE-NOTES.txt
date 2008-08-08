@@ -5,14 +5,14 @@ V3.4.2  (not released yet)
 
 Changes:
 - [Minor] Setters added in UploadPolicy for the following applet parameters: lang, urlToSendErrorTo 
-- [Minor] Attributes switched to protected, as there is no getter/setter for these ones: userAgent, 
-cookie, debugFile and debugOK: switched to protected, as there is no getter or setter on these ones. 
+- [Minor] Some attributes switched to protected, for easier use of the applet when embedded in others program, 
+as there is no getter/setter for these ones: userAgent, cookie, debugFile and debugOK. 
 - debugOut. The addMsgToDebugLog(String msg) method has been switched to protected.
   Note:
    1) There are existing methods to generate output.
    2) The whole debug output will be changed sooner or later. I want to embed log4j, or a log4j like API.
    So addMsgToDebugLog(String msg) will be renamed ... a day in the future.
-- resourceBundle => set with the setLang parameter (you know it, you patched it !   :-) ).
+- resourceBundle => set with the setLang parameter.
 
 
 Fixes:
@@ -23,12 +23,12 @@ access, like Coppermine upload (was getting a wrong 302 HTTP return code).
 displayed as an error. 
 - [Minor] Better management of CR, LF and CRLF end of line. Now the server output is changed to have CRLF for all
 end of line characters.
-
+- [Minor] Correction in HTTPConnect, when hitting an NGINX proxy server, thanks to Brian Moran.
 
 Translation:
 - [Chinese] Chinese translation updated by bluesway
-- [Slovak] Translation in Slovak, thanks to wradgio
-
+- [Slovak] New translation, thanks to wradgio
+- [Hungarian] New translation, thanks to Rézsó Gábor  
 
 V3.4.1f
 
