@@ -1,10 +1,10 @@
 //
 // $Id: JUploadFileView.java 112 2007-05-07 02:45:28 +0000 (lun., 07 mai 2007)
 // felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2007-04-06
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -167,7 +167,7 @@ class IconWorker implements Runnable {
                 Runtime.getRuntime().gc();
             }
         } catch (OutOfMemoryError e) {
-            uploadPolicy
+            this.uploadPolicy
                     .displayWarn("OutOfMemoryError in IconWorker.loadIcon()");
             this.status = STATUS_ERROR_WHILE_LOADING;
             this.icon = null;
@@ -257,8 +257,9 @@ public class JUploadFileView extends FileView implements
     }
 
     synchronized void execute(IconWorker iconWorker) {
-        this.uploadPolicy.displayDebug("[JUploadFileView.execute] Adding (to FileChooser) "
-                + iconWorker.file.getAbsolutePath(), 90);
+        this.uploadPolicy.displayDebug(
+                "[JUploadFileView.execute] Adding (to FileChooser) "
+                        + iconWorker.file.getAbsolutePath(), 90);
         if (this.executorService == null || this.executorService.isShutdown()) {
             this.uploadPolicy
                     .displayDebug(
@@ -345,8 +346,8 @@ public class JUploadFileView extends FileView implements
         // For PictureUploadPolicy and sisters, a value of 0 also means
         // calculating the icon
         // Otherwise: return null, for default icon.
-        if (!((uploadPolicy.getFileChooserIconFromFileContent() == 1 && uploadPolicy instanceof DefaultUploadPolicy) || (uploadPolicy
-                .getFileChooserIconFromFileContent() == 0 && uploadPolicy instanceof PictureUploadPolicy))) {
+        if (!((this.uploadPolicy.getFileChooserIconFromFileContent() == 1 && this.uploadPolicy instanceof DefaultUploadPolicy) || (this.uploadPolicy
+                .getFileChooserIconFromFileContent() == 0 && this.uploadPolicy instanceof PictureUploadPolicy))) {
             return null;
         }
         // For PictureUploadPolicy and sisters, a value of 0

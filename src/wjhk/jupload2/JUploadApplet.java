@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -87,6 +87,7 @@ public class JUploadApplet extends Applet {
      * 
      * @deprecated since v3.1
      */
+    @Deprecated
     public final static String LAST_MODIFIED = svnProperties
             .getProperty("lastSrcDirModificationDate");
 
@@ -158,7 +159,7 @@ public class JUploadApplet extends Applet {
 
             // We start the jsHandler thread, that allows javascript to send
             // upload command to the applet.
-            jsHandler = new JavascriptHandler(this.uploadPolicy,
+            this.jsHandler = new JavascriptHandler(this.uploadPolicy,
                     this.jUploadPanel);
         } catch (final Exception e) {
             System.out.println(e.getMessage());
@@ -218,9 +219,9 @@ public class JUploadApplet extends Applet {
      */
     public void setProperty(String prop, String value) {
         try {
-            uploadPolicy.setProperty(prop, value);
+            this.uploadPolicy.setProperty(prop, value);
         } catch (Exception e) {
-            uploadPolicy.displayErr(e);
+            this.uploadPolicy.displayErr(e);
         }
     }
 

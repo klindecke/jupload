@@ -1,9 +1,11 @@
 //
-// $Id: JUploadApplet.java 88 2007-05-02 00:04:52Z /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
-// 
+// $Id: JUploadApplet.java 88 2007-05-02 00:04:52Z
+// /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
+// Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2007-04-28
 // Creator: felfert
 // Last modified: $Date$
@@ -30,6 +32,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 /**
  * Technical class, used to display file sizes. Used in
  * {@link wjhk.jupload2.gui.FilePanelJTable}.
+ * 
  * @author felfert
  * @version $Revision$
  */

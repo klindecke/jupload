@@ -1,10 +1,10 @@
 //
 // $Id: DefaultFileData.java 267 2007-06-08 13:42:02 +0000 (ven., 08 juin 2007)
 // felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-04-21
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -164,7 +164,7 @@ public class DefaultFileData implements FileData {
         bae.appendFileProperty("pathinfo[]", getDirectory());
         bae.appendFileProperty("relpathinfo[]", getRelativeDir());
         // To add the file datetime, we first have to format this date.
-        SimpleDateFormat dateformat = new SimpleDateFormat(uploadPolicy
+        SimpleDateFormat dateformat = new SimpleDateFormat(this.uploadPolicy
                 .getDateFormat());
         String uploadFileModificationDate = dateformat
                 .format(getLastModified());
@@ -242,18 +242,18 @@ public class DefaultFileData implements FileData {
         // would have to initialize {@link #canRead} in all subclasses.
 
         // Let's store the status 'readible' only once. It's
-        if (canRead == null) {
+        if (this.canRead == null) {
             try {
                 InputStream is = new FileInputStream(this.file);
                 is.close();
-                canRead = new Boolean(true);
+                this.canRead = new Boolean(true);
             } catch (IOException e) {
                 // Can't read the file!
-                canRead = new Boolean(false);
+                this.canRead = new Boolean(false);
             }
         }
 
-        return canRead.booleanValue();
+        return this.canRead.booleanValue();
     }
 
     /** {@inheritDoc} */

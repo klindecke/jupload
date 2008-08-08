@@ -63,6 +63,7 @@ public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
      * @see UploadPolicy#addComponentsToJUploadPanel(JUploadPanel)
      */
 
+    @Override
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
         // Set the global layout of the panel.
         jUploadPanel.setLayout(new GridLayout(1, 1));
@@ -80,6 +81,7 @@ public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
      * @see UploadPolicy#afterFileDropped(DropTargetDropEvent)
      */
 
+    @Override
     public void afterFileDropped(DropTargetDropEvent dropEvent) {
         getApplet().getUploadPanel().doStartUpload();
     }

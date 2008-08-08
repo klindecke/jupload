@@ -115,9 +115,10 @@ public class ImageReaderWriterHelper {
         // image writer. There is no transformation between to different
         // picture format (like JPG to GIF)
         if (this.uploadPolicy.getTargetPictureFormat() == null) {
-            targetPictureFormat = pictureFileData.getFileExtension();
+            this.targetPictureFormat = pictureFileData.getFileExtension();
         } else {
-            targetPictureFormat = this.uploadPolicy.getTargetPictureFormat();
+            this.targetPictureFormat = this.uploadPolicy
+                    .getTargetPictureFormat();
         }
     }
 
@@ -137,12 +138,12 @@ public class ImageReaderWriterHelper {
         initImageWriter();
 
         try {
-            fileImageOutputStream = new FileImageOutputStream(file);
+            this.fileImageOutputStream = new FileImageOutputStream(file);
         } catch (IOException e) {
             throw new JUploadIOException("ImageReaderWriterHelper.setOutput()",
                     e);
         }
-        imageWriter.setOutput(fileImageOutputStream);
+        this.imageWriter.setOutput(this.fileImageOutputStream);
     }
 
     /**
@@ -153,35 +154,35 @@ public class ImageReaderWriterHelper {
      */
     public void dispose() throws JUploadIOException {
         // First: let's free any resource used by ImageWriter.
-        if (imageWriter != null) {
+        if (this.imageWriter != null) {
             // An imageWriter was initialized. Let's free it.
-            imageWriter.dispose();
-            if (fileImageOutputStream != null) {
+            this.imageWriter.dispose();
+            if (this.fileImageOutputStream != null) {
                 try {
-                    fileImageOutputStream.close();
+                    this.fileImageOutputStream.close();
                 } catch (IOException e) {
                     throw new JUploadIOException(
                             "ImageReaderWriterHelper.dispose() [fileImageOutputStream]",
                             e);
                 }
             }
-            imageWriter = null;
-            fileImageOutputStream = null;
+            this.imageWriter = null;
+            this.fileImageOutputStream = null;
         }
 
         // Then, all about ImageReader
-        if (imageReader != null) {
+        if (this.imageReader != null) {
             // An imageReader was initialized. Let's free it.
-            imageReader.dispose();
+            this.imageReader.dispose();
             try {
-                fileImageInputStream.close();
+                this.fileImageInputStream.close();
             } catch (IOException e) {
                 throw new JUploadIOException(
                         "ImageReaderWriterHelper.dispose() [fileImageInputStream]",
                         e);
             }
-            imageReader = null;
-            fileImageInputStream = null;
+            this.imageReader = null;
+            this.fileImageInputStream = null;
         }
     }
 
@@ -196,7 +197,7 @@ public class ImageReaderWriterHelper {
     public int getNumImages(boolean allowSearch) throws JUploadIOException {
         initImageReader();
         try {
-            return imageReader.getNumImages(allowSearch);
+            return this.imageReader.getNumImages(allowSearch);
         } catch (IOException e) {
             throw new JUploadIOException(
                     "ImageReaderWriterHelper.getNumImages() [fileImageInputStream]",
@@ -212,7 +213,7 @@ public class ImageReaderWriterHelper {
      */
     public BufferedImage imageIORead() throws JUploadIOException {
         try {
-            return ImageIO.read(pictureFileData.getWorkingSourceFile());
+            return ImageIO.read(this.pictureFileData.getWorkingSourceFile());
         } catch (IOException e) {
             throw new JUploadIOException(
                     "ImageReaderWriterHelper.ImageIORead()", e);
@@ -234,11 +235,11 @@ public class ImageReaderWriterHelper {
             IndexOutOfBoundsException {
         initImageReader();
         try {
-            uploadPolicy.displayDebug(
+            this.uploadPolicy.displayDebug(
                     "ImageReaderWriterHelper: reading picture number "
                             + imageIndex + " of file "
-                            + pictureFileData.getFileName(), 50);
-            return imageReader.read(imageIndex);
+                            + this.pictureFileData.getFileName(), 50);
+            return this.imageReader.read(imageIndex);
         } catch (IndexOutOfBoundsException e) {
             // The IndexOutOfBoundsException is transmitted to the caller. It
             // indicates that the index is out of bound. It's the good way for
@@ -264,11 +265,11 @@ public class ImageReaderWriterHelper {
             IndexOutOfBoundsException {
         initImageReader();
         try {
-            uploadPolicy.displayDebug(
+            this.uploadPolicy.displayDebug(
                     "ImageReaderWriterHelper: reading picture number "
                             + imageIndex + " of file "
-                            + pictureFileData.getFileName(), 50);
-            return imageReader.readAll(imageIndex, imageReader
+                            + this.pictureFileData.getFileName(), 50);
+            return this.imageReader.readAll(imageIndex, this.imageReader
                     .getDefaultReadParam());
         } catch (IndexOutOfBoundsException e) {
             // The IndexOutOfBoundsException is transmitted to the caller. It
@@ -296,11 +297,11 @@ public class ImageReaderWriterHelper {
 
         // Ok, let's go
         try {
-            uploadPolicy.displayDebug(
+            this.uploadPolicy.displayDebug(
                     "ImageReaderWriterHelper: reading metadata for picture number "
                             + imageIndex + " of file "
-                            + pictureFileData.getFileName(), 50);
-            return imageReader.getImageMetadata(imageIndex);
+                            + this.pictureFileData.getFileName(), 50);
+            return this.imageReader.getImageMetadata(imageIndex);
         } catch (IOException e) {
             throw new JUploadIOException(
                     "ImageReaderWriterHelper.getImageMetadata()", e);
@@ -319,7 +320,7 @@ public class ImageReaderWriterHelper {
             throws JUploadIOException {
         initImageWriter();
         try {
-            imageWriter.writeInsert(numIndex, iioImage, iwp);
+            this.imageWriter.writeInsert(numIndex, iioImage, iwp);
         } catch (IOException e) {
             throw new JUploadIOException(
                     "ImageReaderWriterHelper.writeInsert()", e);
@@ -335,7 +336,7 @@ public class ImageReaderWriterHelper {
     public void write(IIOImage iioImage) throws JUploadIOException {
         initImageWriter();
         try {
-            imageWriter.write(null, iioImage, imageWriterParam);
+            this.imageWriter.write(null, iioImage, this.imageWriterParam);
         } catch (IOException e) {
             throw new JUploadIOException("ImageReaderWriterHelper.write()", e);
         }
@@ -352,30 +353,30 @@ public class ImageReaderWriterHelper {
      * @throws JUploadIOException
      */
     private void initImageWriter() throws JUploadIOException {
-        if (imageWriter == null) {
+        if (this.imageWriter == null) {
             // Get the writer (to choose the compression quality)
             Iterator<ImageWriter> iter = ImageIO
-                    .getImageWritersByFormatName(targetPictureFormat);
+                    .getImageWritersByFormatName(this.targetPictureFormat);
             if (!iter.hasNext()) {
                 // Too bad: no writer for the selected picture format
                 throw new JUploadIOException("No writer for the '"
                         + this.targetPictureFormat + "' picture format.");
             } else {
-                imageWriter = iter.next();
-                imageWriterParam = imageWriter.getDefaultWriteParam();
+                this.imageWriter = iter.next();
+                this.imageWriterParam = this.imageWriter.getDefaultWriteParam();
 
                 // For jpeg pictures, we force the compression level.
-                if (targetPictureFormat.equalsIgnoreCase("jpg")
-                        || targetPictureFormat.equalsIgnoreCase("jpeg")) {
-                    imageWriterParam
+                if (this.targetPictureFormat.equalsIgnoreCase("jpg")
+                        || this.targetPictureFormat.equalsIgnoreCase("jpeg")) {
+                    this.imageWriterParam
                             .setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                     // Let's select a good compromise between picture size
                     // and quality.
-                    imageWriterParam
-                            .setCompressionQuality(((PictureUploadPolicy) this.uploadPolicy)
+                    this.imageWriterParam
+                            .setCompressionQuality((this.uploadPolicy)
                                     .getPictureCompressionQuality());
                     // In some case, we need to force the Huffman tables:
-                    ((JPEGImageWriteParam) imageWriterParam)
+                    ((JPEGImageWriteParam) this.imageWriterParam)
                             .setOptimizeHuffmanTables(true);
                 }
 
@@ -383,8 +384,8 @@ public class ImageReaderWriterHelper {
                 try {
                     this.uploadPolicy.displayDebug(
                             "ImageWriter1 (used), CompressionQuality="
-                                    + imageWriterParam.getCompressionQuality(),
-                            95);
+                                    + this.imageWriterParam
+                                            .getCompressionQuality(), 95);
                 } catch (Exception e2) {
                     // If we come here, compression is not supported for
                     // this picture format, or parameters are not explicit
@@ -404,8 +405,8 @@ public class ImageReaderWriterHelper {
     private void initImageReader() throws JUploadIOException {
         // First: we open a ImageInputStream
         try {
-            fileImageInputStream = new FileImageInputStream(pictureFileData
-                    .getWorkingSourceFile());
+            this.fileImageInputStream = new FileImageInputStream(
+                    this.pictureFileData.getWorkingSourceFile());
         } catch (IOException e) {
             throw new JUploadIOException(
                     "ImageReaderWriterHelper.initImageReader()", e);
@@ -413,28 +414,28 @@ public class ImageReaderWriterHelper {
 
         // Then: we create an ImageReader, and assign the ImageInputStream to
         // it.
-        if (imageReader == null) {
-            String ext = DefaultFileData
-                    .getExtension(pictureFileData.getFile());
+        if (this.imageReader == null) {
+            String ext = DefaultFileData.getExtension(this.pictureFileData
+                    .getFile());
             Iterator<ImageReader> iterator = ImageIO
                     .getImageReadersBySuffix(ext);
             if (iterator.hasNext()) {
-                imageReader = iterator.next();
-                imageReader.setInput(fileImageInputStream);
-                uploadPolicy.displayDebug("Foud one reader for " + ext
+                this.imageReader = iterator.next();
+                this.imageReader.setInput(this.fileImageInputStream);
+                this.uploadPolicy.displayDebug("Foud one reader for " + ext
                         + " extension", 80);
             }// while
 
             // Did we find our reader ?
-            if (imageReader == null) {
-                uploadPolicy.displayErr("Found no reader for " + ext
+            if (this.imageReader == null) {
+                this.uploadPolicy.displayErr("Found no reader for " + ext
                         + " extension");
-            } else if (uploadPolicy.getDebugLevel() > 50) {
+            } else if (this.uploadPolicy.getDebugLevel() > 50) {
                 // This call may be long, so we do it only if useful.
                 try {
-                    uploadPolicy.displayDebug("Nb images in "
-                            + pictureFileData.getFileName() + ": "
-                            + imageReader.getNumImages(true), 50);
+                    this.uploadPolicy.displayDebug("Nb images in "
+                            + this.pictureFileData.getFileName() + ": "
+                            + this.imageReader.getNumImages(true), 50);
                 } catch (IOException e) {
                     // We mask the error, was just for debug...
                 }

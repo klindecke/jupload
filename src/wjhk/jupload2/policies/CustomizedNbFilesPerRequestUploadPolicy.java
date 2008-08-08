@@ -1,9 +1,10 @@
 //
-// $Id$
-// 
+// $Id: CustomizedNbFilesPerRequestUploadPolicy.java 441 2008-04-16 07:58:02Z
+// etienne_sf $
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-05-06
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -40,7 +41,7 @@ public class CustomizedNbFilesPerRequestUploadPolicy extends
 
     /**
      * @param theApplet The applet to whom the UploadPolicy must apply.
-     * @throws JUploadException 
+     * @throws JUploadException
      * @see UploadPolicy
      */
     public CustomizedNbFilesPerRequestUploadPolicy(JUploadApplet theApplet)

@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -51,7 +51,7 @@ public class DnDListener implements DropTargetListener {
      * Creates a new instance.
      * 
      * @param uploadPanel The corresponding upload panel.
-     * @param uploadPolicy 
+     * @param uploadPolicy
      */
     public DnDListener(JUploadPanel uploadPanel, UploadPolicy uploadPolicy) {
         this.uploadPanel = uploadPanel;
@@ -109,14 +109,15 @@ public class DnDListener implements DropTargetListener {
                     }
                 } catch (JUploadExceptionStopAddingFiles e2) {
                     // The user want to stop here. Nothing else to do.
-                    uploadPolicy.displayWarn(getClass().getName() + ".drop() ["
-                            + e.getClass().getName() + "]: " + e2.getMessage());
+                    this.uploadPolicy.displayWarn(getClass().getName()
+                            + ".drop() [" + e.getClass().getName() + "]: "
+                            + e2.getMessage());
                 }
                 e.getDropTargetContext().dropComplete(true);
 
                 // Let's communicate this to the upload policy: there may be
                 // something to do now.
-                uploadPolicy.afterFileDropped(e);
+                this.uploadPolicy.afterFileDropped(e);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 e.rejectDrop();

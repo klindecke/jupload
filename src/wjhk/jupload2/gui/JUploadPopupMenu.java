@@ -1,10 +1,10 @@
 //
 // $Id: JUploadPanel.java 303 2007-07-21 07:42:51 +0000 (sam., 21 juil. 2007)
 // etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: etienne_sf
 // Last modified: $Date: 2007-10-08 10:02:41 +0200 (lun., 08 oct. 2007) $
@@ -53,6 +53,7 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
     JCheckBoxMenuItem cbMenuItemDebugOnOff = null;
 
     JMenuItem jMenuItemViewLastResponseBody = null;
+
     JMenuItem jMenuItemCopyLogWindowContent = null;
 
     /**
@@ -103,19 +104,19 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
     public void actionPerformed(ActionEvent e) {
         if (this.jMenuItemViewLastResponseBody == e.getSource()) {
             try {
-                new DebugDialog(null, uploadPolicy.getLastResponseBody(),
-                        uploadPolicy);
+                new DebugDialog(null, this.uploadPolicy.getLastResponseBody(),
+                        this.uploadPolicy);
             } catch (JUploadIOException e1) {
-                uploadPolicy.displayErr(e1);
+                this.uploadPolicy.displayErr(e1);
             }
         } else if (this.jMenuItemCopyLogWindowContent == e.getSource()) {
-            JUploadTextArea logWindow = uploadPolicy.getApplet().getUploadPanel().getLogWindow();
+            JUploadTextArea logWindow = this.uploadPolicy.getApplet()
+                    .getUploadPanel().getLogWindow();
             logWindow.selectAll();
             logWindow.copy();
         }
     }
 
-    
     /** @see javax.swing.event.PopupMenuListener#popupMenuCanceled(javax.swing.event.PopupMenuEvent) */
     public void popupMenuCanceled(PopupMenuEvent arg0) {
         // Nothing to do.
@@ -132,7 +133,8 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
      * @see javax.swing.event.PopupMenuListener#popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent)
      */
     public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-        String s = uploadPolicy.getLastResponseBody();
-        jMenuItemViewLastResponseBody.setEnabled(s != null && !s.equals(""));
+        String s = this.uploadPolicy.getLastResponseBody();
+        this.jMenuItemViewLastResponseBody.setEnabled(s != null
+                && !s.equals(""));
     }
 }

@@ -1,9 +1,9 @@
 //
 // $Id: FileUploadThreadHTTP.java 488 2008-07-06 20:21:43Z etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2007-03-07
 // Creator: etienne_sf
 // Last modified: $Date: 2008-07-06 22:21:43 +0200 (dim., 06 juil. 2008) $
@@ -201,11 +201,11 @@ public class HTTPConnectionHelper {
         if (this.byteArrayEncoder == null) {
             initByteArrayEncoder();
         }
-        if (byteArrayEncoder.isClosed()) {
+        if (this.byteArrayEncoder.isClosed()) {
             throw new JUploadIOException("byteArrayEncoder is already closed");
         }
 
-        return byteArrayEncoder;
+        return this.byteArrayEncoder;
     }
 
     /**
@@ -234,9 +234,10 @@ public class HTTPConnectionHelper {
             // Only connect, if sock is null!!
             // ... or if we don't persist HTTP connections (patch for IIS, based
             // on Marc Reidy's patch)
-            if (this.socket == null || !uploadPolicy.getAllowHttpPersistent()) {
-                this.socket = new HttpConnect(this.uploadPolicy).Connect(url,
-                        proxy);
+            if (this.socket == null
+                    || !this.uploadPolicy.getAllowHttpPersistent()) {
+                this.socket = new HttpConnect(this.uploadPolicy).Connect(
+                        this.url, this.proxy);
                 this.httpDataOut = new DataOutputStream(
                         new BufferedOutputStream(this.socket.getOutputStream()));
                 this.httpDataIn = new PushbackInputStream(this.socket
@@ -321,7 +322,7 @@ public class HTTPConnectionHelper {
      *         did not contain the full request.
      */
     public DataOutputStream getHttpDataOut() {
-        return httpDataOut;
+        return this.httpDataOut;
     }
 
     /**
@@ -330,7 +331,7 @@ public class HTTPConnectionHelper {
      * @return The current input stream of the socket.
      */
     public PushbackInputStream getHttpDataIn() {
-        return httpDataIn;
+        return this.httpDataIn;
     }
 
     /**
@@ -340,7 +341,7 @@ public class HTTPConnectionHelper {
      *         response.
      */
     public String getResponseBody() {
-        return httpInputStreamReader.getResponseBody();
+        return this.httpInputStreamReader.getResponseBody();
     }
 
     /**
@@ -349,7 +350,7 @@ public class HTTPConnectionHelper {
      * @return the response message, like "200 OK"
      */
     public String getResponseMsg() {
-        return httpInputStreamReader.getResponseMsg();
+        return this.httpInputStreamReader.getResponseMsg();
     }
 
     /**
@@ -358,7 +359,7 @@ public class HTTPConnectionHelper {
      * @return
      */
     Socket getSocket() {
-        return socket;
+        return this.socket;
     }
 
     /**
@@ -367,7 +368,7 @@ public class HTTPConnectionHelper {
      * @return Current value of the stop attribute.
      */
     public boolean gotStopped() {
-        return stop;
+        return this.stop;
     }
 
     /**
@@ -393,20 +394,20 @@ public class HTTPConnectionHelper {
      * @throws JUploadException
      */
     public int readHttpResponse() throws JUploadException {
-        if (httpInputStreamReader == null) {
-            httpInputStreamReader = new HTTPInputStreamReader(this,
-                    uploadPolicy);
+        if (this.httpInputStreamReader == null) {
+            this.httpInputStreamReader = new HTTPInputStreamReader(this,
+                    this.uploadPolicy);
         }
 
         // Let's do the job
-        httpInputStreamReader.readHttpResponse();
+        this.httpInputStreamReader.readHttpResponse();
 
-        if (httpInputStreamReader.gotClose) {
+        if (this.httpInputStreamReader.gotClose) {
             // RFC 2868, section 8.1.2.1
             dispose();
         }
 
-        return httpInputStreamReader.gethttpStatusCode();
+        return this.httpInputStreamReader.gethttpStatusCode();
     }
 
     /** @see FileUploadThread#stopUpload() */
@@ -440,47 +441,49 @@ public class HTTPConnectionHelper {
      * @throws JUploadIOException
      */
     private void initByteArrayEncoder() throws JUploadIOException {
-        if (byteArrayEncoder != null && !byteArrayEncoder.isClosed()) {
-            byteArrayEncoder.close();
-            byteArrayEncoder = null;
+        if (this.byteArrayEncoder != null && !this.byteArrayEncoder.isClosed()) {
+            this.byteArrayEncoder.close();
+            this.byteArrayEncoder = null;
         }
-        this.byteArrayEncoder = new ByteArrayEncoderHTTP(uploadPolicy, boundary);
-        proxy = null;
+        this.byteArrayEncoder = new ByteArrayEncoderHTTP(this.uploadPolicy,
+                this.boundary);
+        this.proxy = null;
         try {
-            proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
+            this.proxy = ProxySelector.getDefault().select(this.url.toURI())
+                    .get(0);
         } catch (URISyntaxException e) {
             throw new JUploadIOException("Error while managing url "
-                    + url.toExternalForm(), e);
+                    + this.url.toExternalForm(), e);
         }
-        useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
-        useSSL = url.getProtocol().equals("https");
+        this.useProxy = ((this.proxy != null) && (this.proxy.type() != Proxy.Type.DIRECT));
+        this.useSSL = this.url.getProtocol().equals("https");
 
         // Header: Request line
         // Let's clear it. Useful only for chunked uploads.
         this.byteArrayEncoder.append("POST ");
-        if (useProxy && (!useSSL)) {
+        if (this.useProxy && (!this.useSSL)) {
             // with a proxy we need the absolute URL, but only if not
             // using SSL. (with SSL, we first use the proxy CONNECT method,
             // and then a plain request.)
-            this.byteArrayEncoder.append(url.getProtocol()).append("://")
-                    .append(url.getHost());
+            this.byteArrayEncoder.append(this.url.getProtocol()).append("://")
+                    .append(this.url.getHost());
         }
-        this.byteArrayEncoder.append(url.getPath());
+        this.byteArrayEncoder.append(this.url.getPath());
 
         // Append the query params.
         // TODO: This probably can be removed as we now
         // have everything in POST data. However in order to be
         // backwards-compatible, it stays here for now. So we now provide
         // *both* GET and POST params.
-        if (null != url.getQuery() && !"".equals(url.getQuery()))
-            this.byteArrayEncoder.append("?").append(url.getQuery());
+        if (null != this.url.getQuery() && !"".equals(this.url.getQuery()))
+            this.byteArrayEncoder.append("?").append(this.url.getQuery());
 
         this.byteArrayEncoder.append(" ").append(
                 this.uploadPolicy.getServerProtocol()).append("\r\n");
 
         // Header: General
-        this.byteArrayEncoder.append("Host: ").append(url.getHost()).append(
-                "\r\nAccept: */*\r\n");
+        this.byteArrayEncoder.append("Host: ").append(this.url.getHost())
+                .append("\r\nAccept: */*\r\n");
         // We do not want gzipped or compressed responses, so we must
         // specify that here (RFC 2616, Section 14.3)
         this.byteArrayEncoder.append("Accept-Encoding: identity\r\n");
@@ -490,9 +493,9 @@ public class HTTPConnectionHelper {
         if (!this.uploadPolicy.getAllowHttpPersistent()) {
             this.byteArrayEncoder.append("Connection: close\r\n");
         } else {
-            if (!bChunkEnabled
-                    || bLastChunk
-                    || useProxy
+            if (!this.bChunkEnabled
+                    || this.bLastChunk
+                    || this.useProxy
                     || !this.uploadPolicy.getServerProtocol()
                             .equals("HTTP/1.1")) { // RFC 2086, section 19.7.1
                 this.byteArrayEncoder.append("Connection: close\r\n");
@@ -516,9 +519,9 @@ public class HTTPConnectionHelper {
         } else if (!this.uploadPolicy.getAllowHttpPersistent()) {
             return false;
         } else {
-            if (!bChunkEnabled
-                    || bLastChunk
-                    || useProxy
+            if (!this.bChunkEnabled
+                    || this.bLastChunk
+                    || this.useProxy
                     || !this.uploadPolicy.getServerProtocol()
                             .equals("HTTP/1.1")) { // RFC 2086, section 19.7.1
                 return false;

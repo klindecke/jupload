@@ -1,10 +1,10 @@
 //
 // $Id: DebugDialog.java 298 2007-07-12 10:17:32 +0000 (jeu., 12 juil. 2007)
 // etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-07-10
 // Creator: etienne_sf
 // Last modified: $Date: 2008-04-16 09:58:02 +0200 (mer., 16 avr. 2008) $
@@ -35,6 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -89,7 +90,7 @@ public class DebugDialog extends JDialog implements ActionListener {
         JEditorPane editorPane = new JEditorPane();
         JScrollPane editorScrollPane = new JScrollPane(editorPane);
         editorScrollPane
-                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         editorScrollPane.setPreferredSize(new Dimension(250, 145));
         editorScrollPane.setMinimumSize(new Dimension(10, 10));
 
@@ -101,8 +102,9 @@ public class DebugDialog extends JDialog implements ActionListener {
         try {
             pack();
         } catch (IllegalArgumentException e) {
-            //This can happen, while parsing HTML.
-            uploadPolicy.displayWarn("IllegalArgumentException while packing the DebugWindow (bad HTML ?)");
+            // This can happen, while parsing HTML.
+            uploadPolicy
+                    .displayWarn("IllegalArgumentException while packing the DebugWindow (bad HTML ?)");
             uploadPolicy.displayErr(e);
         }
         // Correction given by
@@ -138,7 +140,7 @@ public class DebugDialog extends JDialog implements ActionListener {
      */
     public void setText(JEditorPane editorPane, String text)
             throws JUploadIOException {
-        uploadPolicy.getApplet().registerUnload(this, "deleteLog");
+        this.uploadPolicy.getApplet().registerUnload(this, "deleteLog");
         try {
             // First: creation of a temporary file. This is necessary, as html
             // output is not correctly displayed in the JEditorPane, when using
@@ -163,7 +165,6 @@ public class DebugDialog extends JDialog implements ActionListener {
         }
     }
 
-
     /**
      * Delete the current log. (called upon applet termination)
      */
@@ -181,6 +182,7 @@ public class DebugDialog extends JDialog implements ActionListener {
     /**
      * dispose all internal resources. Mainly: the temporary file.
      */
+    @Override
     public void dispose() {
         super.dispose();
         deleteLog();

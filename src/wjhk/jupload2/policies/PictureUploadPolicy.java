@@ -1,10 +1,10 @@
 //
 // $Id: PictureUploadPolicy.java 295 2007-06-27 08:43:25 +0000 (mer., 27 juin
 // 2007) etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-05-06
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -24,18 +24,18 @@ package wjhk.jupload2.policies;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.ImageObserver;
-import java.awt.SystemColor;
 import java.io.File;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.BorderFactory;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
@@ -214,7 +214,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * 
      * @param theApplet Reference to the current applet. Allows access to
      *            javascript functions.
-     * @throws JUploadException 
+     * @throws JUploadException
      */
     public PictureUploadPolicy(JUploadApplet theApplet) throws JUploadException {
         super(theApplet);
@@ -449,12 +449,12 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
      */
     public boolean getFileChooserImagePreview() {
-        return fileChooserImagePreview;
+        return this.fileChooserImagePreview;
     }
 
     /**
-     * Setter for fileChooserIconFromFileContent. Current allowed
-     * values are: -1, 0, 1. Default value is 0.
+     * Setter for fileChooserIconFromFileContent. Current allowed values are:
+     * -1, 0, 1. Default value is 0.
      * 
      * @param fileChooserImagePreview new value to store, for the applet
      *            parameter: fileChooserImagePreview.
@@ -667,7 +667,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public Cursor setWaitCursor() {
         Cursor previousCursor = super.setWaitCursor();
-        picturePanel.setCursor(null);
+        this.picturePanel.setCursor(null);
         return previousCursor;
     }
 
@@ -680,7 +680,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public void setCursor(Cursor cursor) {
         super.setCursor(null);
-        picturePanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        this.picturePanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     /**
@@ -726,14 +726,16 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 getFileChooserIconSize());
     }
 
-    /** Implementation of the ImageObserver interface 
-     * @param arg0 
-     * @param arg1 
-     * @param arg2 
-     * @param arg3 
-     * @param arg4 
-     * @param arg5 
-     * @return true or false 
+    /**
+     * Implementation of the ImageObserver interface
+     * 
+     * @param arg0
+     * @param arg1
+     * @param arg2
+     * @param arg3
+     * @param arg4
+     * @param arg5
+     * @return true or false
      */
     public boolean imageUpdate(@SuppressWarnings("unused")
     Image arg0, @SuppressWarnings("unused")

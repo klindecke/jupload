@@ -2,10 +2,10 @@
 // $Id: ColumnComparator.java 95 2007-05-02 03:27:05Z
 // /C=DE/ST=Baden-Wuerttemberg/O=ISDN4Linux/OU=Fritz
 // Elfert/CN=svn-felfert@isdn4linux.de/emailAddress=fritz@fritz-elfert.de $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -23,6 +23,7 @@
 package wjhk.jupload2.gui;
 
 import java.util.Comparator;
+
 import wjhk.jupload2.filedata.FileData;
 
 /**
@@ -46,8 +47,8 @@ public class ColumnComparator implements Comparator<FileData> {
     }
 
     /**
-     * @param one 
-     * @param two 
+     * @param one
+     * @param two
      * @return -1, 0 or 1, as usual.
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
@@ -59,20 +60,20 @@ public class ColumnComparator implements Comparator<FileData> {
         Object oTwo;
         switch (this.index) {
             case FilePanelDataModel2.COLINDEX_NAME:
-                oOne = ((FileData) one).getFileName();
-                oTwo = ((FileData) two).getFileName();
+                oOne = (one).getFileName();
+                oTwo = (two).getFileName();
                 break;
             case FilePanelDataModel2.COLINDEX_SIZE:
-                oOne = new Long(((FileData) one).getFileLength());
-                oTwo = new Long(((FileData) two).getFileLength());
+                oOne = new Long((one).getFileLength());
+                oTwo = new Long((two).getFileLength());
                 break;
             case FilePanelDataModel2.COLINDEX_DIRECTORY:
-                oOne = ((FileData) one).getDirectory();
-                oTwo = ((FileData) two).getDirectory();
+                oOne = (one).getDirectory();
+                oTwo = (two).getDirectory();
                 break;
             case FilePanelDataModel2.COLINDEX_MODIFIED:
-                oOne = ((FileData) one).getLastModified();
-                oTwo = ((FileData) two).getLastModified();
+                oOne = (one).getLastModified();
+                oTwo = (two).getLastModified();
                 break;
             default:
                 return 0;

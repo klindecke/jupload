@@ -1,10 +1,10 @@
 //
 // $Id: DefaultFileUploadThread.java 287 2007-06-17 09:07:04 +0000 (dim., 17
 // juin 2007) felfert $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: ?
 // Creator: William JinHua Kwong
 // Last modified: $Date$
@@ -434,8 +434,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // Let's read up to date upload parameters.
         // These parameters may be changed by the subclasses parameter of this
         // class: so we read them as late as possible, that is: here!
-        this.maxChunkSize = uploadPolicy.getMaxChunkSize();
-        this.nbMaxFilesPerUpload = uploadPolicy.getNbFilesPerRequest();
+        this.maxChunkSize = this.uploadPolicy.getMaxChunkSize();
+        this.nbMaxFilesPerUpload = this.uploadPolicy.getNbFilesPerRequest();
 
         // this inhibits status-update (progress bar and status bar)
         // from within the timer loop.

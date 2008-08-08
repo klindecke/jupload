@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2007-01-19
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -21,7 +21,6 @@
 package wjhk.jupload2.filedata;
 
 import java.io.File;
-
 
 import wjhk.jupload2.policies.UploadPolicy;
 

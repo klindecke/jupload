@@ -1,10 +1,10 @@
 //
 // $Id: DefaultUploadPolicy.java 289 2007-06-19 10:04:46 +0000 (mar., 19 juin
 // 2007) etienne_sf $
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2006-05-04
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -80,8 +80,8 @@ import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.upload.HttpConnect;
 import wjhk.jupload2.upload.InteractiveTrustManager;
-import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
+import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
 
 /**
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy}
@@ -1038,7 +1038,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     displayDebug("Within response == true", 60);
 
                     // The message is written in English, as it is not sure that
-                    // the webmaster speaks the same language as the current user.
+                    // the webmaster speaks the same language as the current
+                    // user.
                     String query = null;
                     String action = null;
                     Socket sock = null;
@@ -1117,7 +1118,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         }
                         debugIn.close();
                         request.close();
-                        
+
                         // We are done with the debug log, so re-enable it.
                         this.debugOk = localDebugOk;
                         action = "flush";
@@ -1128,7 +1129,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         boolean readingHttpBody = false;
                         sbHttpResponseBody = new StringBuffer();
                         // Now, we wait for the full answer (which should mean
-                        // that the uploaded message has been treated on the server).
+                        // that the uploaded message has been treated on the
+                        // server).
                         while ((line = datain.readLine()) != null) {
                             // Is this upload a success ?
                             action = "test success";
@@ -1290,7 +1292,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_ALLOWED_FILE_EXTENSIONS + ": "
                 + getAllowedFileExtensions(), 20);
         displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
-                + " (debugfile: " + debugFile.getAbsolutePath() + ")", 1);
+                + " (debugfile: " + this.debugFile.getAbsolutePath() + ")", 1);
         displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
                 + getFileChooserIconFromFileContent(), 20);
         displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
@@ -1311,7 +1313,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_POST_URL + ": " + this.postURL, 20);
         displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 20);
         displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 20);
-        displayDebug(PROP_SHOW_STATUSBAR + ": " + showStatusbar, 20);
+        displayDebug(PROP_SHOW_STATUSBAR + ": " + this.showStatusbar, 20);
         displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(), 20);
         displayDebug(PROP_STRING_UPLOAD_ERROR + ": " + getStringUploadError(),
                 20);
@@ -1431,7 +1433,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.debugLevel >= 0) {
             displayInfo("Debug level set to " + debugLevel);
             displayInfo("Current debug output file: "
-                    + debugFile.getAbsolutePath());
+                    + this.debugFile.getAbsolutePath());
         }
         this.debugLevel = debugLevel;
 
@@ -1454,7 +1456,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     public int getFileChooserIconFromFileContent() {
-        return fileChooserIconFromFileContent;
+        return this.fileChooserIconFromFileContent;
     }
 
     /**
@@ -1735,7 +1737,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getSpecificHeaders() */
     public String getSpecificHeaders() {
-        return specificHeaders;
+        return this.specificHeaders;
     }
 
     /**

@@ -1,9 +1,9 @@
 //
 // $Id$
-// 
+//
 // jupload - A file upload applet.
 // Copyright 2007 The JUpload Team
-// 
+//
 // Created: 2007-03-07
 // Creator: etienne_sf
 // Last modified: $Date$
@@ -19,7 +19,7 @@
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
 package wjhk.jupload2.upload;
- 
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -33,8 +33,8 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
+import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
 import wjhk.jupload2.upload.helper.HTTPConnectionHelper;
 
 /**
@@ -106,10 +106,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /** @see DefaultFileUploadThread#afterFile(int) */
     @Override
     void afterFile(int index) throws JUploadIOException {
-        this.connectionHelper.write(tails[index].getEncodedByteArray());
+        this.connectionHelper.write(this.tails[index].getEncodedByteArray());
         this.uploadPolicy.displayDebug("--- filetail start (len="
-                + tails[index].getEncodedLength() + "):", 80);
-        this.uploadPolicy.displayDebug(quoteCRLF(tails[index].getString()), 80);
+                + this.tails[index].getEncodedLength() + "):", 80);
+        this.uploadPolicy.displayDebug(
+                quoteCRLF(this.tails[index].getString()), 80);
         this.uploadPolicy.displayDebug("--- filetail end", 80);
     }
 
@@ -119,8 +120,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // heads[i] contains the header specific for the file, in the multipart
         // content.
         // It is initialized at the beginning of the run() method. It can be
-        // override at the beginning
-        // of this loop, if in chunk mode.
+        // override at the beginning of this loop, if in chunk mode.
         try {
             this.connectionHelper
                     .write(this.heads[index].getEncodedByteArray());
@@ -158,9 +158,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     @Override
     int finishRequest() throws JUploadException {
-        int status=connectionHelper.readHttpResponse();
-        setResponseMsg(connectionHelper.getResponseMsg());
-        setResponseBody(connectionHelper.getResponseBody());
+        int status = this.connectionHelper.readHttpResponse();
+        setResponseMsg(this.connectionHelper.getResponseMsg());
+        setResponseBody(this.connectionHelper.getResponseBody());
         return status;
     }
 
@@ -199,9 +199,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 }
             }
 
-            connectionHelper.initRequest(url, bChunkEnabled, bLastChunk);
+            this.connectionHelper.initRequest(url, bChunkEnabled, bLastChunk);
 
-            ByteArrayEncoder bae = connectionHelper.getByteArrayEncoder();
+            ByteArrayEncoder bae = this.connectionHelper.getByteArrayEncoder();
 
             // Get the GET parameters from the URL and convert them to
             // post form params
@@ -209,7 +209,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             contentLength += formParams.getEncodedLength();
 
             bae.append("Content-Type: multipart/form-data; boundary=").append(
-                    connectionHelper.getBoundary().substring(2)).append("\r\n");
+                    this.connectionHelper.getBoundary().substring(2)).append(
+                    "\r\n");
             bae.append("Content-Length: ")
                     .append(String.valueOf(contentLength)).append("\r\n");
 
@@ -230,7 +231,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             bae.close();
 
             // Let's call the server
-            connectionHelper.sendRequest();
+            this.connectionHelper.sendRequest();
 
             // Debug output: always called, so that the debug file is correctly
             // filled.
@@ -249,49 +250,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     @Override
     public void stopUpload() {
         super.stopUpload();
-        connectionHelper.stopUpload();
+        this.connectionHelper.stopUpload();
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// PRIVATE METHODS
     // ////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Creates a mime multipart string snippet, representing a POST variable.
-     * 
-     * @param bae The ByteArrayEncoder, in which the variable is to be added.
-     * @param bound The multipart boundary to use.
-     * @param name The name of the POST variable
-     * @param value The value of the POST variable
-     * @throws JUploadIOException An exception that can be thrown while trying
-     *             to encode the given parameter to the current charset.
-     * 
-     * private final ByteArrayEncoder addPostVariable(ByteArrayEncoder bae,
-     * String bound, String name, String value) throws JUploadIOException {
-     * bae.append(bound).append("\r\n"); bae.append("Content-Disposition:
-     * form-data; name=\"").append(name) .append("\"\r\n");
-     * bae.append("Content-Transfer-Encoding: 8bit\r\n");
-     * bae.append("Content-Type: text/plain; UTF-8\r\n"); // An empty line
-     * before the actual value. bae.append("\r\n"); // And then, the value!
-     * bae.append(value).append("\r\n");
-     * 
-     * return bae; }
-     */
-
-    /**
-     * Creates a mime multipart string snippet, representing a FORM. Extracts
-     * all form elements of a given HTML form and assembles a StringBuffer which
-     * contains a sequence of mime multipart messages which represent the
-     * elements of that form.
-     * 
-     * @param bae The ByteArrayEncoder, in which the variable is to be added.
-     * @param bound The multipart boundary to use.
-     * @param formname The name of the form to evaluate.
-     * @return the bae parameter, suitable for appending to the multipart
-     *         content.
-     * @throws JUploadIOException An exception that can be thrown while trying
-     *             to encode the given parameter to the current charset.
-     */
 
     /**
      * Returns the header for this file, within the http multipart body.
@@ -312,7 +276,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         String mimetype = this.filesToUpload[index].getMimeType();
         String uploadFilename = this.filesToUpload[index]
                 .getUploadFilename(index);
-        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, bound);
+        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(this.uploadPolicy,
+                bound);
 
         // We'll encode the output stream into UTF-8.
         String form = this.uploadPolicy.getFormdata();
@@ -392,7 +357,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         for (int i = firstFileToUpload; i < firstFileToUpload + nbFilesToUpload; i++) {
             // We'll encode the output stream into UTF-8.
-            ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy, bound);
+            ByteArrayEncoder bae = new ByteArrayEncoderHTTP(this.uploadPolicy,
+                    bound);
 
             bae.append("\r\n");
             bae.appendFileProperty("md5sum[]", this.filesToUpload[i].getMD5());
@@ -423,7 +389,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
         // Use a string buffer
         // We'll encode the output stream into UTF-8.
-        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(uploadPolicy,
+        ByteArrayEncoder bae = new ByteArrayEncoderHTTP(this.uploadPolicy,
                 this.connectionHelper.getBoundary());
 
         // Get the query string
