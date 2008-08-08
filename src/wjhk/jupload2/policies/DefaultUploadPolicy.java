@@ -1037,9 +1037,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                     displayDebug("Within response == true", 60);
 
-                    // The message is written in english, as it is not sure that
-                    // the
-                    // webmaster speaks the same language as the current user.
+                    // The message is written in English, as it is not sure that
+                    // the webmaster speaks the same language as the current user.
                     String query = null;
                     String action = null;
                     Socket sock = null;
@@ -1129,8 +1128,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         boolean readingHttpBody = false;
                         sbHttpResponseBody = new StringBuffer();
                         // Now, we wait for the full answer (which should mean
-                        // that
-                        // the uploaded message has been treated on the server).
+                        // that the uploaded message has been treated on the server).
                         while ((line = datain.readLine()) != null) {
                             // Is this upload a success ?
                             action = "test success";

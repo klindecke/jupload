@@ -20,28 +20,13 @@
 
 package wjhk.jupload2.upload;
  
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PushbackInputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.Socket;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.net.ssl.SSLSocket;
 import javax.swing.JProgressBar;
 
 import wjhk.jupload2.exception.JUploadException;
