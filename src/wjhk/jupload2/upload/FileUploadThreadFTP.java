@@ -47,7 +47,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * inherits from the {@link FileUploadThread} class. <br>
  * <br>
  * In order to use it, simply change the postURL argument to the applet to
- * contain the approperiate ftp:// link. The format is:
+ * contain the appropriate ftp:// link. The format is:
  * 
  * <pre>
  *         ftp://username:password@myhost.com:21/directory
@@ -115,7 +115,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     private String dir;
 
     /**
-     * Indicates whether the connexion to the FTP server is open or not. This
+     * Indicates whether the connection to the FTP server is open or not. This
      * allows to connect once on the FTP server, for multiple file upload.
      */
     private boolean bConnected = false;
@@ -142,7 +142,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             throws JUploadException {
         super(filesDataParam, uploadPolicy, progress);
 
-        // Some choherence checks, for parameter given to the applet.
+        // Some coherence checks, for parameter given to the applet.
 
         // stringUploadSuccess: unused in FTP mode. Must be null.
         if (uploadPolicy.getStringUploadSuccess() != null) {
