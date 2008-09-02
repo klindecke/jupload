@@ -767,8 +767,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 bReturn = false;
                 /*
                  * The error will be managed by the main thread. We just store
-                 * it, for now. this.uploadPolicy.displayErr(this.uploadPolicy
-                 * .getString("errDuringUpload"), e);
+                 * it, for now. 
                  */
             }
 
