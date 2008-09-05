@@ -214,9 +214,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             bae.append("Content-Length: ")
                     .append(String.valueOf(contentLength)).append("\r\n");
 
-            // Get specific headers for this upload.
-            this.uploadPolicy.onAppendHeader(bae);
-
             // Blank line (end of header)
             bae.append("\r\n");
 

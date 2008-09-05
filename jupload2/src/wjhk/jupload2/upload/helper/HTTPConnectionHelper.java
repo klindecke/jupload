@@ -201,9 +201,6 @@ public class HTTPConnectionHelper {
         if (this.byteArrayEncoder == null) {
             initByteArrayEncoder();
         }
-        if (this.byteArrayEncoder.isClosed()) {
-            throw new JUploadIOException("byteArrayEncoder is already closed");
-        }
 
         return this.byteArrayEncoder;
     }
@@ -230,6 +227,9 @@ public class HTTPConnectionHelper {
             if (!this.byteArrayEncoder.isClosed()) {
                 this.byteArrayEncoder.close();
             }
+            
+            //Let's clear any field that could have been read in a previous step:
+            this.httpInputStreamReader = null;
 
             // Only connect, if sock is null!!
             // ... or if we don't persist HTTP connections (patch for IIS, based
@@ -246,6 +246,10 @@ public class HTTPConnectionHelper {
 
             // Send http request to server
             this.httpDataOut.write(this.byteArrayEncoder.getEncodedByteArray());
+            
+            //The request has been sent. The current ByteArrayEncoder is now useless. A new one is to be created for the next request.
+            this.byteArrayEncoder = null;
+            
         } catch (IOException e) {
             throw new JUploadIOException("Unable to open socket", e);
         } catch (KeyManagementException e) {
@@ -508,6 +512,9 @@ public class HTTPConnectionHelper {
                     this.byteArrayEncoder.append("Connection: keep-alive\r\n");
             }
         }
+
+        // Get specific headers for this upload.
+        this.uploadPolicy.onAppendHeader(this.byteArrayEncoder);
     }
 
     /**
