@@ -160,15 +160,15 @@ public class DefaultFileData implements FileData {
     /** {@inheritDoc} */
     public void appendFileProperties(ByteArrayEncoder bae)
             throws JUploadIOException {
-        bae.appendFileProperty("mimetype[]", getMimeType());
-        bae.appendFileProperty("pathinfo[]", getDirectory());
-        bae.appendFileProperty("relpathinfo[]", getRelativeDir());
+        bae.appendTextProperty("mimetype[]", getMimeType());
+        bae.appendTextProperty("pathinfo[]", getDirectory());
+        bae.appendTextProperty("relpathinfo[]", getRelativeDir());
         // To add the file datetime, we first have to format this date.
         SimpleDateFormat dateformat = new SimpleDateFormat(this.uploadPolicy
                 .getDateFormat());
         String uploadFileModificationDate = dateformat
                 .format(getLastModified());
-        bae.appendFileProperty("filemodificationdate[]",
+        bae.appendTextProperty("filemodificationdate[]",
                 uploadFileModificationDate);
     }
 

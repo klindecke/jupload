@@ -106,7 +106,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /** @see DefaultFileUploadThread#afterFile(int) */
     @Override
     void afterFile(int index) throws JUploadIOException {
-        this.connectionHelper.write(this.tails[index].getEncodedByteArray());
+        this.connectionHelper.append(this.tails[index].getEncodedByteArray());
         this.uploadPolicy.displayDebug("--- filetail start (len="
                 + this.tails[index].getEncodedLength() + "):", 80);
         this.uploadPolicy.displayDebug(
@@ -123,7 +123,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // override at the beginning of this loop, if in chunk mode.
         try {
             this.connectionHelper
-                    .write(this.heads[index].getEncodedByteArray());
+                    .append(this.heads[index].getEncodedByteArray());
 
             // Debug output: always called, so that the debug file is correctly
             // filled.
@@ -174,7 +174,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     @SuppressWarnings("unused")
     @Override
     OutputStream getOutputStream() throws JUploadException {
-        return this.connectionHelper.getHttpDataOut();
+        return this.connectionHelper.getOutputStream();
     }
 
     /** @see DefaultFileUploadThread#startRequest(long, boolean, int, boolean) */
@@ -201,31 +201,26 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             this.connectionHelper.initRequest(url, bChunkEnabled, bLastChunk);
 
-            ByteArrayEncoder bae = this.connectionHelper.getByteArrayEncoder();
-
             // Get the GET parameters from the URL and convert them to
             // post form params
             ByteArrayEncoder formParams = getFormParamsForPostRequest(url);
             contentLength += formParams.getEncodedLength();
 
-            bae.append("Content-Type: multipart/form-data; boundary=").append(
+            this.connectionHelper.append("Content-Type: multipart/form-data; boundary=").append(
                     this.connectionHelper.getBoundary().substring(2)).append(
                     "\r\n");
-            bae.append("Content-Length: ")
+            this.connectionHelper.append("Content-Length: ")
                     .append(String.valueOf(contentLength)).append("\r\n");
 
             // Blank line (end of header)
-            bae.append("\r\n");
+            this.connectionHelper.append("\r\n");
 
             // formParams are not really part of the main header, but we add
             // them here anyway. We write directly into the
             // ByteArrayOutputStream, as we already encoded them, to get the
             // encoded length. We need to flush the writer first, before
-            // directly writting to the ByteArrayOutputStream.
-            bae.append(formParams);
-
-            // The header is now constructed.
-            bae.close();
+            // directly writing to the ByteArrayOutputStream.
+            this.connectionHelper.append(formParams);
 
             // Let's call the server
             this.connectionHelper.sendRequest();
@@ -233,8 +228,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Debug output: always called, so that the debug file is correctly
             // filled.
             this.uploadPolicy.displayDebug("=== main header (len="
-                    + bae.getEncodedLength() + "):\n"
-                    + quoteCRLF(bae.getString()), 80);
+                    + this.connectionHelper.getByteArrayEncoder().getEncodedLength() + "):\n"
+                    + quoteCRLF(this.connectionHelper.getByteArrayEncoder().getString()), 80);
             this.uploadPolicy.displayDebug("=== main header end", 80);
         } catch (IOException e) {
             throw new JUploadIOException(e);
@@ -358,7 +353,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     bound);
 
             bae.append("\r\n");
-            bae.appendFileProperty("md5sum[]", this.filesToUpload[i].getMD5());
+            bae.appendTextProperty("md5sum[]", this.filesToUpload[i].getMD5());
 
             // The last tail gets an additional "--" in order to tell the
             // server we have finished.
@@ -415,7 +410,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // Now add one multipart segment for each
             for (String key : requestParameters.keySet())
-                bae.appendFileProperty(key, requestParameters.get(key));
+                bae.appendTextProperty(key, requestParameters.get(key));
         }
         // Return the body content
         bae.close();

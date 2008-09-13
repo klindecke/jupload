@@ -118,6 +118,8 @@
 		        }
 		        fos.close();
 	        }
+	        
+	        
 	        // End of chunk management
 	        //////////////////////////////////////////////////////////////////////////////////////
 	        
@@ -139,7 +141,9 @@
   	out.println("[parseRequest.jsp] " + "End of server treatment ");
 
   }catch(Exception e){
+    out.println("");
     out.println("ERROR: Exception e = " + e.toString());
+    out.println("");
   }
   
 %>

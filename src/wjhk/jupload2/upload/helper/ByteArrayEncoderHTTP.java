@@ -61,7 +61,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
      * The boundary, to put between to post variables. Can not be changed during
      * the object 'life'.
      */
-    private String bound = "";
+    private String bound = null;
 
     /**
      * The current encoding. Can not be changed during the object 'life'.
@@ -102,6 +102,11 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     private Writer writer;
 
     // ///////////////////////////////////////////////////////////////////////
+    // //////////////// VARIOUS UTILITIES ////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////////////
+
+
+    // ///////////////////////////////////////////////////////////////////////
     // //////////////// CONSTRUCTORS /////////////////////////////////////////
     // ///////////////////////////////////////////////////////////////////////
 
@@ -109,25 +114,38 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
      * Create an encoder, using the DEFAULT_ENCODING encoding.
      * 
      * @param uploadPolicy The current upload policy
-     * @param bound The HTTP boundary. Can be null, if not used.
      * @throws JUploadIOException Any IO exception
      */
-    public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String bound)
+    public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy)
             throws JUploadIOException {
-        init(uploadPolicy, DEFAULT_ENCODING, bound);
+        init(uploadPolicy, null, DEFAULT_ENCODING);
     }
 
     /**
      * Create an encoder, and specifies the encoding to use.
      * 
      * @param uploadPolicy The current upload policy
-     * @param encoding The encoding to use. For instance, "UTF-8".
-     * @param bound The HTTP boundary. Can be null, if not used.
+     * @param bound Any specific boundary. May be null: in this case a default
+     *            boundary is used.
      * @throws JUploadIOException Any IO exception
      */
-    public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String encoding,
-            String bound) throws JUploadIOException {
-        init(uploadPolicy, encoding, bound);
+    public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String bound)
+            throws JUploadIOException {
+        init(uploadPolicy, bound, DEFAULT_ENCODING);
+    }
+
+    /**
+     * Create an encoder, and specifies the boundary and encoding to use.
+     * 
+     * @param uploadPolicy The current upload policy
+     * @param bound Any specific boundary. May be null: in this case a default
+     *            boundary is used.
+     * @param encoding The encoding to use. For instance, "UTF-8".
+     * @throws JUploadIOException Any IO exception
+     */
+    public ByteArrayEncoderHTTP(UploadPolicy uploadPolicy, String bound,
+            String encoding) throws JUploadIOException {
+        init(uploadPolicy, bound, encoding);
     }
 
     // ///////////////////////////////////////////////////////////////////////
@@ -166,6 +184,19 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     }
 
     /** {@inheritDoc} */
+    public ByteArrayEncoder append(int b) throws JUploadIOException {
+        try {
+            this.writer.flush();
+            this.baos.write(b);
+        } catch (IOException e) {
+            throw new JUploadIOException(e);
+        }
+        // Returning the encoder allows calls like:
+        // bae.append("qdqd").append("qsldqd"); (like StringBuffer)
+        return this;
+    }
+
+    /** {@inheritDoc} */
     public ByteArrayEncoder append(byte[] b) throws JUploadIOException {
         try {
             this.writer.flush();
@@ -188,7 +219,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     }
 
     /** {@inheritDoc} */
-    public ByteArrayEncoder appendFileProperty(String name, String value)
+    public ByteArrayEncoder appendTextProperty(String name, String value)
             throws JUploadIOException {
         this.append(this.bound).append("\r\n");
         this.append("Content-Disposition: form-data; name=\"").append(name)
@@ -241,9 +272,13 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                         }
                         if (name instanceof String) {
                             if (value instanceof String) {
-                                this.appendFileProperty((String) name,
+                                this.appendTextProperty((String) name,
                                         (String) value);
+                            } else {
+                                throw new JUploadIOException("[ByteArrayEncoder.appendFormVariables] value must be an instance of String");
                             }
+                        } else {
+                            throw new JUploadIOException("[ByteArrayEncoder.appendFormVariables] name must be an instance of String");
                         }
                     } catch (JSException e1) {
                         this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
@@ -262,9 +297,12 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         return this;
     }
 
+    /** {@inheritDoc} */
+    public String getBoundary() {
+        return this.bound;
+    }
+
     /**
-     * *
-     * 
      * @return value of the DEFAULT_ENCODING constant.
      */
     public static String getDefaultEncoding() {
@@ -321,11 +359,12 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
      * 
      * @throws JUploadIOException
      */
-    private void init(UploadPolicy uploadPolicy, String encoding, String bound)
+    private void init(UploadPolicy uploadPolicy, String bound, String encoding)
             throws JUploadIOException {
         this.uploadPolicy = uploadPolicy;
         this.encoding = encoding;
         this.bound = bound;
+
         try {
             this.writer = new OutputStreamWriter(this.baos, encoding);
         } catch (UnsupportedEncodingException e) {

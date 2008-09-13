@@ -43,6 +43,18 @@ public interface ByteArrayEncoder {
     public ByteArrayEncoder append(String str) throws JUploadIOException;
 
     /**
+     * Append a byte, to be encoded at the current end of the byte array. he
+     * byte to be written is the eight low-order bits of the argument b. The 24
+     * high-order bits of b are ignored.
+     * 
+     * @param b Writes the specified byte to this output stream.
+     * @return Return the current ByteArrayEncoder, to allow chained call (see
+     *         explanation, here above).
+     * @throws JUploadIOException
+     */
+    public ByteArrayEncoder append(int b) throws JUploadIOException;
+
+    /**
      * Append a stream, to be encoded at the current end of the byte array.
      * 
      * @param b
@@ -63,7 +75,7 @@ public interface ByteArrayEncoder {
      *         explanation, here above).
      * @throws JUploadIOException
      */
-    public ByteArrayEncoder appendFileProperty(String name, String value)
+    public ByteArrayEncoder appendTextProperty(String name, String value)
             throws JUploadIOException;
 
     /**
@@ -98,6 +110,14 @@ public interface ByteArrayEncoder {
      * @return the closed
      */
     public boolean isClosed();
+
+    /**
+     * Gets the HTTP boundary, that separate the form variables.
+     * 
+     * @return The HTTP boundary, that was generated when the instance was
+     *         created.
+     */
+    public String getBoundary();
 
     /**
      * @return the encoding
