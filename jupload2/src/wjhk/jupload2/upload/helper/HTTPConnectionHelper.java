@@ -23,6 +23,7 @@ package wjhk.jupload2.upload.helper;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.net.Proxy;
 import java.net.ProxySelector;
@@ -44,12 +45,82 @@ import wjhk.jupload2.upload.HttpConnect;
 /**
  * 
  * This class contains utilities to delegate network manipulation. It hides the
- * management for the current upload policy connection parameters.
+ * management for the current upload policy connection parameters.<BR>
+ * This class goes through the following states, stored in the private
+ * connectionStatus attribute: <DIR>
+ * <LI>STATUS_NOT_INITIALIZED: default status when the instance in created.
+ * Only available action: {@link #initRequest(URL, boolean, boolean)}
+ * <LI>STATUS_BEFORE_SERVER_CONNECTION: the instance is initialized, and the
+ * caller may begin writing the request to this ConnectionHelper. All data
+ * written to it, will be stored in a {@link ByteArrayEncoderHTTP}. The
+ * connection switches to this status when the
+ * {@link #initRequest(URL, boolean, boolean)} is called.
+ * <LI>STATUS_WRITING_REQUEST: The network connection to the server is now
+ * opened. The content of the ByteArrayEncoderHTTP has been sent to the server.
+ * All subsequent calls to write methods will directly write on the socket to
+ * the server. The {@link #sendRequest()} method changes the connection to this
+ * status.
+ * <LI>STATUS_READING_RESPONSE: The request to the server has been totally
+ * written. No more calls to the write methods are allowed. The
+ * {@link #readHttpResponse()} is responsible to put the connectionHelper to
+ * this status.
+ * <LI>STATUS_CONNECTION_CLOSED: The response has been read. All getters can be
+ * called, to get information about the server response. The only other method
+ * allowed is the {@link #initRequest(URL, boolean, boolean)}, to start a new
+ * request to the server. Using the same connectionHelper allows to use the same
+ * network connection, when the allowHttpPersistent applet parameter is used.
+ * </DIR>
  * 
  * @author etienne_sf
  * 
  */
-public class HTTPConnectionHelper {
+public class HTTPConnectionHelper extends OutputStream {
+
+    // ////////////////////////////////////////////////////////////////////////////////////
+    // /////////////////// PRIVATE CONSTANTS
+    // ////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Indicates that the connection has not been initialized. The only
+     * authorized action in this state is a call to
+     * {@link #initRequest(URL, boolean, boolean)}.
+     */
+    final private int STATUS_NOT_INITIALIZED = 0;
+
+    /**
+     * Indicates that the network connection to the server has not been opened.
+     * All data sent to the ConnectionHelper with write methods are sent to the
+     * current ByteArrayEncoder.
+     */
+    final private int STATUS_BEFORE_SERVER_CONNECTION = 1;
+
+    /**
+     * Indicates that the network connection to the server is opened, but the
+     * request has not been totally sent to the server. All data sent to the
+     * ConnectionHelper with write methods is sent to the network connection,
+     * that is: to the current OutputStream. <BR>
+     * That is: the ByteArrayEncoder is now read only (closed).
+     */
+    final private int STATUS_WRITING_REQUEST = 2;
+
+    /**
+     * Indicates that the network connection to the server is opened, but the
+     * request has not been totally sent to the server. All data sent to the
+     * ConnectionHelper with write methods is sent to the network connection,
+     * that is: to the current OutputStream. <BR>
+     * That is: the ByteArrayEncoder is now read only (closed).
+     */
+    final private int STATUS_READING_RESPONSE = 3;
+
+    /**
+     * Indicates that the network connection to the server is now closed, that
+     * is: we've written the request, read the response, and free the server
+     * connection. If the keepAlive parameter is used, the connection may remain
+     * opened for the next request. <BR>
+     * No more action may be done on this connection helper, out of reading
+     * data, until the application do a call to
+     * {@link #initRequest(URL, boolean, boolean)}.
+     */
+    final private int STATUS_CONNECTION_CLOSED = 4;
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// ATTRIBUTE USED TO CONTROL THE OUTPUT TO THE SERVER
@@ -57,8 +128,7 @@ public class HTTPConnectionHelper {
     /**
      * http boundary, for the posting multipart post.
      */
-    private String boundary = "-----------------------------"
-            + getRandomString();
+    private String boundary = calculateRandomBoundary();
 
     /**
      * Is chunk upload on for this request ?
@@ -84,7 +154,7 @@ public class HTTPConnectionHelper {
      * @see #cleanRequest()
      * @see #getOutputStream()
      */
-    private DataOutputStream httpDataOut = null;
+    private DataOutputStream outputStream = null;
 
     /**
      * Contains the HTTP reader. All data coming from the server response are
@@ -95,14 +165,20 @@ public class HTTPConnectionHelper {
 
     /**
      * This stream allows the applet to get the server response. It is opened
-     * and closed as the {@link #httpDataOut}.
+     * and closed as the {@link #outputStream}.
      */
-    private PushbackInputStream httpDataIn = null;
+    private PushbackInputStream inputStream = null;
 
     /**
      * The current proxy, if any
      */
     private Proxy proxy = null;
+
+    /**
+     * Indicates where data sent to appendXxx method should be added. It must be
+     * one of the SENDING_XXX private strings.
+     */
+    private int connectionStatus = STATUS_NOT_INITIALIZED;
 
     /**
      * The network socket where the bytes should be written.
@@ -177,6 +253,15 @@ public class HTTPConnectionHelper {
      */
     public void initRequest(URL url, boolean bChunkEnabled, boolean bLastChunk)
             throws JUploadIOException {
+        // This method expects that the connection has not been initialzed yet,
+        // or that the previous request is finished.
+        if (this.connectionStatus != this.STATUS_NOT_INITIALIZED
+                && this.connectionStatus != this.STATUS_CONNECTION_CLOSED) {
+            throw new JUploadIOException(
+                    "Bad status of the connectionHelper in initRequest: "
+                            + getStatusLabel());
+        }
+
         // Clean any current request.
         if (isKeepAlive()) {
             dispose();
@@ -186,22 +271,24 @@ public class HTTPConnectionHelper {
         this.url = url;
         this.bChunkEnabled = bChunkEnabled;
         this.bLastChunk = bLastChunk;
+        // We will write to the local ByteArrayEncoder, until a connection to
+        // the server is opened.
+        initByteArrayEncoder();
+
+        // Ok, the connectionHelper is now ready to get write commands.
+        this.connectionStatus = STATUS_BEFORE_SERVER_CONNECTION;
     }
 
     /**
      * Return the current {@link ByteArrayEncoder}. If it was not created, it
      * is initialized.
      * 
-     * @return The current {@link ByteArrayEncoder}, initialized if it didn't
-     *         exist.
-     * 
+     * @return The current {@link ByteArrayEncoder}, null if called before the
+     *         first initialization.
      * @throws JUploadIOException
+     * @see #initRequest(URL, boolean, boolean)
      */
     public ByteArrayEncoder getByteArrayEncoder() throws JUploadIOException {
-        if (this.byteArrayEncoder == null) {
-            initByteArrayEncoder();
-        }
-
         return this.byteArrayEncoder;
     }
 
@@ -221,14 +308,22 @@ public class HTTPConnectionHelper {
      * @throws JUploadIOException
      */
     public void sendRequest() throws JUploadIOException {
+        // This method expects that the connection is writing data to the
+        // server.
+        if (this.connectionStatus != this.STATUS_BEFORE_SERVER_CONNECTION) {
+            throw new JUploadIOException(
+                    "Bad status of the connectionHelper in initRequest: "
+                            + getStatusLabel());
+        }
 
         try {
             // We've finished with the current encoder.
             if (!this.byteArrayEncoder.isClosed()) {
                 this.byteArrayEncoder.close();
             }
-            
-            //Let's clear any field that could have been read in a previous step:
+
+            // Let's clear any field that could have been read in a previous
+            // step:
             this.httpInputStreamReader = null;
 
             // Only connect, if sock is null!!
@@ -238,18 +333,20 @@ public class HTTPConnectionHelper {
                     || !this.uploadPolicy.getAllowHttpPersistent()) {
                 this.socket = new HttpConnect(this.uploadPolicy).Connect(
                         this.url, this.proxy);
-                this.httpDataOut = new DataOutputStream(
+                this.outputStream = new DataOutputStream(
                         new BufferedOutputStream(this.socket.getOutputStream()));
-                this.httpDataIn = new PushbackInputStream(this.socket
+                this.inputStream = new PushbackInputStream(this.socket
                         .getInputStream(), 1);
             }
 
             // Send http request to server
-            this.httpDataOut.write(this.byteArrayEncoder.getEncodedByteArray());
-            
-            //The request has been sent. The current ByteArrayEncoder is now useless. A new one is to be created for the next request.
-            this.byteArrayEncoder = null;
-            
+            this.outputStream
+                    .write(this.byteArrayEncoder.getEncodedByteArray());
+
+            // The request has been sent. The current ByteArrayEncoder is now
+            // useless. A new one is to be created for the next request.
+            this.connectionStatus = this.STATUS_WRITING_REQUEST;
+
         } catch (IOException e) {
             throw new JUploadIOException("Unable to open socket", e);
         } catch (KeyManagementException e) {
@@ -277,24 +374,24 @@ public class HTTPConnectionHelper {
 
         try {
             // Throws java.io.IOException
-            this.httpDataOut.close();
+            this.outputStream.close();
         } catch (NullPointerException e) {
             // httpDataOut is already null ...
         } catch (IOException e) {
             throw new JUploadIOException(e);
         } finally {
-            this.httpDataOut = null;
+            this.outputStream = null;
         }
 
         try {
             // Throws java.io.IOException
-            this.httpDataIn.close();
+            this.inputStream.close();
         } catch (NullPointerException e) {
             // httpDataIn is already null ...
         } catch (IOException e) {
             throw new JUploadIOException(e);
         } finally {
-            this.httpDataIn = null;
+            this.inputStream = null;
         }
 
         try {
@@ -325,8 +422,8 @@ public class HTTPConnectionHelper {
      *         written, event after the socket is open, if the byteArrayEncoder
      *         did not contain the full request.
      */
-    public DataOutputStream getHttpDataOut() {
-        return this.httpDataOut;
+    public OutputStream getOutputStream() {
+        return this;
     }
 
     /**
@@ -334,8 +431,8 @@ public class HTTPConnectionHelper {
      * 
      * @return The current input stream of the socket.
      */
-    public PushbackInputStream getHttpDataIn() {
-        return this.httpDataIn;
+    public PushbackInputStream getInputStream() {
+        return this.inputStream;
     }
 
     /**
@@ -358,6 +455,27 @@ public class HTTPConnectionHelper {
     }
 
     /**
+     * Get the label describing the current state of this connection helper.
+     * 
+     * @return A text describing briefly the current connection status.
+     */
+    public String getStatusLabel() {
+        switch (this.connectionStatus) {
+            case STATUS_NOT_INITIALIZED:
+                return "Not initialized";
+            case STATUS_BEFORE_SERVER_CONNECTION:
+                return "Before server connection";
+            case STATUS_WRITING_REQUEST:
+                return "Writing request to the network";
+            case STATUS_READING_RESPONSE:
+                return "Reading server response";
+            case STATUS_CONNECTION_CLOSED:
+                return "Connection closed";
+        }
+        return "Unknown status in HTTPConnectionHelper.getStatusLabel()";
+    }
+
+    /**
      * Get the current socket.
      * 
      * @return
@@ -376,18 +494,129 @@ public class HTTPConnectionHelper {
     }
 
     /**
-     * Write bytes to the httpDataout
+     * Append bytes to the current query. The bytes will be written to the
+     * current ByteArrayEncoder if the the connection to the server is not open,
+     * or directly to the server if the connection is opened.
      * 
-     * @param bytes
+     * @param b The byte to send to the server.
+     * @return Returns the current ConnectionHelper, to allow coding like
+     *         StringBuffers: a.append(b).append(c);
      * @throws JUploadIOException
      */
-    public void write(byte[] bytes) throws JUploadIOException {
-        try {
-            this.httpDataOut.write(bytes);
-        } catch (IOException e) {
-            throw new JUploadIOException(e.getClass().getName()
-                    + " while writing to httpDataOut", e);
+    public HTTPConnectionHelper append(int b) throws JUploadIOException {
+        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+            this.byteArrayEncoder.append(b);
+        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+            try {
+                this.outputStream.write(b);
+            } catch (IOException e) {
+                throw new JUploadIOException(e.getClass().getName()
+                        + " while writing to httpDataOut", e);
+            }
+        } else {
+            throw new JUploadIOException(
+                    "Wrong status in HTTPConnectionHelper.write() ["
+                            + getStatusLabel() + "]");
         }
+        return this;
+    }
+
+    /**
+     * Append bytes to the current query. The bytes will be written to the
+     * current ByteArrayEncoder if the the connection to the server is not open,
+     * or directly to the server if the connection is opened.
+     * 
+     * @param bytes The bytes to send to the server.
+     * @return Returns the current ConnectionHelper, to allow coding like
+     *         StringBuffers: a.append(b).append(c);
+     * @throws JUploadIOException
+     */
+    public HTTPConnectionHelper append(byte[] bytes) throws JUploadIOException {
+        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+            this.byteArrayEncoder.append(bytes);
+        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+            try {
+                this.outputStream.write(bytes);
+            } catch (IOException e) {
+                throw new JUploadIOException(e.getClass().getName()
+                        + " while writing to httpDataOut", e);
+            }
+        } else {
+            throw new JUploadIOException(
+                    "Wrong status in HTTPConnectionHelper.write() ["
+                            + getStatusLabel() + "]");
+        }
+        return this;
+    }
+
+    /**
+     * Append bytes to the current query. The bytes will be written to the
+     * current ByteArrayEncoder if the the connection to the server is not open,
+     * or directly to the server if the connection is opened.
+     * 
+     * @param bytes The bytes to send to the server.
+     * @param off The first byte to send
+     * @param len Number of bytes to send.
+     * @return Returns the current ConnectionHelper, to allow coding like
+     *         StringBuffers: a.append(b).append(c);
+     * @throws JUploadIOException
+     */
+    public HTTPConnectionHelper append(byte[] bytes, int off, int len)
+            throws JUploadIOException {
+        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+            this.byteArrayEncoder.append(bytes);
+        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+            try {
+                this.outputStream.write(bytes, off, len);
+            } catch (IOException e) {
+                throw new JUploadIOException(e.getClass().getName()
+                        + " while writing to httpDataOut", e);
+            }
+        } else {
+            throw new JUploadIOException(
+                    "Wrong status in HTTPConnectionHelper.write() ["
+                            + getStatusLabel() + "]");
+        }
+        return this;
+    }
+
+    /**
+     * write a string to the current HTTP request.
+     * 
+     * @param str The string to write
+     * @return The current HTTPConnectionHelper
+     * @throws JUploadIOException If any problem occurs during the writing
+     *             operation.
+     * @see #append(byte[])
+     */
+    public HTTPConnectionHelper append(String str) throws JUploadIOException {
+        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+            this.byteArrayEncoder.append(str);
+        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+            ByteArrayEncoder bae = new ByteArrayEncoderHTTP(this.uploadPolicy,
+                    this.byteArrayEncoder.getBoundary(), this.byteArrayEncoder
+                            .getEncoding());
+            bae.append(str);
+            bae.close();
+            this.append(bae);
+        }
+        return this;
+    }
+
+    /**
+     * Appends a string to the current HTTP request.
+     * 
+     * @param bae The ByteArrayEncoder to write. It is expected to be correctly
+     *            encoded. That is: it is up to the caller to check that its
+     *            encoding is the same as the current HTTP request encoding.
+     * @return The current HTTPConnectionHelper
+     * @throws JUploadIOException If any problem occurs during the writing
+     *             operation.
+     * @see #append(byte[])
+     */
+    public HTTPConnectionHelper append(ByteArrayEncoder bae)
+            throws JUploadIOException {
+        return this.append(bae.getEncodedByteArray());
     }
 
     /**
@@ -398,6 +627,20 @@ public class HTTPConnectionHelper {
      * @throws JUploadException
      */
     public int readHttpResponse() throws JUploadException {
+        // This method expects that the connection is writing data to the
+        // server.
+        if (this.connectionStatus != this.STATUS_WRITING_REQUEST) {
+            throw new JUploadIOException(
+                    "Bad status of the connectionHelper in initRequest: "
+                            + getStatusLabel());
+        }
+        this.connectionStatus = this.STATUS_READING_RESPONSE;
+
+        // We've finished the previous write to the server. Let's clear the
+        // relevant data.
+        this.byteArrayEncoder = null;
+
+        // Let's connect in InputStream to read this server response.
         if (this.httpInputStreamReader == null) {
             this.httpInputStreamReader = new HTTPInputStreamReader(this,
                     this.uploadPolicy);
@@ -411,6 +654,10 @@ public class HTTPConnectionHelper {
             dispose();
         }
 
+        // We got the response
+        this.connectionStatus = this.STATUS_CONNECTION_CLOSED;
+
+        //
         return this.httpInputStreamReader.gethttpStatusCode();
     }
 
@@ -422,23 +669,9 @@ public class HTTPConnectionHelper {
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// PRIVATE METHODS
     // ////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Construction of a random string, to separate the uploaded files, in the
-     * HTTP upload request.
-     */
-    private final String getRandomString() {
-        StringBuffer sbRan = new StringBuffer(11);
-        String alphaNum = "1234567890abcdefghijklmnopqrstuvwxyz";
-        int num;
-        for (int i = 0; i < 11; i++) {
-            num = (int) (Math.random() * (alphaNum.length() - 1));
-            sbRan.append(alphaNum.charAt(num));
-        }
-        return sbRan.toString();
-    }
 
     /**
-     * creating of a new {@link ByteArrayEncoderHTTP}, and initialising of the
+     * creating of a new {@link ByteArrayEncoderHTTP}, and initializing of the
      * following header items: First line (POST currentProtocol URI), Host,
      * Connection, Keep-Alive, Proxy-Connection.
      * 
@@ -449,8 +682,9 @@ public class HTTPConnectionHelper {
             this.byteArrayEncoder.close();
             this.byteArrayEncoder = null;
         }
-        this.byteArrayEncoder = new ByteArrayEncoderHTTP(this.uploadPolicy,
+         this.byteArrayEncoder = new ByteArrayEncoderHTTP(this.uploadPolicy,
                 this.boundary);
+        this.connectionStatus = STATUS_BEFORE_SERVER_CONNECTION;
         this.proxy = null;
         try {
             this.proxy = ProxySelector.getDefault().select(this.url.toURI())
@@ -535,6 +769,97 @@ public class HTTPConnectionHelper {
             } else {
                 return true;
             }
+        }
+    }
+
+    /**
+     * Construction of a random boundary, to separate the uploaded files, in the
+     * HTTP upload request.
+     * 
+     * @return The calculated boundary.
+     */
+    private final String calculateRandomBoundary() {
+        StringBuffer sbRan = new StringBuffer(11);
+        sbRan.append("-----------------------------");
+        String alphaNum = "1234567890abcdefghijklmnopqrstuvwxyz";
+        int num;
+        for (int i = 0; i < 11; i++) {
+            num = (int) (Math.random() * (alphaNum.length() - 1));
+            sbRan.append(alphaNum.charAt(num));
+        }
+        return sbRan.toString();
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////////////
+    // /////////////////// OVERRIDE OF OutputStream METHODS
+    // ////////////////////////////////////////////////////////////////////////////////////
+    /** {@inheritDoc} */
+    @Override
+    public void write(int b) throws IOException {
+        try {
+            append(b);
+        } catch (JUploadIOException e) {
+            // Hum, HTTPConnectionHelper catch IOException, and throws a
+            // JUploadIOException. Now we get the cause, that is the original
+            // IOException. Not optimized.
+            if (e.getCause() instanceof IOException) {
+                throw (IOException) e.getCause();
+            } else {
+                // Hum, can something like an OutOfMemory. We must throw it.
+                throw new IOException(e.getCause());
+            }
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        try {
+            append(b, off, len);
+        } catch (JUploadIOException e) {
+            // Hum, HTTPConnectionHelper catch IOException, and throws a
+            // JUploadIOException. Now we get the cause, that is the original
+            // IOException. Not optimized.
+            if (e.getCause() instanceof IOException) {
+                throw (IOException) e.getCause();
+            } else {
+                // Hum, can something like an OutOfMemory. We must throw it.
+                throw new IOException(e.getCause());
+            }
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void write(byte[] b) throws IOException {
+        write(b, 0, b.length);
+    }
+
+    /**
+     * This method is the override of {@link OutputStream#close()} one. It may
+     * not been called. You must use the {@link #sendRequest()} or
+     * {@link #readHttpResponse()} methods instead.
+     * 
+     * @see java.io.OutputStream#close()
+     */
+    public void close() throws IOException {
+        throw new IOException("Forbidden action. Please use the "
+                + getClass().getName() + ".sendRequest() method");
+    }
+
+    /**
+     * Flushes the output stream. Useful only when the HTTPConnectionHelper is
+     * writing to the socket toward the server, that is when the status is:
+     * STATUS_WRITING_REQUEST.
+     * 
+     * @see java.io.OutputStream#flush()
+     */
+    public void flush() throws IOException {
+        if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+            this.outputStream.flush();
+        } else {
+            throw new IOException("Wrong status in " + getClass().getName()
+                    + ".flush method: " + getStatusLabel());
         }
     }
 }

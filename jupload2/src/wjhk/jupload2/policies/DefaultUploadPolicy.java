@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -82,6 +83,7 @@ import wjhk.jupload2.upload.HttpConnect;
 import wjhk.jupload2.upload.InteractiveTrustManager;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
+import wjhk.jupload2.upload.helper.HTTPConnectionHelper;
 
 /**
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy}
@@ -619,7 +621,24 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
                     if (matcherError.groupCount() > 0) {
                         if (!matcherError.group(1).equals("")) {
-                            errmsg = "An unknown error occurs during upload.";
+                            // Let's do a (very simple) formatting: one line to
+                            // 100 characters
+                            errmsg = matcherError.group(1);
+                            int maxLineLength = 80;
+                            StringBuffer sbErrMsg = new StringBuffer();
+                            for (int j = 0, remaining = errmsg.length(); remaining > 0; remaining -= maxLineLength, j += 1) {
+                                if (remaining <= maxLineLength) {
+                                    // It's the last loop.
+                                    sbErrMsg.append(errmsg.substring(j
+                                            * maxLineLength));
+                                } else {
+                                    sbErrMsg.append(errmsg.substring(j
+                                            * maxLineLength, (j + 1)
+                                            * maxLineLength));
+                                }
+                                sbErrMsg.append("\n");
+                            }
+                            errmsg = sbErrMsg.toString();
                         }
                     }
                     this.lastResponseMessage = errmsg;
@@ -1028,6 +1047,141 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#sendDebugInformation(String) */
     public void sendDebugInformation(String description) {
         try {
+            if (null != this.urlToSendErrorTo) {
+                if (JOptionPane.showConfirmDialog(null,
+                        getString("questionSendMailOnError"),
+                        getString("Confirm"), JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+                    displayDebug("Within response == true", 60);
+
+                    // The message is written in English, as it is not sure that
+                    // the webmaster speaks the same language as the current
+                    // user.
+                    ByteArrayEncoder baeDescription = new ByteArrayEncoderHTTP(
+                            this, null);
+                    String action = null;
+                    String line;
+                    HTTPConnectionHelper connectionHelper = null;
+                    boolean localDebugOk = this.debugOk;
+                    this.debugOk = false;
+
+                    try {
+                        URL url = new URL(this.urlToSendErrorTo);
+                        connectionHelper = new HTTPConnectionHelper(this);
+                        connectionHelper.initRequest(url, false, true);
+                        ByteArrayEncoder baeTemp;
+
+                        // During debug output, we need to make sure that the
+                        // debug log is not changed, so we set debugOk to false
+                        // temporarily. -> Everything goes to stdout.
+
+                        this.debugOut.flush();
+                        // First, calculate the size of the strings we will
+                        // send.
+                        BufferedReader debugIn = new BufferedReader(
+                                new FileReader(this.debugFile));
+                        int contentLength = 0;
+                        // No use of a ByteArrayEncoder, as it can consume to
+                        // much memory.
+                        while ((line = debugIn.readLine()) != null) {
+                            baeTemp = new ByteArrayEncoderHTTP(this,
+                                    connectionHelper.getByteArrayEncoder()
+                                            .getBoundary(), connectionHelper
+                                            .getByteArrayEncoder()
+                                            .getEncoding());
+                            baeTemp.append(line).append("\r\n");
+                            baeTemp.close();
+                            contentLength += baeTemp.getEncodedLength();
+                        }
+                        debugIn.close();
+                        debugIn = new BufferedReader(new FileReader(
+                                this.debugFile));
+
+                        baeDescription
+                                .append("description=")
+                                .append(description)
+                                .append("&log=")
+                                .append(
+                                        "\r\n\r\nAn error occured during upload, in JUpload\r\n")
+                                .append(
+                                        "All debug information is available below\r\n\r\n\r\n\r\n");
+
+                        baeDescription.close();
+                        contentLength += baeDescription.getEncodedLength();
+
+                        // byteArrayEncoder
+                        // .append("Content-type:
+                        // application/x-www-form-urlencoded\r\n");
+                        connectionHelper.append("Content-type: text/plain\r\n");
+                        connectionHelper.append("Content-length: ").append(
+                                String.valueOf(contentLength)).append("\r\n");
+
+                        // Blank line (end of header)
+                        connectionHelper.append("\r\n").append(baeDescription);
+
+                        // We are done with the debug log, so re-enable it.
+                        this.debugOk = localDebugOk;
+                        action = "flush";
+
+                        // Let's send the headers (including baeDescription) ...
+                        connectionHelper.sendRequest();
+                        // .. then the debug information
+                        debugIn = new BufferedReader(new FileReader(
+                                this.debugFile));
+                        while ((line = debugIn.readLine()) != null) {
+                            baeTemp = new ByteArrayEncoderHTTP(this,
+                                    connectionHelper.getByteArrayEncoder()
+                                            .getBoundary(), connectionHelper
+                                            .getByteArrayEncoder()
+                                            .getEncoding());
+                            baeTemp.append(line).append("\r\n");
+                            baeTemp.close();
+                            connectionHelper.append(baeTemp
+                                    .getEncodedByteArray());
+                        }
+                        debugIn.close();
+
+                        int status = connectionHelper.readHttpResponse();
+                        // Is our upload a success ?
+                        if (!checkUploadSuccess(status, connectionHelper
+                                .getResponseMsg(), connectionHelper
+                                .getResponseBody())) {
+                            throw new JUploadExceptionUploadFailed(
+                                    getString("errHttpResponse"));
+                        } else {
+                            displayDebug("Sent to server: "
+                                    + connectionHelper.getByteArrayEncoder()
+                                            .getString(), 100);
+                            displayDebug("Body received: "
+                                    + connectionHelper.getResponseBody(), 100);
+                        }
+
+                    } catch (MalformedURLException e) {
+                        throw new JUploadIOException(
+                                "Malformed URL Exception for "
+                                        + this.urlToSendErrorTo, e);
+                    } catch (Exception e) {
+                        this.debugOk = localDebugOk;
+                        displayErr(getString("errDuringLogManagement") + " ("
+                                + action + ")", e);
+                    } finally {
+                        this.debugOk = localDebugOk;
+
+                    }
+                }
+            }
+        } catch (JUploadIOException e) {
+            displayErr("Could not send debug information", e);
+        }
+    }// sendDebugInformation
+
+    /**
+     * The old sendDebugInformation method. Kept here for ... my memory
+     * 
+     */
+    @SuppressWarnings("unused")
+    private void sendDebugInformationOld(String description) {
+        try {
             ByteArrayEncoder request = new ByteArrayEncoderHTTP(this, null);
 
             if (null != this.urlToSendErrorTo) {
@@ -1196,7 +1350,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         } catch (JUploadIOException e) {
             displayErr("Could not send debug information", e);
         }
-    }// sendDebugInformation
+    }// sendDebugInformationOld
 
     /**
      * This method manages all applet parameters. It allows javascript to update

@@ -145,7 +145,7 @@ public class HTTPInputStreamReader {
      */
     public int readHttpResponse() throws JUploadException {
         PushbackInputStream httpDataIn = this.httpConnectionHelper
-                .getHttpDataIn();
+                .getInputStream();
 
         try {
             // If the user requested abort, we are not going to send
