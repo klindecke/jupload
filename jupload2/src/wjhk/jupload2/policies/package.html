@@ -19,15 +19,15 @@ the main ways to adapt the applet to your needs.
 
 Creating a new upload policy, allows you to change the applet behaviour, and still use the core applet function. This 
 insures you that your development will remain compatible with next applet versions.
-<P>You'll find on this page a description of the {@link UploadPolicy} methods, grouped by categories.</P>
-<P><B>Note:</B> Creating a new upload policy is mandatory, if you want to manage some other kind of {@link FileData}. 
+<P>You'll find on this page a description of the {@link wjhk.jupload2.policies.UploadPolicy} methods, grouped by categories.</P>
+<P><B>Note:</B> Creating a new upload policy is mandatory, if you want to manage some other kind of {@link wjhk.jupload2.policies.filedata.FileData}. 
 You can then add some kind of 'before upload check', or have a specific applet behaviour, for instance be able to hear 
 sound file before upload.</P>
 
 <h3>Presentation</h3>
 
 <p>To create a new upload policy, you need to create a new java
-class: the easiest way is to inherit from {@link DefaultUploadPolicy}. 
+class: the easiest way is to inherit from @link wjhk.jupload2.policies.DefaultUploadPolicy}. 
 You can then override methods of the UploadPolicy interface that you need to update for your needs.</p>
 <p>This kind of customization will be compatible within next JUpload
 applet release. If you need other hooks (method within the UploadPolicy
@@ -45,7 +45,7 @@ the next section of this page.</p>
         files to upload, see UploadPolicy#createFileData(File, File). This
         allows the policy to validate files, before adding them to the
         list of files that must be displayed. The
-        {@link UploadPolicy#createFileData(File)} checks that the added
+        {@link wjhk.jupload2.policies.UploadPolicy#createFileData(File)} checks that the added
         files are valid pictures.</li>
         <li>File preparation before upload (for instance to resize
         a picture, or encode a text file to a specific format)</li>
@@ -107,7 +107,7 @@ the next section of this page.</p>
 <H3>Methods to control file management</H3>
 
 <H4>FileData createFileData(File file, File root) throws JUploadExceptionStopAddingFiles</H4>
-<P>This methods creates a new {@link FileData} object. It returns null is no file data was created, for instance
+<P>This methods creates a new {@link wjhk.jupload2.policies.filedata.FileData} object. It returns null is no file data was created, for instance
 if this file didn't check some specific validation checks. <BR>
 <B>Note:</B> use this method to use any FileData specific to your needs. See {@link PictureUploadPolicy} for a sample
 of this.
@@ -223,7 +223,7 @@ method, you'll have to call super.onAppendHeader(ByteArrayEncoder) method</B>.</
 
 <H4>String getFormdata()</H4>
 <P>Load data from an HTML form. These data will be set with each file in the upload. See also the
-{@link FileData#appendFileProperties(ByteArrayEncoder)} method, for a way to add data specific to one file.</P>
+{@link wjhk.jupload2.policies.filedata.FileData#appendFileProperties(ByteArrayEncoder)} method, for a way to add data specific to one file.</P>
 
 
 <H3>Getters and setters</H3>

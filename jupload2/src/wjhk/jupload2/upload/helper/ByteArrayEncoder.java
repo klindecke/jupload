@@ -66,7 +66,10 @@ public interface ByteArrayEncoder {
 
     /**
      * Append a property, name and value. It will be encoded at the current end
-     * of the byte array.
+     * of the byte array.<BR>
+     * Note: After the last call to appendTextProperty, you should call
+     * {@link #appendEndPropertyList()}, to properly finish the property list.
+     * In HTTP mode, it will add the last boundary, at a specific format.
      * 
      * @param name Name of the property to be added
      * @param value Value of this property for the current file. It's up to the
@@ -74,9 +77,23 @@ public interface ByteArrayEncoder {
      * @return Return the current ByteArrayEncoder, to allow chained call (see
      *         explanation, here above).
      * @throws JUploadIOException
+     * @see #appendEndPropertyList()
      */
     public ByteArrayEncoder appendTextProperty(String name, String value)
             throws JUploadIOException;
+
+    /**
+     * Finish a property list. In HTTP mode, the last boundary for the
+     * form/multipart content is added. After a call to this method, no more
+     * property may be written. If several ByteEncoder are used, it's up to the
+     * called to call this mehod only once, for the ByteEncoder that will be
+     * written last on the request.
+     * 
+     * @return Return the current ByteArrayEncoder, to allow chained call (see
+     *         explanation, here above).
+     * @throws JUploadIOException
+     */
+    public ByteArrayEncoder appendEndPropertyList() throws JUploadIOException;
 
     /**
      * Add to the current encoder all properties contained in the given HTML

@@ -105,7 +105,6 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     // //////////////// VARIOUS UTILITIES ////////////////////////////////////
     // ///////////////////////////////////////////////////////////////////////
 
-
     // ///////////////////////////////////////////////////////////////////////
     // //////////////// CONSTRUCTORS /////////////////////////////////////////
     // ///////////////////////////////////////////////////////////////////////
@@ -213,8 +212,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     public ByteArrayEncoder append(ByteArrayEncoder bae)
             throws JUploadIOException {
         this.append(bae.getEncodedByteArray());
-        // Returning the encoder allows calls like:
-        // bae.append("qdqd").append("qsldqd"); (like StringBuffer)
+
         return this;
     }
 
@@ -232,6 +230,12 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
         // And then, the value!
         this.append(value).append("\r\n");
 
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    public ByteArrayEncoder appendEndPropertyList() throws JUploadIOException {
+        this.append(this.bound).append("--\r\n");
         return this;
     }
 
@@ -275,10 +279,12 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                 this.appendTextProperty((String) name,
                                         (String) value);
                             } else {
-                                throw new JUploadIOException("[ByteArrayEncoder.appendFormVariables] value must be an instance of String");
+                                throw new JUploadIOException(
+                                        "[ByteArrayEncoder.appendFormVariables] value must be an instance of String");
                             }
                         } else {
-                            throw new JUploadIOException("[ByteArrayEncoder.appendFormVariables] name must be an instance of String");
+                            throw new JUploadIOException(
+                                    "[ByteArrayEncoder.appendFormVariables] name must be an instance of String");
                         }
                     } catch (JSException e1) {
                         this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
