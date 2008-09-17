@@ -2,6 +2,20 @@
 <%@ page import="org.apache.commons.fileupload.*, org.apache.commons.fileupload.disk.*, org.apache.commons.fileupload.servlet.*" %>
 <%
 
+/**
+ * This pages gives a sample of java upload management. It needs the commons FileUpload library, which can be found on apache.org.
+ *
+ * Note:
+ * - putting error=true as a parameter on the URL will generate an error. Allows test of upload error management in the applet. 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
+
 	byte[] cr = {13}; 
 	byte[] lf = {10}; 
 	String CR = new String(cr);
@@ -15,6 +29,7 @@
   //Initialization for chunk management.
   boolean bLastChunk = false;
   int numChunk = 0;
+  boolean generateError = false;  //changed to true, if error=true is passed as a parameter on the URL
 
   response.setContentType("text/plain");
   try{
@@ -33,6 +48,12 @@
       } else if (pname.equals("jupart")) {
       	numChunk = Integer.parseInt(pvalue);
       }
+      //For debug convenience, putting error=true as a URL parameter, will generate an error
+      //in this class.
+      if (pname.equals("error") && pvalue.equals("true")) {
+      	generateError = true;
+      }
+       
     }
     out.println("[parseRequest.jsp]  ------------------------------ ");
 
@@ -60,81 +81,85 @@
 	upload.setSizeMax(ourMaxRequestSize);
 	
 	// Parse the request
-	List /* FileItem */ items = upload.parseRequest(request);
-	// Process the uploaded items
-	Iterator iter = items.iterator();
-	FileItem fileItem;
-    File fout;
-    out.println("[parseRequest.jsp]  Let's read input files ...");
-	while (iter.hasNext()) {
-	    fileItem = (FileItem) iter.next();
-	
-	    if (fileItem.isFormField()) {
-	        out.println("[parseRequest.jsp] (form field) " + fileItem.getFieldName() + " = " + fileItem.getString());
-	        
-	        //If we receive the md5sum parameter, we've read finished to read the current file. It's not
-	        //a very good (end of file) signal. Will be better in the future ... probably !
-	        //Let's put a separator, to make output easier to read.
-	        if (fileItem.getFieldName().equals("md5sum[]")) { 
-				out.println("[parseRequest.jsp]  ------------------------------ ");
-			}
-	    } else {
-	        //Ok, we've got a file. Let's process it.
-	        //Again, for all informations of what is exactly a FileItem, please
-	        //have a look to http://jakarta.apache.org/commons/fileupload/
-	        //
-	        out.println("[parseRequest.jsp] FieldName: " + fileItem.getFieldName());
-	        out.println("[parseRequest.jsp] File Name: " + fileItem.getName());
-	        out.println("[parseRequest.jsp] ContentType: " + fileItem.getContentType());
-	        out.println("[parseRequest.jsp] Size (Bytes): " + fileItem.getSize());
-	        //If we are in chunk mode, we add ".partN" at the end of the file, where N is the chunk number.
-	        String uploadedFilename = fileItem.getName() + ( numChunk>0 ? ".part"+numChunk : "") ;
-	        fout = new File(ourTempDirectory + (new File(uploadedFilename)).getName());
-	        out.println("[parseRequest.jsp] File Out: " + fout.toString());
-	        // write the file
-	        fileItem.write(fout);	        
-	        
-	        //////////////////////////////////////////////////////////////////////////////////////
-	        //Chunk management: if it was the last chunk, let's recover the complete file
-	        //by concatenating all chunk parts.
-	        //
-	        if (bLastChunk) {	        
-		        out.println("[parseRequest.jsp]  Last chunk received: let's rebuild the complete file (" + fileItem.getName() + ")");
-		        //First: construct the final filename.
-		        FileInputStream fis;
-		        FileOutputStream fos = new FileOutputStream(ourTempDirectory + fileItem.getName());
-		        int nbBytes;
-		        byte[] byteBuff = new byte[1024];
-		        String filename;
-		        for (int i=1; i<=numChunk; i+=1) {
-		        	filename = fileItem.getName() + ".part" + i;
-		        	out.println("[parseRequest.jsp] " + "  Concatenating " + filename);
-		        	fis = new FileInputStream(ourTempDirectory + filename);
-		        	while ( (nbBytes = fis.read(byteBuff)) >= 0) {
-		        		out.println("[parseRequest.jsp] " + "     Nb bytes read: " + nbBytes);
-		        		fos.write(byteBuff, 0, nbBytes);
-		        	}
-		        	fis.close();
+	if (! request.getContentType().startsWith("multipart/form-data")) {
+		out.println("[parseRequest.jsp] No parsing of uploaded file: content type is " + request.getContentType()); 
+	} else { 
+		List /* FileItem */ items = upload.parseRequest(request);
+		// Process the uploaded items
+		Iterator iter = items.iterator();
+		FileItem fileItem;
+	    File fout;
+	    out.println("[parseRequest.jsp]  Let's read input files ...");
+		while (iter.hasNext()) {
+		    fileItem = (FileItem) iter.next();
+		
+		    if (fileItem.isFormField()) {
+		        out.println("[parseRequest.jsp] (form field) " + fileItem.getFieldName() + " = " + fileItem.getString());
+		        
+		        //If we receive the md5sum parameter, we've read finished to read the current file. It's not
+		        //a very good (end of file) signal. Will be better in the future ... probably !
+		        //Let's put a separator, to make output easier to read.
+		        if (fileItem.getFieldName().equals("md5sum[]")) { 
+					out.println("[parseRequest.jsp]  ------------------------------ ");
+				}
+		    } else {
+		        //Ok, we've got a file. Let's process it.
+		        //Again, for all informations of what is exactly a FileItem, please
+		        //have a look to http://jakarta.apache.org/commons/fileupload/
+		        //
+		        out.println("[parseRequest.jsp] FieldName: " + fileItem.getFieldName());
+		        out.println("[parseRequest.jsp] File Name: " + fileItem.getName());
+		        out.println("[parseRequest.jsp] ContentType: " + fileItem.getContentType());
+		        out.println("[parseRequest.jsp] Size (Bytes): " + fileItem.getSize());
+		        //If we are in chunk mode, we add ".partN" at the end of the file, where N is the chunk number.
+		        String uploadedFilename = fileItem.getName() + ( numChunk>0 ? ".part"+numChunk : "") ;
+		        fout = new File(ourTempDirectory + (new File(uploadedFilename)).getName());
+		        out.println("[parseRequest.jsp] File Out: " + fout.toString());
+		        // write the file
+		        fileItem.write(fout);	        
+		        
+		        //////////////////////////////////////////////////////////////////////////////////////
+		        //Chunk management: if it was the last chunk, let's recover the complete file
+		        //by concatenating all chunk parts.
+		        //
+		        if (bLastChunk) {	        
+			        out.println("[parseRequest.jsp]  Last chunk received: let's rebuild the complete file (" + fileItem.getName() + ")");
+			        //First: construct the final filename.
+			        FileInputStream fis;
+			        FileOutputStream fos = new FileOutputStream(ourTempDirectory + fileItem.getName());
+			        int nbBytes;
+			        byte[] byteBuff = new byte[1024];
+			        String filename;
+			        for (int i=1; i<=numChunk; i+=1) {
+			        	filename = fileItem.getName() + ".part" + i;
+			        	out.println("[parseRequest.jsp] " + "  Concatenating " + filename);
+			        	fis = new FileInputStream(ourTempDirectory + filename);
+			        	while ( (nbBytes = fis.read(byteBuff)) >= 0) {
+			        		//out.println("[parseRequest.jsp] " + "     Nb bytes read: " + nbBytes);
+			        		fos.write(byteBuff, 0, nbBytes);
+			        	}
+			        	fis.close();
+			        }
+			        fos.close();
 		        }
-		        fos.close();
-	        }
-	        
-	        
-	        // End of chunk management
-	        //////////////////////////////////////////////////////////////////////////////////////
-	        
-	        fileItem.delete();
-	    }	    
-	}//while
-
+		        
+		        
+		        // End of chunk management
+		        //////////////////////////////////////////////////////////////////////////////////////
+		        
+		        fileItem.delete();
+		    }	    
+		}//while
+	}
+	
   	out.println("[parseRequest.jsp] " + "Let's write a status, to finish the server response :");
     out.println("WARNING: just a warning message");
   	
     //Do you want to test a successful upload, or the way the applet reacts to an error ?
-    if (true) { 
-    	out.println("SUCCESS");
-    } else {
+    if (generateError) { 
     	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp)");
+    } else {
+    	out.println("SUCCESS");
     }
 
     out.println("WARNING: just another warning message (after the SUCCESS string in the server response)");

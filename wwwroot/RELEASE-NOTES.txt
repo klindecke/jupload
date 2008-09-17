@@ -4,6 +4,7 @@ V3.4.2  (not released yet)
 
 
 Changes:
+- [Major] The error management has been corrected: see the urlToSendErrorTo applet parameter description.
 - [Minor] Setters added in UploadPolicy for the following applet parameters: lang, urlToSendErrorTo 
 - [Minor] Some attributes switched to protected, for easier use of the applet when embedded in others program, 
 as there is no getter/setter for these ones: userAgent, cookie, debugFile and debugOK. 

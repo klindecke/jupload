@@ -389,9 +389,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
     }
 
     /**
-     * Unused Store the String that contains the server response.
+     * Unused Store the String that contains the server response body.
      * 
-     * @param msg The server message to be set.
+     * @param body The response body that has been read.
      */
     void setResponseBody(String body) {
         this.responseBody = normalizeCRLF(body);
@@ -571,7 +571,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         // If the upload was unsuccessful, we try to alert the webmaster.
         if (!bUploadOk && !this.stop) {
-            this.uploadPolicy.sendDebugInformation("Error in Upload");
+            this.uploadPolicy.sendDebugInformation("Error in Upload", this.uploadException);
         }
 
         // Enf of thread.

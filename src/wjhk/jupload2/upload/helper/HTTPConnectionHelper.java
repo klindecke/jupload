@@ -147,11 +147,11 @@ public class HTTPConnectionHelper extends OutputStream {
     private ByteArrayEncoder byteArrayEncoder = null;
 
     /**
-     * This stream is open by {@link #startRequest(long, boolean, int, boolean)}.
-     * It is closed by the {@link #cleanRequest()} method.
+     * This stream is open by {@link #sendRequest()}.
+     * It is closed by the {@link #readHttpResponse()} method.
      * 
-     * @see #startRequest(long, boolean, int, boolean)
-     * @see #cleanRequest()
+     * @see #sendRequest()
+     * @see #readHttpResponse()
      * @see #getOutputStream()
      */
     private DataOutputStream outputStream = null;
@@ -478,7 +478,7 @@ public class HTTPConnectionHelper extends OutputStream {
     /**
      * Get the current socket.
      * 
-     * @return
+     * @return return the current Socket, opened toward the server.
      */
     Socket getSocket() {
         return this.socket;
@@ -532,6 +532,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * @throws JUploadIOException
      */
     public HTTPConnectionHelper append(byte[] bytes) throws JUploadIOException {
+
         if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(bytes);
         } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
@@ -546,6 +547,15 @@ public class HTTPConnectionHelper extends OutputStream {
                     "Wrong status in HTTPConnectionHelper.write() ["
                             + getStatusLabel() + "]");
         }
+
+        this.uploadPolicy
+                .displayDebug(
+                        "[HTTPConnectionHelper append] ("
+                                + bytes.length
+                                + " bytes appended to "
+                                + (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
+                                        : " socket") + ")", 100);
+
         return this;
     }
 
@@ -563,6 +573,7 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     public HTTPConnectionHelper append(byte[] bytes, int off, int len)
             throws JUploadIOException {
+
         if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(bytes);
         } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
@@ -577,6 +588,15 @@ public class HTTPConnectionHelper extends OutputStream {
                     "Wrong status in HTTPConnectionHelper.write() ["
                             + getStatusLabel() + "]");
         }
+
+        this.uploadPolicy
+                .displayDebug(
+                        "[HTTPConnectionHelper append] ("
+                                + len
+                                + " bytes appended to "
+                                + (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
+                                        : " socket") + ")", 100);
+
         return this;
     }
 
@@ -590,6 +610,8 @@ public class HTTPConnectionHelper extends OutputStream {
      * @see #append(byte[])
      */
     public HTTPConnectionHelper append(String str) throws JUploadIOException {
+        this.uploadPolicy.displayDebug("[HTTPConnectionHelper append] " + str,
+                100);
         if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(str);
         } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
@@ -616,6 +638,8 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     public HTTPConnectionHelper append(ByteArrayEncoder bae)
             throws JUploadIOException {
+        this.uploadPolicy.displayDebug("[HTTPConnectionHelper append] "
+                + bae.getString(), 100);
         return this.append(bae.getEncodedByteArray());
     }
 
@@ -635,10 +659,6 @@ public class HTTPConnectionHelper extends OutputStream {
                             + getStatusLabel());
         }
         this.connectionStatus = this.STATUS_READING_RESPONSE;
-
-        // We've finished the previous write to the server. Let's clear the
-        // relevant data.
-        this.byteArrayEncoder = null;
 
         // Let's connect in InputStream to read this server response.
         if (this.httpInputStreamReader == null) {
@@ -682,7 +702,7 @@ public class HTTPConnectionHelper extends OutputStream {
             this.byteArrayEncoder.close();
             this.byteArrayEncoder = null;
         }
-         this.byteArrayEncoder = new ByteArrayEncoderHTTP(this.uploadPolicy,
+        this.byteArrayEncoder = new ByteArrayEncoderHTTP(this.uploadPolicy,
                 this.boundary);
         this.connectionStatus = STATUS_BEFORE_SERVER_CONNECTION;
         this.proxy = null;

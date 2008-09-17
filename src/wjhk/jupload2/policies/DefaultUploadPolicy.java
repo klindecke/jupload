@@ -26,20 +26,16 @@ import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.dnd.DropTargetDropEvent;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -253,7 +249,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * It's a little development on the server side to send a mail to the
      * webmaster, or just log this error into a log file.
      * 
-     * @see UploadPolicy#sendDebugInformation(String)
+     * @see UploadPolicy#sendDebugInformation(String, Exception)
      */
     private String urlToSendErrorTo = UploadPolicy.DEFAULT_URL_TO_SEND_ERROR_TO;
 
@@ -1044,103 +1040,140 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Default implementation : no action
     }
 
-    /** @see UploadPolicy#sendDebugInformation(String) */
-    public void sendDebugInformation(String description) {
+    /** @see UploadPolicy#sendDebugInformation(String, Exception) */
+    public void sendDebugInformation(String description, Exception exception) {
         try {
-            if (null != this.urlToSendErrorTo) {
+            if (null != getUrlToSendErrorTo()) {
                 if (JOptionPane.showConfirmDialog(null,
                         getString("questionSendMailOnError"),
                         getString("Confirm"), JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-                    displayDebug("Within response == true", 60);
+                    displayDebug(
+                            "[sendDebugInformation] Within response == true",
+                            60);
 
-                    // The message is written in English, as it is not sure that
-                    // the webmaster speaks the same language as the current
-                    // user.
-                    ByteArrayEncoder baeDescription = new ByteArrayEncoderHTTP(
-                            this, null);
                     String action = null;
                     String line;
                     HTTPConnectionHelper connectionHelper = null;
                     boolean localDebugOk = this.debugOk;
-                    this.debugOk = false;
 
                     try {
                         URL url = new URL(this.urlToSendErrorTo);
                         connectionHelper = new HTTPConnectionHelper(this);
                         connectionHelper.initRequest(url, false, true);
-                        ByteArrayEncoder baeTemp;
+
+                        ByteArrayEncoder baeContent = new ByteArrayEncoderHTTP(
+                                this, connectionHelper.getByteArrayEncoder()
+                                        .getBoundary(), connectionHelper
+                                        .getByteArrayEncoder().getEncoding());
+                        // The message is written in English, as it is not sure
+                        // that
+                        // the webmaster speaks the same language as the current
+                        // user.
+                        baeContent.appendTextProperty("description",
+                                "An error occured during upload, in JUpload.");
+                        String exceptionClass = null;
+                        String exceptionCause = null;
+                        String exceptionStackTrace = null;
+                        if (exception != null) {
+                            exceptionClass = exception.getClass().getName();
+                            if (exception.getCause() != null) {
+                                exceptionCause = exception.getCause()
+                                        .getClass().getName();
+                            }
+                            StackTraceElement[] elements = exception
+                                    .getStackTrace();
+                            ByteArrayEncoderHTTP baeStackTrace = new ByteArrayEncoderHTTP(
+                                    this, connectionHelper
+                                            .getByteArrayEncoder()
+                                            .getBoundary(), connectionHelper
+                                            .getByteArrayEncoder()
+                                            .getEncoding());
+                            for (int i = 0; i < elements.length; i += 1) {
+                                baeStackTrace.append(" at ");
+                                baeStackTrace
+                                        .append(elements[i].getClassName());
+                                baeStackTrace.append(".");
+                                baeStackTrace.append(elements[i]
+                                        .getMethodName());
+                                baeStackTrace.append("() [line ");
+                                baeStackTrace.append(Integer
+                                        .toString(elements[i].getLineNumber()));
+                                baeStackTrace.append("]\r\n");
+                            }
+                            baeStackTrace.close();
+                            exceptionStackTrace = baeStackTrace.getString();
+                        }
+                        baeContent.appendTextProperty("exceptionClass",
+                                exceptionClass);
+                        baeContent.appendTextProperty("exceptionCause",
+                                exceptionCause);
+                        baeContent.appendTextProperty("exceptionStackTrace",
+                                exceptionStackTrace);
 
                         // During debug output, we need to make sure that the
                         // debug log is not changed, so we set debugOk to false
                         // temporarily. -> Everything goes to stdout.
-
+                        action = "flush";
                         this.debugOut.flush();
+                        this.debugOk = false;
                         // First, calculate the size of the strings we will
                         // send.
+                        action = "read debug file";
                         BufferedReader debugIn = new BufferedReader(
                                 new FileReader(this.debugFile));
-                        int contentLength = 0;
-                        // No use of a ByteArrayEncoder, as it can consume to
-                        // much memory.
+                        String baeBound = connectionHelper
+                                .getByteArrayEncoder().getBoundary();
+                        String baeEncoding = connectionHelper
+                                .getByteArrayEncoder().getEncoding();
+                        ByteArrayEncoder baeDebug = new ByteArrayEncoderHTTP(
+                                this, baeBound, baeEncoding);
                         while ((line = debugIn.readLine()) != null) {
-                            baeTemp = new ByteArrayEncoderHTTP(this,
-                                    connectionHelper.getByteArrayEncoder()
-                                            .getBoundary(), connectionHelper
-                                            .getByteArrayEncoder()
-                                            .getEncoding());
-                            baeTemp.append(line).append("\r\n");
-                            baeTemp.close();
-                            contentLength += baeTemp.getEncodedLength();
+                            baeDebug.append(line).append("\r\n");
                         }
                         debugIn.close();
-                        debugIn = new BufferedReader(new FileReader(
-                                this.debugFile));
+                        baeDebug.close();
 
-                        baeDescription
-                                .append("description=")
-                                .append(description)
-                                .append("&log=")
-                                .append(
-                                        "\r\n\r\nAn error occured during upload, in JUpload\r\n")
-                                .append(
-                                        "All debug information is available below\r\n\r\n\r\n\r\n");
-
-                        baeDescription.close();
-                        contentLength += baeDescription.getEncodedLength();
+                        baeContent.appendTextProperty("logDebug", baeDebug
+                                .getString());
+                        baeContent.appendEndPropertyList();
+                        // The content has been built.
+                        baeContent.close();
 
                         // byteArrayEncoder
                         // .append("Content-type:
                         // application/x-www-form-urlencoded\r\n");
-                        connectionHelper.append("Content-type: text/plain\r\n");
+                        action = "send request";
+                        connectionHelper.append(
+                                "Content-Type: multipart/form-data; boundary=")
+                                .append(
+                                        connectionHelper.getBoundary()
+                                                .substring(2)).append("\r\n");
                         connectionHelper.append("Content-length: ").append(
-                                String.valueOf(contentLength)).append("\r\n");
+                                String.valueOf(baeContent.getEncodedLength()))
+                                .append("\r\n");
 
+                        // Let's send the headers (without baeDescription) ...
+                        connectionHelper.sendRequest();
                         // Blank line (end of header)
-                        connectionHelper.append("\r\n").append(baeDescription);
+                        connectionHelper.append("\r\n");
+                        connectionHelper.append(baeContent);
 
                         // We are done with the debug log, so re-enable it.
                         this.debugOk = localDebugOk;
-                        action = "flush";
 
-                        // Let's send the headers (including baeDescription) ...
-                        connectionHelper.sendRequest();
                         // .. then the debug information
-                        debugIn = new BufferedReader(new FileReader(
-                                this.debugFile));
-                        while ((line = debugIn.readLine()) != null) {
-                            baeTemp = new ByteArrayEncoderHTTP(this,
-                                    connectionHelper.getByteArrayEncoder()
-                                            .getBoundary(), connectionHelper
-                                            .getByteArrayEncoder()
-                                            .getEncoding());
-                            baeTemp.append(line).append("\r\n");
-                            baeTemp.close();
-                            connectionHelper.append(baeTemp
-                                    .getEncodedByteArray());
-                        }
-                        debugIn.close();
+                        /*
+                         * debugIn = new BufferedReader(new FileReader(
+                         * this.debugFile)); while ((line = debugIn.readLine()) !=
+                         * null) { baeDebug = new ByteArrayEncoderHTTP(this,
+                         * baeBound, baeEncoding);
+                         * baeDebug.append(line).append("\r\n");
+                         * baeDebug.close(); connectionHelper.append(baeDebug); }
+                         * debugIn.close();
+                         */
 
+                        action = "connectionHelper.readHttpResponse()";
                         int status = connectionHelper.readHttpResponse();
                         // Is our upload a success ?
                         if (!checkUploadSuccess(status, connectionHelper
@@ -1166,7 +1199,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
                                 + action + ")", e);
                     } finally {
                         this.debugOk = localDebugOk;
-
                     }
                 }
             }
@@ -1175,182 +1207,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }// sendDebugInformation
 
-    /**
-     * The old sendDebugInformation method. Kept here for ... my memory
-     * 
-     */
-    @SuppressWarnings("unused")
-    private void sendDebugInformationOld(String description) {
-        try {
-            ByteArrayEncoder request = new ByteArrayEncoderHTTP(this, null);
-
-            if (null != this.urlToSendErrorTo) {
-                if (JOptionPane.showConfirmDialog(null,
-                        getString("questionSendMailOnError"),
-                        getString("Confirm"), JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-                    displayDebug("Within response == true", 60);
-
-                    // The message is written in English, as it is not sure that
-                    // the webmaster speaks the same language as the current
-                    // user.
-                    String query = null;
-                    String action = null;
-                    Socket sock = null;
-                    DataOutputStream dataout = null;
-                    BufferedReader datain = null;
-                    StringBuffer sbHttpResponseBody = null;
-                    String line;
-
-                    // During debug output, we need to make sure that the debug
-                    // log is not changed, so we set debugOk to false
-                    // temporarily. -> Everything goes to stdout.
-                    boolean localDebugOk = this.debugOk;
-                    this.debugOk = false;
-
-                    try {
-                        this.debugOut.flush();
-                        // First, calculate the size of the strings we will
-                        // send.
-                        BufferedReader debugIn = new BufferedReader(
-                                new FileReader(this.debugFile));
-                        int contentLength = 0;
-                        while ((line = debugIn.readLine()) != null) {
-                            contentLength += URLEncoder.encode(line + "\n",
-                                    request.getEncoding()).length();
-                        }
-                        debugIn.close();
-                        debugIn = new BufferedReader(new FileReader(
-                                this.debugFile));
-
-                        query = "description="
-                                + URLEncoder.encode(description, request
-                                        .getEncoding())
-                                + "&log="
-                                + URLEncoder
-                                        .encode(
-                                                "\n\nAn error occured during upload, in JUpload\n"
-                                                        + "All debug information is available below\n\n\n\n",
-                                                request.getEncoding());
-
-                        contentLength += query.length();
-                        URL url = new URL(this.urlToSendErrorTo);
-                        request
-                                .append("POST ")
-                                .append(url.toString())
-                                .append(" ")
-                                .append(getServerProtocol())
-                                .append("\r\n")
-                                .append("Host: ")
-                                .append(url.getHost())
-                                .append("\r\n")
-                                .append("Accept: */*\r\n")
-                                .append(
-                                        "Content-type: application/x-www-form-urlencoded\r\n")
-                                .append("Connection: close\r\n").append(
-                                        "Content-length: ").append(
-                                        String.valueOf(contentLength)).append(
-                                        "\r\n");
-                        // Get specific headers for this upload.
-                        onAppendHeader(request);
-                        // Blank line (end of header)
-                        request.append("\r\n").append(query);
-
-                        sock = new HttpConnect(this).Connect(url);
-                        dataout = new DataOutputStream(
-                                new BufferedOutputStream(sock.getOutputStream()));
-                        datain = new BufferedReader(new InputStreamReader(sock
-                                .getInputStream()));
-
-                        // Send http request to server
-                        action = "send bytes (1)";
-                        dataout.writeBytes(request.toString());
-                        dataout.writeBytes(query);
-                        while ((line = debugIn.readLine()) != null) {
-                            dataout.writeBytes(URLEncoder.encode(line + "\n",
-                                    request.getEncoding()));
-                        }
-                        debugIn.close();
-                        request.close();
-
-                        // We are done with the debug log, so re-enable it.
-                        this.debugOk = localDebugOk;
-                        action = "flush";
-                        dataout.flush();
-                        action = "wait for server answer";
-                        String strUploadSuccess = getStringUploadSuccess();
-                        boolean uploadSuccess = false;
-                        boolean readingHttpBody = false;
-                        sbHttpResponseBody = new StringBuffer();
-                        // Now, we wait for the full answer (which should mean
-                        // that the uploaded message has been treated on the
-                        // server).
-                        while ((line = datain.readLine()) != null) {
-                            // Is this upload a success ?
-                            action = "test success";
-                            if (line.matches(strUploadSuccess)) {
-                                uploadSuccess = true;
-                            }
-
-                            // Store the http body
-                            if (readingHttpBody) {
-                                action = "sbHttpResponseBody";
-                                sbHttpResponseBody.append(line).append("\n");
-                            }
-                            if (line.length() == 0) {
-                                // Next lines will be the http body (or perhaps
-                                // we
-                                // already are in the body, but it's Ok anyway)
-                                action = "readingHttpBody";
-                                readingHttpBody = true;
-                            }
-                        }
-                        // Is our upload a success ?
-                        if (!uploadSuccess) {
-                            throw new JUploadExceptionUploadFailed(
-                                    getString("errHttpResponse"));
-                        }
-
-                    } catch (Exception e) {
-                        this.debugOk = localDebugOk;
-                        displayErr(getString("errDuringLogManagement") + " ("
-                                + action + ")", e);
-                    } finally {
-                        this.debugOk = localDebugOk;
-                        try {
-                            dataout.close();
-                        } catch (Exception e) {
-                            displayErr(getString("errDuringLogManagement")
-                                    + " (dataout.close)", e);
-                        }
-                        dataout = null;
-                        try {
-                            // Throws java.io.IOException
-                            datain.close();
-                        } catch (Exception e) {
-                            // Nothing to do.
-                        }
-                        datain = null;
-                        try {
-                            // Throws java.io.IOException
-                            sock.close();
-                        } catch (Exception e) {
-                            displayErr(getString("errDuringLogManagement")
-                                    + " (sock.close)", e);
-                        }
-                        sock = null;
-                        displayDebug("Sent to server: " + request.getString(),
-                                100);
-                        displayDebug("Body received: "
-                                + sbHttpResponseBody.toString(), 100);
-
-                    }
-                }
-            }
-        } catch (JUploadIOException e) {
-            displayErr("Could not send debug information", e);
-        }
-    }// sendDebugInformationOld
 
     /**
      * This method manages all applet parameters. It allows javascript to update

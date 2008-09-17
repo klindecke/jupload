@@ -122,8 +122,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // It is initialized at the beginning of the run() method. It can be
         // override at the beginning of this loop, if in chunk mode.
         try {
-            this.connectionHelper
-                    .append(this.heads[index].getEncodedByteArray());
+            this.connectionHelper.append(this.heads[index]
+                    .getEncodedByteArray());
 
             // Debug output: always called, so that the debug file is correctly
             // filled.
@@ -206,11 +206,12 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             ByteArrayEncoder formParams = getFormParamsForPostRequest(url);
             contentLength += formParams.getEncodedLength();
 
-            this.connectionHelper.append("Content-Type: multipart/form-data; boundary=").append(
+            this.connectionHelper.append(
+                    "Content-Type: multipart/form-data; boundary=").append(
                     this.connectionHelper.getBoundary().substring(2)).append(
                     "\r\n");
-            this.connectionHelper.append("Content-Length: ")
-                    .append(String.valueOf(contentLength)).append("\r\n");
+            this.connectionHelper.append("Content-Length: ").append(
+                    String.valueOf(contentLength)).append("\r\n");
 
             // Blank line (end of header)
             this.connectionHelper.append("\r\n");
@@ -228,8 +229,11 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Debug output: always called, so that the debug file is correctly
             // filled.
             this.uploadPolicy.displayDebug("=== main header (len="
-                    + this.connectionHelper.getByteArrayEncoder().getEncodedLength() + "):\n"
-                    + quoteCRLF(this.connectionHelper.getByteArrayEncoder().getString()), 80);
+                    + this.connectionHelper.getByteArrayEncoder()
+                            .getEncodedLength()
+                    + "):\n"
+                    + quoteCRLF(this.connectionHelper.getByteArrayEncoder()
+                            .getString()), 80);
             this.uploadPolicy.displayDebug("=== main header end", 80);
         } catch (IOException e) {
             throw new JUploadIOException(e);
