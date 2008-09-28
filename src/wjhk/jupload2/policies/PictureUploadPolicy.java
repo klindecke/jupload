@@ -484,7 +484,13 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /** @param maxHeight the maxHeight to set */
     void setMaxHeight(int maxHeight) {
-        this.maxHeight = maxHeight;
+        if (maxHeight <= 0) {
+            this.maxHeight = Integer.MAX_VALUE;
+            displayWarn("[setMaxHeight] maxHeight switched from " + maxHeight
+                    + " to " + this.maxHeight);
+        } else {
+            this.maxHeight = maxHeight;
+        }
     }
 
     /**
@@ -497,7 +503,13 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /** @param maxWidth the maxWidth to set */
     void setMaxWidth(int maxWidth) {
-        this.maxWidth = maxWidth;
+        if (maxWidth <= 0) {
+            this.maxWidth = Integer.MAX_VALUE;
+            displayWarn("[setMaxWidth] maxWidth switched from " + maxWidth
+                    + " to " + this.maxWidth);
+        } else {
+            this.maxWidth = maxWidth;
+        }
     }
 
     /**
@@ -641,16 +653,10 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 + getPictureCompressionQuality(), 20);
         displayDebug(PROP_PICTURE_TRANSMIT_METADATA + " : "
                 + getPictureTransmitMetadata(), 20);
-        if (this.maxWidth != DEFAULT_MAX_WIDTH
-                || this.maxHeight != DEFAULT_MAX_HEIGHT) {
-            displayDebug(PROP_MAX_WIDTH + " : " + this.maxWidth + ", "
-                    + PROP_MAX_HEIGHT + " : " + this.maxHeight, 20);
-        }
-        if (this.realMaxWidth != DEFAULT_REAL_MAX_WIDTH
-                || this.realMaxHeight != DEFAULT_REAL_MAX_HEIGHT) {
-            displayDebug(PROP_REAL_MAX_WIDTH + " : " + this.realMaxWidth + ", "
-                    + PROP_REAL_MAX_HEIGHT + " : " + this.realMaxHeight, 20);
-        }
+        displayDebug(PROP_MAX_WIDTH + " : " + this.maxWidth + ", "
+                + PROP_MAX_HEIGHT + " : " + this.maxHeight, 20);
+        displayDebug(PROP_REAL_MAX_WIDTH + " : " + this.realMaxWidth + ", "
+                + PROP_REAL_MAX_HEIGHT + " : " + this.realMaxHeight, 20);
         displayDebug(PROP_STORE_BUFFERED_IMAGE + " : "
                 + this.storeBufferedImage, 20);
         displayDebug(PROP_TARGET_PICTURE_FORMAT + " : "
