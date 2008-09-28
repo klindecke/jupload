@@ -1134,7 +1134,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         debugIn.close();
                         baeDebug.close();
 
-                        baeContent.appendTextProperty("logDebug", baeDebug
+                        baeContent.appendTextProperty("debugOutput", baeDebug
                                 .getString());
                         baeContent.appendEndPropertyList();
                         // The content has been built.
@@ -1175,18 +1175,26 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
                         action = "connectionHelper.readHttpResponse()";
                         int status = connectionHelper.readHttpResponse();
+
+                        displayDebug("========================================================================================", 100);
+                        displayDebug("==================      sendDebugInformation [start]   =================================", 100);
+                        displayDebug("========================================================================================", 100);
+                        displayDebug("[sendDebugInformation] Sent to server: \r\n"
+                                + connectionHelper.getByteArrayEncoder()
+                                        .getString(), 100);
+                        displayDebug("========================================================================================", 100);
+                        displayDebug("[sendDebugInformation] Body received: \r\n"
+                                + connectionHelper.getResponseBody(), 100);
+                        displayDebug("========================================================================================", 100);
+                        displayDebug("==================      sendDebugInformation [end]     =================================", 100);
+                        displayDebug("========================================================================================", 100);
+
                         // Is our upload a success ?
                         if (!checkUploadSuccess(status, connectionHelper
                                 .getResponseMsg(), connectionHelper
                                 .getResponseBody())) {
                             throw new JUploadExceptionUploadFailed(
                                     getString("errHttpResponse"));
-                        } else {
-                            displayDebug("Sent to server: "
-                                    + connectionHelper.getByteArrayEncoder()
-                                            .getString(), 100);
-                            displayDebug("Body received: "
-                                    + connectionHelper.getResponseBody(), 100);
                         }
 
                     } catch (MalformedURLException e) {
