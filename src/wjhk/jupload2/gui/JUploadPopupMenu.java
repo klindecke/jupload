@@ -50,7 +50,9 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
      * Identifies the menu item that will set debug mode on or off (on means:
      * debugLevel=100)
      */
-    JCheckBoxMenuItem cbMenuItemDebugOnOff = null;
+    JCheckBoxMenuItem cbmiDebugOnOff = null;
+
+    JCheckBoxMenuItem cbmiLogWindowOnOff = null;
 
     JMenuItem jMenuItemViewLastResponseBody = null;
 
@@ -70,11 +72,17 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
         // Creation of the menu items
         // ////////////////////////////////////////////////////////////////////////
         // First: debug on or off
-        this.cbMenuItemDebugOnOff = new JCheckBoxMenuItem("Debug enabled");
-        this.cbMenuItemDebugOnOff
+        this.cbmiDebugOnOff = new JCheckBoxMenuItem("Debug enabled");
+        this.cbmiDebugOnOff
                 .setState(this.uploadPolicy.getDebugLevel() == 100);
-        add(this.cbMenuItemDebugOnOff);
-        this.cbMenuItemDebugOnOff.addItemListener(this);
+        add(this.cbmiDebugOnOff);
+        this.cbmiDebugOnOff.addItemListener(this);
+        // Show or hide the log window
+        this.cbmiLogWindowOnOff = new JCheckBoxMenuItem("Show log window");
+        this.cbmiLogWindowOnOff.setState(this.uploadPolicy
+                .getShowLogWindow());
+        add(this.cbmiLogWindowOnOff);
+        this.cbmiLogWindowOnOff.addItemListener(this);
         // Copy the last responseBody
         this.jMenuItemCopyLogWindowContent = new JMenuItem(
                 "Copy the log window content");
@@ -92,9 +100,12 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
      * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
      */
     public void itemStateChanged(ItemEvent e) {
-        if (this.cbMenuItemDebugOnOff == e.getItem()) {
-            this.uploadPolicy.setDebugLevel((this.cbMenuItemDebugOnOff
+        if (this.cbmiDebugOnOff == e.getItem()) {
+            this.uploadPolicy.setDebugLevel((this.cbmiDebugOnOff
                     .isSelected() ? 100 : 0));
+        } else if (this.cbmiLogWindowOnOff == e.getItem()) {
+            this.uploadPolicy.setShowLogWindow((this.cbmiLogWindowOnOff
+                    .isSelected()));
         }
     }
 
