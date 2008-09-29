@@ -308,8 +308,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * <LI>debugLevel (must be 0 or less) </DIR>
      */
     public void showOrHideLogWindow() {
-        if (this.uploadPolicy.getShowLogWindow()
-                || this.uploadPolicy.getDebugLevel() > 0) {
+        if (this.uploadPolicy.getShowLogWindow()) {
             // The log window should be visible.
             this.jLogWindowPane.setVisible(true);
         } else {
@@ -506,42 +505,51 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // IMPORTANT: It's up to the UploadPolicy to explain to the user
         // that the upload is not ready!
         // ///////////////////////////////////////////////////////////////////////////////////////////////
-        if (this.uploadPolicy.isUploadReady()) {
-            this.uploadPolicy.beforeUpload();
+        try {
+            if (this.uploadPolicy.isUploadReady()) {
+                this.uploadPolicy.beforeUpload();
 
-            this.browseButton.setEnabled(false);
-            this.removeButton.setEnabled(false);
-            this.removeAllButton.setEnabled(false);
-            this.uploadButton.setEnabled(false);
-            this.stopButton.setEnabled(true);
+                this.browseButton.setEnabled(false);
+                this.removeButton.setEnabled(false);
+                this.removeAllButton.setEnabled(false);
+                this.uploadButton.setEnabled(false);
+                this.stopButton.setEnabled(true);
 
-            // The FileUploadThread instance depends on the protocol.
-            if (this.uploadPolicy.getPostURL().substring(0, 4).equals("ftp:")) {
-                // fileUploadThread = new
-                // FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy,
-                // progress);
-                try {
-                    this.fileUploadThread = new FileUploadThreadFTP(
+                // The FileUploadThread instance depends on the protocol.
+                if (this.uploadPolicy.getPostURL().substring(0, 4).equals(
+                        "ftp:")) {
+                    // fileUploadThread = new
+                    // FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy,
+                    // progress);
+                    try {
+                        this.fileUploadThread = new FileUploadThreadFTP(
+                                this.filePanel.getFiles(), this.uploadPolicy,
+                                this.progressBar);
+                    } catch (JUploadException e1) {
+                        // Too bad !
+                        this.uploadPolicy.displayErr(e1);
+                    }
+                } else {
+                    // fileUploadThread = new
+                    // FileUploadThreadV4(filePanel.getFiles(), uploadPolicy,
+                    // progress);
+                    this.fileUploadThread = new FileUploadThreadHTTP(
                             this.filePanel.getFiles(), this.uploadPolicy,
                             this.progressBar);
-                } catch (JUploadException e1) {
-                    // Too bad !
-                    this.uploadPolicy.displayErr(e1);
                 }
-            } else {
-                // fileUploadThread = new
-                // FileUploadThreadV4(filePanel.getFiles(), uploadPolicy,
-                // progress);
-                this.fileUploadThread = new FileUploadThreadHTTP(this.filePanel
-                        .getFiles(), this.uploadPolicy, this.progressBar);
-            }
-            this.fileUploadThread.start();
+                this.fileUploadThread.start();
 
-            // Create a timer.
-            this.timerUpload.start();
-            this.uploadPolicy.displayDebug("Timer started", 60);
+                // Create a timer.
+                this.timerUpload.start();
+                this.uploadPolicy.displayDebug("Timer started", 60);
 
-        } // if isIploadReady()
+            } // if isIploadReady()
+        } catch (Exception e) {
+            // If an exception occurs here, it fails silently. The exception is
+            // thrown to the AWT event dispatcher.
+            this.uploadPolicy.displayErr(e.getClass().getName()
+                    + " in JUploadPanel.doStartUpload()", e);
+        }
     }
 
     /**
