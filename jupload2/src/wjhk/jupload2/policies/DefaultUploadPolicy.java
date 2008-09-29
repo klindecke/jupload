@@ -1176,18 +1176,36 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         action = "connectionHelper.readHttpResponse()";
                         int status = connectionHelper.readHttpResponse();
 
-                        displayDebug("========================================================================================", 100);
-                        displayDebug("==================      sendDebugInformation [start]   =================================", 100);
-                        displayDebug("========================================================================================", 100);
-                        displayDebug("[sendDebugInformation] Sent to server: \r\n"
-                                + connectionHelper.getByteArrayEncoder()
-                                        .getString(), 100);
-                        displayDebug("========================================================================================", 100);
-                        displayDebug("[sendDebugInformation] Body received: \r\n"
-                                + connectionHelper.getResponseBody(), 100);
-                        displayDebug("========================================================================================", 100);
-                        displayDebug("==================      sendDebugInformation [end]     =================================", 100);
-                        displayDebug("========================================================================================", 100);
+                        displayDebug(
+                                "========================================================================================",
+                                100);
+                        displayDebug(
+                                "==================      sendDebugInformation [start]   =================================",
+                                100);
+                        displayDebug(
+                                "========================================================================================",
+                                100);
+                        displayDebug(
+                                "[sendDebugInformation] Sent to server: \r\n"
+                                        + connectionHelper
+                                                .getByteArrayEncoder()
+                                                .getString(), 100);
+                        displayDebug(
+                                "========================================================================================",
+                                100);
+                        displayDebug(
+                                "[sendDebugInformation] Body received: \r\n"
+                                        + connectionHelper.getResponseBody(),
+                                100);
+                        displayDebug(
+                                "========================================================================================",
+                                100);
+                        displayDebug(
+                                "==================      sendDebugInformation [end]     =================================",
+                                100);
+                        displayDebug(
+                                "========================================================================================",
+                                100);
 
                         // Is our upload a success ?
                         if (!checkUploadSuccess(status, connectionHelper
@@ -1214,7 +1232,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
             displayErr("Could not send debug information", e);
         }
     }// sendDebugInformation
-
 
     /**
      * This method manages all applet parameters. It allows javascript to update
@@ -1455,15 +1472,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
         this.debugLevel = debugLevel;
 
-        // The log window may become visible or hidden, depending on the current
-        // debug level.
-        if (getApplet().getUploadPanel() != null) {
-            getApplet().getUploadPanel().showOrHideLogWindow();
-
-            // Let's display the current applet parameters.
-            if (displayAppletParameterList) {
-                displayParameterStatus();
-            }
+        // Let's display the current applet parameters.
+        if (displayAppletParameterList) {
+            displayParameterStatus();
         }
     }
 
@@ -1743,8 +1754,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.showLogWindow;
     }
 
-    /** @param showLogWindow the new showLogWindow value */
-    protected void setShowLogWindow(boolean showLogWindow) {
+    /** {@inheritDoc} */
+    public void setShowLogWindow(boolean showLogWindow) {
         this.showLogWindow = showLogWindow;
         // The log window may become visible or hidden, depending on this
         // parameter.
