@@ -1474,6 +1474,12 @@ public interface UploadPolicy {
     public int getSslVerifyCert();
 
     /**
+     * @param showLogWindow The show window status to set.
+     * @see #getShowLogWindow()
+     */
+    public void setShowLogWindow(boolean showLogWindow);
+    
+    /**
      * Indicate whether the log window should be shown. It may be convenient to
      * hide it, as it contains mostly debug information. But it still is the
      * only place where possible errors and warnings are shown.<br>
