@@ -481,8 +481,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
             JSObject nav = (JSObject) awin.getMember("navigator");
             this.userAgent = (String) nav.getMember("userAgent");
 
-            displayDebug("cookie: " + this.cookie, 10);
-            displayDebug("userAgent: " + this.userAgent, 10);
+            displayDebug("cookie: " + this.cookie, 30);
+            displayDebug("userAgent: " + this.userAgent, 30);
         } catch (JSException e) {
             displayWarn("JSException (" + e.getClass() + ": " + e.getMessage()
                     + ") in DefaultUploadPolicy, trying default values.");
@@ -498,10 +498,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
             displayDebug(
                     "  no navigator found, reading 'debug_cookie' from system properties ("
-                            + this.cookie + ")", 10);
+                            + this.cookie + ")", 30);
             displayDebug(
                     "  no navigator found, reading 'debug_agent' from system properties ("
-                            + this.userAgent + ")", 10);
+                            + this.userAgent + ")", 30);
             /*
              * Exemple of parameter when calling the JVM:
              * -Ddebug_cookie="Cookie:
@@ -576,7 +576,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         this.lastResponseBody = body;
         this.lastResponseMessage = msg;
-        displayDebug("HTTP status: " + msg, 40);
+        displayDebug("HTTP status: " + msg, 30);
         // HTTP-100 correction, thanks to Marc Reidy
         if ((status != 200) && (status != 100))
             throw new JUploadExceptionUploadFailed("Received HTTP status "
@@ -1019,7 +1019,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         String header;
         while (it.hasNext()) {
             header = it.next();
-            displayDebug(header, 90);
+            displayDebug(header, 70);
             bae.append(header).append("\r\n");
         }
         return bae;
@@ -1054,7 +1054,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                     displayDebug(
                             "[sendDebugInformation] Within response == true",
-                            60);
+                            30);
 
                     String action = null;
                     String line;
@@ -1182,34 +1182,34 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
                         displayDebug(
                                 "========================================================================================",
-                                100);
+                                90);
                         displayDebug(
                                 "==================      sendDebugInformation [start]   =================================",
-                                100);
+                                90);
                         displayDebug(
                                 "========================================================================================",
-                                100);
+                                90);
                         displayDebug(
                                 "[sendDebugInformation] Sent to server: \r\n"
                                         + connectionHelper
                                                 .getByteArrayEncoder()
-                                                .getString(), 100);
+                                                .getString(), 90);
                         displayDebug(
                                 "========================================================================================",
-                                100);
+                                90);
                         displayDebug(
                                 "[sendDebugInformation] Body received: \r\n"
                                         + connectionHelper.getResponseBody(),
-                                100);
+                                90);
                         displayDebug(
                                 "========================================================================================",
-                                100);
+                                90);
                         displayDebug(
                                 "==================      sendDebugInformation [end]     =================================",
-                                100);
+                                90);
                         displayDebug(
                                 "========================================================================================",
-                                100);
+                                90);
 
                         // Is our upload a success ?
                         if (!checkUploadSuccess(status, connectionHelper
@@ -1248,7 +1248,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public void setProperty(String prop, String value) throws JUploadException {
 
         displayDebug("[DefaultUploadPolicy] Call of setProperty: " + prop
-                + " => " + value, 60);
+                + " => " + value, 30);
 
         if (prop.equals(PROP_AFTER_UPLOAD_URL)) {
             setAfterUploadURL(value);
@@ -1307,62 +1307,62 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public void displayParameterStatus() {
         displayDebug(
                 "=======================================================================",
-                20);
-        displayDebug("======= Parameters managed by DefaultUploadPolicy", 20);
+                30);
+        displayDebug("======= Parameters managed by DefaultUploadPolicy", 30);
         // /////////////////////////////////////////////////////////////////////////////
         // Let's display some information to the user, about the received
         // parameters.
         displayInfo("JUpload applet, version " + JUploadApplet.VERSION
                 + " (compiled: " + JUploadApplet.BUILD_DATE
                 + "), available at http://jupload.sourceforge.net/");
-        displayDebug("Java version: " + System.getProperty("java.version"), 20);
-        displayDebug("Cookie: " + this.cookie, 20);
-        displayDebug("userAgent: " + this.userAgent, 20);
+        displayDebug("Java version: " + System.getProperty("java.version"), 30);
+        displayDebug("Cookie: " + this.cookie, 30);
+        displayDebug("userAgent: " + this.userAgent, 30);
 
-        displayDebug("List of all applet parameters:", 20);
+        displayDebug("List of all applet parameters:", 30);
         displayDebug("  language: "
-                + this.resourceBundle.getLocale().getLanguage(), 20);
+                + this.resourceBundle.getLocale().getLanguage(), 30);
         displayDebug("  country: "
-                + this.resourceBundle.getLocale().getCountry(), 20);
+                + this.resourceBundle.getLocale().getCountry(), 30);
 
-        displayDebug(PROP_AFTER_UPLOAD_URL + ": " + getAfterUploadURL(), 20);
+        displayDebug(PROP_AFTER_UPLOAD_URL + ": " + getAfterUploadURL(), 30);
         displayDebug(PROP_ALLOW_HTTP_PERSISTENT + ": "
-                + getAllowHttpPersistent(), 20);
+                + getAllowHttpPersistent(), 30);
         displayDebug(PROP_ALLOWED_FILE_EXTENSIONS + ": "
-                + getAllowedFileExtensions(), 20);
+                + getAllowedFileExtensions(), 30);
         displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
                 + " (debugfile: " + this.debugFile.getAbsolutePath() + ")", 1);
         displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
-                + getFileChooserIconFromFileContent(), 20);
+                + getFileChooserIconFromFileContent(), 30);
         displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
-                + getFileChooserIconSize(), 20);
-        displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(), 20);
-        displayDebug("lang: " + this.lang, 20);
-        displayDebug(PROP_MAX_CHUNK_SIZE + ": " + getMaxChunkSize(), 20);
+                + getFileChooserIconSize(), 30);
+        displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(), 30);
+        displayDebug("lang: " + this.lang, 30);
+        displayDebug(PROP_MAX_CHUNK_SIZE + ": " + getMaxChunkSize(), 30);
         if (this.maxFileSize == Long.MAX_VALUE) {
             // If the maxFileSize was not given, we display its value only
             // in debug mode.
-            displayDebug(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize(), 20);
+            displayDebug(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize(), 30);
         } else {
             // If the maxFileSize was given, we always inform the user.
             displayInfo(PROP_MAX_FILE_SIZE + ": " + getMaxFileSize());
         }
         displayDebug(PROP_NB_FILES_PER_REQUEST + ": " + getNbFilesPerRequest(),
-                20);
-        displayDebug(PROP_POST_URL + ": " + this.postURL, 20);
-        displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 20);
-        displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 20);
-        displayDebug(PROP_SHOW_STATUSBAR + ": " + this.showStatusbar, 20);
-        displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(), 20);
+                30);
+        displayDebug(PROP_POST_URL + ": " + this.postURL, 30);
+        displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 30);
+        displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 30);
+        displayDebug(PROP_SHOW_STATUSBAR + ": " + this.showStatusbar, 30);
+        displayDebug(PROP_SPECIFIC_HEADERS + ": " + getSpecificHeaders(), 30);
         displayDebug(PROP_STRING_UPLOAD_ERROR + ": " + getStringUploadError(),
-                20);
+                30);
         displayDebug(PROP_STRING_UPLOAD_SUCCESS + ": "
-                + getStringUploadSuccess(), 20);
+                + getStringUploadSuccess(), 30);
         displayDebug(PROP_STRING_UPLOAD_WARNING + ": "
-                + getStringUploadWarning(), 20);
+                + getStringUploadWarning(), 30);
         displayDebug(PROP_URL_TO_SEND_ERROR_TO + ": " + getUrlToSendErrorTo(),
-                20);
-        displayDebug("", 20);
+                30);
+        displayDebug("", 30);
     }
 
     private final String normalizeURL(String url) throws JUploadException {
@@ -1584,26 +1584,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 });
     }
 
-    /*
-     * protected void setLang2(String lang) { Locale locale; this.lang = lang;
-     * if (lang == null) { displayInfo("lang = null, taking default language");
-     * locale = Locale.getDefault(); } else { // If we have a 5 characters lang
-     * string, then it should look like // ll_CC, where ll is the language code //
-     * and CC is the Contry code. if (lang.length() == 5 && (lang.substring(2,
-     * 3).equals("_") || lang .substring(2, 3).equals("-"))) { String language =
-     * lang.substring(0, 2); String country = lang.substring(3, 5);
-     * displayDebug("setLang - language read: " + language, 50);
-     * displayDebug("setLang - country read: " + country, 50); locale = new
-     * Locale(language, country.toUpperCase()); } else { locale = new
-     * Locale(lang); } } this.resourceBundle = ResourceBundle.getBundle(
-     * "wjhk.jupload2.lang.lang", locale, // our special classloader, see
-     * description above new ClassLoader(this.getClass().getClassLoader()) { /**
-     * {@inheritDoc} * @Override public Class<?> loadClass(String name) throws
-     * ClassNotFoundException { throw new ClassNotFoundException(); }
-     * 
-     * /** {@inheritDoc} * @Override public InputStream
-     * getResourceAsStream(String name) { return
-     * this.getClass().getClassLoader() .getResourceAsStream(name); } }); }
+    /**
      */
     protected String getLookAndFeel() {
         return this.lookAndFeel;

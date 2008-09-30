@@ -101,7 +101,7 @@ public class JavascriptHandler extends Thread {
         this.jsCommand = command;
         this.uploadPolicy.displayDebug(
                 "JavascriptHandler - doCommand(): jsCommand is: ["
-                        + this.jsCommand + "]", 50);
+                        + this.jsCommand + "]", 30);
 
         // send notify() to waiting thread so that command gets executed.
         this.notify();
@@ -117,7 +117,7 @@ public class JavascriptHandler extends Thread {
      */
     public synchronized String getCommand() {
         this.uploadPolicy.displayDebug("getCommand(): jsCommand is: ["
-                + this.jsCommand + "]", 50);
+                + this.jsCommand + "]", 30);
         return this.jsCommand;
     }
 
@@ -127,7 +127,7 @@ public class JavascriptHandler extends Thread {
     public synchronized void clearCommand() {
         this.jsCommand = null;
         this.uploadPolicy.displayDebug("clearCommand(): jsCommand is: ["
-                + this.jsCommand + "]", 50);
+                + this.jsCommand + "]", 30);
     }
 
     /**
@@ -166,10 +166,10 @@ public class JavascriptHandler extends Thread {
                 }
             } catch (InterruptedException eInterrupted) {
                 this.uploadPolicy.displayDebug("Interrupted: ["
-                        + eInterrupted.getMessage() + "]", 50);
+                        + eInterrupted.getMessage() + "]", 30);
             } catch (Exception eOther) {
                 this.uploadPolicy.displayDebug("Exception: ["
-                        + eOther.getMessage() + "]", 50);
+                        + eOther.getMessage() + "]", 10);
             }
         }
     } // run()

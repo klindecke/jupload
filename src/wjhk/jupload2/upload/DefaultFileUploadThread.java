@@ -554,7 +554,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         } finally {
             // In all cases, we try to free all reserved resources.
             this.uploadPolicy.displayDebug(
-                    "FileUploadThread: within run().finally", 70);
+                    "FileUploadThread: within run().finally", 10);
             try {
                 UploadFileData f;
                 for (int i = 0; i < this.filesToUpload.length; i++) {
@@ -649,7 +649,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
                                 .getUploadLength()
                         + " bytes, getAdditionnalBytesForUpload="
                         + getAdditionnalBytesForUpload(firstFileToUploadParam
-                                + i) + " bytes", 80);
+                                + i) + " bytes", 50);
             }// for
         } catch (JUploadException e) {
             this.uploadPolicy.displayErr(e);

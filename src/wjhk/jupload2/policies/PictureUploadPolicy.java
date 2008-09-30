@@ -644,24 +644,24 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public void displayParameterStatus() {
         super.displayParameterStatus();
 
-        displayDebug("======= Parameters managed by PictureUploadPolicy", 20);
+        displayDebug("======= Parameters managed by PictureUploadPolicy", 30);
         displayDebug(PROP_FILE_CHOOSER_IMAGE_PREVIEW + ": "
-                + getFileChooserImagePreview(), 20);
+                + getFileChooserImagePreview(), 30);
         displayDebug(PROP_HIGH_QUALITY_PREVIEW + " : "
-                + this.highQualityPreview, 20);
+                + this.highQualityPreview, 30);
         displayDebug(PROP_PICTURE_COMPRESSION_QUALITY + " : "
-                + getPictureCompressionQuality(), 20);
+                + getPictureCompressionQuality(), 30);
         displayDebug(PROP_PICTURE_TRANSMIT_METADATA + " : "
-                + getPictureTransmitMetadata(), 20);
+                + getPictureTransmitMetadata(), 30);
         displayDebug(PROP_MAX_WIDTH + " : " + this.maxWidth + ", "
-                + PROP_MAX_HEIGHT + " : " + this.maxHeight, 20);
+                + PROP_MAX_HEIGHT + " : " + this.maxHeight, 30);
         displayDebug(PROP_REAL_MAX_WIDTH + " : " + this.realMaxWidth + ", "
-                + PROP_REAL_MAX_HEIGHT + " : " + this.realMaxHeight, 20);
+                + PROP_REAL_MAX_HEIGHT + " : " + this.realMaxHeight, 30);
         displayDebug(PROP_STORE_BUFFERED_IMAGE + " : "
-                + this.storeBufferedImage, 20);
+                + this.storeBufferedImage, 30);
         displayDebug(PROP_TARGET_PICTURE_FORMAT + " : "
-                + this.targetPictureFormat, 20);
-        displayDebug("", 20);
+                + this.targetPictureFormat, 30);
+        displayDebug("", 30);
     }
 
     /**

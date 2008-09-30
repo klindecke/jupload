@@ -170,7 +170,19 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>With 0, you get the normal production output. The higher the number is,
- * the more information is displayed in the log window. <br>
+ * the more information is displayed in the log window. Here are some hints
+ * about debug level values (please note that this is indicative ... including
+ * for me, as I'me writing this during 3.3.2 release: <DIR>
+ * <LI>0: No debug output. Only INFO and ERROR
+ * <LI>10: Structural debug output (entering method, exception info...)
+ * <LI>30: Details about method parameters
+ * <LI>50: Details about internal method variables.
+ * <LI>70: Details about encoding toward the server
+ * <LI>80: Details about server's response
+ * <LI>90: Details about query and server response when sending debug output to
+ * urlToSendErrorTo
+ * <LI>100: Maximum output information level. The redirection toward
+ * afterUploadURL is blocked </DIR> <br>
  * Note: All debug messages are stored in a temporary log file. This can be used
  * to display more information, if needed. See also the <I>urlToSendErrorTo</I>
  * applet parameter. </td>
@@ -1478,7 +1490,7 @@ public interface UploadPolicy {
      * @see #getShowLogWindow()
      */
     public void setShowLogWindow(boolean showLogWindow);
-    
+
     /**
      * Indicate whether the log window should be shown. It may be convenient to
      * hide it, as it contains mostly debug information. But it still is the

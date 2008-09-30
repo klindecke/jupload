@@ -220,18 +220,18 @@ public class ImageHelper implements ImageObserver {
             this.scaledRotatedHeight *= this.scale;
         }
         this.uploadPolicy.displayDebug(
-                "Resizing factor (scale): " + this.scale, 10);
+                "Resizing factor (scale): " + this.scale, 30);
         // Due to rounded numbers, the resulting targetWidth or
         // targetHeight
         // may be one pixel too big. Let's check that.
         if (this.scaledRotatedWidth > this.maxWidth) {
             this.uploadPolicy.displayDebug("Correcting rounded width: "
-                    + this.scaledRotatedWidth + " to " + this.maxWidth, 10);
+                    + this.scaledRotatedWidth + " to " + this.maxWidth, 50);
             this.scaledRotatedWidth = this.maxWidth;
         }
         if (this.scaledRotatedHeight > this.maxHeight) {
             this.uploadPolicy.displayDebug("Correcting rounded height: "
-                    + this.scaledRotatedHeight + " to " + this.maxHeight, 10);
+                    + this.scaledRotatedHeight + " to " + this.maxHeight, 50);
             this.scaledRotatedHeight = this.maxHeight;
         }
 
@@ -289,7 +289,7 @@ public class ImageHelper implements ImageObserver {
                         .displayDebug(
                                 this.pictureFileData.getFileName()
                                         + " : hasToTransformPicture = true (quarterRotation != 0)",
-                                20);
+                                10);
                 this.hasToTransformPicture = Boolean.TRUE;
             }
 
@@ -313,7 +313,7 @@ public class ImageHelper implements ImageObserver {
                             .displayDebug(
                                     this.pictureFileData.getFileName()
                                             + " : hasToTransformPicture = true (targetPictureFormat)",
-                                    20);
+                                    10);
                     // Correction given by David Gnedt: the following line was
                     // lacking!
                     this.hasToTransformPicture = Boolean.TRUE;
@@ -324,7 +324,7 @@ public class ImageHelper implements ImageObserver {
             if (this.hasToTransformPicture == null && this.scale < 1) {
                 this.uploadPolicy.displayDebug(this.pictureFileData
                         .getFileName()
-                        + " : hasToTransformPicture = true (scale < 1)", 20);
+                        + " : hasToTransformPicture = true (scale < 1)", 10);
                 this.hasToTransformPicture = Boolean.TRUE;
             }
 
@@ -333,7 +333,7 @@ public class ImageHelper implements ImageObserver {
             if (this.hasToTransformPicture == null) {
                 this.uploadPolicy.displayDebug(this.pictureFileData
                         .getFileName()
-                        + " : hasToTransformPicture = false", 20);
+                        + " : hasToTransformPicture = false", 10);
                 this.hasToTransformPicture = Boolean.FALSE;
             }
         }
@@ -382,7 +382,7 @@ public class ImageHelper implements ImageObserver {
             if (this.quarterRotation != 0) {
                 double translationX = 0, translationY = 0;
                 this.uploadPolicy.displayDebug("getBufferedImage: quarter: "
-                        + this.quarterRotation, 30);
+                        + this.quarterRotation, 50);
 
                 // quarterRotation is one of 0, 1, 2, 3 : see addRotation.
                 // If we're here : it's not 0, so it's one of 1, 2 or 3.
@@ -416,7 +416,7 @@ public class ImageHelper implements ImageObserver {
                     this.uploadPolicy
                             .displayDebug(
                                     "getBufferedImage: Resizing picture(using high quality picture)",
-                                    40);
+                                    30);
 
                     // SCALE_AREA_AVERAGING forces the picture calculation
                     // algorithm.
@@ -444,10 +444,10 @@ public class ImageHelper implements ImageObserver {
 
                     // Let's draw the picture: this code do the rescaling.
                     this.uploadPolicy.displayDebug(
-                            "getBufferedImage: Before drawImage", 100);
+                            "getBufferedImage: Before drawImage", 50);
                     tempBufferedImage.getGraphics().drawImage(img, 0, 0, this);
                     this.uploadPolicy.displayDebug(
-                            "getBufferedImage: After drawImage", 100);
+                            "getBufferedImage: After drawImage", 50);
 
                     tempBufferedImage.flush();
 
@@ -466,13 +466,13 @@ public class ImageHelper implements ImageObserver {
                     this.uploadPolicy
                             .displayDebug(
                                     "getBufferedImage: Resizing picture(using standard quality picture)",
-                                    40);
+                                    50);
                     transform.scale(this.scale, this.scale);
                 }
             }
 
             this.uploadPolicy.displayDebug(
-                    "getBufferedImage: Picture is now rescaled", 80);
+                    "getBufferedImage: Picture is now rescaled", 50);
 
             if (transform.isIdentity()) {
                 returnedBufferedImage = sourceBufferedImage;
@@ -489,11 +489,11 @@ public class ImageHelper implements ImageObserver {
                 this.uploadPolicy.displayDebug(
                         "getBufferedImage: returnedBufferedImage.getColorModel(): "
                                 + sourceBufferedImage.getColorModel()
-                                        .toString(), 80);
+                                        .toString(), 50);
                 this.uploadPolicy.displayDebug(
                         "getBufferedImage: returnedBufferedImage.getColorModel(): "
                                 + sourceBufferedImage.getColorModel()
-                                        .toString(), 80);
+                                        .toString(), 50);
                 affineTransformOp.filter(sourceBufferedImage,
                         returnedBufferedImage);
                 affineTransformOp = null;
@@ -507,18 +507,18 @@ public class ImageHelper implements ImageObserver {
         }
 
         if (returnedBufferedImage != null
-                && this.uploadPolicy.getDebugLevel() >= 60) {
+                && this.uploadPolicy.getDebugLevel() >= 50) {
             this.uploadPolicy.displayDebug("getBufferedImage: "
-                    + returnedBufferedImage, 60);
+                    + returnedBufferedImage, 50);
             this.uploadPolicy.displayDebug("getBufferedImage: MinX="
-                    + returnedBufferedImage.getMinX(), 60);
+                    + returnedBufferedImage.getMinX(), 50);
             this.uploadPolicy.displayDebug("getBufferedImage: MinY="
-                    + returnedBufferedImage.getMinY(), 60);
+                    + returnedBufferedImage.getMinY(), 50);
         }
 
         this.uploadPolicy.displayDebug("getBufferedImage: was "
                 + (System.currentTimeMillis() - msGetBufferedImage)
-                + " ms long", 100);
+                + " ms long", 50);
         this.pictureFileData.freeMemory("ImageHelper.getBufferedImage()");
         return returnedBufferedImage;
     }
@@ -543,12 +543,12 @@ public class ImageHelper implements ImageObserver {
                     .getUploadPanel().getProgressBar().getValue();
             this.uploadPolicy.displayDebug(
                     "  imageUpdate (start of), progressBar geValue: "
-                            + this.progressBarBaseValue, 100);
+                            + this.progressBarBaseValue, 50);
             int max = this.uploadPolicy.getApplet().getUploadPanel()
                     .getProgressBar().getMaximum();
             this.uploadPolicy.displayDebug(
                     "  imageUpdate (start of), progressBar maximum: " + max,
-                    100);
+                    50);
         } else if ((infoflags & ImageObserver.SOMEBITS) == ImageObserver.SOMEBITS) {
             this.nbPixelsRead += width * height;
             int percentage = (int) ((long) this.nbPixelsRead * 100 / this.nbPixelsTotal);
@@ -564,7 +564,7 @@ public class ImageHelper implements ImageObserver {
         } else if ((infoflags & ImageObserver.ALLBITS) == ImageObserver.ALLBITS) {
             this.uploadPolicy.displayDebug(
                     "  imageUpdate, total number of pixels: "
-                            + this.nbPixelsRead + " read", 100);
+                            + this.nbPixelsRead + " read", 50);
         }
 
         // We want to go on, after these bits

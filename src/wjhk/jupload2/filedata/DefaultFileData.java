@@ -124,10 +124,10 @@ public class DefaultFileData implements FileData {
             this.fileRoot = root.getAbsolutePath();
             uploadPolicy.displayDebug("Creation of the DefaultFileData for "
                     + file.getAbsolutePath() + "(root: "
-                    + root.getAbsolutePath() + ")", 20);
+                    + root.getAbsolutePath() + ")", 10);
         } else {
             uploadPolicy.displayDebug("Creation of the DefaultFileData for "
-                    + file.getAbsolutePath() + "(root: null)", 20);
+                    + file.getAbsolutePath() + "(root: null)", 10);
         }
 
         // Let's load the mime types list.
@@ -163,7 +163,7 @@ public class DefaultFileData implements FileData {
         bae.appendTextProperty("mimetype[]", getMimeType());
         bae.appendTextProperty("pathinfo[]", getDirectory());
         bae.appendTextProperty("relpathinfo[]", getRelativeDir());
-        // To add the file datetime, we first have to format this date.
+        // To add the file date/time, we first have to format this date.
         SimpleDateFormat dateformat = new SimpleDateFormat(this.uploadPolicy
                 .getDateFormat());
         String uploadFileModificationDate = dateformat
@@ -174,7 +174,7 @@ public class DefaultFileData implements FileData {
 
     /** {@inheritDoc} */
     public void beforeUpload() throws JUploadException {
-        // Default : we check that the file is smalled than the maximum upload
+        // Default : we check that the file is smaller than the maximum upload
         // size.
         if (getUploadLength() > this.uploadPolicy.getMaxFileSize()) {
             throw new JUploadExceptionTooBigFile(getFileName(),

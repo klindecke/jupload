@@ -204,7 +204,7 @@ public class PictureFileData extends DefaultFileData {
         }
         // Let's log the test result
         uploadPolicy.displayDebug("isPicture=" + this.isPicture + " ("
-                + file.getName() + "), extension=" + fileExtension, 75);
+                + file.getName() + "), extension=" + fileExtension, 50);
 
         // If it's a picture, we override the default mime type:
         if (this.isPicture) {
@@ -223,22 +223,11 @@ public class PictureFileData extends DefaultFileData {
     public void freeMemory(String caller) {
         Runtime rt = Runtime.getRuntime();
 
-        /*
-         * uploadPolicy.displayDebug("freeMemory : " + caller, 80);
-         * uploadPolicy.displayDebug("freeMemory (before " + caller + ") : " +
-         * rt.freeMemory(), 80); uploadPolicy.displayDebug("maxMemory (before " +
-         * caller + ") : " + rt.maxMemory(), 80);
-         */
-
         // rt.runFinalization();
         rt.gc();
 
         this.uploadPolicy.displayDebug("freeMemory (after " + caller + ") : "
-                + rt.freeMemory(), 80);
-        /*
-         * uploadPolicy.displayDebug("maxMemory (after " + caller + ") : " +
-         * rt.maxMemory(), 80);
-         */
+                + rt.freeMemory(), 50);
     }
 
     /**
@@ -596,7 +585,7 @@ public class PictureFileData extends DefaultFileData {
             // the loop. No error.
             this.uploadPolicy.displayDebug(
                     "IndexOutOfBoundsException catched: end of reading for file "
-                            + getFileName(), 50);
+                            + getFileName(), 10);
         }
 
         if (originalImage != null) {
@@ -654,7 +643,7 @@ public class PictureFileData extends DefaultFileData {
                     "deleteTransformedPictureFile");
             this.uploadPolicy.displayDebug("Using transformed temp file "
                     + this.transformedPictureFile.getAbsolutePath() + " for "
-                    + getFileName(), 50);
+                    + getFileName(), 30);
         }
     }
 
@@ -718,7 +707,7 @@ public class PictureFileData extends DefaultFileData {
                     "deleteWorkingCopyPictureFile");
             this.uploadPolicy.displayDebug("Using working copy temp file "
                     + this.workingCopyTempFile.getAbsolutePath() + " for "
-                    + getFileName(), 50);
+                    + getFileName(), 30);
         }
     }
 
@@ -750,7 +739,7 @@ public class PictureFileData extends DefaultFileData {
             this.uploadPolicy.displayDebug(
                     "[getWorkingSourceFile] Creating a copy of "
                             + getFileName() + " as a source working target.",
-                    20);
+                    30);
             FileInputStream is = null;
             FileOutputStream os = null;
             try {

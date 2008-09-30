@@ -238,7 +238,7 @@ public class ImageReaderWriterHelper {
             this.uploadPolicy.displayDebug(
                     "ImageReaderWriterHelper: reading picture number "
                             + imageIndex + " of file "
-                            + this.pictureFileData.getFileName(), 50);
+                            + this.pictureFileData.getFileName(), 30);
             return this.imageReader.read(imageIndex);
         } catch (IndexOutOfBoundsException e) {
             // The IndexOutOfBoundsException is transmitted to the caller. It
@@ -268,7 +268,7 @@ public class ImageReaderWriterHelper {
             this.uploadPolicy.displayDebug(
                     "ImageReaderWriterHelper: reading picture number "
                             + imageIndex + " of file "
-                            + this.pictureFileData.getFileName(), 50);
+                            + this.pictureFileData.getFileName(), 30);
             return this.imageReader.readAll(imageIndex, this.imageReader
                     .getDefaultReadParam());
         } catch (IndexOutOfBoundsException e) {
@@ -300,7 +300,7 @@ public class ImageReaderWriterHelper {
             this.uploadPolicy.displayDebug(
                     "ImageReaderWriterHelper: reading metadata for picture number "
                             + imageIndex + " of file "
-                            + this.pictureFileData.getFileName(), 50);
+                            + this.pictureFileData.getFileName(), 30);
             return this.imageReader.getImageMetadata(imageIndex);
         } catch (IOException e) {
             throw new JUploadIOException(
@@ -385,7 +385,7 @@ public class ImageReaderWriterHelper {
                     this.uploadPolicy.displayDebug(
                             "ImageWriter1 (used), CompressionQuality="
                                     + this.imageWriterParam
-                                            .getCompressionQuality(), 95);
+                                            .getCompressionQuality(), 50);
                 } catch (Exception e2) {
                     // If we come here, compression is not supported for
                     // this picture format, or parameters are not explicit
@@ -423,14 +423,14 @@ public class ImageReaderWriterHelper {
                 this.imageReader = iterator.next();
                 this.imageReader.setInput(this.fileImageInputStream);
                 this.uploadPolicy.displayDebug("Foud one reader for " + ext
-                        + " extension", 80);
+                        + " extension", 50);
             }// while
 
             // Did we find our reader ?
             if (this.imageReader == null) {
                 this.uploadPolicy.displayErr("Found no reader for " + ext
                         + " extension");
-            } else if (this.uploadPolicy.getDebugLevel() > 50) {
+            } else if (this.uploadPolicy.getDebugLevel() >= 50) {
                 // This call may be long, so we do it only if useful.
                 try {
                     this.uploadPolicy.displayDebug("Nb images in "
