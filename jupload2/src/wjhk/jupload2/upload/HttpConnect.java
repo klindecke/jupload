@@ -99,7 +99,7 @@ public class HttpConnect {
         String line = proxyIn.readLine();
         if (!line.matches("^HTTP/\\d\\.\\d\\s200\\s.*"))
             throw new ConnectException("Proxy response: " + line);
-        this.uploadPolicy.displayDebug("Proxy response: " + line, 40);
+        this.uploadPolicy.displayDebug("Proxy response: " + line, 80);
         proxyIn.readLine(); // eat the header delimiter
         // we now are connected ...
         return proxysock;
@@ -257,7 +257,7 @@ public class HttpConnect {
         boolean bRedirect = false;
         URL url = new URL(this.uploadPolicy.getPostURL());
         this.uploadPolicy
-                .displayDebug("Checking protocol with URL: " + url, 40);
+                .displayDebug("Checking protocol with URL: " + url, 30);
         Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
         boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
         boolean useSSL = url.getProtocol().equals("https");
@@ -304,7 +304,7 @@ public class HttpConnect {
                 this.uploadPolicy.displayErr("Unexpected HEAD response: '"
                         + firstLine + "'");
             }
-            this.uploadPolicy.displayDebug("HEAD response: " + firstLine, 40);
+            this.uploadPolicy.displayDebug("HEAD response: " + firstLine, 80);
 
             // We will return the found protocol.
             protocol = m.group(1);

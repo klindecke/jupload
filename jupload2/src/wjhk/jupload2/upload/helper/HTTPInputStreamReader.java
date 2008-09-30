@@ -173,7 +173,7 @@ public class HTTPInputStreamReader {
                         int len = Integer.parseInt(this.line.replaceFirst(
                                 ";.*", "").trim(), 16);
                         this.uploadPolicy.displayDebug("Chunk: " + this.line
-                                + " dec: " + len, 80);
+                                + " dec: " + len, 70);
                         if (len == 0) {
                             // RFC 2616, Section 3.6.1: A length of 0 denotes
                             // the last chunk of the body.

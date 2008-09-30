@@ -164,7 +164,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     @Override
     public void setProperty(String prop, String value) throws JUploadException {
         displayDebug("[CoppermineUploadPolicy] Call of setProperty: " + prop
-                + " => " + value, 60);
+                + " => " + value, 30);
 
         // Check if it's a local property.
         if (prop.equals(PROP_ALBUM_ID)) {
@@ -265,9 +265,9 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     public void displayParameterStatus() {
         super.displayParameterStatus();
 
-        displayDebug("======= Parameters managed by CoppermineUploadPolicy", 20);
-        displayDebug(PROP_ALBUM_ID + " : " + this.albumId, 20);
-        displayDebug("", 20);
+        displayDebug("======= Parameters managed by CoppermineUploadPolicy", 30);
+        displayDebug(PROP_ALBUM_ID + " : " + this.albumId, 30);
+        displayDebug("", 30);
     }
 
 }

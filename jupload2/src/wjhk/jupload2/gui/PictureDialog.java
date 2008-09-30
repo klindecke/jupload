@@ -118,7 +118,7 @@ public class PictureDialog extends JDialog implements ActionListener,
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand() == this.buttonClose.getActionCommand()) {
             this.uploadPolicy.displayDebug(
-                    "[PictureDialog] Before this.dispose()", 60);
+                    "[PictureDialog] Before this.dispose()", 10);
             this.dispose();
         }
     }

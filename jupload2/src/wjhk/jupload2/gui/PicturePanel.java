@@ -160,7 +160,7 @@ public class PicturePanel extends Canvas implements MouseListener,
                 this.uploadPolicy
                         .displayDebug(
                                 "PicturePanel.setPictureFile(): offscreenImage is null",
-                                1);
+                                30);
             }
             repaint();
         }
@@ -192,12 +192,6 @@ public class PicturePanel extends Canvas implements MouseListener,
 
         // Then, display the picture, if any is defined.
         if (this.offscreenImage != null) {
-            /*
-             * uploadPolicy.displayDebug("PicturePanel.paint(): Non null
-             * offscreenImage (image : w=" + offscreenImage.getWidth(this) + ",
-             * h=" + offscreenImage.getHeight(this) + ", panel: w=" + getWidth() + ",
-             * h=" + getHeight() , 20 );
-             */
             // Let's center this picture
             int hMargin = (getWidth() - this.offscreenImage.getWidth(this)) / 2;
             int vMargin = (getHeight() - this.offscreenImage.getHeight(this)) / 2;
@@ -206,7 +200,7 @@ public class PicturePanel extends Canvas implements MouseListener,
             this.offscreenImage.flush();
         } else {
             this.uploadPolicy.displayDebug(
-                    "PicturePanel.paint(): offscreenImage is null", 40);
+                    "PicturePanel.paint(): offscreenImage is null", 50);
         }
     }
 
@@ -240,10 +234,6 @@ public class PicturePanel extends Canvas implements MouseListener,
      * only clear the panel rectangle, on the screen.
      */
     private void calculateOffscreenImage() {
-        /**
-         * Cursor previousCursor = null; if (this.mainContainer != null) {
-         * previousCursor = this.uploadPolicy.setWaitCursor(); }
-         */
         if (this.pictureFileData == null) {
             // Nothing to do. offscreenImage should be null.
             if (this.offscreenImage != null) {
@@ -255,17 +245,10 @@ public class PicturePanel extends Canvas implements MouseListener,
             this.uploadPolicy
                     .displayDebug(
                             "PicturePanel.calculateOffscreenImage(): trying to calculate offscreenImage (PicturePanel.calculateOffscreenImage()",
-                            40);
+                            30);
             try {
                 this.offscreenImage = this.pictureFileData.getImage(this,
                         this.hasToStoreOffscreenPicture);
-                /*
-                 * if (offscreenImage != null) {
-                 * uploadPolicy.displayDebug("PicturePanel.calculateOffscreenImage():
-                 * got a non null offscreenImage", 40); } else {
-                 * uploadPolicy.displayDebug("PicturePanel.calculateOffscreenImage():
-                 * got a null offscreenImage", 40); }
-                 */
             } catch (JUploadException e) {
                 this.uploadPolicy.displayErr(e);
                 // We won't try to display the picture for this file.
@@ -273,11 +256,6 @@ public class PicturePanel extends Canvas implements MouseListener,
                 this.offscreenImage = null;
             }
         }
-
-        /*
-         * if (previousCursor != null && this.mainContainer != null) {
-         * this.mainContainer.setCursor(previousCursor); }
-         */
     }
 
     /**
@@ -286,7 +264,7 @@ public class PicturePanel extends Canvas implements MouseListener,
     @Override
     protected void finalize() throws Throwable {
         // super.finalize();
-        this.uploadPolicy.displayDebug("Within PicturePanel.finalize()", 90);
+        this.uploadPolicy.displayDebug("Within PicturePanel.finalize()", 10);
 
         this.pictureFileData = null;
         this.uploadPolicy = null;
@@ -358,7 +336,7 @@ public class PicturePanel extends Canvas implements MouseListener,
      */
     public void componentResized(@SuppressWarnings("unused")
     ComponentEvent arg0) {
-        this.uploadPolicy.displayDebug("Within componentResized", 60);
+        this.uploadPolicy.displayDebug("Within componentResized", 10);
         if (this.offscreenImage != null) {
             this.offscreenImage.flush();
             this.offscreenImage = null;

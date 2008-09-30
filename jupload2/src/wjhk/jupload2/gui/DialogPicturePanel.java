@@ -71,7 +71,7 @@ public class DialogPicturePanel extends PicturePanel {
         // Let's close the current DialogBox, if it has not already be done.
         if (this.pictureDialog != null) {
             this.uploadPolicy.displayDebug(
-                    "[DialogPicturePanel] Before pictureDialog.dispose()", 60);
+                    "[DialogPicturePanel] Before pictureDialog.dispose()", 50);
             this.pictureDialog.dispose();
             this.pictureDialog = null;
         }

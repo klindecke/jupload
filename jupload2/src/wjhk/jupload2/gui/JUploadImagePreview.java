@@ -75,7 +75,7 @@ class LoadImageThread extends Thread {
     public void run() {
 
         this.jUploadImagePreview.uploadPolicy.displayDebug(
-                "LoadImageThread.start (start)", 100);
+                "LoadImageThread.start (start)", 50);
         this.jUploadImagePreview.jFileChooser.setCursor(waitCursor);
         ImageIcon thumbnail = PictureFileData.getImageIcon(this.file,
                 this.jUploadImagePreview.getWidth(), this.jUploadImagePreview
@@ -90,7 +90,7 @@ class LoadImageThread extends Thread {
             this.jUploadImagePreview.jFileChooser.setCursor(null);
         }
         this.jUploadImagePreview.uploadPolicy.displayDebug(
-                "LoadImageThread.start (end)", 100);
+                "LoadImageThread.start (end)", 50);
     }
 }
 
@@ -229,7 +229,7 @@ public class JUploadImagePreview extends JComponent implements
             }
             this.thumbnail.paintIcon(this, g, x, y);
             this.uploadPolicy.displayDebug(
-                    "JUploadImagePreview.paintComponent, after paintIcon", 100);
+                    "JUploadImagePreview.paintComponent, after paintIcon", 50);
         }
     }
 }

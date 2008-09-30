@@ -197,21 +197,21 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             try {
                 this.ftp.setDefaultPort(Integer.parseInt(this.port));
                 this.ftp.connect(this.host);
-                this.uploadPolicy.displayDebug("Connected to " + this.host, 3);
-                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 20);
+                this.uploadPolicy.displayDebug("Connected to " + this.host, 10);
+                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
 
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
                     throw new JUploadException("FTP server refused connection.");
 
                 // given the login information, do the login
                 this.ftp.login(this.user, this.pass);
-                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 20);
+                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
 
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
                     throw new JUploadException("Invalid username / password");
 
                 this.ftp.changeWorkingDirectory(this.dir);
-                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 20);
+                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
 
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
                     throw new JUploadException("Invalid directory specified");
@@ -262,11 +262,11 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         try {
             if (this.ftp.isConnected()) {
                 this.ftp.disconnect();
-                this.uploadPolicy.displayDebug("disconnected", 20);
+                this.uploadPolicy.displayDebug("disconnected", 50);
             }
         } catch (IOException e) {
             // then we arent connected
-            this.uploadPolicy.displayDebug("Not connected", 20);
+            this.uploadPolicy.displayDebug("Not connected", 50);
         } finally {
             this.ftpOutputStream = null;
             this.bufferedOutputStream = null;

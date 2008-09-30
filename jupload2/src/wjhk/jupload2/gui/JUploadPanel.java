@@ -406,7 +406,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private void actionPerformedUploadFinished() {
         // The upload is finished
         this.uploadPolicy.displayDebug(
-                "JUploadPanel: after !fileUploadThread.isAlive()", 60);
+                "JUploadPanel: after !fileUploadThread.isAlive()", 10);
         this.timerUpload.stop();
         String svrRet = this.fileUploadThread.getResponseMsg();
         Exception ex = this.fileUploadThread.getException();
@@ -541,7 +541,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
                 // Create a timer.
                 this.timerUpload.start();
-                this.uploadPolicy.displayDebug("Timer started", 60);
+                this.uploadPolicy.displayDebug("Timer started", 50);
 
             } // if isIploadReady()
         } catch (Exception e) {

@@ -288,7 +288,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                         }
                     } catch (JSException e1) {
                         this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
-                                + ": got JSException, bailing out", 80);
+                                + ": got JSException, bailing out", 10);
                         i = len;
                     }
                 }
@@ -298,7 +298,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
             }
         } catch (JSException e) {
             this.uploadPolicy.displayDebug(e.getStackTrace()[1]
-                    + ": No JavaScript availabe", 80);
+                    + ": No JavaScript availabe", 10);
         }
         return this;
     }

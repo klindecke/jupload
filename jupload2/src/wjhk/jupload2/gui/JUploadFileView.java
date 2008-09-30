@@ -126,15 +126,12 @@ class IconWorker implements Runnable {
      * @return The Icon to be displayed for this file.
      */
     Icon getIcon() {
-        // this.uploadPolicy.displayDebug("In IconWorker.getIcon("
-        // + this.file.getAbsolutePath() + ")", 90);
-
         switch (this.status) {
             case STATUS_LOADED:
                 return this.icon;
             case STATUS_NOT_LOADED:
                 // ?? This picture should not be in this state. Perhaps the user
-                // changes of directory, then went bak to it.
+                // changes of directory, then went back to it.
                 // We ask again to calculate its icon.
                 this.fileView.execute(this);
                 return JUploadFileView.emptyIcon;
@@ -153,7 +150,7 @@ class IconWorker implements Runnable {
             if (this.status == STATUS_TO_BE_LOADED) {
                 this.status = STATUS_LOADING;
                 this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
-                        + this.file.getName() + ")", 90);
+                        + this.file.getName() + ")", 50);
 
                 // This class is used only to do the callbe low, in a separate
                 // thread.
@@ -259,12 +256,12 @@ public class JUploadFileView extends FileView implements
     synchronized void execute(IconWorker iconWorker) {
         this.uploadPolicy.displayDebug(
                 "[JUploadFileView.execute] Adding (to FileChooser) "
-                        + iconWorker.file.getAbsolutePath(), 90);
+                        + iconWorker.file.getAbsolutePath(), 50);
         if (this.executorService == null || this.executorService.isShutdown()) {
             this.uploadPolicy
                     .displayDebug(
                             "JUploadFileView.execute: creating the executorService",
-                            90);
+                            50);
             this.executorService = Executors.newSingleThreadExecutor();
         }
         iconWorker.status = IconWorker.STATUS_TO_BE_LOADED;
@@ -318,7 +315,7 @@ public class JUploadFileView extends FileView implements
             // directory, the non calculated icons will be added to the job
             // list.
             this.uploadPolicy.displayDebug(
-                    "[JUploadFileView] Directory changed", 80);
+                    "[JUploadFileView] Directory changed", 50);
             stopRunningJobs();
         }
     }

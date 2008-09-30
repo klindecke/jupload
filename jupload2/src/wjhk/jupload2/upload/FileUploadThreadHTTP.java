@@ -78,7 +78,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             UploadPolicy uploadPolicy, JProgressBar progress) {
         super(filesDataParam, uploadPolicy, progress);
         uploadPolicy.displayDebug("Upload done by using the "
-                + getClass().getName() + " class", 40);
+                + getClass().getName() + " class", 30);
         // Name the thread (useful for debugging)
         setName("FileUploadThreadHTTP");
         this.heads = new ByteArrayEncoder[filesDataParam.length];
@@ -108,10 +108,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     void afterFile(int index) throws JUploadIOException {
         this.connectionHelper.append(this.tails[index].getEncodedByteArray());
         this.uploadPolicy.displayDebug("--- filetail start (len="
-                + this.tails[index].getEncodedLength() + "):", 80);
+                + this.tails[index].getEncodedLength() + "):", 70);
         this.uploadPolicy.displayDebug(
-                quoteCRLF(this.tails[index].getString()), 80);
-        this.uploadPolicy.displayDebug("--- filetail end", 80);
+                quoteCRLF(this.tails[index].getString()), 70);
+        this.uploadPolicy.displayDebug("--- filetail end", 70);
     }
 
     /** @see DefaultFileUploadThread#beforeFile(int) */
@@ -128,10 +128,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             // Debug output: always called, so that the debug file is correctly
             // filled.
             this.uploadPolicy.displayDebug("--- fileheader start (len="
-                    + this.heads[index].getEncodedLength() + "):", 80);
+                    + this.heads[index].getEncodedLength() + "):", 70);
             this.uploadPolicy.displayDebug(quoteCRLF(this.heads[index]
-                    .getString()), 80);
-            this.uploadPolicy.displayDebug("--- fileheader end", 80);
+                    .getString()), 70);
+            this.uploadPolicy.displayDebug("--- fileheader end", 70);
         } catch (Exception e) {
             throw new JUploadException(e);
         }
@@ -186,7 +186,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             String chunkHttpParam = "jupart=" + chunkPart + "&jufinal="
                     + (bLastChunk ? "1" : "0");
             this.uploadPolicy.displayDebug("chunkHttpParam: " + chunkHttpParam,
-                    40);
+                    30);
 
             URL url = new URL(this.uploadPolicy.getPostURL());
 
@@ -233,8 +233,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                             .getEncodedLength()
                     + "):\n"
                     + quoteCRLF(this.connectionHelper.getByteArrayEncoder()
-                            .getString()), 80);
-            this.uploadPolicy.displayDebug("=== main header end", 80);
+                            .getString()), 70);
+            this.uploadPolicy.displayDebug("=== main header end", 70);
         } catch (IOException e) {
             throw new JUploadIOException(e);
         } catch (IllegalArgumentException e) {
@@ -296,7 +296,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             try {
                 this.uploadPolicy.displayDebug("Encoded filename: "
                         + URLEncoder.encode(uploadFilename, filenameEncoding),
-                        99);
+                        70);
                 bae.append(URLEncoder.encode(uploadFilename, filenameEncoding));
             } catch (UnsupportedEncodingException e) {
                 this.uploadPolicy

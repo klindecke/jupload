@@ -125,7 +125,7 @@ public class DebugDialog extends JDialog implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand() == this.buttonClose.getActionCommand()) {
             this.uploadPolicy.displayDebug(
-                    "[DebugDialog] Before this.dispose()", 60);
+                    "[DebugDialog] Before this.dispose()", 50);
             this.dispose();
         }
     }
