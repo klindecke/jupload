@@ -922,16 +922,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
             logMsg = exceptionMsg + " (" + errorText + ")";
         }
 
-        // Display the message to the user.
-        if (getDebugLevel() > 1) {
-            // Debug has been put on, by the user.
-            alertStr(exceptionClassName + logMsg);
-        } else {
-            // Debug level may be set to 1, when an error occurs, even if debug
-            // was not put on by the user.
-            alertStr(alertMsg);
-        }
-
         // Add the message to the log window
         displayMsg("[ERROR] ", exceptionClassName + logMsg);
         // Let's display the stack trace, if relevant.
@@ -941,6 +931,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
             justToPrintAStackTrace.printStackTrace(ps);
             ps.close();
             displayMsg("", bs.toString());
+        }
+
+        // Display the message to the user.
+        if (getDebugLevel() >= 1) {
+            // Debug has been put on (by the user or by applet configuration).
+            alertStr(exceptionClassName + logMsg);
+            // Then we copy the debug output to the clipboard, and say it to the
+            // current user.
+            getApplet().getUploadPanel().copyLogWindow();
+            alert("messageLogWindowCopiedToClipboard");
+        } else {
+            // Debug level may be set to 1, when an error occurs, even if debug
+            // was not put on by the user.
+            alertStr(alertMsg);
         }
     }
 

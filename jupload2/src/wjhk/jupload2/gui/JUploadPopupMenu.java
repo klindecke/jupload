@@ -73,14 +73,12 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
         // ////////////////////////////////////////////////////////////////////////
         // First: debug on or off
         this.cbmiDebugOnOff = new JCheckBoxMenuItem("Debug enabled");
-        this.cbmiDebugOnOff
-                .setState(this.uploadPolicy.getDebugLevel() == 100);
+        this.cbmiDebugOnOff.setState(this.uploadPolicy.getDebugLevel() == 100);
         add(this.cbmiDebugOnOff);
         this.cbmiDebugOnOff.addItemListener(this);
         // Show or hide the log window
         this.cbmiLogWindowOnOff = new JCheckBoxMenuItem("Show log window");
-        this.cbmiLogWindowOnOff.setState(this.uploadPolicy
-                .getShowLogWindow());
+        this.cbmiLogWindowOnOff.setState(this.uploadPolicy.getShowLogWindow());
         add(this.cbmiLogWindowOnOff);
         this.cbmiLogWindowOnOff.addItemListener(this);
         // Copy the last responseBody
@@ -101,8 +99,8 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
      */
     public void itemStateChanged(ItemEvent e) {
         if (this.cbmiDebugOnOff == e.getItem()) {
-            this.uploadPolicy.setDebugLevel((this.cbmiDebugOnOff
-                    .isSelected() ? 100 : 0));
+            this.uploadPolicy
+                    .setDebugLevel((this.cbmiDebugOnOff.isSelected() ? 100 : 0));
         } else if (this.cbmiLogWindowOnOff == e.getItem()) {
             this.uploadPolicy.setShowLogWindow((this.cbmiLogWindowOnOff
                     .isSelected()));
@@ -121,10 +119,7 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
                 this.uploadPolicy.displayErr(e1);
             }
         } else if (this.jMenuItemCopyLogWindowContent == e.getSource()) {
-            JUploadTextArea logWindow = this.uploadPolicy.getApplet()
-                    .getUploadPanel().getLogWindow();
-            logWindow.selectAll();
-            logWindow.copy();
+            this.uploadPolicy.getApplet().getUploadPanel().copyLogWindow();
         }
     }
 

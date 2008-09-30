@@ -2,8 +2,8 @@
 As always, a lot of things can be made better:
 
 TODO list:
+- Check with 4000 empty files.
 - Get the last applet version, with Hungarian translation
-- Finish the sendDebugOutput
 - Check upload, in all mode, especially:
   FTP, SSL, Proxy
 - Add a new parameter, to control the current applet directory, that is: the directory that should be used

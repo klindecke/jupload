@@ -2,6 +2,8 @@
 
 V3.4.2  (not released yet)
 
+TODO:
+- Add the showLogWindow in the debug menu
 
 Changes:
 - [Major] The error management has been corrected: see the urlToSendErrorTo applet parameter description.
@@ -14,7 +16,10 @@ as there is no getter/setter for these ones: userAgent, cookie, debugFile and de
    2) The whole debug output will be changed sooner or later. I want to embed log4j, or a log4j like API.
    So addMsgToDebugLog(String msg) will be renamed ... a day in the future.
 - resourceBundle => set with the setLang parameter.
-
+- [Minor] When an error occurs when starting the upload thread, the applet does not fail silently anymore. If 
+it fails here, at least, you know why...  
+- [Minor] showLogWindow is now always respected, whatever the value of debugLevel is. A new entry in the debug menu
+has been added (CTRL+Right Click on the applet, to open it)
 
 Fixes:
 - [Major] The query is appended (again) to the URL when quering the HEAD to guess protocol: would block some
