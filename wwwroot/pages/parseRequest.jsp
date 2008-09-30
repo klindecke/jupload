@@ -29,7 +29,9 @@
   //Initialization for chunk management.
   boolean bLastChunk = false;
   int numChunk = 0;
-  boolean generateError = false;  //changed to true, if error=true is passed as a parameter on the URL
+  
+  //CAN BE OVERRIDEN BY THE postURL PARAMETER: if error=true is passed as a parameter on the URL
+  boolean generateError = false;  
 
   response.setContentType("text/plain");
   try{
@@ -162,7 +164,6 @@
     	out.println("SUCCESS");
     }
 
-    out.println("WARNING: just another warning message (after the SUCCESS string in the server response)");
   	out.println("[parseRequest.jsp] " + "End of server treatment ");
 
   }catch(Exception e){

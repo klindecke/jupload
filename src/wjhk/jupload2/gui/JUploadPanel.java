@@ -672,6 +672,16 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     /**
+     * Copy the log window content into the clipboard. Allows easy access to the
+     * debug output.
+     * 
+     */
+    public void copyLogWindow() {
+        this.logWindow.selectAll();
+        this.logWindow.copy();
+    }
+
+    /**
      * @return the browseButton
      */
     public JButton getBrowseButton() {
