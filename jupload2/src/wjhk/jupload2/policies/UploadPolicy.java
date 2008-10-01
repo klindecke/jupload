@@ -537,15 +537,24 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>showLogWindow<br>
- * Since 3.0.2</td>
- * <td>True<br>
+ * Since 3.0.2<br>
+ * Changed in 3.5.0</td>
+ * <td>true<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This parameter was formerly known as <i>showStatusBar</i> which now has
- * a different purpose. If given with the <i>False</i> value, the log window
- * will be hidden. The applet will still store all debug information in it. But
- * the user won't see it any more. If a problem occurs, the <i>urlToSendErrorTo</i>
- * can still be used to log all available information. </td>
+ * a different purpose. <BR>
+ * <U>Since 3.5.0:</U> Available values are (case sensitive):<DIR>
+ * <LI>true: always visible.
+ * <LI>false: always hiden.
+ * <LI>onError: the log window is hidden. It will be displayed when an error
+ * occurs. If you put 99 into the debugLevel, then the full debugOutput become
+ * visible if and only if an error occurs</DIR> <BR>
+ * <U>Until 3.4.2</U>, it works this way: If given with the <i>False</i>
+ * value, the log window will be hidden. The applet will still store all debug
+ * information in it. But the user won't see it any more. If a problem occurs,
+ * the <i>urlToSendErrorTo</i> can still be used to log all available
+ * information. </td>
  * </tr>
  * <tr>
  * <td>showStatusBar</td>
@@ -789,6 +798,11 @@ public interface UploadPolicy {
      * that all tags are unique
      */
 
+    /***************************************************************************
+     * ************************************************************************
+     * ************************* LIST OF PROPERTIES **************************
+     * ************************************************************************
+     **************************************************************************/
     /**
      * Parameter/Property name for URL to be loaded after an successful upload.
      */
@@ -1000,6 +1014,12 @@ public interface UploadPolicy {
      */
     public final static String PROP_URL_TO_SEND_ERROR_TO = "urlToSendErrorTo";
 
+    /***************************************************************************
+     * ************************************************************************
+     * ************************* LIST OF DEFAULT VALUES **********************
+     * ************************************************************************
+     **************************************************************************/
+
     /**
      * Default value for parameter "afterUploadTarget".
      */
@@ -1143,7 +1163,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "showLogWindow".
      */
-    public final static boolean DEFAULT_SHOW_LOGWINDOW = true;
+    public final static String DEFAULT_SHOW_LOGWINDOW = "true";
 
     /**
      * Default value for parameter "showStatusBar".
@@ -1199,6 +1219,30 @@ public interface UploadPolicy {
      * @since 2.9.2rc4
      */
     public final static String DEFAULT_FORMDATA = null;
+
+    /***************************************************************************
+     * ************************************************************************
+     * ************************* LIST OF ALLOWED VALUES *********************
+     * ************************************************************************
+     **************************************************************************/
+
+    /** Indicates that the log window is always visible. */
+    public final String SHOWLOGWINDOW_TRUE = "true";
+
+    /** Indicates that the log window is always hidden. */
+    public final String SHOWLOGWINDOW_FALSE = "false";
+
+    /**
+     * Indicates that the log window is hidden, and will become visible only
+     * when an error occurs.
+     */
+    public final String SHOWLOGWINDOW_ONERROR = "onError";
+
+    /***************************************************************************
+     * *************************************************************************
+     * ********************* LIST OF METHODS **********************************
+     * *************************************************************************
+     **************************************************************************/
 
     /**
      * This method allows the upolad policy to override the content of the
@@ -1489,7 +1533,7 @@ public interface UploadPolicy {
      * @param showLogWindow The show window status to set.
      * @see #getShowLogWindow()
      */
-    public void setShowLogWindow(boolean showLogWindow);
+    public void setShowLogWindow(String showLogWindow);
 
     /**
      * Indicate whether the log window should be shown. It may be convenient to
@@ -1499,7 +1543,7 @@ public interface UploadPolicy {
      * 
      * @return The current value for the <i>showStatusBar</i> applet parameter.
      */
-    public boolean getShowLogWindow();
+    public String getShowLogWindow();
 
     /**
      * Returns the list of specific headers, that will be added to all HTTP
@@ -1874,6 +1918,14 @@ public interface UploadPolicy {
      * @see #alert(String)
      */
     void alertStr(String str);
+
+    /**
+     * Indicates that an error occurs.
+     * 
+     * @return The last Exception that occurs in the applet. null if no
+     *         exception occurs.
+     */
+    public JUploadException getLastException();
 
     /**
      * Retrieve the body of the last server response.

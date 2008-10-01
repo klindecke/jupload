@@ -78,7 +78,8 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
         this.cbmiDebugOnOff.addItemListener(this);
         // Show or hide the log window
         this.cbmiLogWindowOnOff = new JCheckBoxMenuItem("Show log window");
-        this.cbmiLogWindowOnOff.setState(this.uploadPolicy.getShowLogWindow());
+        this.cbmiLogWindowOnOff.setState(this.uploadPolicy.getShowLogWindow()
+                .equals("true"));
         add(this.cbmiLogWindowOnOff);
         this.cbmiLogWindowOnOff.addItemListener(this);
         // Copy the last responseBody
@@ -102,8 +103,13 @@ final class JUploadPopupMenu extends JPopupMenu implements ActionListener,
             this.uploadPolicy
                     .setDebugLevel((this.cbmiDebugOnOff.isSelected() ? 100 : 0));
         } else if (this.cbmiLogWindowOnOff == e.getItem()) {
-            this.uploadPolicy.setShowLogWindow((this.cbmiLogWindowOnOff
-                    .isSelected()));
+            if (this.cbmiLogWindowOnOff.isSelected()) {
+                this.uploadPolicy
+                        .setShowLogWindow(UploadPolicy.SHOWLOGWINDOW_TRUE);
+            } else {
+                this.uploadPolicy
+                        .setShowLogWindow(UploadPolicy.SHOWLOGWINDOW_FALSE);
+            }
         }
     }
 
