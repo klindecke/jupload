@@ -151,7 +151,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @see #urlToSendErrorTo
      */
-    private boolean showLogWindow = UploadPolicy.DEFAULT_SHOW_LOGWINDOW;
+    private String showLogWindow = UploadPolicy.DEFAULT_SHOW_LOGWINDOW;
 
     private boolean showStatusbar = UploadPolicy.DEFAULT_SHOW_STATUSBAR;
 
@@ -187,6 +187,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * The lang parameter, given to the applet.
      */
     private String lang = UploadPolicy.DEFAULT_LANG;
+
+    /**
+     * Contains the last exception that occurs in the applet.
+     * 
+     * @see #displayErr(String, Exception)
+     */
+    private JUploadException lastException = null;
 
     /**
      * The look and feel is used as a parameter of the
@@ -884,6 +891,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
      *      java.lang.Exception)
      */
     public void displayErr(String errorText, Exception exception) {
+
+        if (exception == null) {
+            setLastException(new JUploadException("errorText"));
+        } else if (exception instanceof JUploadException) {
+            setLastException((JUploadException) exception);
+        } else {
+            setLastException(new JUploadException(exception));
+        }
+
         // Default behavior: if debugLevel is 0, and an error occurs, we force
         // the debug level to 1: this makes the log window become visible, if it
         // was hidden.
@@ -934,18 +950,25 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
 
         // Display the message to the user.
-        if (getDebugLevel() >= 1) {
+        if (getDebugLevel() >= 100) {
             // Debug has been put on (by the user or by applet configuration).
             alertStr(exceptionClassName + logMsg);
-            // Then we copy the debug output to the clipboard, and say it to the
-            // current user.
-            getApplet().getUploadPanel().copyLogWindow();
-            alert("messageLogWindowCopiedToClipboard");
         } else {
             // Debug level may be set to 1, when an error occurs, even if debug
             // was not put on by the user.
             alertStr(alertMsg);
         }
+
+        // Then we copy the debug output to the clipboard, and say it to the
+        // current user.
+        if (getApplet().getUploadPanel() != null) {
+            // Ok, the applet has been fully built.
+            getApplet().getUploadPanel().copyLogWindow();
+            alert("messageLogWindowCopiedToClipboard");
+        }
+
+        // Not bad, but Pas mal. Mais Coppermine log qc après le copier dans le
+        // presse-papier
     }
 
     /**
@@ -1735,17 +1758,24 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getShowLogWindow() */
-    public boolean getShowLogWindow() {
+    public String getShowLogWindow() {
         return this.showLogWindow;
     }
 
     /** {@inheritDoc} */
-    public void setShowLogWindow(boolean showLogWindow) {
-        this.showLogWindow = showLogWindow;
-        // The log window may become visible or hidden, depending on this
-        // parameter.
-        if (getApplet().getUploadPanel() != null) {
-            getApplet().getUploadPanel().showOrHideLogWindow();
+    public void setShowLogWindow(String showLogWindow) {
+        if (showLogWindow.equals(SHOWLOGWINDOW_TRUE)
+                || showLogWindow.equals(SHOWLOGWINDOW_FALSE)
+                || showLogWindow.equals(SHOWLOGWINDOW_ONERROR)) {
+            this.showLogWindow = showLogWindow;
+            // The log window may become visible or hidden, depending on this
+            // parameter.
+            if (getApplet().getUploadPanel() != null) {
+                getApplet().getUploadPanel().showOrHideLogWindow();
+            }
+        } else {
+            displayWarn("[setShowLogWindow] Unallowed value: " + showLogWindow
+                    + " (showLogWindow is left unchanged)");
         }
     }
 
@@ -2086,16 +2116,32 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return null;
     }
 
+    /** @see wjhk.jupload2.policies.UploadPolicy#getLastException() */
+    public JUploadException getLastException() {
+        return this.lastException;
+    }
+
     /**
-     * @see wjhk.jupload2.policies.UploadPolicy#getLastResponseBody()
+     * Set the last exception.
+     * 
+     * @param exception The last exception that occurs into the applet.
      */
+    public void setLastException(JUploadException exception) {
+        this.lastException = exception;
+
+        // The log window may become visible.
+        if (getApplet().getUploadPanel() != null) {
+            getApplet().getUploadPanel().showOrHideLogWindow();
+        }
+
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getLastResponseBody() */
     public String getLastResponseBody() {
         return this.lastResponseBody;
     }
 
-    /**
-     * @see wjhk.jupload2.policies.UploadPolicy#getLastResponseMessage()
-     */
+    /** @see wjhk.jupload2.policies.UploadPolicy#getLastResponseMessage() */
     public String getLastResponseMessage() {
         return (null != this.lastResponseMessage) ? this.lastResponseMessage
                 : "";

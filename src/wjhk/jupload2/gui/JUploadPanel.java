@@ -308,7 +308,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * <LI>debugLevel (must be 0 or less) </DIR>
      */
     public void showOrHideLogWindow() {
-        if (this.uploadPolicy.getShowLogWindow()) {
+        if ((this.uploadPolicy.getShowLogWindow()
+                .equals(UploadPolicy.SHOWLOGWINDOW_TRUE))
+                || (this.uploadPolicy.getShowLogWindow().equals(
+                        UploadPolicy.SHOWLOGWINDOW_ONERROR) && this.uploadPolicy
+                        .getLastException() != null)) {
             // The log window should be visible.
             this.jLogWindowPane.setVisible(true);
         } else {
