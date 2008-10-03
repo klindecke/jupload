@@ -130,7 +130,8 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	//il: hebrew
 	langList = ["", "br", "cr", "cz", "de", "dk", "en", "eo", "es", "fr", "hr", "il", "it", "ja", "nl", "no"
 				, "pl", "pt", "pt_BR", "ru", "se", "si", "tk", "us", "zh"];
-	serverProtocolList = ["", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1", "FTP"]; 
+	serverProtocolList = ["", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1", "FTP"];
+	showLogWindowList = ["true", "false", "onError"]; 
 
 	function writeInputText (name, value, comment) {
 		document.write('	<tr><td align="center">');
@@ -284,7 +285,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
 	writeInputSelect("lang", lang, langList, 'Japanese needs specific JRE extension');
 	writeInputText("lookAndFeel", lookAndFeel, "empty, java or system; see also UIManager.setLookAndFeel");
-	writeBooleanInputSelect("showLogWindow", showLogWindow, "");
+	writeInputSelect("showLogWindow", showLogWindow, showLogWindowList, '');
 	writeBooleanInputSelect("showStatusBar", showStatusBar, "");
 	document.writeln('</TABLE></TD></TR></TABLE>');
 
