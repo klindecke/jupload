@@ -2,7 +2,15 @@
 As always, a lot of things can be made better:
 
 TODO list:
+- Error copied in the clipboard
+	Pas mal. Mais Coppermine log qc après le copier dans le presse-papier
+- HEAD: must send the session cookie.
+- Correction of FF on Mac
+	this.cookie =(String)JSObject.getWindow (getApplet()).eval ("document.cookie"); 
+	this.userAgent=(String)JSObject.getWindow (getApplet()).eval ("navigator.userAgent");
+	Reply to: http://sourceforge.net/forum/forum.php?thread_id=1826388&forum_id=199107 
 - Check with 4000 empty files.
+	=> OutOfMemory. The correction is quite heavy. Will be done.
 - Get the last applet version, with Hungarian translation
 - Check upload, in all mode, especially:
   FTP, SSL, Proxy
@@ -10,7 +18,8 @@ TODO list:
 when first clicking on the 'Browse' button.
 Answer to:
 http://imp.free.fr/horde/util/go.php?url=http%3A%2F%2Fforum.coppermine-gallery.net%2Findex.php%3Ftopic%3D54149.new%3Btopicseen%23new&Horde=6a59e39abfc69075abe6e56527d514f9
-
+- In picture mode, accept any file extension.
+	Answer to: http://sourceforge.net/forum/forum.php?thread_id=2300363&forum_id=199107 
 - Color problem, with some pictures. Here is my analysis:
 	- If pictureTransmitMetadata is false: no problem
 	- If picture is not resized nor rotated: no problem.
@@ -22,10 +31,12 @@ maxFileSize directive isn't working proper, its uploading more per request
 than it should. (i set maxFileSize to the post_max_size in bytes right? i
 used 268435456 bytes = 256M)
 
+- Check all printStackTrace calls in the code
+
 - Integrate the proposal in the 'Trying to Add Upload Path via Javascript'
 http://sourceforge.net/forum/forum.php?thread_id=2107422&forum_id=199107
 
-- Replace socket network access by UrlConnection
+- Manage the Paste, to allow pasting files onto the applet.
 - Check compiling on a fresh eclipse install, with the given build.xml
   (see http://sourceforge.net/forum/forum.php?thread_id=2048291&forum_id=199107).
 - Debug file output: should be enabled only in debug mode. Also: could be nice to have some more entries in the
