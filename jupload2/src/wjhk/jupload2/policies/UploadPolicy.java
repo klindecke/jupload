@@ -55,10 +55,23 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * --> <!-- ANT_COPYDOC_START -->
  * <p>
  * Here is the list of all parameters available in the current package, that is:
- * available in available upload policies. These are applet parameters that
- * should be 'given' to the applet, with <PARAM> tags, as precised below in the
- * <a href="#example">example</a>.
+ * available in available upload policies. These are applet parameters that can
+ * be 'given' to the applet, with <PARAM> tags, as explained below in the <a
+ * href="#example">example</a>.
  * </p>
+ * <P>
+ * Let's start with some hints: <DIR>
+ * <LI><A href="debugLevel">debugLevel</A> and <A
+ * href="showLogWindow">showLogWindow</A>: I recommend putting debugLevel to 99
+ * and showLogWindow to onError.
+ * <LI><A href="maxFileSize">maxFileSize</A>: this prevents the user to upload
+ * too big files. The value depends on your needs.
+ * <LI><A href="#maxChunkSize">maxChunkSize</A>: allows you to override the
+ * server's maximum upload file size. The uploaded file will be split in pieces
+ * of maxChunkSize bytes. Then, it's up to you to concatenate the file pieces,
+ * into a server script. There are sample in this doc, and in the JUpload wiki.
+ * Please add your samples also...</DIR>
+ * </P>
  * <table border="1">
  * <tr>
  * <th>Parameter name</th>
