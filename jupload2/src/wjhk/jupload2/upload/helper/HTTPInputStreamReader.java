@@ -325,7 +325,6 @@ public class HTTPInputStreamReader {
             // See RFC 2616, Sections 3.4.1 and 3.7.1.
             this.responseBody = new String(this.body, this.charset);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new JUploadException(e);
         }
 

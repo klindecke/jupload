@@ -882,6 +882,27 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
+     * Logs a stack trace for the given exception.
+     * 
+     * @param exception
+     */
+    private void displayStackTrace(Throwable throwable) {
+        if (throwable != null) {
+            ByteArrayOutputStream bs = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(bs);
+            throwable.printStackTrace(ps);
+            ps.close();
+            displayMsg("", bs.toString());
+            
+            //If there is a cause, let's be sure its stack trace is displayed.
+            if (throwable.getCause() != null){
+                displayMsg("", "Caused by:");
+                displayStackTrace(throwable.getCause());
+            }
+        }
+    }
+
+    /**
      * If debug is off, the log window may not be visible. We switch the debug
      * to on, to be sure that some information will be displayed to the user.
      * <BR>
@@ -910,11 +931,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         String exceptionClassName = null;
         String alertMsg = errorText;
         String logMsg = errorText;
-        Exception justToPrintAStackTrace = exception;
 
         // First, we construct the exception class name.
         if (exception == null) {
-            justToPrintAStackTrace = new Exception();
             exceptionClassName = "";
         } else if (exception instanceof JUploadException) {
             exceptionClassName = "["
@@ -941,13 +960,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Add the message to the log window
         displayMsg("[ERROR] ", exceptionClassName + logMsg);
         // Let's display the stack trace, if relevant.
-        if (exception != null) {
-            ByteArrayOutputStream bs = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(bs);
-            justToPrintAStackTrace.printStackTrace(ps);
-            ps.close();
-            displayMsg("", bs.toString());
-        }
+        displayStackTrace(exception);
 
         // Display the message to the user.
         if (getDebugLevel() >= 100) {
@@ -966,9 +979,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
             getApplet().getUploadPanel().copyLogWindow();
             alert("messageLogWindowCopiedToClipboard");
         }
-
-        // Not bad, but Pas mal. Mais Coppermine log qc après le copier dans le
-        // presse-papier
     }
 
     /**
