@@ -40,7 +40,6 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.upload.FileUploadThread;
-import wjhk.jupload2.upload.HttpConnect;
 
 /**
  * 
