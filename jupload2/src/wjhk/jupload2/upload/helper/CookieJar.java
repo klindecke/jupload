@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.upload;
+package wjhk.jupload2.upload.helper;
 
 import java.net.URL;
 import java.text.ParseException;

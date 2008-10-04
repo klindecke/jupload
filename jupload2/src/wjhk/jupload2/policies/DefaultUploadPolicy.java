@@ -75,11 +75,11 @@ import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.JUploadTextArea;
-import wjhk.jupload2.upload.InteractiveTrustManager;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
 import wjhk.jupload2.upload.helper.HTTPConnectionHelper;
 import wjhk.jupload2.upload.helper.HttpConnect;
+import wjhk.jupload2.upload.helper.InteractiveTrustManager;
 
 /**
  * This class implements all {@link wjhk.jupload2.policies.UploadPolicy}

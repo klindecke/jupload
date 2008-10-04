@@ -53,7 +53,6 @@ import javax.net.ssl.SSLSocket;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.InteractiveTrustManager;
 
 /**
  * This class implements the task of connecting to a HTTP(S) url using a proxy.
