@@ -480,14 +480,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // coming from the same navigator.
         //
         try {
-            // Test, to avoid a crash under linux
-            JSObject awin = JSObject.getWindow(getApplet());
-            JSObject doc = (JSObject) awin.getMember("document");
-            this.cookie = (String) doc.getMember("cookie");
-
-            JSObject nav = (JSObject) awin.getMember("navigator");
-            this.userAgent = (String) nav.getMember("userAgent");
-
+            // Patch given by Stani: corrects the use of the applet on Firefox on Mac.  
+            this.cookie =(String)JSObject.getWindow (getApplet()).eval ("document.cookie"); 
+            this.userAgent=(String)JSObject.getWindow (getApplet()).eval ("navigator.userAgent"); 
+            
             displayDebug("cookie: " + this.cookie, 30);
             displayDebug("userAgent: " + this.userAgent, 30);
         } catch (JSException e) {
