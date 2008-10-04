@@ -24,7 +24,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.upload;
+package wjhk.jupload2.upload.helper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -53,7 +53,7 @@ import javax.net.ssl.SSLSocket;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.helper.HTTPInputStreamReader;
+import wjhk.jupload2.upload.InteractiveTrustManager;
 
 /**
  * This class implements the task of connecting to a HTTP(S) url using a proxy.
