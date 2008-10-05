@@ -28,8 +28,10 @@ it fails here, at least, you know why...
 has been added (CTRL+Right Click on the applet, to open it)
 
 Fixes:
+- [Major] Patch given by Stani: corrects the use of the applet on Firefox on Mac.
 - [Major] The query is appended (again) to the URL when quering the HEAD to guess protocol: would block some
 access, like Coppermine upload (was getting a wrong 302 HTTP return code). 
+- [Major] 2145770 correction (Cookie not sent with HEAD request)
 - [Minor] Redirection (HTTP code 301, 302, 303) would not work with original URL containing more than one slash ('/').
 - [Minor] When a "Empty HEAD response" occurs in HttpConnect (during applet start), it's now logged as a warning, and no more
 displayed as an error. 
