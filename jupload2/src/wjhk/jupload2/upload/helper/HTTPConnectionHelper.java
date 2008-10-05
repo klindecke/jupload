@@ -146,14 +146,10 @@ public class HTTPConnectionHelper extends OutputStream {
     private ByteArrayEncoder byteArrayEncoder = null;
 
     /**
-     * This stream is open by {@link #sendRequest()}.
-     * It is closed by the {@link #readHttpResponse()} method.
-     * 
-     * @see #sendRequest()
-     * @see #readHttpResponse()
-     * @see #getOutputStream()
+     * Indicates where data sent to appendXxx method should be added. It must be
+     * one of the SENDING_XXX private strings.
      */
-    private DataOutputStream outputStream = null;
+    private int connectionStatus = STATUS_NOT_INITIALIZED;
 
     /**
      * Contains the HTTP reader. All data coming from the server response are
@@ -169,15 +165,24 @@ public class HTTPConnectionHelper extends OutputStream {
     private PushbackInputStream inputStream = null;
 
     /**
+     * The HTTP method: POST, GET, HEAD...
+     */
+    private String method = null;
+
+    /**
+     * This stream is open by {@link #sendRequest()}. It is closed by the
+     * {@link #readHttpResponse()} method.
+     * 
+     * @see #sendRequest()
+     * @see #readHttpResponse()
+     * @see #getOutputStream()
+     */
+    private DataOutputStream outputStream = null;
+
+    /**
      * The current proxy, if any
      */
     private Proxy proxy = null;
-
-    /**
-     * Indicates where data sent to appendXxx method should be added. It must be
-     * one of the SENDING_XXX private strings.
-     */
-    private int connectionStatus = STATUS_NOT_INITIALIZED;
 
     /**
      * The network socket where the bytes should be written.
@@ -195,6 +200,11 @@ public class HTTPConnectionHelper extends OutputStream {
     private UploadPolicy uploadPolicy = null;
 
     /**
+     * The current URL
+     */
+    private URL url = null;
+
+    /**
      * Should we use a proxy
      */
     private boolean useProxy;
@@ -203,11 +213,6 @@ public class HTTPConnectionHelper extends OutputStream {
      * Is SSL mode on ?
      */
     private boolean useSSL;
-
-    /**
-     * The current URL
-     */
-    private URL url = null;
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// PUBLIC METHODS
@@ -226,6 +231,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * The standard constructor for this class.
      * 
      * @param url The target URL
+     * @param method The HTTP method (POST, GET, HEAD...)
      * @param bChunkEnabled Indicates if chunkUpload is enabled for this query.
      *            Put false, if non chunked request or if it is not relevant.
      * @param bLastChunk Indicates whether this chunk is the last one. Put true,
@@ -233,11 +239,11 @@ public class HTTPConnectionHelper extends OutputStream {
      * @param uploadPolicy The current upload policy.
      * @throws JUploadIOException
      */
-    public HTTPConnectionHelper(URL url, boolean bChunkEnabled,
+    public HTTPConnectionHelper(URL url, String method, boolean bChunkEnabled,
             boolean bLastChunk, UploadPolicy uploadPolicy)
             throws JUploadIOException {
         this.uploadPolicy = uploadPolicy;
-        initRequest(url, bChunkEnabled, bLastChunk);
+        initRequest(url, method, bChunkEnabled, bLastChunk);
     }
 
     /**
@@ -246,13 +252,14 @@ public class HTTPConnectionHelper extends OutputStream {
      * @param url The target URL
      * @param bChunkEnabled Indicates if chunkUpload is enabled for this query.
      *            Put false, if non chunked request or if it is not relevant.
+     * @param method The HTTP method (POST, GET, HEAD...)
      * @param bLastChunk Indicates whether this chunk is the last one. Put true,
      *            if non chunked request or if it is not relevant.
      * @throws JUploadIOException
      */
-    public void initRequest(URL url, boolean bChunkEnabled, boolean bLastChunk)
-            throws JUploadIOException {
-        // This method expects that the connection has not been initialzed yet,
+    public void initRequest(URL url, String method, boolean bChunkEnabled,
+            boolean bLastChunk) throws JUploadIOException {
+        // This method expects that the connection has not been initialized yet,
         // or that the previous request is finished.
         if (this.connectionStatus != this.STATUS_NOT_INITIALIZED
                 && this.connectionStatus != this.STATUS_CONNECTION_CLOSED) {
@@ -268,6 +275,7 @@ public class HTTPConnectionHelper extends OutputStream {
 
         // Load the new parameters.
         this.url = url;
+        this.method = method;
         this.bChunkEnabled = bChunkEnabled;
         this.bLastChunk = bLastChunk;
         // We will write to the local ByteArrayEncoder, until a connection to
@@ -717,7 +725,8 @@ public class HTTPConnectionHelper extends OutputStream {
 
         // Header: Request line
         // Let's clear it. Useful only for chunked uploads.
-        this.byteArrayEncoder.append("POST ");
+        this.byteArrayEncoder.append(this.method);
+        this.byteArrayEncoder.append(" ");
         if (this.useProxy && (!this.useSSL)) {
             // with a proxy we need the absolute URL, but only if not
             // using SSL. (with SSL, we first use the proxy CONNECT method,
