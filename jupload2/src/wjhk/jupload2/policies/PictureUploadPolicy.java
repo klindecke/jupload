@@ -246,9 +246,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 .getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT,
                         DEFAULT_TARGET_PICTURE_FORMAT, this));
 
-        // The UploadPolicyFactory class will call displayParameterStatus(), so
-        // that
-        // we display all applet parameters, after initialization.
+        displayDebug("[PictureUploadPolicy] end of constructor", 30);
     }
 
     /**
