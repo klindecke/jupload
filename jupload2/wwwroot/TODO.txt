@@ -4,11 +4,6 @@ As always, a lot of things can be made better:
 TODO list:
 - Error copied in the clipboard
 	Pas mal. Mais Coppermine log qc après le copier dans le presse-papier
-- HEAD: must send the session cookie.
-- Correction of FF on Mac
-	this.cookie =(String)JSObject.getWindow (getApplet()).eval ("document.cookie"); 
-	this.userAgent=(String)JSObject.getWindow (getApplet()).eval ("navigator.userAgent");
-	Reply to: http://sourceforge.net/forum/forum.php?thread_id=1826388&forum_id=199107 
 - Check with 4000 empty files.
 	=> OutOfMemory. The correction is quite heavy. Will be done.
 - Get the last applet version, with Hungarian translation
