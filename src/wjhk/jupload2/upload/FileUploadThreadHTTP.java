@@ -199,7 +199,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 }
             }
 
-            this.connectionHelper.initRequest(url, bChunkEnabled, bLastChunk);
+            this.connectionHelper.initRequest(url, "POST", bChunkEnabled, bLastChunk);
 
             // Get the GET parameters from the URL and convert them to
             // post form params

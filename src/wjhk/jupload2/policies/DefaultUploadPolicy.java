@@ -1093,7 +1093,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     try {
                         URL url = new URL(this.urlToSendErrorTo);
                         connectionHelper = new HTTPConnectionHelper(this);
-                        connectionHelper.initRequest(url, false, true);
+                        connectionHelper.initRequest(url, "POST", false, true);
 
                         ByteArrayEncoder baeContent = new ByteArrayEncoderHTTP(
                                 this, connectionHelper.getByteArrayEncoder()
