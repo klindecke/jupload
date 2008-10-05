@@ -61,7 +61,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class HttpConnect {
 
-    private final static String DEFAULT_PROTOCOL = "HTTP/1.1";
+    private final static String HTTPCONNECT_DEFAULT_PROTOCOL = "HTTP/1.1";
 
     /**
      * The current upload policy. Used for logging, and to get the post URL.
@@ -89,8 +89,8 @@ public class HttpConnect {
         int pport = sa.getPort();
         //
         Socket proxysock = new Socket(phost, pport);
-        String req = "CONNECT " + host + ":" + port + " " + DEFAULT_PROTOCOL
-                + "\r\n\r\n";
+        String req = "CONNECT " + host + ":" + port + " "
+                + HTTPCONNECT_DEFAULT_PROTOCOL + "\r\n\r\n";
         proxysock.getOutputStream().write(req.getBytes());
         BufferedReader proxyIn = new BufferedReader(new InputStreamReader(
                 proxysock.getInputStream()));
@@ -250,7 +250,123 @@ public class HttpConnect {
             IllegalArgumentException, UnrecoverableKeyException, IOException,
             JUploadException {
 
-        String protocol = DEFAULT_PROTOCOL;
+        String protocol = HTTPCONNECT_DEFAULT_PROTOCOL;
+        URL url = new URL(this.uploadPolicy.getPostURL());
+        this.uploadPolicy
+                .displayDebug("Checking protocol with URL: " + url, 30);
+        HTTPConnectionHelper connectionHelper = new HTTPConnectionHelper(url,
+                "HEAD", false, true, this.uploadPolicy);
+        connectionHelper.append("\r\n");
+        this.uploadPolicy.displayDebug("Before sendRequest()", 30);
+        connectionHelper.sendRequest();
+        this.uploadPolicy.displayDebug("After sendRequest()", 30);
+        connectionHelper.getOutputStream().flush();
+        if (this.uploadPolicy.getDebugLevel() >= 80) {
+            this.uploadPolicy
+                    .displayDebug(
+                            "-------------------------------------------------------------------------",
+                            80);
+            this.uploadPolicy
+                    .displayDebug(
+                            "-----------------   HEAD message sent (start)  --------------------------",
+                            80);
+            this.uploadPolicy
+                    .displayDebug(
+                            "-------------------------------------------------------------------------",
+                            80);
+            this.uploadPolicy.displayDebug(connectionHelper
+                    .getByteArrayEncoder().getString(), 80);
+            this.uploadPolicy
+                    .displayDebug(
+                            "-------------------------------------------------------------------------",
+                            80);
+            this.uploadPolicy
+                    .displayDebug(
+                            "-----------------   HEAD message sent (end) -----------------------------",
+                            80);
+            this.uploadPolicy
+                    .displayDebug(
+                            "-------------------------------------------------------------------------",
+                            80);
+            ;
+        }
+
+        int status = connectionHelper.readHttpResponse();
+        this.uploadPolicy.displayDebug("HEAD status: " + status, 30);
+        String headers = connectionHelper.getResponseHeaders();
+
+        // Let's look for the protocol
+        Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(.*)\\s.*$",
+                Pattern.MULTILINE).matcher(headers);
+        if (!m.find()) {
+            // Using default value. Already initialized.
+            this.uploadPolicy
+                    .displayErr("Unexpected HEAD response (can't find the protocol): will use the default one.");
+        } else {
+            // We will return the found protocol.
+            protocol = m.group(1);
+            this.uploadPolicy.displayDebug("HEAD protocol: " + protocol, 30);
+        }
+
+        // Let's check if we're facing an IIS server. The applet is compatible
+        // with IIS, only if allowHttpPersistent is false.
+        Pattern pIIS = Pattern.compile("^Server: .*IIS*$", Pattern.MULTILINE);
+        Matcher mIIS = pIIS.matcher(headers);
+        if (mIIS.find()) {
+            try {
+                this.uploadPolicy.setProperty(
+                        UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT, "false");
+                this.uploadPolicy
+                        .displayWarn(UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
+                                + "' forced to false, for IIS compatibility (in HttpConnect.getProtocol())");
+            } catch (JUploadException e) {
+                this.uploadPolicy.displayWarn("Can't set property '"
+                        + UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
+                        + "' to false, in HttpConnect.getProtocol()");
+            }
+        }
+
+        // if we got a redirection code, we must find the new Location.
+        if (status == 301 || status == 302 || status == 303) {
+            Pattern pLocation = Pattern.compile("^Location: (.*)$",
+                    Pattern.MULTILINE);
+            Matcher mLocation = pLocation.matcher(headers);
+            if (mLocation.find()) {
+                // We found the location where we should go instead of the
+                // original postURL
+                this.uploadPolicy.displayDebug("Location read: "
+                        + mLocation.group(1), 50);
+                changePostURL(mLocation.group(1));
+            }
+        }
+
+        return protocol;
+    } // getProtocol()
+
+    /**
+     * Retrieve the protocol to be used for the postURL of the current policy.
+     * This method issues a HEAD request to the postURL and then examines the
+     * protocol version returned in the response.
+     * 
+     * @return The string, describing the protocol (e.g. "HTTP/1.1")
+     * @throws URISyntaxException
+     * @throws IOException
+     * @throws UnrecoverableKeyException
+     * @throws IllegalArgumentException
+     * @throws CertificateException
+     * @throws KeyStoreException
+     * @throws UnknownHostException
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
+     * @throws JUploadException
+     */
+    public String getProtocolOld() throws URISyntaxException,
+            KeyManagementException, NoSuchAlgorithmException,
+            UnknownHostException, KeyStoreException, CertificateException,
+            IllegalArgumentException, UnrecoverableKeyException, IOException,
+            JUploadException {
+
+        String protocol = HTTPCONNECT_DEFAULT_PROTOCOL;
         String returnCode = null;
         // bRedirect indicates a return code of 301, 302 or 303.
         boolean bRedirect = false;
@@ -280,7 +396,7 @@ public class HttpConnect {
         if (null != url.getQuery() && !"".equals(url.getQuery()))
             req.append("?").append(url.getQuery());
 
-        req.append(" ").append(DEFAULT_PROTOCOL).append("\r\n");
+        req.append(" ").append(HTTPCONNECT_DEFAULT_PROTOCOL).append("\r\n");
         req.append("Host: ").append(url.getHost()).append("\r\n");
         req.append("Connection: close\r\n\r\n");
         OutputStream os = s.getOutputStream();

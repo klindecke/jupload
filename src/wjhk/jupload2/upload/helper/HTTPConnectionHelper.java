@@ -48,12 +48,12 @@ import wjhk.jupload2.upload.FileUploadThread;
  * This class goes through the following states, stored in the private
  * connectionStatus attribute: <DIR>
  * <LI>STATUS_NOT_INITIALIZED: default status when the instance in created.
- * Only available action: {@link #initRequest(URL, boolean, boolean)}
+ * Only available action: {@link #initRequest(URL, String, boolean, boolean)}
  * <LI>STATUS_BEFORE_SERVER_CONNECTION: the instance is initialized, and the
  * caller may begin writing the request to this ConnectionHelper. All data
  * written to it, will be stored in a {@link ByteArrayEncoderHTTP}. The
  * connection switches to this status when the
- * {@link #initRequest(URL, boolean, boolean)} is called.
+ * {@link #initRequest(URL, String, boolean, boolean)} is called.
  * <LI>STATUS_WRITING_REQUEST: The network connection to the server is now
  * opened. The content of the ByteArrayEncoderHTTP has been sent to the server.
  * All subsequent calls to write methods will directly write on the socket to
@@ -65,7 +65,7 @@ import wjhk.jupload2.upload.FileUploadThread;
  * this status.
  * <LI>STATUS_CONNECTION_CLOSED: The response has been read. All getters can be
  * called, to get information about the server response. The only other method
- * allowed is the {@link #initRequest(URL, boolean, boolean)}, to start a new
+ * allowed is the {@link #initRequest(URL, String, boolean, boolean)}, to start a new
  * request to the server. Using the same connectionHelper allows to use the same
  * network connection, when the allowHttpPersistent applet parameter is used.
  * </DIR>
@@ -293,7 +293,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * @return The current {@link ByteArrayEncoder}, null if called before the
      *         first initialization.
      * @throws JUploadIOException
-     * @see #initRequest(URL, boolean, boolean)
+     * @see #initRequest(URL, String, boolean, boolean)
      */
     public ByteArrayEncoder getByteArrayEncoder() throws JUploadIOException {
         return this.byteArrayEncoder;
@@ -443,6 +443,15 @@ public class HTTPConnectionHelper extends OutputStream {
     }
 
     /**
+     * Get the HTTP method (HEAD, POST, GET...)
+     * 
+     * @return The HTTP method
+     */
+    public String getMethod() {
+        return this.method;
+    }
+
+    /**
      * Get the last response body.
      * 
      * @return The full response body, that is: the HTTP body of the server
@@ -450,6 +459,15 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     public String getResponseBody() {
         return this.httpInputStreamReader.getResponseBody();
+    }
+
+    /**
+     * Get the headers of the HTTP response.
+     * 
+     * @return The HTTP headers.
+     */
+    public String getResponseHeaders() {
+        return this.httpInputStreamReader.getResponseHeaders();
     }
 
     /**
@@ -674,6 +692,12 @@ public class HTTPConnectionHelper extends OutputStream {
         }
 
         // Let's do the job
+        try {
+            this.outputStream.flush();
+        } catch (IOException ioe) {
+            throw new JUploadIOException("flushing outputStream, in "
+                    + getClass().getName() + ".readHttpResponse()");
+        }
         this.httpInputStreamReader.readHttpResponse();
 
         if (this.httpInputStreamReader.gotClose) {

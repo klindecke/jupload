@@ -453,8 +453,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // get any additional headers.
         setSpecificHeaders(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SPECIFIC_HEADERS, DEFAULT_SPECIFIC_HEADERS, this));
-        setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
-                PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
         setStringUploadError(UploadPolicyFactory.getParameter(theApplet,
                 PROP_STRING_UPLOAD_ERROR, DEFAULT_STRING_UPLOAD_ERROR, this));
         setStringUploadSuccess(UploadPolicyFactory
@@ -480,10 +478,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // coming from the same navigator.
         //
         try {
-            // Patch given by Stani: corrects the use of the applet on Firefox on Mac.  
-            this.cookie =(String)JSObject.getWindow (getApplet()).eval ("document.cookie"); 
-            this.userAgent=(String)JSObject.getWindow (getApplet()).eval ("navigator.userAgent"); 
-            
+            // Patch given by Stani: corrects the use of the applet on Firefox
+            // on Mac.
+            this.cookie = (String) JSObject.getWindow(getApplet()).eval(
+                    "document.cookie");
+            this.userAgent = (String) JSObject.getWindow(getApplet()).eval(
+                    "navigator.userAgent");
+
             displayDebug("cookie: " + this.cookie, 30);
             displayDebug("userAgent: " + this.userAgent, 30);
         } catch (JSException e) {
@@ -523,9 +524,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.userAgent != null)
             addHeader("User-Agent: " + this.userAgent);
 
+        //Let's touch the server, to test that everything is Ok.
+        setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
+                PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
+
         // We let the UploadPolicyFactory call the displayParameterStatus
         // method, so that the initialization is finished, including for classes
         // which inherit from DefaultUploadPolicy.
+        displayDebug("[DefaultUploadPolicy] end of constructor (serverProtocol has been set)", 30);
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
@@ -889,9 +895,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throwable.printStackTrace(ps);
             ps.close();
             displayMsg("", bs.toString());
-            
-            //If there is a cause, let's be sure its stack trace is displayed.
-            if (throwable.getCause() != null){
+
+            // If there is a cause, let's be sure its stack trace is displayed.
+            if (throwable.getCause() != null) {
                 displayMsg("", "Caused by:");
                 displayStackTrace(throwable.getCause());
             }
@@ -1247,6 +1253,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             throw new JUploadExceptionUploadFailed(
                                     getString("errHttpResponse"));
                         }
+
+                        // Let's free ressources to the server.
+                        connectionHelper.close();
 
                     } catch (MalformedURLException e) {
                         throw new JUploadIOException(
@@ -1721,7 +1730,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
     public String getServerProtocol() {
-        return this.serverProtocol;
+        if (this.serverProtocol == null) {
+            return DEFAULT_SERVER_PROTOCOL;
+        } else {
+            return this.serverProtocol;
+        }
     }
 
     /**

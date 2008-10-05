@@ -28,15 +28,20 @@ public class HTTPInputStreamReader {
     private HTTPConnectionHelper httpConnectionHelper = null;
 
     /**
+     * Contains the HTTP response body, that is: the server response, without
+     * the headers.
+     */
+    String responseBody = null;
+
+    /**
+     * The headers of the HTTP response.
+     */
+    String responseHeaders = null;
+
+    /**
      * The status message from the first line of the response (e.g. "200 OK").
      */
     String responseMsg = null;
-
-    /**
-     * The string buffer that will contain the HTTP response body, that is: the
-     * server response, without the headers.
-     */
-    String responseBody = null;
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// ATTRIBUTE CONTAINING DATA COMING FROM THE RESPONSE
@@ -127,6 +132,15 @@ public class HTTPInputStreamReader {
     }
 
     /**
+     * Get the headers of the HTTP response.
+     * 
+     * @return The HTTP headers.
+     */
+    public String getResponseHeaders() {
+        return this.responseHeaders;
+    }
+
+    /**
      * Get the last response message.
      * 
      * @return The response message from the first line of the response (e.g.
@@ -155,6 +169,7 @@ public class HTTPInputStreamReader {
                 this.httpConnectionHelper.getSocket().shutdownOutput();
 
             // && is evaluated from left to right so !stop must come first!
+            StringBuffer sbHeaders = new StringBuffer();
             while (!this.httpConnectionHelper.gotStopped()
                     && ((!this.gotContentLength) || (this.clen > 0))) {
                 if (this.readingHttpBody) {
@@ -290,7 +305,11 @@ public class HTTPInputStreamReader {
                         this.line += " " + tmp.trim();
                     else
                         this.line = tmp;
+
+                    // The read line is now correctly formatted.
                     this.uploadPolicy.displayDebug(this.line, 80);
+                    sbHeaders.append(tmp).append("\n");
+
                     if (pClose.matcher(this.line).matches())
                         this.gotClose = true;
                     if (pProxyClose.matcher(this.line).matches())
@@ -311,9 +330,14 @@ public class HTTPInputStreamReader {
                     if (this.line.length() == 0) {
                         // RFC 2616, Section 6. Body is separated by the
                         // header with an empty line.
+                        this.responseHeaders = sbHeaders.toString();
                         this.readingHttpBody = true;
                         this.uploadPolicy.displayDebug(
                                 "--------- Response Headers End ---------", 80);
+                        //If we're in a HEAD request ... we must stop here, as there is no body!
+                        if (httpConnectionHelper.getMethod().equals("HEAD")) {
+                            break;
+                        }
                     }
                 }
             } // while

@@ -159,7 +159,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @throws Exception
      * @see UploadPolicyFactory#getUploadPolicy(wjhk.jupload2.JUploadApplet)
      */
-    public JUploadPanel(@SuppressWarnings("unused")
+    public JUploadPanel(
     Container containerParam, JUploadTextArea logWindow,
             UploadPolicy uploadPolicyParam) throws Exception {
         this.logWindow = logWindow;
