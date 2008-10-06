@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;

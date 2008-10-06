@@ -21,12 +21,8 @@
 
 package wjhk.jupload2.policies;
 
-import java.io.File;
-
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
-import wjhk.jupload2.exception.JUploadIOException;
-import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
 
