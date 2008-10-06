@@ -177,24 +177,13 @@ class FilePanelDataModel2 extends AbstractTableModel {
         if (contains(file)) {
             this.uploadPolicy.displayWarn("File " + file.getName()
                     + " already exists");
-        } else if (!this.uploadPolicy.fileFilterAccept(file)) {
-            String msg = file.getName() + " : "
-                    + this.uploadPolicy.getString("errForbiddenExtension");
-            this.uploadPolicy.displayWarn(msg);
-            if (JOptionPane.showConfirmDialog(null, msg, "alert",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
-                // The user want to stop to add files to the list. For instance,
-                // when he/she added a whole directory, and it contains a lot of
-                // files that don't match the allowed file extension.
-                throw new JUploadExceptionStopAddingFiles("Stopped by the user");
-            }
         } else {
             // We first call the upload policy, to get :
             // - The correct fileData instance (for instance the
             // PictureUploadPolicy returns a PictureFileData)
             // - The reference to this newly FileData, or null if an error
-            // occurs (for instance: invalid file content,
-            // according to the current upload policy).
+            // occurs (for instance: invalid file content, according to the
+            // current upload policy, or non allowed file extension).
             FileData df = this.uploadPolicy.createFileData(file, root);
             if (df != null) {
                 // The file is Ok, let's add it.

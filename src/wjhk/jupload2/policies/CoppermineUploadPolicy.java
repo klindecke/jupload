@@ -109,31 +109,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                 PROP_ALBUM_ID, DEFAULT_ALBUM_ID, this);
     }
 
-    /**
-     * The Coppermine gallery allows files other than pictures. If it's a
-     * picture, we manage it as a picture. Otherwise, we currently do nothing.
-     * 
-     * @see #onFileSelected(FileData)
-     */
-    @Override
-    public FileData createFileData(File file, File root) {
-        PictureFileData pfd = null;
-        try {
-            pfd = new PictureFileData(file, root, this);
-        } catch (JUploadIOException e) {
-            displayErr(e);
-        }
 
-        // If we get a pfd, let' check that it's a picture.
-        if (pfd == null) {
-            // An error occurred
-            return null;
-        } else if (pfd.isPicture()) {
-            return pfd;
-        } else {
-            return new DefaultFileData(file, root, this);
-        }
-    }
 
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#onFileSelected(wjhk.jupload2.filedata.FileData)

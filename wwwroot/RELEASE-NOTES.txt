@@ -38,6 +38,8 @@ displayed as an error.
 - [Minor] Better management of CR, LF and CRLF end of line. Now the server output is changed to have CRLF for all
 end of line characters.
 - [Minor] Correction in HTTPConnect, when hitting an NGINX proxy server, thanks to Brian Moran.
+- [Minor] in picture mode, when using the allowedFileExtensions applet parameter, picture that match this parameter
+are added to the file list, even if they are not pictures.
 
 Translation:
 - [Chinese] Chinese translation updated by bluesway

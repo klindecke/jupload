@@ -1051,7 +1051,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "allowedFileExtensions".
      */
-    public final static String DEFAULT_ALLOWED_FILE_EXTENSIONS = "";
+    public final static String DEFAULT_ALLOWED_FILE_EXTENSIONS = null;
 
     /**
      * Default value for parameter "albumId".

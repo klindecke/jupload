@@ -264,17 +264,29 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     @Override
     public FileData createFileData(File file, File root)
             throws JUploadExceptionStopAddingFiles {
-        PictureFileData pfd = null;
-        try {
-            pfd = new PictureFileData(file, root, this);
-        } catch (JUploadIOException e) {
-            displayErr(e);
-        }
+        // Do standard rules accept this file ?
+        FileData defaultFileData = super.createFileData(file, root);
 
-        // If we get a pfd, let' check that it's a picture.
-        if (pfd != null) {
-            if (pfd.isPicture()) {
+        if (defaultFileData == null) {
+            // The file is not allowed.
+            return null;
+        } else {
+            // Ok, the file is to be accepted. Is it a picture?
+            PictureFileData pfd = null;
+            try {
+                pfd = new PictureFileData(file, root, this);
+            } catch (JUploadIOException e) {
+                displayErr(e);
+            }
+
+            // If we get a pfd, let' check that it's a picture.
+            if (pfd != null && pfd.isPicture()) {
                 return pfd;
+            } else if (getAllowedFileExtensions() != null) {
+                // A list of allowed extensions has been given, and, as we got
+                // here, defaultFileData is not null, that is: this files match
+                // the allowedFileEXtensions parameter. We return it.
+                return defaultFileData;
             } else {
                 // We now use the JUploadExceptionStopAddingFiles exception, to
                 // allow the user to stop adding files.
@@ -287,16 +299,15 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                         JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
                     // The user want to stop to add files to the list. For
-                    // instance,
-                    // when he/she added a whole directory, and it contains a
-                    // lot of
-                    // files that don't match the allowed file extension.
+                    // instance, when he/she added a whole directory, and it
+                    // contains a lot of files that don't match the allowed file
+                    // extension.
                     throw new JUploadExceptionStopAddingFiles(
                             "Stopped by the user");
                 }
+                return null;
             }
         }
-        return null;
     }
 
     /**
@@ -390,13 +401,16 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
             displayDebug("File selected: " + fileData.getFileName(), 30);
         }
         if (this.picturePanel != null) {
-            Cursor previousCursor = setWaitCursor();
-            this.picturePanel.setPictureFile((PictureFileData) fileData,
-                    this.rotateLeftButton, this.rotateRightButton);
-            // this.rotateLeftButton.setEnabled(fileData != null);
-            // this.rotateRightButton.setEnabled(fileData != null);
-            // TODO remove the two lines above, if tests are Ok.
-            setCursor(previousCursor);
+            //If this file is a picture, we display it.
+            if (fileData instanceof PictureFileData) {
+                Cursor previousCursor = setWaitCursor();
+                this.picturePanel.setPictureFile((PictureFileData) fileData,
+                        this.rotateLeftButton, this.rotateRightButton);
+                setCursor(previousCursor);
+            } else {
+                this.picturePanel.setPictureFile(null, this.rotateLeftButton,
+                        this.rotateRightButton);
+            }
         }
     }
 
