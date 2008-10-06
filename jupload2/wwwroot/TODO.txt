@@ -4,17 +4,16 @@ As always, a lot of things can be made better:
 TODO list:
 - Error copied in the clipboard
 	Pas mal. Mais Coppermine log qc après le copier dans le presse-papier
+- In picture mode, accept any file extension.
+	Answer to: http://sourceforge.net/forum/forum.php?thread_id=2300363&forum_id=199107 
 - Check with 4000 empty files.
 	=> OutOfMemory. The correction is quite heavy. Will be done.
-- Get the last applet version, with Hungarian translation
 - Check upload, in all mode, especially:
   FTP, SSL, Proxy
 - Add a new parameter, to control the current applet directory, that is: the directory that should be used
 when first clicking on the 'Browse' button.
 Answer to:
 http://imp.free.fr/horde/util/go.php?url=http%3A%2F%2Fforum.coppermine-gallery.net%2Findex.php%3Ftopic%3D54149.new%3Btopicseen%23new&Horde=6a59e39abfc69075abe6e56527d514f9
-- In picture mode, accept any file extension.
-	Answer to: http://sourceforge.net/forum/forum.php?thread_id=2300363&forum_id=199107 
 - Color problem, with some pictures. Here is my analysis:
 	- If pictureTransmitMetadata is false: no problem
 	- If picture is not resized nor rotated: no problem.

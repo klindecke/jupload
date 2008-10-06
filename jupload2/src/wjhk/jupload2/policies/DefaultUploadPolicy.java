@@ -524,14 +524,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.userAgent != null)
             addHeader("User-Agent: " + this.userAgent);
 
-        //Let's touch the server, to test that everything is Ok.
+        // Let's touch the server, to test that everything is Ok. Take care,
+        // this is the only place where we override the default value, by null:
+        // the default value will be used by the HttpConnect.getProtocol()
+        // method.
+        // Also, in FTP mode, there can be no default value.
         setServerProtocol(UploadPolicyFactory.getParameter(theApplet,
-                PROP_SERVER_PROTOCOL, DEFAULT_SERVER_PROTOCOL, this));
+                PROP_SERVER_PROTOCOL, null, this));
 
         // We let the UploadPolicyFactory call the displayParameterStatus
         // method, so that the initialization is finished, including for classes
         // which inherit from DefaultUploadPolicy.
-        displayDebug("[DefaultUploadPolicy] end of constructor (serverProtocol has been set)", 30);
+        displayDebug(
+                "[DefaultUploadPolicy] end of constructor (serverProtocol has been set)",
+                30);
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
@@ -767,7 +773,21 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public FileData createFileData(File file, File root)
             throws JUploadExceptionStopAddingFiles {
-        return new DefaultFileData(file, root, this);
+        if (!fileFilterAccept(file)) {
+            String msg = file.getName() + " : "
+                    + getString("errForbiddenExtension");
+            displayWarn(msg);
+            if (JOptionPane.showConfirmDialog(null, msg, "alert",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+                // The user want to stop to add files to the list. For instance,
+                // when he/she added a whole directory, and it contains a lot of
+                // files that don't match the allowed file extension.
+                throw new JUploadExceptionStopAddingFiles("Stopped by the user");
+            }
+            return null;
+        } else {
+            return new DefaultFileData(file, root, this);
+        }
     }
 
     /**
