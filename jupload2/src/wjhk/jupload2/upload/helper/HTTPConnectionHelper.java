@@ -81,7 +81,7 @@ public class HTTPConnectionHelper extends OutputStream {
     /**
      * Indicates that the connection has not been initialized. The only
      * authorized action in this state is a call to
-     * {@link #initRequest(URL, boolean, boolean)}.
+     * {@link #initRequest(URL, String, boolean, boolean)}.
      */
     final private int STATUS_NOT_INITIALIZED = 0;
 
@@ -117,7 +117,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * opened for the next request. <BR>
      * No more action may be done on this connection helper, out of reading
      * data, until the application do a call to
-     * {@link #initRequest(URL, boolean, boolean)}.
+     * {@link #initRequest(URL, String, boolean, boolean)}.
      */
     final private int STATUS_CONNECTION_CLOSED = 4;
 

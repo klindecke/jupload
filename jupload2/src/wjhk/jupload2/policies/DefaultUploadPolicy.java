@@ -906,7 +906,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * Logs a stack trace for the given exception.
      * 
-     * @param exception
+     * @param throwable
      */
     private void displayStackTrace(Throwable throwable) {
         if (throwable != null) {
