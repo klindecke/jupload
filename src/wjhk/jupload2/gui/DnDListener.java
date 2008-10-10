@@ -92,17 +92,16 @@ public class DnDListener implements DropTargetListener {
         } else {
             e.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
             try {
-                List<?> fileList = (List<?>) e.getTransferable()
+                List<File> fileList = (List<File>) e.getTransferable()
                         .getTransferData(DataFlavor.javaFileListFlavor);
                 // this.uploadPanel.addFiles((File[]) fileList.toArray(), null);
-                Iterator<?> i = fileList.iterator();
+                Iterator<File> i = fileList.iterator();
+                File f;
                 try {
                     while (i.hasNext()) {
-                        File[] f = {
-                            (File) i.next()
-                        };
-                        if (f[0].isDirectory()) {
-                            this.uploadPanel.addFiles(f, f[0].getParentFile());
+                        f = i.next();
+                        if (f.isDirectory()) {
+                            this.uploadPanel.addFiles(f, f.getParentFile());
                         } else {
                             this.uploadPanel.addFiles(f, null);
                         }

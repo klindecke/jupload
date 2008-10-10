@@ -24,6 +24,8 @@ import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 
+import javax.swing.TransferHandler;
+
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.filedata.FileData;
 
@@ -97,4 +99,11 @@ public interface FilePanel {
      * @return The drop component target
      */
     public Component getDropComponent();
+    
+    /**
+     * Transfer handler, to manage copy/paste operations.
+     */
+    public void setTransferHandler(TransferHandler newHandler);
+    
+     
 }
