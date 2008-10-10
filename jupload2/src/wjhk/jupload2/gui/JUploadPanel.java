@@ -83,7 +83,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private static final double kB = 1024L;
 
     /** The debug popup menu of the applet */
-    private JUploadPopupMenu jUploadPopupMenu;
+    private JUploadDebugPopupMenu jUploadDebugPopupMenu;
 
     /** The main popup menu of the applet */
     private JUploadMainPopupMenu jUploadMainPopupMenu;
@@ -169,7 +169,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
             UploadPolicy uploadPolicyParam) throws Exception {
         this.logWindow = logWindow;
         this.uploadPolicy = uploadPolicyParam;
-        this.jUploadPopupMenu = new JUploadPopupMenu(this.uploadPolicy);
+        this.jUploadDebugPopupMenu = new JUploadDebugPopupMenu(this.uploadPolicy);
         this.jUploadMainPopupMenu = new JUploadMainPopupMenu(this.uploadPolicy,
                 this);
 
@@ -697,8 +697,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
         if (mouseEvent.isPopupTrigger()) {
             if ((mouseEvent.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
                 // We open the debug menu
-                if (this.jUploadPopupMenu != null) {
-                    this.jUploadPopupMenu.show(mouseEvent.getComponent(),
+                if (this.jUploadDebugPopupMenu != null) {
+                    this.jUploadDebugPopupMenu.show(mouseEvent.getComponent(),
                             mouseEvent.getX(), mouseEvent.getY());
                     return true;
                 }
