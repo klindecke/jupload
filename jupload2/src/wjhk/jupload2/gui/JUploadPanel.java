@@ -31,6 +31,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -41,6 +43,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.TransferHandler;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
@@ -79,8 +82,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     private static final double kB = 1024L;
 
-    /** The popup menu of the applet */
+    /** The debug popup menu of the applet */
     private JUploadPopupMenu jUploadPopupMenu;
+
+    /** The main popup menu of the applet */
+    private JUploadMainPopupMenu jUploadMainPopupMenu;
 
     // Timeout at DEFAULT_TIMEOUT milliseconds
     private final static int DEFAULT_TIMEOUT = 100;
@@ -159,12 +165,13 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @throws Exception
      * @see UploadPolicyFactory#getUploadPolicy(wjhk.jupload2.JUploadApplet)
      */
-    public JUploadPanel(
-    Container containerParam, JUploadTextArea logWindow,
+    public JUploadPanel(Container containerParam, JUploadTextArea logWindow,
             UploadPolicy uploadPolicyParam) throws Exception {
         this.logWindow = logWindow;
         this.uploadPolicy = uploadPolicyParam;
         this.jUploadPopupMenu = new JUploadPopupMenu(this.uploadPolicy);
+        this.jUploadMainPopupMenu = new JUploadMainPopupMenu(this.uploadPolicy,
+                this);
 
         // First: create standard components.
         createStandardComponents();
@@ -178,6 +185,15 @@ public class JUploadPanel extends JPanel implements ActionListener,
         new DropTarget(this, this.dndListener);
         new DropTarget(this.filePanel.getDropComponent(), this.dndListener);
         new DropTarget(this.logWindow, this.dndListener);
+
+        // Define the TransfertHandler, to manage paste operations.
+        JUploadTransferHandler jUploadTransfertHandler = new JUploadTransferHandler(
+                this.uploadPolicy);
+        this.setTransferHandler(jUploadTransfertHandler);
+        this.filePanel.setTransferHandler(jUploadTransfertHandler);
+        ActionMap map = this.getActionMap();
+        map.put(TransferHandler.getPasteAction().getValue(Action.NAME),
+                TransferHandler.getPasteAction());
 
         // The JUploadPanel will listen to Mouse messages for the standard
         // component. The current only application of this, it the CTRL+Righ
@@ -327,8 +343,21 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * Add files to the current file list.
      */
+    protected void addFiles(File f, File root)
+            throws JUploadExceptionStopAddingFiles {
+        File[] files = new File[1];
+        files[0] = f;
+        this.filePanel.addFiles(files, root);
+        if (0 < this.filePanel.getFilesLength()) {
+            this.removeButton.setEnabled(true);
+            this.removeAllButton.setEnabled(true);
+            this.uploadButton.setEnabled(true);
+        }
+    }
+
     protected void addFiles(File[] f, File root)
             throws JUploadExceptionStopAddingFiles {
+        // TODO Remove addFiles(File[],File), to use only addFiles(File,File)
         this.filePanel.addFiles(f, root);
         if (0 < this.filePanel.getFilesLength()) {
             this.removeButton.setEnabled(true);
@@ -462,7 +491,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
             try {
                 int ret = this.fileChooser.showOpenDialog(new Frame());
                 if (JFileChooser.APPROVE_OPTION == ret)
-                    addFiles(this.fileChooser.getSelectedFiles(),
+                    this.filePanel.addFiles(
+                            this.fileChooser.getSelectedFiles(),
                             this.fileChooser.getCurrentDirectory());
                 // We stop any running task for the JUploadFileView
                 this.fileChooser.shutdownNow();
@@ -572,6 +602,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
+        this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
         if (e.getSource() instanceof Timer) {
             // Which timer is it ?
             if (this.timerUpload.isRunning()) {
@@ -587,9 +618,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                 actionClearProgressBar();
             }
             return;
-        }
-        this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
-        if (e.getActionCommand() == this.browseButton.getActionCommand()) {
+        } else if (e.getActionCommand() == this.browseButton.getActionCommand()) {
             doBrowse();
         } else if (e.getActionCommand() == this.removeButton.getActionCommand()) {
             // Remove clicked
@@ -664,12 +693,22 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @return true if the popup menu was opened, false otherwise.
      */
     boolean maybeOpenPopupMenu(MouseEvent mouseEvent) {
-        if (mouseEvent.isPopupTrigger()
-                && ((mouseEvent.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)) {
-            if (this.jUploadPopupMenu != null) {
-                this.jUploadPopupMenu.show(mouseEvent.getComponent(),
-                        mouseEvent.getX(), mouseEvent.getY());
-                return true;
+        // Should we open one out of the numerous (2!) popup menus ?
+        if (mouseEvent.isPopupTrigger()) {
+            if ((mouseEvent.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+                // We open the debug menu
+                if (this.jUploadPopupMenu != null) {
+                    this.jUploadPopupMenu.show(mouseEvent.getComponent(),
+                            mouseEvent.getX(), mouseEvent.getY());
+                    return true;
+                }
+            } else {
+                // Let's open the main popup menu
+                if (this.jUploadMainPopupMenu != null) {
+                    this.jUploadMainPopupMenu.show(mouseEvent.getComponent(),
+                            mouseEvent.getX(), mouseEvent.getY());
+                    return true;
+                }
             }
         }
         return false;

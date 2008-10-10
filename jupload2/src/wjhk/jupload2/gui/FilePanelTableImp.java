@@ -26,6 +26,7 @@ import java.awt.Panel;
 import java.awt.Point;
 import java.io.File;
 
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
@@ -41,7 +42,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @author William JinHua Kwong
  * @version $Revision$
  */
-public class FilePanelTableImp extends Panel implements FilePanel {
+public class FilePanelTableImp extends JPanel implements FilePanel {
 
     /**
      * 
@@ -61,6 +62,7 @@ public class FilePanelTableImp extends Panel implements FilePanel {
     public FilePanelTableImp(JUploadPanel jup, UploadPolicy uploadPolicy) {
         setLayout(new BorderLayout());
         addMouseListener(jup);
+        setTransferHandler(jup.getTransferHandler());
 
         this.jtable = new FilePanelJTable(jup, uploadPolicy);
 

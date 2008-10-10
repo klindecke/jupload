@@ -27,8 +27,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Date;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
@@ -74,8 +77,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
         JTableHeader header = getTableHeader();
         header.setDefaultRenderer(new SortHeaderRenderer());
         // We add the mouse listener on the header (to manage column sorts) and
-        // on the main part (to manage
-        // the contextual popup menu)
+        // on the main part (to manage the contextual popup menu)
         header.addMouseListener(this);
         addMouseListener(jup);
     }
