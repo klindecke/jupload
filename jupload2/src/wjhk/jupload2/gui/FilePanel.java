@@ -24,6 +24,8 @@ import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 
+import javax.swing.ActionMap;
+import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
@@ -102,8 +104,16 @@ public interface FilePanel {
     
     /**
      * Transfer handler, to manage copy/paste operations.
+     * @param newHandler 
+     * @see JComponent#setTransferHandler(TransferHandler)
      */
     public void setTransferHandler(TransferHandler newHandler);
-    
+
+    /**
+     * Allows to get standard action map, like paste action.
+     * @return Get the current actionMap
+     * @see JComponent#getActionMap()
+     */
+    public ActionMap getActionMap();
      
 }

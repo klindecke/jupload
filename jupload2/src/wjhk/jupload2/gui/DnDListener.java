@@ -29,7 +29,6 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
@@ -86,6 +85,7 @@ public class DnDListener implements DropTargetListener {
     /**
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
      */
+    @SuppressWarnings("unchecked")
     public void drop(DropTargetDropEvent e) {
         if (!e.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             e.rejectDrop();
@@ -94,29 +94,22 @@ public class DnDListener implements DropTargetListener {
             try {
                 List<File> fileList = (List<File>) e.getTransferable()
                         .getTransferData(DataFlavor.javaFileListFlavor);
-                // this.uploadPanel.addFiles((File[]) fileList.toArray(), null);
-                Iterator<File> i = fileList.iterator();
-                File f;
                 try {
-                    while (i.hasNext()) {
-                        f = i.next();
-                        if (f.isDirectory()) {
-                            this.uploadPanel.addFiles(f, f.getParentFile());
-                        } else {
-                            this.uploadPanel.addFiles(f, null);
-                        }
-                    }
+                    this.uploadPanel
+                            .addFiles((File[]) fileList.toArray(), null);
                 } catch (JUploadExceptionStopAddingFiles e2) {
                     // The user want to stop here. Nothing else to do.
                     this.uploadPolicy.displayWarn(getClass().getName()
                             + ".drop() [" + e.getClass().getName() + "]: "
                             + e2.getMessage());
                 }
+
                 e.getDropTargetContext().dropComplete(true);
 
                 // Let's communicate this to the upload policy: there may be
                 // something to do now.
                 this.uploadPolicy.afterFileDropped(e);
+
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 e.rejectDrop();
@@ -124,6 +117,7 @@ public class DnDListener implements DropTargetListener {
                 ufe.printStackTrace();
                 e.rejectDrop();
             }
+
         }
     }
 

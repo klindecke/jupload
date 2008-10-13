@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.TransferHandler;
 
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
@@ -44,17 +43,22 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
     /**
      * The standard constructor.
      * 
-     * @param uploadPolicy
+     * @param uploadPolicy The current uploadPolicy
+     * @param uploadPanel The JUploadPanel. Must given here, as this constructor
+     *            is called in the JUploadPanel construction. So the
+     *            uploadPolicy.getUploadPanel() returns null.
      */
-    public JUploadTransferHandler(UploadPolicy uploadPolicy) {
+    public JUploadTransferHandler(UploadPolicy uploadPolicy,
+            JUploadPanel uploadPanel) {
         this.uploadPolicy = uploadPolicy;
-        this.uploadPanel = this.uploadPolicy.getApplet().getUploadPanel();
+        this.uploadPanel = uploadPanel;
     }
 
     /**
      * @see javax.swing.TransferHandler#importData(javax.swing.JComponent,
      *      java.awt.datatransfer.Transferable)
      */
+    @SuppressWarnings("unchecked")
     public boolean importData(JComponent c, Transferable t) {
         if (canImport(c, t.getTransferDataFlavors())) {
             try {
@@ -107,11 +111,11 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
         /*
          * this.uploadPolicy.getApplet().getUploadPanel().getFilePanel().actionPerformed(new
          * ActionEvent(focusOwner, ActionEvent.ACTION_PERFORMED, null));
-         *
-        ((JUploadPanel)this.uploadPolicy.getApplet().getUploadPanel()).actionPerformed(new ActionEvent(this.uploadPolicy.getApplet().getUploadPanel(), ActionEvent.ACTION_PERFORMED,
-                (String) e.getActionCommand()));*/
-        //((FilePanelTableImp)this.uploadPolicy.getApplet().getUploadPanel().getFilePanel());
-         
-         
+         * 
+         * ((JUploadPanel)this.uploadPolicy.getApplet().getUploadPanel()).actionPerformed(new
+         * ActionEvent(this.uploadPolicy.getApplet().getUploadPanel(),
+         * ActionEvent.ACTION_PERFORMED, (String) e.getActionCommand()));
+         */
+        // ((FilePanelTableImp)this.uploadPolicy.getApplet().getUploadPanel().getFilePanel());
     }
 }

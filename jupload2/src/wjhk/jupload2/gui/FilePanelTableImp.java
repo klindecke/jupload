@@ -22,7 +22,6 @@ package wjhk.jupload2.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Panel;
 import java.awt.Point;
 import java.io.File;
 
