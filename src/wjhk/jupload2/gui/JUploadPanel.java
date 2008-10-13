@@ -92,7 +92,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private final static int DEFAULT_TIMEOUT = 100;
 
     /**
-     * The upload status (progressbar) gets updated every (DEFAULT_TIMEOUT *
+     * The upload status (progress bar) gets updated every (DEFAULT_TIMEOUT *
      * PROGRESS_INTERVAL) ms.
      */
     private final static int PROGRESS_INTERVAL = 10;
@@ -169,7 +169,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
             UploadPolicy uploadPolicyParam) throws Exception {
         this.logWindow = logWindow;
         this.uploadPolicy = uploadPolicyParam;
-        this.jUploadDebugPopupMenu = new JUploadDebugPopupMenu(this.uploadPolicy);
+        this.jUploadDebugPopupMenu = new JUploadDebugPopupMenu(
+                this.uploadPolicy);
         this.jUploadMainPopupMenu = new JUploadMainPopupMenu(this.uploadPolicy,
                 this);
 
@@ -188,7 +189,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         // Define the TransfertHandler, to manage paste operations.
         JUploadTransferHandler jUploadTransfertHandler = new JUploadTransferHandler(
-                this.uploadPolicy);
+                this.uploadPolicy, this);
         this.setTransferHandler(jUploadTransfertHandler);
         this.filePanel.setTransferHandler(jUploadTransfertHandler);
         ActionMap map = this.getActionMap();
@@ -602,41 +603,58 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
-        if (e.getSource() instanceof Timer) {
-            // Which timer is it ?
-            if (this.timerUpload.isRunning()) {
-                // timer is expired
-                if ((this.update_counter++ > PROGRESS_INTERVAL)
-                        || (!this.fileUploadThread.isAlive())) {
-                    actionPerformedTimerExpired();
+        if (e.getActionCommand() != null) {
+            this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(),
+                    1);
+            final String actionPaste = (String) TransferHandler
+                    .getPasteAction().getValue(Action.NAME);
+
+            if (e.getSource() instanceof Timer) {
+                // Which timer is it ?
+                if (this.timerUpload.isRunning()) {
+                    // timer is expired
+                    if ((this.update_counter++ > PROGRESS_INTERVAL)
+                            || (!this.fileUploadThread.isAlive())) {
+                        actionPerformedTimerExpired();
+                    }
+                    if (!this.fileUploadThread.isAlive()) {
+                        actionPerformedUploadFinished();
+                    }
+                } else if (this.timerAfterUpload.isRunning()) {
+                    actionClearProgressBar();
                 }
-                if (!this.fileUploadThread.isAlive()) {
-                    actionPerformedUploadFinished();
+                return;
+            } else if (e.getActionCommand().equals(actionPaste)) {
+                Action a = getActionMap().get(actionPaste);
+                if (a != null) {
+                    a.actionPerformed(new ActionEvent(filePanel,
+                            ActionEvent.ACTION_PERFORMED, null));
                 }
-            } else if (this.timerAfterUpload.isRunning()) {
-                actionClearProgressBar();
+            } else if (e.getActionCommand() == this.browseButton
+                    .getActionCommand()) {
+                doBrowse();
+            } else if (e.getActionCommand() == this.removeButton
+                    .getActionCommand()) {
+                // Remove clicked
+                doRemove();
+            } else if (e.getActionCommand() == this.removeAllButton
+                    .getActionCommand()) {
+                // Remove All clicked
+                doRemoveAll();
+            } else if (e.getActionCommand() == this.uploadButton
+                    .getActionCommand()) {
+                // Upload clicked
+                doStartUpload();
+            } else if (e.getActionCommand() == this.stopButton
+                    .getActionCommand()) {
+                // We request the thread to stop its job.
+                doStopUpload();
             }
-            return;
-        } else if (e.getActionCommand() == this.browseButton.getActionCommand()) {
-            doBrowse();
-        } else if (e.getActionCommand() == this.removeButton.getActionCommand()) {
-            // Remove clicked
-            doRemove();
-        } else if (e.getActionCommand() == this.removeAllButton
-                .getActionCommand()) {
-            // Remove All clicked
-            doRemoveAll();
-        } else if (e.getActionCommand() == this.uploadButton.getActionCommand()) {
-            // Upload clicked
-            doStartUpload();
-        } else if (e.getActionCommand() == this.stopButton.getActionCommand()) {
-            // We request the thread to stop its job.
-            doStopUpload();
+            // focus the table. This is necessary in order to enable mouse
+            // events
+            // for triggering tooltips.
+            this.filePanel.focusTable();
         }
-        // focus the table. This is necessary in order to enable mouse events
-        // for triggering tooltips.
-        this.filePanel.focusTable();
     }
 
     // ///////////////////////////////////////////////////////////////////////////////

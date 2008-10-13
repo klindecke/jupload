@@ -27,11 +27,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Date;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;

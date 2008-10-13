@@ -25,18 +25,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 
-import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.text.DefaultEditorKit;
 
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -77,22 +71,6 @@ final class JUploadDebugPopupMenu extends JPopupMenu implements ActionListener,
         // ////////////////////////////////////////////////////////////////////////
         // Creation of the menu items
         // ////////////////////////////////////////////////////////////////////////
-        // For internal test: add a paste menu item
-        JUploadTransferHandler actionListener = new JUploadTransferHandler(
-                this.uploadPolicy);
-        JMenuItem menuItem = new JMenuItem("Paste");
-        menuItem.setActionCommand((String) TransferHandler.getPasteAction()
-                .getValue(Action.NAME));
-
-        JUploadPanel uploadPanel=this.uploadPolicy.getApplet().getUploadPanel();
-        //Too bad: uploadPanel is null !  (we're creating it)
-        //menuItem.addActionListener(uploadPanel);
-        menuItem.addActionListener(actionListener);
-        //menuItem.addActionListener((JPanel)this.uploadPolicy.getApplet().getUploadPanel().getFilePanel());
-        // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-        // ActionEvent.CTRL_MASK));
-        // menuItem.setMnemonic(KeyEvent.VK_P);
-        add(menuItem);
         // First: debug on or off
         this.cbmiDebugOnOff = new JCheckBoxMenuItem("Debug enabled");
         this.cbmiDebugOnOff.setState(this.uploadPolicy.getDebugLevel() == 100);
