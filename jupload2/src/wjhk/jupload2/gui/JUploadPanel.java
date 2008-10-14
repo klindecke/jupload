@@ -603,58 +603,51 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand() != null) {
-            this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(),
-                    1);
-            final String actionPaste = (String) TransferHandler
-                    .getPasteAction().getValue(Action.NAME);
+        this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
+        final String actionPaste = (String) TransferHandler.getPasteAction()
+                .getValue(Action.NAME);
 
-            if (e.getSource() instanceof Timer) {
-                // Which timer is it ?
-                if (this.timerUpload.isRunning()) {
-                    // timer is expired
-                    if ((this.update_counter++ > PROGRESS_INTERVAL)
-                            || (!this.fileUploadThread.isAlive())) {
-                        actionPerformedTimerExpired();
-                    }
-                    if (!this.fileUploadThread.isAlive()) {
-                        actionPerformedUploadFinished();
-                    }
-                } else if (this.timerAfterUpload.isRunning()) {
-                    actionClearProgressBar();
+        if (e.getSource() instanceof Timer) {
+            // Which timer is it ?
+            if (this.timerUpload.isRunning()) {
+                // timer is expired
+                if ((this.update_counter++ > PROGRESS_INTERVAL)
+                        || (!this.fileUploadThread.isAlive())) {
+                    actionPerformedTimerExpired();
                 }
-                return;
-            } else if (e.getActionCommand().equals(actionPaste)) {
-                Action a = getActionMap().get(actionPaste);
-                if (a != null) {
-                    a.actionPerformed(new ActionEvent(filePanel,
-                            ActionEvent.ACTION_PERFORMED, null));
+                if (!this.fileUploadThread.isAlive()) {
+                    actionPerformedUploadFinished();
                 }
-            } else if (e.getActionCommand() == this.browseButton
-                    .getActionCommand()) {
-                doBrowse();
-            } else if (e.getActionCommand() == this.removeButton
-                    .getActionCommand()) {
-                // Remove clicked
-                doRemove();
-            } else if (e.getActionCommand() == this.removeAllButton
-                    .getActionCommand()) {
-                // Remove All clicked
-                doRemoveAll();
-            } else if (e.getActionCommand() == this.uploadButton
-                    .getActionCommand()) {
-                // Upload clicked
-                doStartUpload();
-            } else if (e.getActionCommand() == this.stopButton
-                    .getActionCommand()) {
-                // We request the thread to stop its job.
-                doStopUpload();
+            } else if (this.timerAfterUpload.isRunning()) {
+                actionClearProgressBar();
             }
-            // focus the table. This is necessary in order to enable mouse
-            // events
-            // for triggering tooltips.
-            this.filePanel.focusTable();
+            return;
+        } else if (e.getActionCommand().equals(actionPaste)) {
+            Action a = getActionMap().get(actionPaste);
+            if (a != null) {
+                a.actionPerformed(new ActionEvent(filePanel,
+                        ActionEvent.ACTION_PERFORMED, null));
+            }
+        } else if (e.getActionCommand() == this.browseButton.getActionCommand()) {
+            doBrowse();
+        } else if (e.getActionCommand() == this.removeButton.getActionCommand()) {
+            // Remove clicked
+            doRemove();
+        } else if (e.getActionCommand() == this.removeAllButton
+                .getActionCommand()) {
+            // Remove All clicked
+            doRemoveAll();
+        } else if (e.getActionCommand() == this.uploadButton.getActionCommand()) {
+            // Upload clicked
+            doStartUpload();
+        } else if (e.getActionCommand() == this.stopButton.getActionCommand()) {
+            // We request the thread to stop its job.
+            doStopUpload();
         }
+        // focus the table. This is necessary in order to enable mouse
+        // events
+        // for triggering tooltips.
+        this.filePanel.focusTable();
     }
 
     // ///////////////////////////////////////////////////////////////////////////////
