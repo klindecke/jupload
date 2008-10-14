@@ -1,14 +1,13 @@
 
 
-V3.5.0  (not released yet)
-
-TODO:
-- Add the showLogWindow in the debug menu
+V3.5.0
 
 Note:
 - Error management has been enhanced
 
 Changes:
+- [Major] It's now possible to paste files onto the applet. A contextual manue (right-click) is available for 
+that on the applet.
 - [Major] The error management has been corrected: see the urlToSendErrorTo applet parameter description.
 - [Minor] Stack trace display is enhanced. When an error occurs during upload, the stack trace should now
 always give the line that fired the exception.
@@ -26,6 +25,7 @@ as there is no getter/setter for these ones: userAgent, cookie, debugFile and de
 it fails here, at least, you know why...  
 - [Minor] showLogWindow is now always respected, whatever the value of debugLevel is. A new entry in the debug menu
 has been added (CTRL+Right Click on the applet, to open it)
+- [Minor] The debug menu (CTRL+Right Click) is slightly better. 
 
 Fixes:
 - [Major] Patch given by Stani: corrects the use of the applet on Firefox on Mac.
