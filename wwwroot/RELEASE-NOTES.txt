@@ -1,5 +1,11 @@
 
 
+V3.5.1
+
+Fix:
+- [Major] Bug n°2174306: 'Upload' button remained disabled after using 'Browse..' button
+
+
 V3.5.0
 
 Note:

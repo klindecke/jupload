@@ -2,9 +2,14 @@
 As always, a lot of things can be made better:
 
 TODO list:
-- Error copied in the clipboard
-	Pas mal. Mais Coppermine log qc après le copier dans le presse-papier
-- Check the specificHeaders doc, in the howtocustomize page. \\n to n after packaging ?
+- FilePanelTableImpl: Make a wild use of         this.juploadPanel.updateButtonState();
+- Bug [ 2174306 ] 'Upload' button disabled after using 'Browse..' button
+it seems that the 'Upload' buttons stays disabled if you use the 'Browse...' button to add files to the upload list in the
+DefaultUploadPolicy. - Check the specificHeaders doc, in the howtocustomize page. \\n to n after packaging ?
+- [ 1993250 ] Can't run jupload in two browser windows simultaneously...
+I cannot load the 'advanced demo' page into Firefox at the same time that I
+have it loaded in IE.
+
 - Enable compression
 - Check with 4000 empty files.
 	=> OutOfMemory. The correction is quite heavy. Will be done.
