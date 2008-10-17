@@ -60,13 +60,16 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
      */
     @SuppressWarnings("unchecked")
     public boolean importData(JComponent c, Transferable t) {
+        FilePanel filePanel = this.uploadPanel.getFilePanel();
         if (canImport(c, t.getTransferDataFlavors())) {
             try {
                 List<File> fileList = (List<File>) t
                         .getTransferData(fileListFlavor);
                 Iterator<File> iterator = fileList.iterator();
+                File[] fileArray = new File[1];
                 while (iterator.hasNext()) {
-                    this.uploadPanel.addFiles(iterator.next(), null);
+                    fileArray[0] = iterator.next();
+                    filePanel.addFiles(fileArray, null);
                 }
                 return true;
             } catch (UnsupportedFlavorException ufe) {

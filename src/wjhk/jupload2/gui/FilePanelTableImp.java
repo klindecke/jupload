@@ -52,18 +52,23 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
 
     private FilePanelDataModel2 model;
 
+    private JUploadPanel juploadPanel;
+
     /**
      * Creates a new instance.
      * 
-     * @param jup The upload panel (parent).
+     * @param juploadPanel The upload panel (parent).
      * @param uploadPolicy The upload policy to apply.
      */
-    public FilePanelTableImp(JUploadPanel jup, UploadPolicy uploadPolicy) {
-        setLayout(new BorderLayout());
-        addMouseListener(jup);
-        setTransferHandler(jup.getTransferHandler());
+    public FilePanelTableImp(JUploadPanel juploadPanel,
+            UploadPolicy uploadPolicy) {
+        this.juploadPanel = juploadPanel;
 
-        this.jtable = new FilePanelJTable(jup, uploadPolicy);
+        setLayout(new BorderLayout());
+        addMouseListener(juploadPanel);
+        setTransferHandler(juploadPanel.getTransferHandler());
+
+        this.jtable = new FilePanelJTable(juploadPanel, uploadPolicy);
 
         this.model = new FilePanelDataModel2(uploadPolicy);
         this.jtable.setModel(this.model);
@@ -76,7 +81,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
 
         JScrollPane scrollPane = new JScrollPane(this.jtable);
         add(scrollPane, BorderLayout.CENTER);
-        scrollPane.addMouseListener(jup);
+        scrollPane.addMouseListener(juploadPanel);
     }
 
     /**
@@ -89,8 +94,16 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
                 addDirectoryFiles(f[i], root);
             }
         }
+        this.juploadPanel.updateButtonState();
     }
 
+    /**
+     * This method allows a recursive calls through the file hierarchy.
+     * 
+     * @param f
+     * @param root
+     * @throws JUploadExceptionStopAddingFiles
+     */
     private final void addDirectoryFiles(File f, File root)
             throws JUploadExceptionStopAddingFiles {
         if (!f.isDirectory()) {
@@ -107,6 +120,13 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
         }
     }
 
+    /**
+     * Adds a single file into the file list.
+     * 
+     * @param f
+     * @param root
+     * @throws JUploadExceptionStopAddingFiles
+     */
     private final void addFileOnly(File f, File root)
             throws JUploadExceptionStopAddingFiles {
         // Make sure we don't select the same file twice.

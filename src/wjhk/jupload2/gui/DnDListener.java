@@ -95,7 +95,7 @@ public class DnDListener implements DropTargetListener {
                 List<File> fileList = (List<File>) e.getTransferable()
                         .getTransferData(DataFlavor.javaFileListFlavor);
                 try {
-                    this.uploadPanel
+                    this.uploadPanel.getFilePanel()
                             .addFiles((File[]) fileList.toArray(), null);
                 } catch (JUploadExceptionStopAddingFiles e2) {
                     // The user want to stop here. Nothing else to do.

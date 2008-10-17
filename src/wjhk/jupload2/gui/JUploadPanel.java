@@ -29,7 +29,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -47,7 +46,6 @@ import javax.swing.TransferHandler;
 
 import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.exception.JUploadException;
-import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 import wjhk.jupload2.upload.FileUploadThread;
@@ -340,33 +338,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
         validate();
     }
 
-    // ----------------------------------------------------------------------
-    /**
-     * Add files to the current file list.
-     */
-    protected void addFiles(File f, File root)
-            throws JUploadExceptionStopAddingFiles {
-        File[] files = new File[1];
-        files[0] = f;
-        this.filePanel.addFiles(files, root);
-        if (0 < this.filePanel.getFilesLength()) {
-            this.removeButton.setEnabled(true);
-            this.removeAllButton.setEnabled(true);
-            this.uploadButton.setEnabled(true);
-        }
-    }
-
-    protected void addFiles(File[] f, File root)
-            throws JUploadExceptionStopAddingFiles {
-        // TODO Remove addFiles(File[],File), to use only addFiles(File,File)
-        this.filePanel.addFiles(f, root);
-        if (0 < this.filePanel.getFilesLength()) {
-            this.removeButton.setEnabled(true);
-            this.removeAllButton.setEnabled(true);
-            this.uploadButton.setEnabled(true);
-        }
-    }
-
     // ///////////////////////////////////////////////////////////////////////////////
     // ///////////////// Action methods
     // ///////////////////////////////////////////////////////////////////////////////
@@ -603,7 +574,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
+        if (!(e.getSource() instanceof Timer)) {
+            // We log only non timer event.
+            this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(),
+                    1);
+        }
         final String actionPaste = (String) TransferHandler.getPasteAction()
                 .getValue(Action.NAME);
 
@@ -723,6 +698,16 @@ public class JUploadPanel extends JPanel implements ActionListener,
             }
         }
         return false;
+    }
+
+    /**
+     * Select or unselect the applet buttons
+     */
+    public void updateButtonState() {
+        boolean enabled = (this.filePanel.getFilesLength() > 0);
+        this.removeButton.setEnabled(enabled);
+        this.removeAllButton.setEnabled(enabled);
+        this.uploadButton.setEnabled(enabled);
     }
 
     /**
