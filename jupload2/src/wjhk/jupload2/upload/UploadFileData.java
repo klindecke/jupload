@@ -44,12 +44,12 @@ class UploadFileData implements FileData {
     private FileData fileData = null;
 
     /**
-     * Instance of the fileUploadThread. This allow this class to send feedback
+     * Instance of the fileUploadManagerThread. This allow this class to send feedback
      * to the thread.
      * 
      * @see FileUploadThread#nbBytesUploaded(long)
      */
-    private FileUploadThread fileUploadThread = null;
+    private FileUploadManagerThread fileUploadManagerThread = null;
 
     /**
      * inputStream contains the stream that read from the file to upload. This
@@ -94,10 +94,10 @@ class UploadFileData implements FileData {
      *            {@link UploadPolicy}
      */
     public UploadFileData(FileData fileDataParam,
-            FileUploadThread fileUploadThreadParam,
+            FileUploadManagerThread fileUploadThreadParam,
             UploadPolicy uploadPolicyParam) {
         this.fileData = fileDataParam;
-        this.fileUploadThread = fileUploadThreadParam;
+        this.fileUploadManagerThread = fileUploadThreadParam;
         this.uploadPolicy = uploadPolicyParam;
     }
 
@@ -178,7 +178,7 @@ class UploadFileData implements FileData {
         // or leave it unchanged if it is not null.
         getInputStream();
 
-        while (!this.fileUploadThread.isUploadStopped() && (0 < amount)) {
+        while (!this.fileUploadManagerThread.isUploadStopped() && (0 < amount)) {
             int toread = (amount > BUFLEN) ? BUFLEN : (int) amount;
             int towrite = 0;
             try {
@@ -190,7 +190,7 @@ class UploadFileData implements FileData {
             if (towrite > 0) {
                 try {
                     outputStream.write(this.readBuffer, 0, towrite);
-                    this.fileUploadThread.nbBytesUploaded(towrite);
+                    this.fileUploadManagerThread.nbBytesUploaded(towrite);
                     amount -= towrite;
                     this.uploadRemainingLength -= towrite;
                 } catch (IOException e) {

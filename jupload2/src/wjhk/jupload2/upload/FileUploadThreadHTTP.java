@@ -27,11 +27,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
-import javax.swing.JProgressBar;
-
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
-import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
@@ -63,37 +60,31 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * same as heads, for the ... tail in the multipart post, for each file. But
      * tails depend on the file position (the boundary is added to the last
-     * tail). So it's to be calculated fror each upload.
+     * tail). So it's to be calculated for each upload.
      */
     private ByteArrayEncoder tails[] = null;
 
     /**
      * Creates a new instance.
      * 
-     * @param filesDataParam The files to upload.
      * @param uploadPolicy The policy to be applied.
-     * @param progress The progress bar to be updated.
+     * @param fileUploadManagerThread 
      */
-    public FileUploadThreadHTTP(FileData[] filesDataParam,
-            UploadPolicy uploadPolicy, JProgressBar progress) {
-        super(filesDataParam, uploadPolicy, progress);
+    public FileUploadThreadHTTP(UploadPolicy uploadPolicy,
+            FileUploadManagerThread fileUploadManagerThread) {
+        super(uploadPolicy, fileUploadManagerThread);
         uploadPolicy.displayDebug("Upload done by using the "
                 + getClass().getName() + " class", 30);
         // Name the thread (useful for debugging)
         setName("FileUploadThreadHTTP");
-        this.heads = new ByteArrayEncoder[filesDataParam.length];
-        this.tails = new ByteArrayEncoder[filesDataParam.length];
         this.connectionHelper = new HTTPConnectionHelper(uploadPolicy);
     }
 
     /** @see DefaultFileUploadThread#beforeRequest(int, int) */
     @Override
-    void beforeRequest(int firstFileToUploadParam, int nbFilesToUploadParam)
-            throws JUploadException {
-        setAllHead(firstFileToUploadParam, nbFilesToUploadParam,
-                this.connectionHelper.getBoundary());
-        setAllTail(firstFileToUploadParam, nbFilesToUploadParam,
-                this.connectionHelper.getBoundary());
+    void beforeRequest() throws JUploadException {
+        setAllHead(this.connectionHelper.getBoundary());
+        setAllTail(this.connectionHelper.getBoundary());
     }
 
     /** @see DefaultFileUploadThread#getAdditionnalBytesForUpload(int) */
@@ -199,7 +190,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 }
             }
 
-            this.connectionHelper.initRequest(url, "POST", bChunkEnabled, bLastChunk);
+            this.connectionHelper.initRequest(url, "POST", bChunkEnabled,
+                    bLastChunk);
 
             // Get the GET parameters from the URL and convert them to
             // post form params
@@ -240,13 +232,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         } catch (IllegalArgumentException e) {
             throw new JUploadException(e);
         }
-    }
-
-    /** @see FileUploadThread#stopUpload() */
-    @Override
-    public void stopUpload() {
-        super.stopUpload();
-        this.connectionHelper.stopUpload();
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////
@@ -331,9 +316,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      *            request.
      * @throws JUploadException
      */
-    private final void setAllHead(int firstFileToUpload, int nbFilesToUpload,
-            String bound) throws JUploadException {
-        for (int i = firstFileToUpload; i < firstFileToUpload + nbFilesToUpload; i++) {
+    private final void setAllHead(String bound) throws JUploadException {
+        this.heads = new ByteArrayEncoder[this.filesToUpload.length];
+        for (int i = 0; i < this.filesToUpload.length; i++) {
             this.heads[i] = getFileHeader(i, bound, -1);
         }
     }
@@ -348,10 +333,9 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      *            area
      * @param bound Current boundary, to apply for these tails.
      */
-    private final void setAllTail(int firstFileToUpload, int nbFilesToUpload,
-            String bound) throws JUploadException {
-
-        for (int i = firstFileToUpload; i < firstFileToUpload + nbFilesToUpload; i++) {
+    private final void setAllTail(String bound) throws JUploadException {
+        this.tails = new ByteArrayEncoder[this.filesToUpload.length];
+        for (int i = 0; i < this.filesToUpload.length; i++) {
             // We'll encode the output stream into UTF-8.
             ByteArrayEncoder bae = new ByteArrayEncoderHTTP(this.uploadPolicy,
                     bound);
@@ -361,7 +345,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
             // The last tail gets an additional "--" in order to tell the
             // server we have finished.
-            if (i == firstFileToUpload + nbFilesToUpload - 1) {
+            if (i == this.filesToUpload.length - 1) {
                 bae.append(bound).append("--\r\n");
             }
 

@@ -45,12 +45,9 @@ import javax.swing.Timer;
 import javax.swing.TransferHandler;
 
 import wjhk.jupload2.JUploadApplet;
-import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
-import wjhk.jupload2.upload.FileUploadThread;
-import wjhk.jupload2.upload.FileUploadThreadFTP;
-import wjhk.jupload2.upload.FileUploadThreadHTTP;
+import wjhk.jupload2.upload.FileUploadManagerThread;
 
 /**
  * Main code for the applet (or frame) creation. It contains all creation of
@@ -134,7 +131,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     private JScrollPane jLogWindowPane = null;
 
     /**
-     * Used to wait for the upload to finish.
+     * Used to update the status bar, while the upload is running on.
      */
     private Timer timerUpload = new Timer(DEFAULT_TIMEOUT, this);
 
@@ -146,7 +143,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     private UploadPolicy uploadPolicy = null;
 
-    protected FileUploadThread fileUploadThread = null;
+    private FileUploadManagerThread fileUploadManagerThread = null;
 
     // ------------- CONSTRUCTOR --------------------------------------------
 
@@ -349,11 +346,12 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // Time for an update now.
         this.update_counter = 0;
         if (null != this.progressBar
-                && (this.fileUploadThread.getStartTime() != 0)) {
-            long duration = (System.currentTimeMillis() - this.fileUploadThread
-                    .getStartTime()) / 1000;
-            double done = this.fileUploadThread.getUploadedLength();
-            double total = this.fileUploadThread.getTotalLength();
+                && (this.fileUploadManagerThread.getUploadStartTime() != 0)) {
+            long duration = (System.currentTimeMillis() - this.fileUploadManagerThread
+                    .getUploadStartTime()) / 1000;
+            double done = this.fileUploadManagerThread.getUploadedLength();
+            double total = this.fileUploadManagerThread
+                    .getEstimatedTotalLength();
             double percent;
             double cps;
             long remaining;
@@ -406,36 +404,13 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     /**
-     * The upload is finished, let's react to this interesting event.
+     * The upload is finished, let's react to this interesting event. This
+     * method only manages the JUploadPanel GUI part of this event. That is:
+     * enable or disable buttons, change labels... No action on changing the
+     * current page (see the afterUploadURL applet parameter).
      */
-    private void actionPerformedUploadFinished() {
+    public void onUploadFinished() {
         // The upload is finished
-        this.uploadPolicy.displayDebug(
-                "JUploadPanel: after !fileUploadThread.isAlive()", 10);
-        this.timerUpload.stop();
-        String svrRet = this.fileUploadThread.getResponseMsg();
-        Exception ex = this.fileUploadThread.getException();
-
-        // Restore enable state, as the upload is finished.
-        this.stopButton.setEnabled(false);
-        this.browseButton.setEnabled(true);
-
-        // Free resources of the upload thread.
-        this.fileUploadThread.close();
-        this.fileUploadThread = null;
-
-        try {
-            this.uploadPolicy.afterUpload(ex, svrRet);
-        } catch (JUploadException e1) {
-            this.uploadPolicy.displayErr(
-                    "error in uploadPolicy.afterUpload (JUploadPanel)", e1);
-        }
-
-        boolean haveFiles = (0 < this.filePanel.getFilesLength());
-        this.uploadButton.setEnabled(haveFiles);
-        this.removeButton.setEnabled(haveFiles);
-        this.removeAllButton.setEnabled(haveFiles);
-
         this.uploadPolicy.getApplet().getAppletContext().showStatus("");
         this.statusLabel.setText(" ");
 
@@ -513,37 +488,12 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // ///////////////////////////////////////////////////////////////////////////////////////////////
         try {
             if (this.uploadPolicy.isUploadReady()) {
-                this.uploadPolicy.beforeUpload();
-
-                this.browseButton.setEnabled(false);
-                this.removeButton.setEnabled(false);
-                this.removeAllButton.setEnabled(false);
-                this.uploadButton.setEnabled(false);
-                this.stopButton.setEnabled(true);
+                updateButtonState();
 
                 // The FileUploadThread instance depends on the protocol.
-                if (this.uploadPolicy.getPostURL().substring(0, 4).equals(
-                        "ftp:")) {
-                    // fileUploadThread = new
-                    // FileUploadThreadFTP(filePanel.getFiles(), uploadPolicy,
-                    // progress);
-                    try {
-                        this.fileUploadThread = new FileUploadThreadFTP(
-                                this.filePanel.getFiles(), this.uploadPolicy,
-                                this.progressBar);
-                    } catch (JUploadException e1) {
-                        // Too bad !
-                        this.uploadPolicy.displayErr(e1);
-                    }
-                } else {
-                    // fileUploadThread = new
-                    // FileUploadThreadV4(filePanel.getFiles(), uploadPolicy,
-                    // progress);
-                    this.fileUploadThread = new FileUploadThreadHTTP(
-                            this.filePanel.getFiles(), this.uploadPolicy,
-                            this.progressBar);
-                }
-                this.fileUploadThread.start();
+                this.fileUploadManagerThread = new FileUploadManagerThread(
+                        this.uploadPolicy);
+                this.fileUploadManagerThread.start();
 
                 // Create a timer.
                 this.timerUpload.start();
@@ -563,7 +513,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * This method can be called from outside to start the upload.
      */
     public void doStopUpload() {
-        this.fileUploadThread.stopUpload();
+        this.fileUploadManagerThread.stopUpload();
     }
 
     // ///////////////////////////////////////////////////////////////////////////////
@@ -587,11 +537,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
             if (this.timerUpload.isRunning()) {
                 // timer is expired
                 if ((this.update_counter++ > PROGRESS_INTERVAL)
-                        || (!this.fileUploadThread.isAlive())) {
+                        || (!this.fileUploadManagerThread.isAlive())) {
                     actionPerformedTimerExpired();
-                }
-                if (!this.fileUploadThread.isAlive()) {
-                    actionPerformedUploadFinished();
                 }
             } else if (this.timerAfterUpload.isRunning()) {
                 actionClearProgressBar();
@@ -704,10 +651,25 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * Select or unselect the applet buttons
      */
     public void updateButtonState() {
-        boolean enabled = (this.filePanel.getFilesLength() > 0);
-        this.removeButton.setEnabled(enabled);
-        this.removeAllButton.setEnabled(enabled);
-        this.uploadButton.setEnabled(enabled);
+        if (fileUploadManagerThread != null
+                && fileUploadManagerThread.isAlive()) {
+            // An upload is running on.
+            this.browseButton.setEnabled(false);
+            this.removeButton.setEnabled(false);
+            this.removeAllButton.setEnabled(false);
+            this.uploadButton.setEnabled(false);
+            this.stopButton.setEnabled(true);
+        } else {
+            // No upload running on.
+            this.browseButton.setEnabled(true);
+            this.stopButton.setEnabled(false);
+
+            boolean enabled = (this.filePanel.getFilesLength() > 0);
+            this.removeButton.setEnabled(enabled);
+            this.removeAllButton.setEnabled(enabled);
+            this.uploadButton.setEnabled(enabled);
+        }
+
     }
 
     /**
