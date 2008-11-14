@@ -29,7 +29,6 @@ import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JProgressBar;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -37,7 +36,7 @@ import org.apache.commons.net.ftp.FTPReply;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
-import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -130,17 +129,16 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
      * Creates a new instance. Performs the connection to the server based on
      * the matcher created in the main.
      * 
-     * @param filesDataParam
      * @param uploadPolicy
-     * @param progress
+     * @param fileUploadManagerThread 
      * 
      * @throws JUploadException
      * @throws IllegalArgumentException if any error occurs. message is error
      */
-    public FileUploadThreadFTP(FileData[] filesDataParam,
-            UploadPolicy uploadPolicy, JProgressBar progress)
+    public FileUploadThreadFTP(UploadPolicy uploadPolicy,
+            FileUploadManagerThread fileUploadManagerThread)
             throws JUploadException {
-        super(filesDataParam, uploadPolicy, progress);
+        super(uploadPolicy, fileUploadManagerThread);
 
         // Some coherence checks, for parameter given to the applet.
 
@@ -171,9 +169,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
     /** @see DefaultFileUploadThread#beforeRequest(int, int) */
     @Override
-    void beforeRequest(@SuppressWarnings("unused")
-    int firstFileToUploadParam, @SuppressWarnings("unused")
-    int nbFilesToUploadParam) throws JUploadException {
+    void beforeRequest() throws JUploadException {
 
         // If not already connected ... we connect to the server.
         if (!this.bConnected) {
@@ -218,9 +214,8 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
                 this.bConnected = true;
             } catch (Exception e) {
-                this.uploadException = e;
-                throw new JUploadException("Could not connect to server ("
-                        + e.getMessage() + ")");
+                throw new JUploadIOException("Could not connect to server ("
+                        + e.getMessage() + ")", e);
             }
         } // if(!bConnected)
     }
@@ -248,7 +243,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             this.ftpOutputStream = this.ftp
                     .storeFileStream(this.filesToUpload[index].getFileName());
             // The upload is done through a BufferedOutputStream. This speed up
-            // the upload in an unbelivable way ...
+            // the upload in an unbelievable way ...
             this.bufferedOutputStream = new BufferedOutputStream(
                     this.ftpOutputStream);
         } catch (IOException e) {
@@ -292,9 +287,15 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         }
     }
 
-    /** @see DefaultFileUploadThread#finishRequest() */
+    /** @throws JUploadIOException 
+     * @see DefaultFileUploadThread#finishRequest() */
     @Override
-    int finishRequest() {
+    int finishRequest() throws JUploadIOException {
+        try {
+            getOutputStream().flush();
+        } catch (IOException e) {
+            throw new JUploadIOException("FileUploadThreadFTP.finishRequest()", e);
+        }
         return 200;
         // Nothing to do
     }

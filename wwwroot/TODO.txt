@@ -2,6 +2,11 @@
 As always, a lot of things can be made better:
 
 TODO list:
+- Manage STOP upload
+- Rename FileUploadManager to FileUploadManagerThread
+- Check paste or drop files on the applet, while uploading.
+- implement setUncaughtExceptionHandler for the uploading threads.
+
 - FilePanelTableImpl: Make a wild use of         this.juploadPanel.updateButtonState();
 - Bug [ 2174306 ] 'Upload' button disabled after using 'Browse..' button
 it seems that the 'Upload' buttons stays disabled if you use the 'Browse...' button to add files to the upload list in the

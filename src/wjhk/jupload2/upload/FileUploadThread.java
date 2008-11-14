@@ -28,19 +28,7 @@ package wjhk.jupload2.upload;
  */
 public interface FileUploadThread {
 
-    /**
-     * Stopping the Thread
-     */
-    public void stopUpload();
 
-    /**
-     * Returns true if someone asks the thread to stop.
-     * 
-     * @return true if the upload has been requested to stop.
-     * 
-     * @see #stopUpload()
-     */
-    public boolean isUploadStopped();
 
     /**
      * Get the server response message. In HTTP mode, it's the body part,
@@ -53,40 +41,9 @@ public interface FileUploadThread {
     public String getResponseMsg();
 
     /**
-     * Get the exception that occurs during upload.
-     * 
-     * @return The exception, or null if no exception were thrown.
-     */
-    public Exception getException();
-
-    /**
-     * Indicate to the UploadThread that nbBytes bytes have been uploaded to the
-     * server. It's up to this method to change the display on the progress bar
-     * (or whatever other information displayed to the user)
-     * 
-     * @param nbBytes Number of bytes uploaded.
-     */
-    public void nbBytesUploaded(long nbBytes);
-
-    /**
-     * @return The current number of bytes, already uploaded in this thread.
-     */
-    public long getUploadedLength();
-
-    /**
-     * @return The total number of bytes, to be uploaded in this thread.
-     */
-    public long getTotalLength();
-
-    /**
      * Closes the connection to the server and releases resources.
      */
     public void close();
-
-    /**
-     * @return The start time stamp of this instance.
-     */
-    public long getStartTime();
 
     /**
      * @return true if the thread is currently working.

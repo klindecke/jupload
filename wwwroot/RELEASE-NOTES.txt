@@ -1,4 +1,12 @@
 
+V4.0.0b1
+
+Changes:
+- Major Rewrite of the upload threading part. Was rather complex.
+
+Fix:
+- Allows sending very large number of files. Previous version was crashing with 4000 files.
+
 
 V3.5.1
 

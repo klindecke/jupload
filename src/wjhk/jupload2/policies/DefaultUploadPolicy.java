@@ -785,6 +785,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 throw new JUploadExceptionStopAddingFiles("Stopped by the user");
             }
             return null;
+        } else if (!file.canRead()) {
+            displayInfo("Can't read file " + file.getName()
+                    + ". No DefaultFileData creation.");
+            return null;
         } else {
             return new DefaultFileData(file, root, this);
         }
