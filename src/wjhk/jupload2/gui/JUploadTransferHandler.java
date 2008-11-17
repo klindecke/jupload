@@ -19,7 +19,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class JUploadTransferHandler extends TransferHandler implements ActionListener {
@@ -76,9 +75,6 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
                 System.out.println("importData: unsupported data flavor");
             } catch (IOException ioe) {
                 System.out.println("importData: I/O exception");
-            } catch (JUploadExceptionStopAddingFiles e) {
-                // Nothing to do: the user just cancel the adding of files,
-                // because too many files are refused by the applet.
             }
         }
         return false;
