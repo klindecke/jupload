@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -94,15 +93,8 @@ public class DnDListener implements DropTargetListener {
             try {
                 List<File> fileList = (List<File>) e.getTransferable()
                         .getTransferData(DataFlavor.javaFileListFlavor);
-                try {
-                    this.uploadPanel.getFilePanel()
-                            .addFiles((File[]) fileList.toArray(), null);
-                } catch (JUploadExceptionStopAddingFiles e2) {
-                    // The user want to stop here. Nothing else to do.
-                    this.uploadPolicy.displayWarn(getClass().getName()
-                            + ".drop() [" + e.getClass().getName() + "]: "
-                            + e2.getMessage());
-                }
+                this.uploadPanel.getFilePanel().addFiles(
+                        (File[]) fileList.toArray(), null);
 
                 e.getDropTargetContext().dropComplete(true);
 

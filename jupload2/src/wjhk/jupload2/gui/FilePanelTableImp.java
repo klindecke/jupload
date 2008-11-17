@@ -52,7 +52,15 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
 
     private FilePanelDataModel2 model;
 
-    private JUploadPanel juploadPanel;
+    /**
+     * The current policy, always useful.
+     */
+    private UploadPolicy uploadPolicy = null;
+
+    /**
+     * The main panel of the applet.
+     */
+    private JUploadPanel juploadPanel = null;;
 
     /**
      * Creates a new instance.
@@ -63,6 +71,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     public FilePanelTableImp(JUploadPanel juploadPanel,
             UploadPolicy uploadPolicy) {
         this.juploadPanel = juploadPanel;
+        this.uploadPolicy = uploadPolicy;
 
         setLayout(new BorderLayout());
         addMouseListener(juploadPanel);
@@ -87,11 +96,18 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     /**
      * @see wjhk.jupload2.gui.FilePanel#addFiles(java.io.File[],java.io.File)
      */
-    public final void addFiles(File[] f, File root)
-            throws JUploadExceptionStopAddingFiles {
+    public final void addFiles(File[] f, File root) {
+
         if (null != f) {
-            for (int i = 0; i < f.length; i++) {
-                addDirectoryFiles(f[i], root);
+            try {
+                for (int i = 0; i < f.length; i++) {
+                    addDirectoryFiles(f[i], root);
+                }
+            } catch (JUploadExceptionStopAddingFiles e) {
+                // The user want to stop here. Nothing else to do.
+                this.uploadPolicy.displayWarn(getClass().getName()
+                        + ".addFiles() [" + e.getClass().getName() + "]: "
+                        + e.getMessage());
             }
         }
         this.juploadPanel.updateButtonState();

@@ -28,7 +28,6 @@ import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.filedata.FileData;
 
 /**
@@ -39,11 +38,9 @@ public interface FilePanel {
      * Add multiple files to this panel.
      * 
      * @param f An array of files to add.
-     * @param root The toplevel of a directory hierarchy to add
-     * @throws JUploadExceptionStopAddingFiles
+     * @param root The top level of a directory hierarchy to add
      */
-    public void addFiles(File[] f, File root)
-            throws JUploadExceptionStopAddingFiles;
+    public void addFiles(File[] f, File root);
 
     /**
      * Retrieve all currently stored files.
