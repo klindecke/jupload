@@ -155,7 +155,7 @@
 	}
 	
   	out.println("[parseRequest.jsp] " + "Let's write a status, to finish the server response :");
-    out.println("WARNING: just a warning message");
+    //out.println("WARNING: just a warning message");
   	
     //Do you want to test a successful upload, or the way the applet reacts to an error ?
     if (generateError) { 

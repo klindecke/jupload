@@ -39,7 +39,6 @@ import java.security.cert.CertificateException;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.FileUploadThread;
 
 /**
  * 
@@ -710,11 +709,6 @@ public class HTTPConnectionHelper extends OutputStream {
 
         //
         return this.httpInputStreamReader.gethttpStatusCode();
-    }
-
-    /** @see FileUploadThread#stopUpload() */
-    public void stopUpload() {
-        this.stop = true;
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////

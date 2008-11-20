@@ -87,7 +87,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // TODO to be moved to HTTP ????
     private long maxChunkSize;
 
-
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// PRIVATE ATTRIBUTES
     // ///////////////////////////////////////
@@ -126,16 +125,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * {@link FileData#beforeUpload()} method for all files to upload, and
      * prepares the progressBar bar (if any), with total number of bytes to
      * upload.
-     *
-    final private void beforeUpload() throws JUploadException {
-        for (int i = 0; i < this.filesToUpload.length
-                && !this.fileUploadManager.isUploadStopped(); i++) {
-            this.filesToUpload[i].beforeUpload();
-        }
-    }
-
-    /**
-     * This methods upload overhead for the file number indexFile in the
+     * 
+     * final private void beforeUpload() throws JUploadException { for (int i =
+     * 0; i < this.filesToUpload.length &&
+     * !this.fileUploadManager.isUploadStopped(); i++) {
+     * this.filesToUpload[i].beforeUpload(); } }
+     * 
+     * /** This methods upload overhead for the file number indexFile in the
      * filesDataParam given to the constructor. For instance, in HTTP, the
      * upload contains a head and a tail for each files.
      * 
@@ -273,33 +269,45 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // ////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * This method loops on the {@link FileUploadManagerThread#isNextPacketReady()}
-     * method, until a set of files is ready. Then, it calls the doUpload()
-     * method, to send these files to the server.
+     * This method loops on the
+     * {@link FileUploadManagerThread#getNextPacket()} method, until a set
+     * of files is ready. Then, it calls the doUpload() method, to send these
+     * files to the server.
      */
     final public void run() {
-        while (!fileUploadManagerThread.isUploadStopped()
-                && !fileUploadManagerThread.isUploadFinished()) {
-            // If a packet is ready, we take it into account. Otherwise, we wait
-            // for a new packet.
-            if (fileUploadManagerThread.isNextPacketReady()) {
-                this.filesToUpload = this.fileUploadManagerThread.getNextPacket();
-                doUpload();
-            } else {
-                try {
-                    // We wait for a half second. If a file is prepared in the
-                    // meantime, this thread is notified. The wait duration, is
-                    // just
-                    // to be sure to go and see if there is still some work from
-                    // time to time.
-                    sleep(200);
-                } catch (InterruptedException e) {
-                    // Nothing to do. We'll just take a look at the loop
-                    // condition.
+        this.uploadPolicy.displayDebug("Start of the FileUploadThread", 30);
+
+        try {
+            while (!fileUploadManagerThread.isUploadStopped()
+                    && !fileUploadManagerThread.isUploadFinished()) {
+                // If a packet is ready, we take it into account. Otherwise, we
+                // wait
+                // for a new packet.
+                this.filesToUpload = this.fileUploadManagerThread
+                        .getNextPacket();
+                if (this.filesToUpload != null) {
+                    doUpload();
+                } else {
+                    try {
+                        // We wait for a half second. If a file is prepared in
+                        // the
+                        // meantime, this thread is notified. The wait duration,
+                        // is
+                        // just to be sure to go and see if there is still some
+                        // work
+                        // from time to time.
+                        sleep(200);
+                    } catch (InterruptedException e) {
+                        // Nothing to do. We'll just take a look at the loop
+                        // condition.
+                    }
                 }
             }
+        } catch (JUploadException e) {
+            this.fileUploadManagerThread.setUploadException(e);
         }
-    }
+        this.uploadPolicy.displayDebug("Endof the FileUploadThread", 30);
+    }// run
 
     /**
      * Actual execution file(s) upload. It's called by the run methods, once for
@@ -341,12 +349,15 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 // follow the bytes uploaded within headers and forms).
                 totalFileLength += this.filesToUpload[i].getUploadLength();
 
-                this.uploadPolicy.displayDebug("file "
-                        + (this.fileUploadManagerThread.getNbUploadedFiles() + i)
-                        + ": content="
-                        + this.filesToUpload[i].getUploadLength()
-                        + " bytes, getAdditionnalBytesForUpload="
-                        + getAdditionnalBytesForUpload(i) + " bytes", 50);
+                this.uploadPolicy.displayDebug(
+                        "file "
+                                + (this.fileUploadManagerThread
+                                        .getNbUploadedFiles() + i)
+                                + ": content="
+                                + this.filesToUpload[i].getUploadLength()
+                                + " bytes, getAdditionnalBytesForUpload="
+                                + getAdditionnalBytesForUpload(i) + " bytes",
+                        50);
             }// for
         } catch (JUploadException e) {
             this.uploadPolicy.displayErr(e);

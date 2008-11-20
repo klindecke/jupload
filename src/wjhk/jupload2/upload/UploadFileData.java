@@ -44,8 +44,8 @@ class UploadFileData implements FileData {
     private FileData fileData = null;
 
     /**
-     * Instance of the fileUploadManagerThread. This allow this class to send feedback
-     * to the thread.
+     * Instance of the fileUploadManagerThread. This allow this class to send
+     * feedback to the thread.
      * 
      * @see FileUploadThread#nbBytesUploaded(long)
      */
@@ -96,6 +96,9 @@ class UploadFileData implements FileData {
     public UploadFileData(FileData fileDataParam,
             FileUploadManagerThread fileUploadThreadParam,
             UploadPolicy uploadPolicyParam) {
+        if (fileDataParam == null) {
+            throw new NullPointerException("fileData is null in UploadFileData constructor");
+        }
         this.fileData = fileDataParam;
         this.fileUploadManagerThread = fileUploadThreadParam;
         this.uploadPolicy = uploadPolicyParam;

@@ -821,21 +821,28 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * @see wjhk.jupload2.policies.UploadPolicy#createProgressPanel(javax.swing.JProgressBar,
-     *      javax.swing.JButton, javax.swing.JButton, javax.swing.JPanel)
+     * @see wjhk.jupload2.policies.UploadPolicy#createProgressPanel(JProgressBar, JProgressBar, JButton, JButton, JPanel)
      */
-    public JPanel createProgressPanel(JProgressBar progressBar,
-            JButton uploadButton, JButton stopButton,
-            @SuppressWarnings("unused")
+    public JPanel createProgressPanel(JProgressBar preparationProgressBar,
+            JProgressBar uploadProgressBar, JButton uploadButton,
+            JButton stopButton, @SuppressWarnings("unused")
             JPanel mainPanel) {
-        JPanel jPanel = new JPanel();
 
-        jPanel.setLayout(new BorderLayout(10, 0));
-        jPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        jPanel.add(uploadButton, BorderLayout.LINE_START);
-        jPanel.add(progressBar, BorderLayout.CENTER);
-        jPanel.add(stopButton, BorderLayout.LINE_END);
-        return jPanel;
+        // There may be two progress bar: one for preparation progress of files
+        // (preparation before upload) and one to follow the actual upload.
+        JPanel jProgressBarPanel = new JPanel();
+        jProgressBarPanel.setLayout(new BorderLayout(10, 1));
+        jProgressBarPanel.add(preparationProgressBar, BorderLayout.NORTH);
+        jProgressBarPanel.add(uploadProgressBar, BorderLayout.SOUTH);
+        
+
+        JPanel jProgressPanel = new JPanel();
+        jProgressPanel.setLayout(new BorderLayout(10, 0));
+        jProgressPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        jProgressPanel.add(uploadButton, BorderLayout.LINE_START);
+        jProgressPanel.add(jProgressBarPanel, BorderLayout.CENTER);
+        jProgressPanel.add(stopButton, BorderLayout.LINE_END);
+        return jProgressPanel;
     }
 
     /**
@@ -880,8 +887,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // The progress panel contains the progress bar, and the upload and stop
         // buttons.
         JPanel progressPanel = createProgressPanel(jUploadPanel
-                .getProgressBar(), jUploadPanel.getUploadButton(), jUploadPanel
-                .getStopButton(), jUploadPanel);
+                .getPreparationProgressBar(), jUploadPanel
+                .getUploadProgressBar(), jUploadPanel.getUploadButton(),
+                jUploadPanel.getStopButton(), jUploadPanel);
         jUploadPanel.add(progressPanel);
         jUploadPanel.addMouseListener(jUploadPanel);
 
