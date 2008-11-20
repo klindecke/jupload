@@ -41,7 +41,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.Timer;
 import javax.swing.TransferHandler;
 
 import wjhk.jupload2.JUploadApplet;
@@ -71,32 +70,12 @@ public class JUploadPanel extends JPanel implements ActionListener,
      */
     private static final long serialVersionUID = -1212601012568225757L;
 
-    private static final double gB = 1024L * 1024L * 1024L;
-
-    private static final double mB = 1024L * 1024L;
-
-    private static final double kB = 1024L;
-
     /** The debug popup menu of the applet */
     private JUploadDebugPopupMenu jUploadDebugPopupMenu;
 
     /** The main popup menu of the applet */
     private JUploadMainPopupMenu jUploadMainPopupMenu;
 
-    // Timeout at DEFAULT_TIMEOUT milliseconds
-    private final static int DEFAULT_TIMEOUT = 100;
-
-    /**
-     * The upload status (progress bar) gets updated every (DEFAULT_TIMEOUT *
-     * PROGRESS_INTERVAL) ms.
-     */
-    private final static int PROGRESS_INTERVAL = 10;
-
-    /**
-     * The counter for updating the upload status. The upload status (progress
-     * bar) gets updated every (DEFAULT_TIMEOUT * PROGRESS_INTERVAL) ms.
-     */
-    private int update_counter = 0;
 
     // ------------- VARIABLES ----------------------------------------------
 
@@ -114,7 +93,9 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     private FilePanel filePanel = null;
 
-    private JProgressBar progressBar = null;
+    private JProgressBar preparationProgressBar = null;
+
+    private JProgressBar uploadProgressBar = null;
 
     private JLabel statusLabel = null;
 
@@ -129,17 +110,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * window.
      */
     private JScrollPane jLogWindowPane = null;
-
-    /**
-     * Used to update the status bar, while the upload is running on.
-     */
-    private Timer timerUpload = new Timer(DEFAULT_TIMEOUT, this);
-
-    /**
-     * This 5 second long timer, is used to flush the progress bar ... 5
-     * seconds, after the upload finished. The progress bar will get back to 0%!
-     */
-    private Timer timerAfterUpload = new Timer(5000, this);
 
     private UploadPolicy uploadPolicy = null;
 
@@ -202,18 +172,9 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         this.jLogWindowPane.addMouseListener(this);
         logWindow.addMouseListener(this);
-        this.progressBar.addMouseListener(this);
+        this.preparationProgressBar.addMouseListener(this);
+        this.uploadProgressBar.addMouseListener(this);
         this.statusLabel.addMouseListener(this);
-
-        /*
-         * // Setup Top Panel setupTopPanel(); // Setup File Panel. //
-         * this.filePanel = (null == this.filePanel) ? new //
-         * FilePanelTableImp(this, // this.uploadPolicy) : this.filePanel; //
-         * this.add((Container) this.filePanel); // Setup Progress Panel.
-         * setupProgressPanel(this.uploadButton, this.progressBar,
-         * this.stopButton); // Setup status bar setupStatusBar(); // Setup
-         * logging window. setupLogWindow();
-         */
 
         // Setup File Chooser.
         try {
@@ -277,13 +238,18 @@ public class JUploadPanel extends JPanel implements ActionListener,
         this.uploadButton.setEnabled(false);
         this.uploadButton.addActionListener(this);
 
-        // -------- JProgressBar progress --------
+        // -------- The main thing: the file panel --------
         this.filePanel = new FilePanelTableImp(this, this.uploadPolicy);
 
         // -------- JProgressBar progress --------
-        if (null == this.progressBar) {
-            this.progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
-            this.progressBar.setStringPainted(true);
+        if (null == this.preparationProgressBar) {
+            this.preparationProgressBar = new JProgressBar(
+                    SwingConstants.HORIZONTAL);
+            this.preparationProgressBar.setStringPainted(true);
+        }
+        if (null == this.uploadProgressBar) {
+            this.uploadProgressBar = new JProgressBar(SwingConstants.HORIZONTAL);
+            this.uploadProgressBar.setStringPainted(true);
         }
 
         // -------- JButton stop --------
@@ -338,96 +304,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
     // ///////////////////////////////////////////////////////////////////////////////
     // ///////////////// Action methods
     // ///////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Reaction of the panel to a Time event.
-     */
-    private void actionPerformedTimerExpired() {
-        // Time for an update now.
-        this.update_counter = 0;
-        if (null != this.progressBar
-                && (this.fileUploadManagerThread.getUploadStartTime() != 0)) {
-            long duration = (System.currentTimeMillis() - this.fileUploadManagerThread
-                    .getUploadStartTime()) / 1000;
-            double done = this.fileUploadManagerThread.getUploadedLength();
-            double total = this.fileUploadManagerThread
-                    .getEstimatedTotalLength();
-            double percent;
-            double cps;
-            long remaining;
-            String eta;
-            try {
-                percent = 100.0 * done / total;
-            } catch (ArithmeticException e1) {
-                percent = 100;
-            }
-            try {
-                cps = done / duration;
-            } catch (ArithmeticException e1) {
-                cps = done;
-            }
-            try {
-                remaining = (long) ((total - done) / cps);
-                if (remaining > 3600) {
-                    eta = String.format(this.uploadPolicy
-                            .getString("timefmt_hms"), new Long(
-                            remaining / 3600), new Long((remaining / 60) % 60),
-                            new Long(remaining % 60));
-                } else if (remaining > 60) {
-                    eta = String.format(this.uploadPolicy
-                            .getString("timefmt_ms"), new Long(remaining / 60),
-                            new Long(remaining % 60));
-                } else
-                    eta = String.format(this.uploadPolicy
-                            .getString("timefmt_s"), new Long(remaining));
-            } catch (ArithmeticException e1) {
-                eta = this.uploadPolicy.getString("timefmt_unknown");
-            }
-            this.progressBar.setValue((int) percent);
-            String unit = this.uploadPolicy.getString("speedunit_b_per_second");
-            if (cps >= gB) {
-                cps /= gB;
-                unit = this.uploadPolicy.getString("speedunit_gb_per_second");
-            } else if (cps >= mB) {
-                cps /= mB;
-                unit = this.uploadPolicy.getString("speedunit_mb_per_second");
-            } else if (cps >= kB) {
-                cps /= kB;
-                unit = this.uploadPolicy.getString("speedunit_kb_per_second");
-            }
-            String status = String.format(this.uploadPolicy
-                    .getString("status_msg"), new Integer((int) percent),
-                    new Double(cps), unit, eta);
-            this.statusLabel.setText(status);
-            this.uploadPolicy.getApplet().getAppletContext().showStatus(status);
-        }
-    }
-
-    /**
-     * The upload is finished, let's react to this interesting event. This
-     * method only manages the JUploadPanel GUI part of this event. That is:
-     * enable or disable buttons, change labels... No action on changing the
-     * current page (see the afterUploadURL applet parameter).
-     */
-    public void onUploadFinished() {
-        // The upload is finished
-        this.uploadPolicy.getApplet().getAppletContext().showStatus("");
-        this.statusLabel.setText(" ");
-
-        // We'll put the progress bar back to 0% (ready for another upload) in 5
-        // seconds.
-        this.timerAfterUpload.start();
-    }
-
-    /**
-     * Reaction to the timerAfterUpload timer event. The progress bar get back
-     * from 100% to 0%.
-     */
-    private void actionClearProgressBar() {
-        this.progressBar.setValue(0);
-        this.progressBar.setString(null);
-        this.timerAfterUpload.stop();
-    }
 
     /**
      * Reaction to a click on the browse button.
@@ -488,17 +364,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // ///////////////////////////////////////////////////////////////////////////////////////////////
         try {
             if (this.uploadPolicy.isUploadReady()) {
-                updateButtonState();
-
-                // The FileUploadThread instance depends on the protocol.
+                // The FileUploadManagerThread will manage everything around
+                // upload, including GUI part.
                 this.fileUploadManagerThread = new FileUploadManagerThread(
                         this.uploadPolicy);
                 this.fileUploadManagerThread.start();
-
-                // Create a timer.
-                this.timerUpload.start();
-                this.uploadPolicy.displayDebug("Timer started", 50);
-
             } // if isIploadReady()
         } catch (Exception e) {
             // If an exception occurs here, it fails silently. The exception is
@@ -524,27 +394,13 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        if (!(e.getSource() instanceof Timer)) {
-            // We log only non timer event.
-            this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(),
-                    1);
-        }
+        // Let's log some info.
+        this.uploadPolicy.displayDebug("Action : " + e.getActionCommand(), 1);
+
         final String actionPaste = (String) TransferHandler.getPasteAction()
                 .getValue(Action.NAME);
 
-        if (e.getSource() instanceof Timer) {
-            // Which timer is it ?
-            if (this.timerUpload.isRunning()) {
-                // timer is expired
-                if ((this.update_counter++ > PROGRESS_INTERVAL)
-                        || (!this.fileUploadManagerThread.isAlive())) {
-                    actionPerformedTimerExpired();
-                }
-            } else if (this.timerAfterUpload.isRunning()) {
-                actionClearProgressBar();
-            }
-            return;
-        } else if (e.getActionCommand().equals(actionPaste)) {
+        if (e.getActionCommand().equals(actionPaste)) {
             Action a = getActionMap().get(actionPaste);
             if (a != null) {
                 a.actionPerformed(new ActionEvent(filePanel,
@@ -652,7 +508,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      */
     public void updateButtonState() {
         if (fileUploadManagerThread != null
-                && fileUploadManagerThread.isAlive()) {
+                && !fileUploadManagerThread.isUploadFinished()) {
             // An upload is running on.
             this.browseButton.setEnabled(false);
             this.removeButton.setEnabled(false);
@@ -731,10 +587,17 @@ public class JUploadPanel extends JPanel implements ActionListener,
     }
 
     /**
-     * @return the progressBar
+     * @return the preparationProgressBar
      */
-    public JProgressBar getProgressBar() {
-        return this.progressBar;
+    public JProgressBar getPreparationProgressBar() {
+        return this.preparationProgressBar;
+    }
+
+    /**
+     * @return the uploadProgressBar
+     */
+    public JProgressBar getUploadProgressBar() {
+        return this.uploadProgressBar;
     }
 
     /**

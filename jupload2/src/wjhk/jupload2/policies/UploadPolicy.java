@@ -1284,16 +1284,18 @@ public interface UploadPolicy {
     /**
      * This method is called to create the progress panel. The default
      * implementation is defined in
-     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createProgressPanel(JProgressBar, JButton, JButton, JPanel)}.
+     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createProgressPanel(JProgressBar, JProgressBar, JButton, JButton, JPanel)}.
      * 
-     * @param progressBar The default progress bar.
+     * @param preparationProgressBar The default preparation progress bar.
+     * @param uploadProgressBar The default upload progress bar.
      * @param uploadButton The default upload button.
      * @param stopButton The default stop button.
      * @param mainPanel The panel that contains all objects.
      * @return the topPanel, that will be displayed on the top of the Applet.
      */
-    public JPanel createProgressPanel(JProgressBar progressBar,
-            JButton uploadButton, JButton stopButton, JPanel mainPanel);
+    public JPanel createProgressPanel(JProgressBar preparationProgressBar,
+            JProgressBar uploadProgressBar, JButton uploadButton,
+            JButton stopButton, JPanel mainPanel);
 
     /**
      * This method is used to create a new status bar. The default

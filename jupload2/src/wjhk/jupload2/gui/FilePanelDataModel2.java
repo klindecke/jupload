@@ -155,13 +155,19 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @return true if the table contains this file.
      */
     public boolean contains(File file) {
-        Iterator<FileData> i = this.rows.iterator();
-        while (i.hasNext()) {
-            if (file.equals(i.next().getFile())) {
-                return true;
+        boolean found = false;
+
+        synchronized (this.rows) {
+            Iterator<FileData> i = this.rows.iterator();
+            while (i.hasNext()) {
+                if (file.equals(i.next().getFile())) {
+                    found = true;
+                    break;
+                }
             }
-        }
-        return false;
+        }// synchronized
+
+        return found;
     }
 
     /**
@@ -173,21 +179,23 @@ class FilePanelDataModel2 extends AbstractTableModel {
      */
     public void addFile(File file, File root)
             throws JUploadExceptionStopAddingFiles {
-        if (contains(file)) {
-            this.uploadPolicy.displayWarn("File " + file.getName()
-                    + " already exists");
-        } else {
-            // We first call the upload policy, to get :
-            // - The correct fileData instance (for instance the
-            // PictureUploadPolicy returns a PictureFileData)
-            // - The reference to this newly FileData, or null if an error
-            // occurs (for instance: invalid file content, according to the
-            // current upload policy, or non allowed file extension).
-            FileData df = this.uploadPolicy.createFileData(file, root);
-            if (df != null) {
-                // The file is Ok, let's add it.
-                this.rows.add(df);
-                fireTableDataChanged();
+        synchronized (this.rows) {
+            if (contains(file)) {
+                this.uploadPolicy.displayWarn("File " + file.getName()
+                        + " already exists");
+            } else {
+                // We first call the upload policy, to get :
+                // - The correct fileData instance (for instance the
+                // PictureUploadPolicy returns a PictureFileData)
+                // - The reference to this newly FileData, or null if an error
+                // occurs (for instance: invalid file content, according to the
+                // current upload policy, or non allowed file extension).
+                FileData df = this.uploadPolicy.createFileData(file, root);
+                if (df != null) {
+                    // The file is Ok, let's add it.
+                    this.rows.add(df);
+                    fireTableDataChanged();
+                }
             }
         }
     }
@@ -199,7 +207,10 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @return The return instance of File.
      */
     public File getFileAt(int row) {
-        return this.rows.get(row).getFile();
+        synchronized (this.rows) {
+            FileData fileData = this.rows.get(row);
+            return (fileData == null) ? null : fileData.getFile();
+        }
     }
 
     /**
@@ -209,13 +220,20 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @return The return instance of File.
      */
     public FileData getFileDataAt(int row) {
-        try {
-            return this.rows.get(row);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            // Nothing to do. It seems that it can occurs when upload is very
-            // fast (for instance: small files to localhost).
-            this.uploadPolicy.displayWarn(e.getClass().getName()
-                    + " in FilePanelDataModel2.getFileDataAt(" + row + ")");
+        int size = -1;
+        if (row >= 0) {
+            try {
+                synchronized (this.rows) {
+                    size = this.rows.size();
+                    return (row < size) ? this.rows.get(row) : null;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Nothing to do. It seems that it can occurs when upload is
+                // very
+                // fast (for instance: small files to localhost).
+                this.uploadPolicy.displayWarn(e.getClass().getName()
+                        + " in FilePanelDataModel2.getFileDataAt(" + row + ")");
+            }
         }
         return null;
     }
@@ -226,8 +244,10 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @param row The row to remove.
      */
     public synchronized void removeRow(int row) {
-        this.rows.remove(row);
-        fireTableDataChanged();
+        synchronized (this.rows) {
+            this.rows.remove(row);
+            fireTableDataChanged();
+        }
     }
 
     /**
@@ -236,15 +256,23 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @param fileData
      */
     public synchronized void removeRow(FileData fileData) {
-        Iterator<FileData> i = this.rows.iterator();
-        FileData item;
-        while (i.hasNext()) {
-            item = i.next();
-            if (item.getFile().equals(fileData.getFile())) {
-                this.rows.removeElement(item);
-                fireTableDataChanged();
-                break;
+        boolean found = false;
+
+        synchronized (this.rows) {
+            Iterator<FileData> i = this.rows.iterator();
+            FileData item;
+            while (i.hasNext()) {
+                item = i.next();
+                if (item.getFile().equals(fileData.getFile())) {
+                    this.rows.removeElement(item);
+                    found = true;
+                    break;
+                }
             }
+        }// synchronized(rows)
+
+        if (found) {
+            fireTableDataChanged();
         }
     }
 
@@ -255,7 +283,9 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /** @see javax.swing.table.TableModel#getRowCount() */
     public int getRowCount() {
-        return this.rows.size();
+        synchronized (this.rows) {
+            return this.rows.size();
+        }
     }
 
     /**
@@ -279,7 +309,9 @@ class FilePanelDataModel2 extends AbstractTableModel {
      */
     @SuppressWarnings("unchecked")
     public void sortColumn(int col, boolean ascending) {
-        Collections.sort(this.rows, new ColumnComparator(col, ascending));
+        synchronized (this.rows) {
+            Collections.sort(this.rows, new ColumnComparator(col, ascending));
+        }
         fireTableDataChanged();
     }
 
@@ -307,29 +339,26 @@ class FilePanelDataModel2 extends AbstractTableModel {
      */
     public Object getValueAt(int row, int col) {
         FileData fileData = getFileDataAt(row);
-        if (null == fileData) {
-            this.uploadPolicy.displayWarn("Row index out of bounds "
-                    + this.getClass().getName() + ": " + row);
-            return null;
+        if (fileData != null) {
+            String colName = getColumnName(col);
+            // Don't know if it will be useful, but the switch below allows the
+            // column to be in any order.
+            if (colName.equals(this.COL_NAME)) {
+                return fileData.getFileName();
+            } else if (colName.equals(this.COL_SIZE)) {
+                return new Long(fileData.getFileLength());
+            } else if (colName.equals(this.COL_DIRECTORY)) {
+                return fileData.getDirectory();
+            } else if (colName.equals(this.COL_MODIFIED)) {
+                return fileData.getLastModified();
+            } else if (colName.equals(this.COL_READABLE)) {
+                return new Boolean(fileData.canRead());
+            } else {
+                this.uploadPolicy.displayErr("Unknown column in "
+                        + this.getClass().getName() + ": " + colName);
+            }
         }
-        String colName = getColumnName(col);
-        // Don't know if it will be useful, but the switch below allows the
-        // column to be in any order.
-        if (colName.equals(this.COL_NAME)) {
-            return fileData.getFileName();
-        } else if (colName.equals(this.COL_SIZE)) {
-            return new Long(fileData.getFileLength());
-        } else if (colName.equals(this.COL_DIRECTORY)) {
-            return fileData.getDirectory();
-        } else if (colName.equals(this.COL_MODIFIED)) {
-            return fileData.getLastModified();
-        } else if (colName.equals(this.COL_READABLE)) {
-            return new Boolean(fileData.canRead());
-        } else {
-            this.uploadPolicy.displayErr("Unknown column in "
-                    + this.getClass().getName() + ": " + colName);
-            return null;
-        }
+        return null;
     }
 
     /**

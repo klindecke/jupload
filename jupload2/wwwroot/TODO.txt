@@ -2,6 +2,7 @@
 As always, a lot of things can be made better:
 
 TODO list:
+- BUG in SF. Head Pb. E:\temp2\jupload\bug\2189777 - HEAD 200 or 500
 - Manage STOP upload
 - Rename FileUploadManager to FileUploadManagerThread
 - Check paste or drop files on the applet, while uploading.

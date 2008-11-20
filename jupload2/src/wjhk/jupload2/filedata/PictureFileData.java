@@ -399,8 +399,8 @@ public class PictureFileData extends DefaultFileData {
         freeMemory("end of " + this.getClass().getName() + ".getImage()");
 
         // The picture is now loaded. We clear the progressBar
-        this.uploadPolicy.getApplet().getUploadPanel().getProgressBar()
-                .setValue(0);
+        this.uploadPolicy.getApplet().getUploadPanel()
+                .getPreparationProgressBar().setValue(0);
 
         return localImage;
     }// getImage

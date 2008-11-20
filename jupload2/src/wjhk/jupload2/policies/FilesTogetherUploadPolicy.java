@@ -69,7 +69,7 @@ public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
         jUploadPanel.setLayout(new GridLayout(1, 1));
         jUploadPanel.setLayout(new BorderLayout());
         // Then, add on the screen of the only component that is visible.
-        jUploadPanel.add(jUploadPanel.getProgressBar(), BorderLayout.CENTER);
+        jUploadPanel.add(jUploadPanel.getUploadProgressBar(), BorderLayout.CENTER);
         // Now, we add the log window.
         jUploadPanel.showOrHideLogWindow();
         jUploadPanel.add(jUploadPanel.getJLogWindowPane(), BorderLayout.SOUTH);

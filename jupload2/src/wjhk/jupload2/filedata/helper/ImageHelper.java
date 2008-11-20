@@ -124,7 +124,7 @@ public class ImageHelper implements ImageObserver {
     private double scale = 1;
 
     /**
-     * Width of picture, after rescaling and rotation. It should be
+     * Width of picture, after re-scaling and rotation. It should be
      * scale*originalWidth or scale*originalHeight (depending on the rotation).
      * But, due to rounding number, it can be transformed to
      * scale*originalWidth-1 or scale*originalHeight-1.
@@ -540,27 +540,29 @@ public class ImageHelper implements ImageObserver {
             int width, int height) {
         if ((infoflags & ImageObserver.WIDTH) == ImageObserver.WIDTH) {
             this.progressBarBaseValue = this.uploadPolicy.getApplet()
-                    .getUploadPanel().getProgressBar().getValue();
+                    .getUploadPanel().getPreparationProgressBar().getValue();
             this.uploadPolicy.displayDebug(
                     "  imageUpdate (start of), progressBar geValue: "
                             + this.progressBarBaseValue, 50);
             int max = this.uploadPolicy.getApplet().getUploadPanel()
-                    .getProgressBar().getMaximum();
-            this.uploadPolicy.displayDebug(
-                    "  imageUpdate (start of), progressBar maximum: " + max,
-                    50);
+                    .getPreparationProgressBar().getMaximum();
+            this.uploadPolicy
+                    .displayDebug(
+                            "  imageUpdate (start of), progressBar maximum: "
+                                    + max, 50);
         } else if ((infoflags & ImageObserver.SOMEBITS) == ImageObserver.SOMEBITS) {
             this.nbPixelsRead += width * height;
             int percentage = (int) ((long) this.nbPixelsRead * 100 / this.nbPixelsTotal);
-            this.uploadPolicy.getApplet().getUploadPanel().getProgressBar()
-                    .setValue(this.progressBarBaseValue + percentage);
+            this.uploadPolicy.getApplet().getUploadPanel()
+                    .getPreparationProgressBar().setValue(
+                            this.progressBarBaseValue + percentage);
             // TODO: drawImage in another thread, to allow repaint of the
             // progress bar ?
             // Current status: the progress bar is only updated ... when
             // draImage returns, that is: when everything is finished. NO
             // interest.
-            this.uploadPolicy.getApplet().getUploadPanel().getProgressBar()
-                    .repaint(100);
+            this.uploadPolicy.getApplet().getUploadPanel()
+                    .getPreparationProgressBar().repaint(100);
         } else if ((infoflags & ImageObserver.ALLBITS) == ImageObserver.ALLBITS) {
             this.uploadPolicy.displayDebug(
                     "  imageUpdate, total number of pixels: "
