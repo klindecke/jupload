@@ -24,8 +24,6 @@ package wjhk.jupload2.upload;
 import java.io.OutputStream;
 import java.util.regex.Pattern;
 
-import javax.swing.JProgressBar;
-
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.exception.JUploadIOException;
@@ -321,14 +319,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * @throws JUploadException
      */
     final private void doUpload() throws JUploadException {
-        boolean bLastChunk = false;
         boolean bChunkEnabled = false;
-        int chunkPart = 0;
         long totalContentLength = 0;
         long totalFileLength = 0;
-        long contentLength = 0;
-        long thisChunkSize = 0;
-        String msg;
 
         // Prepare upload, for all files to be uploaded.
         beforeRequest();
