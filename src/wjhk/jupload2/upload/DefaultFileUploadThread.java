@@ -269,20 +269,20 @@ public abstract class DefaultFileUploadThread extends Thread implements
     // ////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * This method loops on the
-     * {@link FileUploadManagerThread#getNextPacket()} method, until a set
-     * of files is ready. Then, it calls the doUpload() method, to send these
-     * files to the server.
+     * This method loops on the {@link FileUploadManagerThread#getNextPacket()}
+     * method, until a set of files is ready. Then, it calls the doUpload()
+     * method, to send these files to the server.
      */
     final public void run() {
         this.uploadPolicy.displayDebug("Start of the FileUploadThread", 30);
 
         try {
+            // We'll stop the upload if an error occurs. So the try/catch is
+            // outside the while.
             while (!fileUploadManagerThread.isUploadStopped()
                     && !fileUploadManagerThread.isUploadFinished()) {
                 // If a packet is ready, we take it into account. Otherwise, we
-                // wait
-                // for a new packet.
+                // wait for a new packet.
                 this.filesToUpload = this.fileUploadManagerThread
                         .getNextPacket();
                 if (this.filesToUpload != null) {
@@ -290,12 +290,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 } else {
                     try {
                         // We wait for a half second. If a file is prepared in
-                        // the
-                        // meantime, this thread is notified. The wait duration,
-                        // is
-                        // just to be sure to go and see if there is still some
-                        // work
-                        // from time to time.
+                        // the meantime, this thread is notified. The wait
+                        // duration, is just to be sure to go and see if there
+                        // is still some work from time to time.
                         sleep(200);
                     } catch (InterruptedException e) {
                         // Nothing to do. We'll just take a look at the loop
@@ -306,7 +303,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
         } catch (JUploadException e) {
             this.fileUploadManagerThread.setUploadException(e);
         }
-        this.uploadPolicy.displayDebug("Endof the FileUploadThread", 30);
+
+        this.uploadPolicy.displayDebug("End of the FileUploadThread", 30);
     }// run
 
     /**
@@ -319,8 +317,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * the maxChunkSize, then nbFilesToUploadParam is one.
      * <LI>The number of elements in filesToUpload is less (or equal) than the
      * nbMaxFilesPerUpload. </DIR>
+     * 
+     * @throws JUploadException
      */
-    final private void doUpload() {
+    final private void doUpload() throws JUploadException {
         boolean bLastChunk = false;
         boolean bChunkEnabled = false;
         int chunkPart = 0;
@@ -330,39 +330,24 @@ public abstract class DefaultFileUploadThread extends Thread implements
         long thisChunkSize = 0;
         String msg;
 
-        // Let's be optimistic: we calculate the total upload length. Then,
-        // we'll test that this is less that the
-        // maximum chunk size ... if any is defined.
-        try {
-            // Prepare upload, for all files to be uploaded.
-            // We have to do it again, in case we don't upload all files at
-            // once. In HTTP header the last tail
-            // is different from the other one.
-            beforeRequest();
+        // Prepare upload, for all files to be uploaded.
+        beforeRequest();
 
-            for (int i = 0; i < this.filesToUpload.length
-                    && !this.fileUploadManagerThread.isUploadStopped(); i++) {
-                // Total length, for HTTP upload.
-                totalContentLength += this.filesToUpload[i].getUploadLength();
-                totalContentLength += getAdditionnalBytesForUpload(i);
-                // Total file length: used to manage the progress bar (we don't
-                // follow the bytes uploaded within headers and forms).
-                totalFileLength += this.filesToUpload[i].getUploadLength();
+        for (int i = 0; i < this.filesToUpload.length
+                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
+            // Total length, for HTTP upload.
+            totalContentLength += this.filesToUpload[i].getUploadLength();
+            totalContentLength += getAdditionnalBytesForUpload(i);
+            // Total file length: used to manage the progress bar (we don't
+            // follow the bytes uploaded within headers and forms).
+            totalFileLength += this.filesToUpload[i].getUploadLength();
 
-                this.uploadPolicy.displayDebug(
-                        "file "
-                                + (this.fileUploadManagerThread
-                                        .getNbUploadedFiles() + i)
-                                + ": content="
-                                + this.filesToUpload[i].getUploadLength()
-                                + " bytes, getAdditionnalBytesForUpload="
-                                + getAdditionnalBytesForUpload(i) + " bytes",
-                        50);
-            }// for
-        } catch (JUploadException e) {
-            this.uploadPolicy.displayErr(e);
-            this.fileUploadManagerThread.setUploadException(e);
-        }
+            this.uploadPolicy.displayDebug("file "
+                    + (this.fileUploadManagerThread.getNbUploadedFiles() + i)
+                    + ": content=" + this.filesToUpload[i].getUploadLength()
+                    + " bytes, getAdditionnalBytesForUpload="
+                    + getAdditionnalBytesForUpload(i) + " bytes", 50);
+        }// for
 
         // Ok, now we check that the totalContentLength is less than the chunk
         // size.
@@ -379,168 +364,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         // Now, we can actually do the job. This is delegate into smaller
         // method, for easier understanding.
-        try {
-            if (bChunkEnabled) {
-                doChunkedUpload(totalContentLength, totalFileLength);
-            } else {
-                doNonChunkedUpload(totalContentLength, totalFileLength);
-            }
-        } catch (JUploadException e) {
-            // Hum, hum. Something went wrong. Let's tell it the our manager!
-            this.fileUploadManagerThread.setUploadException(e);
-        }
-
-        // TODO : remove the following code
-        if (false) {
-            boolean bReturnBack = false;
-            Exception uploadException = null;
-            int nbFilesToUpload = 0;
-            boolean stop = false;
-            int firstFileToUpload = 0;
-            JProgressBar progressBar = null;
-
-            // This while enables the chunk management:
-            // In chunk mode, it loops until the last chunk is uploaded. This
-            // works
-            // only because, in chunk mode,
-            // files are uploaded one y one (the for loop within the while loops
-            // through ... 1 unique file).
-            // In normal mode, it does nothing, as the bLastChunk is set to true
-            // in
-            // the first test, within the while.
-            while (!bLastChunk
-                    && this.fileUploadManagerThread.getUploadException() == null
-                    && !this.fileUploadManagerThread.isUploadStopped()) {
-                try {
-                    // First: chunk management.
-                    if (bChunkEnabled) {
-                        // Let's manage chunk:
-                        // Files are uploaded one by one. This is checked just
-                        // above.
-                        chunkPart += 1;
-                        bLastChunk = (contentLength > this.filesToUpload[0]
-                                .getRemainingLength());
-
-                        // Is this the last chunk ?
-                        if (bLastChunk) {
-                            thisChunkSize = this.filesToUpload[0]
-                                    .getRemainingLength();
-                        } else {
-                            thisChunkSize = this.maxChunkSize;
-                        }
-                        contentLength = thisChunkSize
-                                + getAdditionnalBytesForUpload(0);
-                    } else {
-                        // Chunk not activate. We upload all files at once.
-                        bLastChunk = true;
-                        contentLength = totalContentLength;
-                    }
-
-                    // Ok, we've prepare the job for chunk upload. Let's do it!
-                    startRequest(contentLength, bChunkEnabled, chunkPart,
-                            bLastChunk);
-
-                    for (int i = 0; i < nbFilesToUpload && !stop; i++) {
-                        // Write to Server the head(4 Lines), a File and the
-                        // tail.
-
-                        // Let's add any file-specific header.
-                        beforeFile(firstFileToUpload + i);
-
-                        // In chunk mode, we already calculate the correct
-                        // chunkSize.
-                        if (!bChunkEnabled) {
-                            // If not chunk mode, then the file is uploaded in
-                            // one
-                            // shot.
-                            thisChunkSize = this.filesToUpload[firstFileToUpload
-                                    + i].getUploadLength();
-                        }
-
-                        // Actual upload of the file:
-                        this.filesToUpload[firstFileToUpload + i].uploadFile(
-                                getOutputStream(), thisChunkSize);
-
-                        // If we are not in chunk mode, or if it was the last
-                        // chunk,
-                        // upload should be finished.
-                        if (!bChunkEnabled || bLastChunk) {
-                            if (!stop && (null != progressBar))
-                                progressBar
-                                        .setString(String
-                                                .format(
-                                                        this.uploadPolicy
-                                                                .getString("infoUploaded"),
-                                                        msg));
-                            if (this.filesToUpload[firstFileToUpload + i]
-                                    .getRemainingLength() > 0) {
-                                uploadException = new JUploadExceptionUploadFailed(
-                                        "Files has not be entirely uploaded. The remaining size is "
-                                                + this.filesToUpload[firstFileToUpload
-                                                        + i]
-                                                        .getRemainingLength()
-                                                + " bytes. File size was: "
-                                                + this.filesToUpload[firstFileToUpload
-                                                        + i].getUploadLength()
-                                                + " bytes.");
-                            }
-                        }
-                        // Let's add any file-specific header.
-                        afterFile(firstFileToUpload + i);
-                    }
-                    getOutputStream().flush();
-
-                    // Let's finish the request, and wait for the server Output,
-                    // if
-                    // any (not applicable in FTP)
-                    int status = finishRequest();
-
-                    // We now ask to the uploadPolicy, if it was a success.
-                    // If not, the isUploadSuccessful should raise an exception.
-                    if (!stop)
-                        this.uploadPolicy.checkUploadSuccess(status,
-                                getResponseMsg(), getResponseBody());
-
-                } catch (Exception e) {
-                    uploadException = e;
-                    bReturnBack = false;
-                    /*
-                     * The error will be managed by the main thread. We just
-                     * store it, for now.
-                     */
-                }
-
-                // Debug output: always called, so that the debug file is
-                // correctly
-                // filled.
-                this.uploadPolicy
-                        .displayDebug(
-                                "-------- Response Body Start (CRLF normalized) --------",
-                                80);
-                this.uploadPolicy
-                        .displayDebug(quoteCRLF(getResponseBody()), 80);
-                this.uploadPolicy.displayDebug(
-                        "--------- Response Body End ---------", 80);
-            } // while(!bLastChunk && uploadException==null && !stop)
-
-            try {
-                cleanRequest();
-            } catch (JUploadException e) {
-                uploadException = e;
-                bReturnBack = false;
-            }
-
-            if (uploadException == null) {
-                // The upload was Ok, we remove the uploaded files from the
-                // filePanel.
-                for (int i = 0; i < nbFilesToUpload && !stop; i++) {
-                    this.uploadPolicy.getApplet().getUploadPanel()
-                            .getFilePanel().remove(
-                                    this.filesToUpload[firstFileToUpload + i]);
-                }
-            } else {
-                this.uploadPolicy.displayErr(uploadException);
-            }
+        if (bChunkEnabled) {
+            doChunkedUpload(totalContentLength, totalFileLength);
+        } else {
+            doNonChunkedUpload(totalContentLength, totalFileLength);
         }
     }
 
@@ -628,7 +455,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // Let's tell our manager that we've done the job!
         this.fileUploadManagerThread
                 .anotherFileHasBeenUploaded(this.filesToUpload[0]);
-    }
+    }// doChunkedUpload
 
     /**
      * Execution of an upload, in standard mode. This method uploads all files
@@ -643,7 +470,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // First step is to prepare all files.
         startRequest(totalContentLength, false, 0, true);
 
-        // Then, upload each file
+        // Then, upload each file.
         for (int i = 0; i < filesToUpload.length
                 && !this.fileUploadManagerThread.isUploadStopped(); i++) {
             // Let's add any file-specific header.
@@ -655,10 +482,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
             // Let's add any file-specific header.
             afterFile(i);
-
-            // Let's tell our manager that we've done the job!
-            this.fileUploadManagerThread
-                    .anotherFileHasBeenUploaded(this.filesToUpload[0]);
         }
 
         // Let's finish the request, and wait for the server Output, if
@@ -671,7 +494,14 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 getResponseBody());
 
         cleanRequest();
-    }
+
+        // Let's tell our manager that we've done the job!
+        for (int i = 0; i < filesToUpload.length
+                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
+            this.fileUploadManagerThread
+                    .anotherFileHasBeenUploaded(this.filesToUpload[i]);
+        }
+    }// doNonChunkedUpload
 
     /** @see FileUploadThread#close() */
     public void close() {

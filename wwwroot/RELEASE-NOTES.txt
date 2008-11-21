@@ -2,10 +2,13 @@
 V4.0.0b1
 
 Changes:
-- Major Rewrite of the upload threading part. Was rather complex.
+- [MAJOR] Rewrite of the core upload code. Introduction of multi-threading: one thread to
+prepare files, one to upload files. Especially useful for picture mode. Was rather complex.
 
 Fix:
 - Allows sending very large number of files. Previous version was crashing with 4000 files.
+- [2189777] The applet would generate a non-blocking NullPointerException for server response
+with Content-Length to 0. Typically: a HEAD response.
 
 
 V3.5.1
