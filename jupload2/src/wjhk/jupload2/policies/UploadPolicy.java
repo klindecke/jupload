@@ -1886,7 +1886,7 @@ public interface UploadPolicy {
      *         indicate an error if the code can come to the end of the method,
      *         without finding a 'return' or a throw exception. This return code
      *         can be ignored by the caller.
-     * @throws JUploadException
+     * @throws JUploadException Thrown if the success conditions are not met.
      */
     public boolean checkUploadSuccess(int status, String msg, String body)
             throws JUploadException;

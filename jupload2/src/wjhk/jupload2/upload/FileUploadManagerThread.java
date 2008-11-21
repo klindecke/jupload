@@ -335,6 +335,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @param uploadException
      */
     public void setUploadException(JUploadException uploadException) {
+        this.uploadPolicy.displayErr(uploadException);
         this.uploadException = uploadException;
     }
 
@@ -574,6 +575,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             nbBytesPrepared += this.uploadFileDataArray[i].getUploadLength();
         }
         this.estimatedTotalLength = nbBytesPrepared / nbPreparedFiles;
+        
+        //We tell the upload thread to take a look at what's ready.
+        //this.fileUploadThread.interrupt();
     }
 
     /**
