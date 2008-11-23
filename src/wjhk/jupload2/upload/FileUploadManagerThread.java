@@ -577,7 +577,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.estimatedTotalLength = nbBytesPrepared / nbPreparedFiles;
         
         //We tell the upload thread to take a look at what's ready.
-        //this.fileUploadThread.interrupt();
+        this.fileUploadThread.interrupt();
     }
 
     /**
