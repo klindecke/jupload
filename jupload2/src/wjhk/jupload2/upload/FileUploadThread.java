@@ -28,8 +28,6 @@ package wjhk.jupload2.upload;
  */
 public interface FileUploadThread {
 
-
-
     /**
      * Get the server response message. In HTTP mode, it's the body part,
      * without the HTTP headers.<BR>
@@ -69,4 +67,6 @@ public interface FileUploadThread {
      */
     public void start();
 
+    /** @see java.lang.Thread#interrupt() */
+    public void interrupt();
 }
