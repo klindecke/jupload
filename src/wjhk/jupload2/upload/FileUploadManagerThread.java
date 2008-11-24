@@ -74,6 +74,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     private long nbBytesUploadedForCurrentFile = 0;
 
     /**
+     * Sum of the length for all prepared files. This allow the calculation of
+     * the estimatedTotalLength.
+     * 
+     * @see #anotherFileHasBeenUploaded(FileData)
+     */
+    private long nbTotalNumberOfPreparedBytes = 0;
+
+    /**
      * Contains the next packet to upload.
      * 
      * @see #isNextPacketReady()
@@ -171,6 +179,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @param uploadPolicy
      */
     public FileUploadManagerThread(UploadPolicy uploadPolicy) {
+        super("FileUploadManagerThread thread");
+
         // General shortcuts on the current applet.
         this.uploadPolicy = uploadPolicy;
         this.uploadPanel = uploadPolicy.getApplet().getUploadPanel();
@@ -203,7 +213,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     final public void run() {
 
         this.uploadPolicy.displayDebug("Start of the FileUploadManagerThread",
-                30);
+                5);
 
         // The upload is started. Let's change the button state.
         this.uploadPanel.updateButtonState();
@@ -266,8 +276,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.uploadProgressBar.setValue(0);
         this.uploadProgressBar.setString("");
 
-        this.uploadPolicy
-                .displayDebug("End of the FileUploadManagerThread", 30);
+        this.uploadPolicy.displayDebug("End of the FileUploadManagerThread", 5);
 
         // And we die of our beautiful death ... until next upload.
     }// run
@@ -568,16 +577,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             throws JUploadException {
         nbPreparedFiles += 1;
         nbBytesReadyForUpload += newlyPreparedFileData.getUploadLength();
+        nbTotalNumberOfPreparedBytes += newlyPreparedFileData.getUploadLength();
 
         // Let's estimate the average size;
-        long nbBytesPrepared = 0;
-        for (int i = 0; i < this.uploadFileDataArray.length; i += 1) {
-            nbBytesPrepared += this.uploadFileDataArray[i].getUploadLength();
-        }
-        this.estimatedTotalLength = nbBytesPrepared / nbPreparedFiles;
-        
-        //We tell the upload thread to take a look at what's ready.
-        this.fileUploadThread.interrupt();
+        this.estimatedTotalLength = nbTotalNumberOfPreparedBytes
+                / nbPreparedFiles;
     }
 
     /**
@@ -670,13 +674,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                         "============== Start of file preparation ("
                                 + uploadFileDataArray[i].getFileName() + ")",
                         30);
-                // If the upload has not started, nothing has been sent. We
-                // display the progress message to the user.
+
+                // Let's indicate to the user what's running on.
                 this.preparationProgressBar.setString(String.format(
                         this.uploadPolicy.getString("preparingFile"),
                         new Integer(i + 1), new Integer(
                                 this.uploadFileDataArray.length)));
                 this.preparationProgressBar.repaint(100);
+
                 // Then, we work
                 uploadFileDataArray[i].beforeUpload();
                 this.uploadPolicy.displayDebug(
@@ -684,8 +689,12 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                                 + uploadFileDataArray[i].getFileName() + ")",
                         30);
                 anotherFileIsReady(uploadFileDataArray[i]);
+
+                // The file preparation is finished. Let's update the progress
+                // bar.
                 this.preparationProgressBar
                         .setValue(this.nbPreparedFiles * 100);
+                this.preparationProgressBar.repaint();
             }
 
         } catch (JUploadException e) {
