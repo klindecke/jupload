@@ -2076,7 +2076,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg The message to display.
      */
-    private synchronized void displayMsg(String tag, String msg) {
+    private void displayMsg(String tag, String msg) {
         msg = timestamp(tag, msg);
         if (this.logWindow == null) {
             System.out.println(msg);

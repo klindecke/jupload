@@ -112,6 +112,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     public DefaultFileUploadThread(UploadPolicy uploadPolicy,
             FileUploadManagerThread fileUploadManagerThread) {
+        // Thread parameters.
+        super("FileUploadThread");
+        //this.setPriority(Thread.MAX_PRIORITY);
+
+        // Specific stuff.
         this.uploadPolicy = uploadPolicy;
         this.fileUploadManagerThread = fileUploadManagerThread;
         // Let's read up to date upload parameters.
@@ -272,7 +277,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * method, to send these files to the server.
      */
     final public void run() {
-        this.uploadPolicy.displayDebug("Start of the FileUploadThread", 30);
+        this.uploadPolicy.displayDebug("Start of the FileUploadThread", 5);
 
         try {
             // We'll stop the upload if an error occurs. So the try/catch is
@@ -284,7 +289,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 this.filesToUpload = this.fileUploadManagerThread
                         .getNextPacket();
                 if (this.filesToUpload != null) {
+                    this.uploadPolicy.displayDebug("Before do upload", 5);
                     doUpload();
+                    this.uploadPolicy.displayDebug("After do upload", 5);
                 } else {
                     try {
                         // We wait for a half second. If a file is prepared in
@@ -295,6 +302,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
                     } catch (InterruptedException e) {
                         // Nothing to do. We'll just take a look at the loop
                         // condition.
+                        this.uploadPolicy.displayDebug("Got interrupted", 5);
                     }
                 }
             }
@@ -302,7 +310,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             this.fileUploadManagerThread.setUploadException(e);
         }
 
-        this.uploadPolicy.displayDebug("End of the FileUploadThread", 30);
+        this.uploadPolicy.displayDebug("End of the FileUploadThread", 5);
     }// run
 
     /**

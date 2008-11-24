@@ -1,12 +1,160 @@
 
+=========================================================================================================
+Response to https://sourceforge.net/forum/message.php?msg_id=5684394
+=========================================================================================================
+
+I know that nobody can ever agree, but we made the following changes to the 3.5.1 version for our use and thought we'd share 
+them to see if anybody else thinks they are a good idea. I suppose some make sense to be turned into options, which we didn't attempt to do. 
+ 
+Overall, though, we were favorably impressed by JUpload. Aside from the oddity of the JFileChooser column sort problem 
+(the first click on a column sort header when opening a file in detail mode after the applet is loaded, then subsequent 
+clicks seem to sort as expected), it's working well for us. Thanks much! 
+ 
++++ Our minor changes below should anybody care +++ 
+ 
+wjhk.jupload2.exception.JUploadExceptionTooBigFile 
+ 
+public static String createErrorMessage(String filename, long uploadLength, 
+UploadPolicy uploadPolicy) {  
+//return String.format(uploadPolicy.getString("errFileTooBig"), filename, 
+// new Long(uploadLength)); 
+return String.format(uploadPolicy.getString("errFileTooBig"), filename, 
+new Long(uploadLength/1024000), new Long(uploadPolicy.getMaxFileSize()/1024000)); 
+} 
+ 
+In this case, we also changed the associated lang_us.properties entry: 
+#errFileTooBig = The file length for '%1$s' is too big (%2$d bytes) 
+errFileTooBig = The file '%1$s' is too big (%2$dMB). Maximum limit is %3$dMB. 
+ 
+The change was to convert "max file upload" size to MB instead of bytes which are harder to read. We also changed the error to 
+show what the maximum is with the added param. 
+ 
+++++++++++++ 
+ 
+wjhk.jupload2.gui.SizeRenderer 
+ 
+//private static final double gB = 1024L * 1024L * 1024L; 
+//private static final double mB = 1024L * 1024L; 
+//private static final double kB = 1024L; 
+private static final double kB = 1024L; 
+private static final double mB = kB * 1000L; 
+private static final double gB = mB * 1000L; 
+ 
+While I read the discussion about MiB, etc., few systems I know of use such calculations in showing files size, so the values in JUpload didn't match the values people saw in their own folders/directories. And even less have I seen MiB as to reference megabytes in a listing. So we also changed the lang_us.properties entries: 
+ 
+#unitGigabytes = GiB 
+#unitMegabytes = MiB 
+#unitKilobytes = KiB 
+unitGigabytes = GB 
+unitMegabytes = MB 
+unitKilobytes = KB 
+ 
++++++++++++++++++++++++++++++++ 
+ 
+wjhk.jupload2.gui.JUploadPanel 
+ 
+And there was a similar change made in :  
+ 
+//private static final double gB = 1024L * 1024L * 1024L; 
+//private static final double mB = 1024L * 1024L; 
+//private static final double kB = 1024L; 
+private static final double kB = 1024L; 
+private static final double mB = kB * 1000L; 
+private static final double gB = mB * 1000L; 
+ 
+Perhaps these numbers should come from properties, too, to match the different conventions desired and not be private static fields in multiple source files. 
+ 
++++++++++++++++++++++++++++++++ 
+ 
+wjhk.jupload2.gui.JUploadFileChooser 
+ 
+In public JUploadFileChooser(UploadPolicy uploadPolicyParam) constructor, added: 
+ 
+setFileHidingEnabled(true); 
+ 
+We just figured most applets wouldn't be uploading hidden files. Perhaps best as a property option. 
+ 
++++++++++++++++++++++++++++++++ 
+ 
+wjhk.jupload2.policies.DefaultUploadPolicy 
+ 
+At the bottom of public void displayErr(String errorText, Exception exception) 
+ 
+if (getApplet().getUploadPanel() != null) { 
+// Ok, the applet has been fully built. 
+getApplet().getUploadPanel().copyLogWindow(); 
+//alert("messageLogWindowCopiedToClipboard"); 
+} 
+ 
+We commented out the final alert to avoid having two popups in a row, and most users of the applet don't need debug output anyway. Perhaps an option is better, or perhaps if the debug level is 0 this could be skipped. 
+ 
++++++++++++++++++++++++++++++++ 
+ 
+wjhk.jupload2.upload.DefaultFileUploadThread 
+ 
+In final private boolean doUpload(int firstFileToUploadParam, int nbFilesToUploadParam): 
+ 
+if (nbFilesToUploadParam == 1) { 
+msg = (firstFileToUploadParam + 1) + "/" 
++ (this.filesToUpload.length); 
+} else { 
+//msg = (firstFileToUploadParam + 1) + "-" 
+// + (firstFileToUploadParam + nbFilesToUploadParam) + "/" 
+// + (this.filesToUpload.length); 
+msg = Integer.toString(this.filesToUpload.length); 
+} 
+ 
+We didn't get the odd syntax that said stuff like 1-7/7, so we changed so the param value is just 7 (it could even be an int, but we left it a string param). If the first number is always 1, and the second number is always the same as the third number, it wasn't clear why have them all, but then we're not sure what the nbFilesToUploadParam is, so it may be clear to others.  
+ 
+We also changed the related lang_en.properties entry: 
+ 
+#infoUploading = Uploading files %1$s 
+infoUploading = Uploading %1$s file(s) 
+ 
+ 
++++++++++++++++++++++++++++++++ 
+ 
+Other changes we made to lang_en.properties: 
+ 
+#messageLogWindowCopiedToClipboard = The debug output has been copied to the clipboard. 
+messageLogWindowCopiedToClipboard = Debugging messages have been copied to the clipboard. 
+ 
+#questionSendMailOnError = An error occured during upload. Do you want to send all relevant information to the webmaster? 
+questionSendMailOnError = An error occurred during the upload. Do you want to send all relevant information to the webmaster? 
+ 
+#errDuringLogManagement = An error occured during log management 
+errDuringLogManagement = An error occurred during log management 
+ 
++++++++++++++++++++++++++++++++
+
+
+
+
+============================================================================================================================================
+
+
+
+
+
+
+
+
+
+
 As always, a lot of things can be made better:
 
 TODO list:
-- BUG in SF. Head Pb. E:\temp2\jupload\bug\2189777 - HEAD 200 or 500
-- Manage STOP upload
-- Rename FileUploadManager to FileUploadManagerThread
+- Correct the status bar: it's wrong, while uploading.
 - Check paste or drop files on the applet, while uploading.
 - implement setUncaughtExceptionHandler for the uploading threads.
+
+- 99.111.222.333 - - [19/Nov/2008:15:51:48 -0800] "GET /app/wjhk/jupload2/lang/lang_en_US.properties HTTP/1.1" 404 1123 "-" "Mozilla/4.0 (Windows XP 5.1) Java/1.6.0_07" 
+Response to https://sourceforge.net/forum/message.php?msg_id=5678495
+
+- The file length for 'XXXXX' is too big (654343212 bytes) 
+While I know nobody ever agrees on such error messages, a cleaner response might be something like: 
+The file 'XXXX' is too big (654MB). Maximum limit is 100MB. 
+Response to https://sourceforge.net/forum/message.php?msg_id=5678446 
 
 - FilePanelTableImpl: Make a wild use of         this.juploadPanel.updateButtonState();
 - Bug [ 2174306 ] 'Upload' button disabled after using 'Browse..' button
