@@ -669,9 +669,18 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadProgressBar.setString(String.format(nbUploadedFiles,
                     (this.nbUploadedFiles)));
         } else if (percent == 100) {
-            this.uploadProgressBar.setString(String
-                    .format(infoUploaded, (this.nbUploadedFiles
-                            + this.numOfFileInCurrentRequest + 1)));
+            // The whole file has been uploaded. We wait for the server answer.
+            String msg;
+            if (numOfFileInCurrentRequest == 0) {
+                msg = (nbUploadedFiles + 1) + "/"
+                        + (this.uploadFileDataArray.length);
+            } else {
+                msg = (nbUploadedFiles + 1) + "-"
+                        + (nbUploadedFiles + 1 + numOfFileInCurrentRequest)
+                        + "/" + (this.uploadFileDataArray.length);
+            }
+
+            this.uploadProgressBar.setString(String.format(infoUploaded, msg));
         } else {
             this.uploadPolicy.displayDebug(
                     " [updateUploadProgressBar] percent: " + percent, 10);

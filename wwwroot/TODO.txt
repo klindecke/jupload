@@ -214,7 +214,8 @@ time, it sorts correctly and the data are in the correct columns.
 As always, a lot of things can be made better:
 
 TODO list:
-- get the msg n-m/p files uploaded, waiting for server answer.
+- Remove the sleep in UploadFileData
+- Remove the sleep in DefaultUploadPolicy
 - Correct the status bar: it's wrong, while uploading.
 - Check paste or drop files on the applet, while uploading.
 - implement setUncaughtExceptionHandler for the uploading threads.
