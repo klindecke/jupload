@@ -62,8 +62,7 @@ public class JUploadFileChooser extends JFileChooser {
         this.fileFilter = new JUploadFileFilter(this.uploadPolicy);
         this.fileView = new JUploadFileView(this.uploadPolicy, this);
 
-        // XXX:
-        // This breaks usability. probably use a persistent value of a
+        // TODO This breaks usability. probably use a persistent value of a
         // cookie later.
         // this.fileChooser.setCurrentDirectory(new File(System
         // .getProperty("user.dir")));

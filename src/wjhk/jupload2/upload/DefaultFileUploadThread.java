@@ -82,7 +82,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * The value of the applet parameter maxChunkSize, or its default value.
      */
-    // TODO to be moved to HTTP ????
     private long maxChunkSize;
 
     // ////////////////////////////////////////////////////////////////////////////////////

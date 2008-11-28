@@ -64,10 +64,10 @@ import wjhk.jupload2.policies.UploadPolicy;
  * this status.
  * <LI>STATUS_CONNECTION_CLOSED: The response has been read. All getters can be
  * called, to get information about the server response. The only other method
- * allowed is the {@link #initRequest(URL, String, boolean, boolean)}, to start a new
- * request to the server. Using the same connectionHelper allows to use the same
- * network connection, when the allowHttpPersistent applet parameter is used.
- * </DIR>
+ * allowed is the {@link #initRequest(URL, String, boolean, boolean)}, to start
+ * a new request to the server. Using the same connectionHelper allows to use
+ * the same network connection, when the allowHttpPersistent applet parameter is
+ * used. </DIR>
  * 
  * @author etienne_sf
  * 
@@ -755,8 +755,8 @@ public class HTTPConnectionHelper extends OutputStream {
         this.byteArrayEncoder.append(this.url.getPath());
 
         // Append the query params.
-        // TODO: This probably can be removed as we now
-        // have everything in POST data. However in order to be
+        // TODO: This probably can be removed as we now have everything in POST
+        // data. However in order to be
         // backwards-compatible, it stays here for now. So we now provide
         // *both* GET and POST params.
         if (null != this.url.getQuery() && !"".equals(this.url.getQuery()))
