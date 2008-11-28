@@ -291,23 +291,20 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 if (this.filesToUpload != null) {
                     this.uploadPolicy.displayDebug("Before do upload", 5);
 
+                    // Let's go to work.
                     doUpload();
-
-                    // No more file in upload, for the moment.
-                    this.fileUploadManagerThread.updateUploadProgressBar();
 
                     this.uploadPolicy.displayDebug("After do upload", 5);
                 } else {
                     try {
-                        // We wait for a half second. If a file is prepared in
-                        // the meantime, this thread is notified. The wait
-                        // duration, is just to be sure to go and see if there
-                        // is still some work from time to time.
+                        // We wait a little. If a file is prepared in the
+                        // meantime, this thread is notified. The wait duration,
+                        // is just to be sure to go and see if there is still
+                        // some work from time to time.
                         sleep(200);
                     } catch (InterruptedException e) {
                         // Nothing to do. We'll just take a look at the loop
                         // condition.
-                        this.uploadPolicy.displayDebug("Got interrupted", 5);
                     }
                 }
             }
@@ -447,6 +444,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // Let's add any file-specific header.
             afterFile(0);
 
+            // We are finished with this one. Let's display it.
+            // FIXME set file: 100%
+            this.fileUploadManagerThread.updateUploadProgressBar();
+
             // Let's finish the request, and wait for the server Output, if
             // any (not applicable in FTP)
             int status = finishRequest();
@@ -480,6 +481,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // Then, upload each file.
         for (int i = 0; i < filesToUpload.length
                 && !this.fileUploadManagerThread.isUploadStopped(); i++) {
+            // We are finished with this one. Let's display it.
+            this.fileUploadManagerThread.nbBytesUploaded(i, 0);
+            this.fileUploadManagerThread.updateUploadProgressBar();
+
             // Let's add any file-specific header.
             beforeFile(i);
 
@@ -489,11 +494,17 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
             // Let's add any file-specific header.
             afterFile(i);
+
+            // FIXME set file: 100%
+
         }
 
         // Let's finish the request, and wait for the server Output, if
         // any (not applicable in FTP)
         int status = finishRequest();
+
+        // We are finished with this one. Let's display it.
+        this.fileUploadManagerThread.updateUploadProgressBar();
 
         // We now ask to the uploadPolicy, if it was a success.
         // If not, the isUploadSuccessful should raise an exception.

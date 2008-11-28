@@ -588,6 +588,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public boolean checkUploadSuccess(int status, String msg, String body)
             throws JUploadException {
         boolean bReturn = false;
+        
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+        }
 
         this.lastResponseBody = body;
         this.lastResponseMessage = msg;
