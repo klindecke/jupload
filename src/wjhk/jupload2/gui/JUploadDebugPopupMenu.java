@@ -43,7 +43,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 final class JUploadDebugPopupMenu extends JPopupMenu implements ActionListener,
         ItemListener, PopupMenuListener {
 
-    /** A generated serialVersionUID */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -5473337111643079720L;
 
     /**

@@ -29,9 +29,7 @@ package wjhk.jupload2.exception;
  * @version $Revision$
  */
 public class JUploadException extends Exception {
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -6386378085666411905L;
 
     private String location = null;

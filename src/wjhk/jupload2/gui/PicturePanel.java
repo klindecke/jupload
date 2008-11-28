@@ -71,9 +71,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 public class PicturePanel extends Canvas implements MouseListener,
         ComponentListener {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -3439340009940699981L;
 
     private PictureFileData pictureFileData;

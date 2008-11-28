@@ -3,12 +3,17 @@ V4.0.0b1
 
 Changes:
 - [MAJOR] Rewrite of the core upload code. Introduction of multi-threading: one thread to
-prepare files, one to upload files. Especially useful for picture mode. Was rather complex.
+prepare files, one to upload files. Especially useful for picture mode.
+- [Minor] When the file is too big, the applet now displays a file size in Gb, Mb or Kb, instead
+of the total amount of bytes.
+- [Minor] Hidden files are no more visible in the file chooser. They can still be added by drag'n'drop 
+or paste operations. 
 
 Fix:
 - Allows sending very large number of files. Previous version was crashing with 4000 files.
 - [2189777] The applet would generate a non-blocking NullPointerException for server response
 with Content-Length to 0. Typically: a HEAD response.
+
 
 
 V3.5.1

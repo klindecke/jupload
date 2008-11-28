@@ -40,9 +40,8 @@ import wjhk.jupload2.policies.UploadPolicy;
  * handled by the wjhk.jupload2.gui.FilePanelDataModel2 class.
  */
 public class FilePanelJTable extends JTable implements MouseListener {
-    /**
-     * 
-     */
+
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 5422667664740339798L;
 
     protected int sortedColumnIndex = -1;

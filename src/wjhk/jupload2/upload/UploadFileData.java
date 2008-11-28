@@ -71,7 +71,7 @@ class UploadFileData implements FileData {
      */
     private UploadPolicy uploadPolicy = null;
 
-    private static final int BUFLEN = 4096;
+    private final int BUFLEN = 4096;
 
     /**
      * This field is no more static, as we could decide to upload two files
@@ -97,7 +97,8 @@ class UploadFileData implements FileData {
             FileUploadManagerThread fileUploadThreadParam,
             UploadPolicy uploadPolicyParam) {
         if (fileDataParam == null) {
-            throw new NullPointerException("fileData is null in UploadFileData constructor");
+            throw new NullPointerException(
+                    "fileData is null in UploadFileData constructor");
         }
         this.fileData = fileDataParam;
         this.fileUploadManagerThread = fileUploadThreadParam;
@@ -171,8 +172,8 @@ class UploadFileData implements FileData {
      * @param amount The number of bytes to write.
      * @throws JUploadException if an I/O error occurs.
      */
-    void uploadFile(OutputStream outputStream, long amount)
-            throws JUploadException {
+    void uploadFile(OutputStream outputStream, int numOfFileInCurrentRequest,
+            long amount) throws JUploadException {
         this.uploadPolicy.displayDebug("in UploadFileData.uploadFile (amount:"
                 + amount + ", getUploadLength(): " + getUploadLength() + ")",
                 30);
@@ -185,6 +186,10 @@ class UploadFileData implements FileData {
             int toread = (amount > BUFLEN) ? BUFLEN : (int) amount;
             int towrite = 0;
             try {
+                Thread.sleep(200);
+            } catch (InterruptedException e1) {
+            }
+            try {
                 towrite = this.inputStream.read(this.readBuffer, 0, toread);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -193,7 +198,8 @@ class UploadFileData implements FileData {
             if (towrite > 0) {
                 try {
                     outputStream.write(this.readBuffer, 0, towrite);
-                    this.fileUploadManagerThread.nbBytesUploaded(towrite);
+                    this.fileUploadManagerThread.nbBytesUploaded(
+                            numOfFileInCurrentRequest, towrite);
                     amount -= towrite;
                     this.uploadRemainingLength -= towrite;
                 } catch (IOException e) {

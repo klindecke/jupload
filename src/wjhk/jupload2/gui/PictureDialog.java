@@ -45,9 +45,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 public class PictureDialog extends JDialog implements ActionListener,
         ComponentListener {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 7802205907550854333L;
 
     JButton buttonClose;

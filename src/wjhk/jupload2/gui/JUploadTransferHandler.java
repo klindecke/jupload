@@ -22,9 +22,8 @@ import javax.swing.TransferHandler;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class JUploadTransferHandler extends TransferHandler implements ActionListener {
-    /**
-     * 
-     */
+
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -1241261479500810699L;
 
     DataFlavor fileListFlavor = DataFlavor.javaFileListFlavor;

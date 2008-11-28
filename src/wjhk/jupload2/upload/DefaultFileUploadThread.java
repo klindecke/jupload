@@ -114,7 +114,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             FileUploadManagerThread fileUploadManagerThread) {
         // Thread parameters.
         super("FileUploadThread");
-        //this.setPriority(Thread.MAX_PRIORITY);
+        // this.setPriority(Thread.MAX_PRIORITY);
 
         // Specific stuff.
         this.uploadPolicy = uploadPolicy;
@@ -290,7 +290,12 @@ public abstract class DefaultFileUploadThread extends Thread implements
                         .getNextPacket();
                 if (this.filesToUpload != null) {
                     this.uploadPolicy.displayDebug("Before do upload", 5);
+
                     doUpload();
+
+                    // No more file in upload, for the moment.
+                    this.fileUploadManagerThread.updateUploadProgressBar();
+
                     this.uploadPolicy.displayDebug("After do upload", 5);
                 } else {
                     try {
@@ -425,7 +430,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
             beforeFile(0);
 
             // Actual upload of the file:
-            this.filesToUpload[0].uploadFile(getOutputStream(), thisChunkSize);
+            this.filesToUpload[0].uploadFile(getOutputStream(), 0,
+                    thisChunkSize);
 
             // If we are not in chunk mode, or if it was the last chunk,
             // upload should be finished.
@@ -478,7 +484,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             beforeFile(i);
 
             // Actual upload of the file:
-            this.filesToUpload[i].uploadFile(getOutputStream(),
+            this.filesToUpload[i].uploadFile(getOutputStream(), i,
                     this.filesToUpload[i].getUploadLength());
 
             // Let's add any file-specific header.

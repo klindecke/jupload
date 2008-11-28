@@ -35,6 +35,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  */
 public class NameRenderer extends DefaultTableCellRenderer {
 
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -3096051530077250460L;
 
     /**

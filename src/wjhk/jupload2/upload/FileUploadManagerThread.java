@@ -10,6 +10,7 @@ import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.FilePanel;
 import wjhk.jupload2.gui.JUploadPanel;
+import wjhk.jupload2.gui.SizeRenderer;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -80,6 +81,12 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @see #anotherFileHasBeenUploaded(FileData)
      */
     private long nbTotalNumberOfPreparedBytes = 0;
+
+    /**
+     * During the upload, when uploading several files in one packet, this
+     * attribute indicates which file is currently being uploaded.
+     */
+    private int numOfFileInCurrentRequest = 0;
 
     /**
      * Contains the next packet to upload.
@@ -155,12 +162,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * PROGRESS_INTERVAL) ms.
      */
     private final static int PROGRESS_INTERVAL = 10;
-
-    private static final double gB = 1024L * 1024L * 1024L;
-
-    private static final double mB = 1024L * 1024L;
-
-    private static final double kB = 1024L;
 
     /**
      * The counter for updating the upload status. The upload status (progress
@@ -385,10 +386,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * Used by the UploadFileData#uploadFile(java.io.OutputStream, long) for
      * each uploaded buffer
      * 
+     * @param numOfFileInCurrentRequest The index of the file being uploaded in
+     *            the current request, from 0 to n.
      * @param nbBytes Number of additional bytes that where uploaded.
      * @throws JUploadException
      */
-    public void nbBytesUploaded(long nbBytes) throws JUploadException {
+    public void nbBytesUploaded(int numOfFileInCurrentRequest, long nbBytes)
+            throws JUploadException {
+        this.numOfFileInCurrentRequest = numOfFileInCurrentRequest;
         this.uploadedLength += nbBytes;
         this.nbBytesUploadedForCurrentFile += nbBytes;
         // Let's display some information
@@ -466,20 +471,10 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 eta = this.uploadPolicy.getString("timefmt_unknown");
             }
             this.uploadProgressBar.setValue((int) percent);
-            String unit = this.uploadPolicy.getString("speedunit_b_per_second");
-            if (cps >= gB) {
-                cps /= gB;
-                unit = this.uploadPolicy.getString("speedunit_gb_per_second");
-            } else if (cps >= mB) {
-                cps /= mB;
-                unit = this.uploadPolicy.getString("speedunit_mb_per_second");
-            } else if (cps >= kB) {
-                cps /= kB;
-                unit = this.uploadPolicy.getString("speedunit_kb_per_second");
-            }
-            String status = String.format(this.uploadPolicy
-                    .getString("status_msg"), new Integer((int) percent),
-                    new Double(cps), unit, eta);
+            String format = this.uploadPolicy.getString("status_msg");
+            String status = String.format(format, new Integer((int) percent),
+                    SizeRenderer.formatFileUploadSpeed(cps, this.uploadPolicy),
+                    eta);
             this.uploadPanel.getStatusLabel().setText(status);
             this.uploadPolicy.getApplet().getAppletContext().showStatus(status);
         }
@@ -616,8 +611,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     public synchronized UploadFileData[] getNextPacket()
             throws JUploadException {
-        final String infoUploading = this.uploadPolicy
-                .getString("infoUploading");
 
         // If no packet was ready before, perhaps one is ready now ?
         if (this.nextPacket == null) {
@@ -634,26 +627,61 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 this.uploadStartTime = System.currentTimeMillis();
             }
 
-            // As the packet has been prepared, we expect ... it's almost being
-            // uploaded.Let's write this to the progress bar...
-            String msg;
-            if (this.nextPacket.length == 1) {
-                msg = (this.nbUploadedFiles + 1) + "/"
-                        + (this.uploadFileDataArray.length);
-            } else {
-                msg = (this.nbUploadedFiles + 1) + "-"
-                        + (this.nbUploadedFiles + this.nextPacket.length) + "/"
-                        + (this.uploadFileDataArray.length);
-            }
-
-            this.uploadProgressBar.setString(String.format(infoUploading, msg));
-
             UploadFileData[] fileDataTmp = this.nextPacket;
             this.nextPacket = null;
             this.nbFilesBeingUploaded += fileDataTmp.length;
 
             return fileDataTmp;
         }
+    }
+
+    /**
+     * Update the progress bar, based on the following data: <DIR>
+     * <LI>nbUploadedFiles: number of files that have already been updated.
+     * <LI>nbBytesUploadedForCurrentFile: allows calculation of the upload
+     * progress for the current file, based on it total upload length. </DIR>
+     * 
+     * @throws JUploadException
+     */
+    public synchronized void updateUploadProgressBar() throws JUploadException {
+        final String infoUploaded = this.uploadPolicy.getString("infoUploaded");
+        final String infoUploading = this.uploadPolicy
+                .getString("infoUploading");
+        final String nbUploadedFiles = this.uploadPolicy
+                .getString("nbUploadedFiles");
+        int percent = 0;
+
+        // First, we update the bar itself.
+        if (this.nbBytesUploadedForCurrentFile == 0
+                || this.nbUploadedFiles == this.uploadFileDataArray.length) {
+            percent = 0;
+        } else {
+            percent = (int) (this.nbBytesUploadedForCurrentFile * 100 / this.uploadFileDataArray[this.nbUploadedFiles]
+                    .getUploadLength());
+        }
+
+        this.uploadProgressBar.setValue(100 * this.nbUploadedFiles
+                + (int) percent);
+
+        // Then, we update the text.
+        // The question: are we sending one file, or not ?
+        if (percent == 0) {
+            this.uploadProgressBar.setString(String.format(nbUploadedFiles,
+                    (this.nbUploadedFiles)));
+        } else if (percent == 100) {
+            this.uploadProgressBar.setString(String
+                    .format(infoUploaded, (this.nbUploadedFiles
+                            + this.numOfFileInCurrentRequest + 1)));
+        } else {
+            this.uploadPolicy.displayDebug(
+                    " [updateUploadProgressBar] percent: " + percent, 10);
+            this.uploadProgressBar.setString(String
+                    .format(infoUploading, (this.nbUploadedFiles
+                            + this.numOfFileInCurrentRequest + 1)));
+        }
+
+        // Let's show the modifications to the user
+        this.uploadProgressBar.repaint();
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
@@ -758,28 +786,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.uploadProgressBar
                 .setMaximum(100 * this.uploadFileDataArray.length);
         this.uploadProgressBar.setString("");
-    }
-
-    /**
-     * Update the progress bar, based on the following data: <DIR>
-     * <LI>{@link #nbUploadedFiles}: number of files that have already been
-     * updated.
-     * <LI>{@link #nbBytesUploadedForCurrentFile}: allows calculation of the
-     * upload progress for the current file, based on it total upload length.
-     * </DIR>
-     * 
-     * @throws JUploadException
-     */
-    private void updateUploadProgressBar() throws JUploadException {
-        float percent = 0;
-
-        if (this.nbUploadedFiles < this.uploadFileDataArray.length) {
-            percent = (float) this.nbBytesUploadedForCurrentFile
-                    / this.uploadFileDataArray[this.nbUploadedFiles]
-                            .getUploadLength();
-        }
-        this.uploadProgressBar.setValue(100 * this.nbUploadedFiles
-                + (int) (100 * percent));
     }
 
 }

@@ -121,12 +121,12 @@ public class InteractiveTrustManager implements X509TrustManager,
 
     private TrustManagerFactory tmf = null;
 
-    private static KeyManagerFactory kmf = null;
+    private KeyManagerFactory kmf = null;
 
     /**
      * The truststore for validation of server certificates
      */
-    private static KeyStore ts = null;
+    private KeyStore ts = null;
 
     /**
      * The keystore for client certificates.

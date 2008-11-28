@@ -28,6 +28,9 @@ errFileTooBig = The file '%1$s' is too big (%2$dMB). Maximum limit is %3$dMB.
  
 The change was to convert "max file upload" size to MB instead of bytes which are harder to read. We also changed the error to 
 show what the maximum is with the added param. 
+
+==> DONE. Impacts all lang property files. The modification is to have a correct file size calculation, and not 
+always Mb, which is bad for small files.
  
 ++++++++++++ 
  
@@ -48,7 +51,10 @@ While I read the discussion about MiB, etc., few systems I know of use such calc
 unitGigabytes = GB 
 unitMegabytes = MB 
 unitKilobytes = KB 
- 
+
+
+==> #
+
 +++++++++++++++++++++++++++++++ 
  
 wjhk.jupload2.gui.JUploadPanel 
@@ -63,7 +69,9 @@ private static final double mB = kB * 1000L;
 private static final double gB = mB * 1000L; 
  
 Perhaps these numbers should come from properties, too, to match the different conventions desired and not be private static fields in multiple source files. 
- 
+
+==> HUM, YES PERHAPS. BUT THEN, YOU'LL HAVE TO DOCUMENT THAT. LET'S STAY SIMPLE.
+
 +++++++++++++++++++++++++++++++ 
  
 wjhk.jupload2.gui.JUploadFileChooser 
@@ -73,7 +81,9 @@ In public JUploadFileChooser(UploadPolicy uploadPolicyParam) constructor, added:
 setFileHidingEnabled(true); 
  
 We just figured most applets wouldn't be uploading hidden files. Perhaps best as a property option. 
- 
+
+==> DONE (hidden files can still be added by drag'n'drop or paste operations).  
+
 +++++++++++++++++++++++++++++++ 
  
 wjhk.jupload2.policies.DefaultUploadPolicy 
@@ -87,7 +97,9 @@ getApplet().getUploadPanel().copyLogWindow();
 } 
  
 We commented out the final alert to avoid having two popups in a row, and most users of the applet don't need debug output anyway. Perhaps an option is better, or perhaps if the debug level is 0 this could be skipped. 
- 
+
+==> I now open this popup only when debugLevel is 100. I still want people to know that.
+
 +++++++++++++++++++++++++++++++ 
  
 wjhk.jupload2.upload.DefaultFileUploadThread 
@@ -110,27 +122,85 @@ We also changed the related lang_en.properties entry:
  
 #infoUploading = Uploading files %1$s 
 infoUploading = Uploading %1$s file(s) 
- 
- 
+
+==> Up to you. I prefer the old one. A simple way is also to put nbFilesPerRequest to 1.
+
 +++++++++++++++++++++++++++++++ 
  
 Other changes we made to lang_en.properties: 
  
 #messageLogWindowCopiedToClipboard = The debug output has been copied to the clipboard. 
 messageLogWindowCopiedToClipboard = Debugging messages have been copied to the clipboard. 
+
+==> DONE
  
 #questionSendMailOnError = An error occured during upload. Do you want to send all relevant information to the webmaster? 
 questionSendMailOnError = An error occurred during the upload. Do you want to send all relevant information to the webmaster? 
+
+==> DONE
  
 #errDuringLogManagement = An error occured during log management 
 errDuringLogManagement = An error occurred during log management 
- 
+
+==> DONE
+
 +++++++++++++++++++++++++++++++
 
 
 
 
+
+
+
+
+
 ============================================================================================================================================
+Response to http://sourceforge.net/forum/message.php?msg_id=5634453
+============================================================================================================================================
+        	<applet code="wjhk.jupload2.JUploadApplet"
+	            name="JUpload"
+	            archive="/app/downloads/jupload351.jar"
+	            width="640"
+	            height="200"
+	            mayscript
+	            alt="Java 1.5 or higher plugin must be installed.">
+            	<param name="postURL"
+value="/app/send/attachment.jsp?m=8592082391923&appletPost=true&appletResponseMi
+x=IWckmO6MaL4mEdmB96Tw" />
+            	<param name="afterUploadURL"
+value="/app/send/attachment.jsp?m=8592082391923&appletResponseMix=IWckmO6MaL4mEd
+mB96Tw" />
+            	<param name="formdata" value="aform" />
+            	<param name="lookAndFeel" value="system" />
+            	<param name="lang" value="en" />
+            	<param name="maxFileSize" value="102400000" />
+            	<param name="showLogWindow" value="false" />
+
+            	<param name="stringUploadSuccess" value=".*" />
+            A Java 1.5 or higher plugin is required to upload using this option.
+Please use the standard web browser upload procedure below instead.
+        	</applet>
+
+For us to reproduce we need to:
+1) Ensure no browser is running.
+2) Start the browser and load the applet.
+3) Click Browse.
+4) Click select your C:\ drive or Desktop as long as there are several files
+in there.
+5) Click the File Details icon to show the files, mod times, file sizes, etc.
+6) Click a column header, such as Size.
+
+The list gets confused (some data is not even in the right columns) and is not
+sorted correctly.  If you click the same (or different) column header a second
+time, it sorts correctly and the data are in the correct columns.
+
+
+==> Can't repeat it (on windows 2000, Java 1.6.0_07)
+
+============================================================================================================================================
+
+
+
 
 
 
@@ -144,6 +214,7 @@ errDuringLogManagement = An error occurred during log management
 As always, a lot of things can be made better:
 
 TODO list:
+- get the msg n-m/p files uploaded, waiting for server answer.
 - Correct the status bar: it's wrong, while uploading.
 - Check paste or drop files on the applet, while uploading.
 - implement setUncaughtExceptionHandler for the uploading threads.

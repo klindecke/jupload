@@ -71,6 +71,7 @@ import java.applet.Applet;
  */
 public class EmptyApplet extends Applet {
 
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 1L;
 
     /**

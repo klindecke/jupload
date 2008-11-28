@@ -65,9 +65,7 @@ import wjhk.jupload2.upload.FileUploadManagerThread;
 public class JUploadPanel extends JPanel implements ActionListener,
         MouseListener {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -1212601012568225757L;
 
     /** The debug popup menu of the applet */
@@ -275,7 +273,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         // -------- statusLabel --------
         this.statusLabel = new JLabel("JUpload applet V"
-                + JUploadApplet.VERSION);
+                + this.uploadPolicy.getApplet().VERSION);
     }
 
     /**

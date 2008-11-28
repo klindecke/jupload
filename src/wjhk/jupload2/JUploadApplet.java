@@ -51,9 +51,7 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  */
 public class JUploadApplet extends Applet {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -3207851532114846776L;
 
     /**
@@ -66,7 +64,7 @@ public class JUploadApplet extends Applet {
      * The properties, created at build time, by the build.xml ant file. Or a
      * dummy property set, with 'unknown' values.
      */
-    private static Properties svnProperties = getSvnProperties();
+    private Properties svnProperties = getSvnProperties();
 
     /**
      * variable to hold reference to JavascriptHandler object
@@ -78,7 +76,7 @@ public class JUploadApplet extends Applet {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    public final static String VERSION = "4.0b1 [SVN-Rev: "
+    public final String VERSION = "4.0b1 [SVN-Rev: "
             + svnProperties.getProperty("revision") + "]";
 
     /**
@@ -88,7 +86,7 @@ public class JUploadApplet extends Applet {
      * @deprecated since v3.1
      */
     @Deprecated
-    public final static String LAST_MODIFIED = svnProperties
+    public final String LAST_MODIFIED = svnProperties
             .getProperty("lastSrcDirModificationDate");
 
     /**
@@ -96,8 +94,7 @@ public class JUploadApplet extends Applet {
      * build.xml packaged by the script. If compiled with eclipse (for
      * instance), the build_date is noted as 'unknown'.
      */
-    public final static String BUILD_DATE = svnProperties
-            .getProperty("buildDate");
+    public final String BUILD_DATE = svnProperties.getProperty("buildDate");
 
     /**
      * The current upload policy. This class is responsible for the call to the
@@ -291,7 +288,8 @@ public class JUploadApplet extends Applet {
      * @param args Standard argument for main method. Not used.
      */
     public static void main(String[] args) {
-        System.out.println(VERSION.split(" ")[0]);
+        JUploadApplet juploadApplet = new JUploadApplet();
+        System.out.println(juploadApplet.VERSION.split(" ")[0]);
     }
 
     /**
