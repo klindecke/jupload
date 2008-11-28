@@ -34,9 +34,8 @@ import javax.swing.table.JTableHeader;
  * Techical class, to display the column headers, for column that may be sorted.
  */
 public class SortHeaderRenderer extends DefaultTableCellRenderer {
-    /**
-     * 
-     */
+
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -4104776293873798189L;
 
     private static final Icon NONSORTED = new SortArrowIcon(SortArrowIcon.NONE);

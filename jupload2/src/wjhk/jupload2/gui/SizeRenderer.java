@@ -37,24 +37,23 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @version $Revision$
  */
 public class SizeRenderer extends DefaultTableCellRenderer {
-    /**
-     * 
-     */
+
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -2029129064667754146L;
 
+    /**
+     * The current upload policy
+     */
+    private UploadPolicy uploadPolicy = null;
+
+    /** Size of one gigabyte, for file size display */
     private static final double gB = 1024L * 1024L * 1024L;
 
+    /** Size of one megabyte, for file size display */
     private static final double mB = 1024L * 1024L;
 
+    /** Size of one kilobyte, for file size display */
     private static final double kB = 1024L;
-
-    private String sizeunit_gigabytes;
-
-    private String sizeunit_megabytes;
-
-    private String sizeunit_kilobytes;
-
-    private String sizeunit_bytes;
 
     /**
      * Creates a new instance.
@@ -64,10 +63,7 @@ public class SizeRenderer extends DefaultTableCellRenderer {
      */
     public SizeRenderer(UploadPolicy uploadPolicy) {
         super();
-        this.sizeunit_gigabytes = uploadPolicy.getString("unitGigabytes");
-        this.sizeunit_megabytes = uploadPolicy.getString("unitMegabytes");
-        this.sizeunit_kilobytes = uploadPolicy.getString("unitKilobytes");
-        this.sizeunit_bytes = uploadPolicy.getString("unitBytes");
+        this.uploadPolicy = uploadPolicy;
     }
 
     /**
@@ -81,21 +77,81 @@ public class SizeRenderer extends DefaultTableCellRenderer {
                 isSelected, hasFocus, row, column);
 
         if (value instanceof Long) {
-            double d = ((Long) value).doubleValue();
-            String unit = this.sizeunit_bytes;
-            if (d >= gB) {
-                d /= gB;
-                unit = this.sizeunit_gigabytes;
-            } else if (d >= mB) {
-                d /= mB;
-                unit = this.sizeunit_megabytes;
-            } else if (d >= kB) {
-                d /= kB;
-                unit = this.sizeunit_kilobytes;
-            }
-            setValue(String.format("%1$,3.2f %2$s", new Double(d), unit));
+            setValue(formatFileSize(((Long) value).longValue(), uploadPolicy));
             super.setHorizontalAlignment(RIGHT);
+        } else {
+            this.uploadPolicy
+                    .displayWarn("value is not an instance of Long, in SizeRenderer.getTableCellRendererComponent(");
         }
         return cell;
     }
+
+    // ////////////////////////////////////////////////////////////////////////////
+    // Various utilities for file size calculation
+    // ////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Format a number of bytes into a well formatted string, like 122mB.
+     * 
+     * @param fileUploadSpeedParam
+     * @param uploadPolicy
+     * @return The formatted file upload speed, to be displayed to the user
+     */
+    public static String formatFileUploadSpeed(double fileUploadSpeedParam,
+            UploadPolicy uploadPolicy) {
+        String unit;
+        double fileUploadSpeed = fileUploadSpeedParam;
+        if (fileUploadSpeed >= gB) {
+            fileUploadSpeed /= gB;
+            unit = uploadPolicy.getString("speedunit_gb_per_second");
+        } else if (fileUploadSpeed >= mB) {
+            fileUploadSpeed /= mB;
+            unit = uploadPolicy.getString("speedunit_mb_per_second");
+        } else if (fileUploadSpeed >= kB) {
+            fileUploadSpeed /= kB;
+            unit = uploadPolicy.getString("speedunit_kb_per_second");
+        } else {
+            unit = uploadPolicy.getString("speedunit_b_per_second");
+        }
+
+        return String.format("%1$,3.2f %2$s", fileUploadSpeed, unit);
+
+    }
+
+    /**
+     * Format a number of bytes of a file size (or a number of uploaded bytes,
+     * or whatever), into a well formatted string, like 122mB.
+     * 
+     * @param fileSize
+     * @param uploadPolicy
+     * @return The formatted file size, to display to the user.
+     */
+    public static String formatFileSize(double fileSize,
+            UploadPolicy uploadPolicy) {
+        final String sizeunit_gigabytes = uploadPolicy
+                .getString("unitGigabytes");
+        final String sizeunit_megabytes = uploadPolicy
+                .getString("unitMegabytes");
+        final String sizeunit_kilobytes = uploadPolicy
+                .getString("unitKilobytes");
+        final String sizeunit_bytes = uploadPolicy.getString("unitBytes");
+        String unit;
+
+        double fileSizeToDisplay = fileSize;
+        if (fileSizeToDisplay >= gB) {
+            fileSizeToDisplay /= gB;
+            unit = sizeunit_gigabytes;
+        } else if (fileSizeToDisplay >= mB) {
+            fileSizeToDisplay /= mB;
+            unit = sizeunit_megabytes;
+        } else if (fileSizeToDisplay >= kB) {
+            fileSizeToDisplay /= kB;
+            unit = sizeunit_kilobytes;
+        } else {
+            unit = sizeunit_bytes;
+        }
+
+        return String.format("%1$,3.2f %2$s", fileSizeToDisplay, unit);
+    }
+
 }

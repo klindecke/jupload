@@ -49,9 +49,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class DebugDialog extends JDialog implements ActionListener {
 
-    /**
-     * A generated serialVersionUID, to remove a compilation warning (not used)
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 7802205907550854333L;
 
     /**

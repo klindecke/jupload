@@ -45,7 +45,7 @@ class LoadImageThread extends Thread {
      * That cursor that will be used each time the user select a new file, when
      * resizing the picture before displaying in the preview accessory.
      */
-    final static Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
+    final Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
 
     /**
      * The file that is to be loaded.
@@ -97,9 +97,8 @@ class LoadImageThread extends Thread {
 /** ImagePreview.java by FileChooserDemo2.java. */
 public class JUploadImagePreview extends JComponent implements
         PropertyChangeListener {
-    /**
-     * Generated serialVersionUID.
-     */
+
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -6882108570945459638L;
 
     /**

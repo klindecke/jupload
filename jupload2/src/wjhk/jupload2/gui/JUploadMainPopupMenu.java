@@ -18,9 +18,8 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @author etienne_sf
  */
 public class JUploadMainPopupMenu extends JPopupMenu {
-    /**
-     * 
-     */
+
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 4204344561680290852L;
 
     /**

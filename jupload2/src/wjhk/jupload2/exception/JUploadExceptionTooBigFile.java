@@ -20,6 +20,7 @@
 
 package wjhk.jupload2.exception;
 
+import wjhk.jupload2.gui.SizeRenderer;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -29,9 +30,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class JUploadExceptionTooBigFile extends JUploadException {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 4842380093113396023L;
 
     /**
@@ -43,20 +42,7 @@ public class JUploadExceptionTooBigFile extends JUploadException {
      */
     public JUploadExceptionTooBigFile(String filename, long uploadLength,
             UploadPolicy uploadPolicy) {
-        super(createErrorMessage(filename, uploadLength, uploadPolicy));
-    }
-
-    /**
-     * This method creates the correct message for this exception.
-     * 
-     * @param filename The name of the file which triggered this exception.
-     * @param uploadLength The length of the offending file.
-     * @param uploadPolicy The current upload policy.
-     * @return Generate the error text for this exception.
-     */
-    public static String createErrorMessage(String filename, long uploadLength,
-            UploadPolicy uploadPolicy) {
-        return String.format(uploadPolicy.getString("errFileTooBig"), filename,
-                new Long(uploadLength));
+        super(String.format(uploadPolicy.getString("errFileTooBig"), filename,
+                SizeRenderer.formatFileSize(uploadLength, uploadPolicy)));
     }
 }

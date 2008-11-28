@@ -82,14 +82,14 @@ public class HTTPConnectionHelper extends OutputStream {
      * authorized action in this state is a call to
      * {@link #initRequest(URL, String, boolean, boolean)}.
      */
-    final private int STATUS_NOT_INITIALIZED = 0;
+    final static private int STATUS_NOT_INITIALIZED = 0;
 
     /**
      * Indicates that the network connection to the server has not been opened.
      * All data sent to the ConnectionHelper with write methods are sent to the
      * current ByteArrayEncoder.
      */
-    final private int STATUS_BEFORE_SERVER_CONNECTION = 1;
+    final static private int STATUS_BEFORE_SERVER_CONNECTION = 1;
 
     /**
      * Indicates that the network connection to the server is opened, but the
@@ -98,7 +98,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * that is: to the current OutputStream. <BR>
      * That is: the ByteArrayEncoder is now read only (closed).
      */
-    final private int STATUS_WRITING_REQUEST = 2;
+    final static private int STATUS_WRITING_REQUEST = 2;
 
     /**
      * Indicates that the network connection to the server is opened, but the
@@ -107,7 +107,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * that is: to the current OutputStream. <BR>
      * That is: the ByteArrayEncoder is now read only (closed).
      */
-    final private int STATUS_READING_RESPONSE = 3;
+    final static private int STATUS_READING_RESPONSE = 3;
 
     /**
      * Indicates that the network connection to the server is now closed, that
@@ -118,7 +118,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * data, until the application do a call to
      * {@link #initRequest(URL, String, boolean, boolean)}.
      */
-    final private int STATUS_CONNECTION_CLOSED = 4;
+    final static private int STATUS_CONNECTION_CLOSED = 4;
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// ATTRIBUTE USED TO CONTROL THE OUTPUT TO THE SERVER
@@ -260,8 +260,8 @@ public class HTTPConnectionHelper extends OutputStream {
             boolean bLastChunk) throws JUploadIOException {
         // This method expects that the connection has not been initialized yet,
         // or that the previous request is finished.
-        if (this.connectionStatus != this.STATUS_NOT_INITIALIZED
-                && this.connectionStatus != this.STATUS_CONNECTION_CLOSED) {
+        if (this.connectionStatus != STATUS_NOT_INITIALIZED
+                && this.connectionStatus != STATUS_CONNECTION_CLOSED) {
             throw new JUploadIOException(
                     "Bad status of the connectionHelper in initRequest: "
                             + getStatusLabel());
@@ -316,7 +316,7 @@ public class HTTPConnectionHelper extends OutputStream {
     public void sendRequest() throws JUploadIOException {
         // This method expects that the connection is writing data to the
         // server.
-        if (this.connectionStatus != this.STATUS_BEFORE_SERVER_CONNECTION) {
+        if (this.connectionStatus != STATUS_BEFORE_SERVER_CONNECTION) {
             throw new JUploadIOException(
                     "Bad status of the connectionHelper in initRequest: "
                             + getStatusLabel());
@@ -351,7 +351,7 @@ public class HTTPConnectionHelper extends OutputStream {
 
             // The request has been sent. The current ByteArrayEncoder is now
             // useless. A new one is to be created for the next request.
-            this.connectionStatus = this.STATUS_WRITING_REQUEST;
+            this.connectionStatus = STATUS_WRITING_REQUEST;
 
         } catch (IOException e) {
             throw new JUploadIOException("Unable to open socket", e);
@@ -528,9 +528,9 @@ public class HTTPConnectionHelper extends OutputStream {
      * @throws JUploadIOException
      */
     public HTTPConnectionHelper append(int b) throws JUploadIOException {
-        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+        if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(b);
-        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+        } else if (this.connectionStatus == STATUS_WRITING_REQUEST) {
             try {
                 this.outputStream.write(b);
             } catch (IOException e) {
@@ -557,9 +557,9 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     public HTTPConnectionHelper append(byte[] bytes) throws JUploadIOException {
 
-        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+        if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(bytes);
-        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+        } else if (this.connectionStatus == STATUS_WRITING_REQUEST) {
             try {
                 this.outputStream.write(bytes);
             } catch (IOException e) {
@@ -577,7 +577,7 @@ public class HTTPConnectionHelper extends OutputStream {
                         "[HTTPConnectionHelper append] ("
                                 + bytes.length
                                 + " bytes appended to "
-                                + (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
+                                + (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
                                         : " socket") + ")", 70);
 
         return this;
@@ -598,9 +598,9 @@ public class HTTPConnectionHelper extends OutputStream {
     public HTTPConnectionHelper append(byte[] bytes, int off, int len)
             throws JUploadIOException {
 
-        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+        if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(bytes);
-        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+        } else if (this.connectionStatus == STATUS_WRITING_REQUEST) {
             try {
                 this.outputStream.write(bytes, off, len);
             } catch (IOException e) {
@@ -618,7 +618,7 @@ public class HTTPConnectionHelper extends OutputStream {
                         "[HTTPConnectionHelper append] ("
                                 + len
                                 + " bytes appended to "
-                                + (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
+                                + (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
                                         : " socket") + ")", 70);
 
         return this;
@@ -636,9 +636,9 @@ public class HTTPConnectionHelper extends OutputStream {
     public HTTPConnectionHelper append(String str) throws JUploadIOException {
         this.uploadPolicy.displayDebug("[HTTPConnectionHelper append] " + str,
                 70);
-        if (this.connectionStatus == this.STATUS_BEFORE_SERVER_CONNECTION) {
+        if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(str);
-        } else if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+        } else if (this.connectionStatus == STATUS_WRITING_REQUEST) {
             ByteArrayEncoder bae = new ByteArrayEncoderHTTP(this.uploadPolicy,
                     this.byteArrayEncoder.getBoundary(), this.byteArrayEncoder
                             .getEncoding());
@@ -677,12 +677,12 @@ public class HTTPConnectionHelper extends OutputStream {
     public int readHttpResponse() throws JUploadException {
         // This method expects that the connection is writing data to the
         // server.
-        if (this.connectionStatus != this.STATUS_WRITING_REQUEST) {
+        if (this.connectionStatus != STATUS_WRITING_REQUEST) {
             throw new JUploadIOException(
                     "Bad status of the connectionHelper in initRequest: "
                             + getStatusLabel());
         }
-        this.connectionStatus = this.STATUS_READING_RESPONSE;
+        this.connectionStatus = STATUS_READING_RESPONSE;
 
         // Let's connect in InputStream to read this server response.
         if (this.httpInputStreamReader == null) {
@@ -705,7 +705,7 @@ public class HTTPConnectionHelper extends OutputStream {
         }
 
         // We got the response
-        this.connectionStatus = this.STATUS_CONNECTION_CLOSED;
+        this.connectionStatus = STATUS_CONNECTION_CLOSED;
 
         //
         return this.httpInputStreamReader.gethttpStatusCode();
@@ -901,7 +901,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * @see java.io.OutputStream#flush()
      */
     public void flush() throws IOException {
-        if (this.connectionStatus == this.STATUS_WRITING_REQUEST) {
+        if (this.connectionStatus == STATUS_WRITING_REQUEST) {
             this.outputStream.flush();
         } else {
             throw new IOException("Wrong status in " + getClass().getName()

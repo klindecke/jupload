@@ -35,9 +35,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class DialogPicturePanel extends PicturePanel {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 1333603128496671158L;
 
     /**

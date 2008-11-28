@@ -36,7 +36,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * {@link wjhk.jupload2.gui.FilePanelJTable}.
  */
 public class DateRenderer extends DefaultTableCellRenderer {
-
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -7171473761133675782L;
 
     private SimpleDateFormat df;

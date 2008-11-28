@@ -274,7 +274,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     private int sslVerifyCert = InteractiveTrustManager.NONE;
 
-    private final static String CRLF = System.getProperty("line.separator");
+    private final String CRLF = System.getProperty("line.separator");
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// INTERNAL ATTRIBUTE
@@ -821,7 +821,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * @see wjhk.jupload2.policies.UploadPolicy#createProgressPanel(JProgressBar, JProgressBar, JButton, JButton, JPanel)
+     * @see wjhk.jupload2.policies.UploadPolicy#createProgressPanel(JProgressBar,
+     *      JProgressBar, JButton, JButton, JPanel)
      */
     public JPanel createProgressPanel(JProgressBar preparationProgressBar,
             JProgressBar uploadProgressBar, JButton uploadButton,
@@ -834,7 +835,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         jProgressBarPanel.setLayout(new BorderLayout(10, 1));
         jProgressBarPanel.add(preparationProgressBar, BorderLayout.NORTH);
         jProgressBarPanel.add(uploadProgressBar, BorderLayout.SOUTH);
-        
 
         JPanel jProgressPanel = new JPanel();
         jProgressPanel.setLayout(new BorderLayout(10, 0));
@@ -1011,7 +1011,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (getApplet().getUploadPanel() != null) {
             // Ok, the applet has been fully built.
             getApplet().getUploadPanel().copyLogWindow();
-            alert("messageLogWindowCopiedToClipboard");
+            if (getDebugLevel() == 100) {
+                alert("messageLogWindowCopiedToClipboard");
+            }
         }
     }
 
@@ -1382,8 +1384,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // /////////////////////////////////////////////////////////////////////////////
         // Let's display some information to the user, about the received
         // parameters.
-        displayInfo("JUpload applet, version " + JUploadApplet.VERSION
-                + " (compiled: " + JUploadApplet.BUILD_DATE
+        displayInfo("JUpload applet, version " + getApplet().VERSION
+                + " (compiled: " + getApplet().BUILD_DATE
                 + "), available at http://jupload.sourceforge.net/");
         displayDebug("Java version: " + System.getProperty("java.version"), 30);
         displayDebug("Cookie: " + this.cookie, 30);

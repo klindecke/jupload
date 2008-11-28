@@ -43,9 +43,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 public class FilePanelTableImp extends JPanel implements FilePanel {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -8273990467324350526L;
 
     private FilePanelJTable jtable;

@@ -31,9 +31,7 @@ package wjhk.jupload2.exception;
 
 public class JUploadIOException extends JUploadException {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 4202340617039827612L;
 
     /**

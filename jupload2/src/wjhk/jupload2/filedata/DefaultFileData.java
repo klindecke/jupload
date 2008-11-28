@@ -59,7 +59,7 @@ public class DefaultFileData implements FileData {
     /**
      * the mime type list, coming from: http://www.mimetype.org/ Thanks to them!
      */
-    public static Properties mimeTypes = null;
+    public Properties mimeTypes = null;
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// Protected attributes

@@ -134,9 +134,9 @@ class IconWorker implements Runnable {
                 // changes of directory, then went back to it.
                 // We ask again to calculate its icon.
                 this.fileView.execute(this);
-                return JUploadFileView.emptyIcon;
+                return fileView.emptyIcon;
             default:
-                return JUploadFileView.emptyIcon;
+                return fileView.emptyIcon;
         }// switch
     }// getIcon
 
@@ -196,7 +196,7 @@ public class JUploadFileView extends FileView implements
      * {@link JUploadFileView#JUploadFileView(UploadPolicy, JFileChooser)}
      * constructor.
      */
-    static ThreadGroup iconWorkerThreadGroup = new ThreadGroup(
+    ThreadGroup iconWorkerThreadGroup = new ThreadGroup(
             "JUpload ThreadGroup");
 
     /** The current upload policy. */
@@ -219,7 +219,7 @@ public class JUploadFileView extends FileView implements
     /**
      * An empty icon, having the good file size.
      */
-    public static ImageIcon emptyIcon = null;
+    public  ImageIcon emptyIcon = null;
 
     /**
      * Creates a new instance.
@@ -234,7 +234,7 @@ public class JUploadFileView extends FileView implements
 
         // The real interest of the threa group, here, is to lower the priority
         // of the icon workers threads:
-        JUploadFileView.iconWorkerThreadGroup
+        this.iconWorkerThreadGroup
                 .setMaxPriority(Thread.MIN_PRIORITY);
 
         // emptyIcon needs an upload policy, to be set, but we'll create it
@@ -396,7 +396,7 @@ public class JUploadFileView extends FileView implements
      * @return The newly created thread
      */
     public Thread newThread(Runnable runnable) {
-        Thread thread = new Thread(JUploadFileView.iconWorkerThreadGroup,
+        Thread thread = new Thread(this.iconWorkerThreadGroup,
                 runnable);
         thread.setPriority(Thread.MIN_PRIORITY);
         return thread;

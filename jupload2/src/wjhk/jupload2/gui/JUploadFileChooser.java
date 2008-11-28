@@ -36,9 +36,7 @@ public class JUploadFileChooser extends JFileChooser {
     // /////////////////////////////// Attributes
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 6829111419069956687L;
 
     /** The current upload policy */
@@ -71,6 +69,10 @@ public class JUploadFileChooser extends JFileChooser {
         // .getProperty("user.dir")));
         setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         setMultiSelectionEnabled(true);
+
+        // Hidden file should not be visible.
+        setFileHidingEnabled(true);
+
         // The file view must be set, whether or not a file filter exists
         // for this upload policy.
         setFileView(this.fileView);

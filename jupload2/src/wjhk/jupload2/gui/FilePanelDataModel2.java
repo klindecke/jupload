@@ -48,40 +48,38 @@ import wjhk.jupload2.policies.UploadPolicy;
  */
 class FilePanelDataModel2 extends AbstractTableModel {
 
-    /**
-     * 
-     */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = 1473262424494858913L;
 
     /**
      * The default colum indices of the columns, as displayed by the applet.
      * Index of the column "Filename"
      */
-    public static final int COLINDEX_NAME = 0;
+    public final static int COLINDEX_NAME = 0;
 
     /**
      * The default colum indices of the columns, as displayed by the applet.
      * Index of the column "Filename"
      */
-    public static final int COLINDEX_SIZE = 1;
+    public final static int COLINDEX_SIZE = 1;
 
     /**
      * The default colum indices of the columns, as displayed by the applet.
      * Index of the column "Filesize"
      */
-    public static final int COLINDEX_DIRECTORY = 2;
+    public final static int COLINDEX_DIRECTORY = 2;
 
     /**
      * The default colum indices of the columns, as displayed by the applet.
      * Index of the column "Last modified"
      */
-    public static final int COLINDEX_MODIFIED = 3;
+    public final static int COLINDEX_MODIFIED = 3;
 
     /**
      * The default colum indices of the columns, as displayed by the applet.
      * Index of the column "Readable"
      */
-    public static final int COLINDEX_READABLE = 4;
+    public final static int COLINDEX_READABLE = 4;
 
     /**
      * The uploadPolicy contains all current parameter, including the

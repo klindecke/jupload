@@ -31,7 +31,7 @@ import javax.swing.JTextArea;
  */
 public class JUploadTextArea extends JTextArea {
 
-    /** Generated serialVersionUID */
+    /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -6037767344615468632L;
 
     /**
