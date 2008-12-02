@@ -77,7 +77,8 @@ public class SizeRenderer extends DefaultTableCellRenderer {
                 isSelected, hasFocus, row, column);
 
         if (value instanceof Long) {
-            setValue(formatFileSize(((Long) value).longValue(), uploadPolicy));
+            setValue(formatFileSize(((Long) value).longValue(),
+                    this.uploadPolicy));
             super.setHorizontalAlignment(RIGHT);
         } else {
             this.uploadPolicy

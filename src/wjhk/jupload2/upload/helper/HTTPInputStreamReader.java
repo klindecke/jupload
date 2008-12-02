@@ -171,8 +171,10 @@ public class HTTPInputStreamReader {
 
             // then the body.
             // If we're in a HEAD request ... we're not interested in the body!
-            if (httpConnectionHelper.getMethod().equals("HEAD")) {
-                this.uploadPolicy.displayDebug("This is a HEAD request: we don't care about the body", 70);
+            if (this.httpConnectionHelper.getMethod().equals("HEAD")) {
+                this.uploadPolicy.displayDebug(
+                        "This is a HEAD request: we don't care about the body",
+                        70);
                 this.responseBody = "";
             } else {
                 readBody(httpDataIn);
@@ -531,8 +533,8 @@ public class HTTPInputStreamReader {
         // the charset attribute of the Content-Type header (if any).
         // See RFC 2616, Sections 3.4.1 and 3.7.1.
         this.responseBody = new String(this.body, this.charset);
-        
-        //At the higher debug level, we display the response.
+
+        // At the higher debug level, we display the response.
         this.uploadPolicy.displayDebug(this.responseBody, 100);
     }// readBody
 }

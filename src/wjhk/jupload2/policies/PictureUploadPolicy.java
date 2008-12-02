@@ -401,7 +401,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
             displayDebug("File selected: " + fileData.getFileName(), 30);
         }
         if (this.picturePanel != null) {
-            //If this file is a picture, we display it.
+            // If this file is a picture, we display it.
             if (fileData instanceof PictureFileData) {
                 Cursor previousCursor = setWaitCursor();
                 this.picturePanel.setPictureFile((PictureFileData) fileData,

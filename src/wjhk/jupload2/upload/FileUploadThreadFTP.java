@@ -29,7 +29,6 @@ import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -130,7 +129,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
      * the matcher created in the main.
      * 
      * @param uploadPolicy
-     * @param fileUploadManagerThread 
+     * @param fileUploadManagerThread
      * 
      * @throws JUploadException
      * @throws IllegalArgumentException if any error occurs. message is error
@@ -287,14 +286,17 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         }
     }
 
-    /** @throws JUploadIOException 
-     * @see DefaultFileUploadThread#finishRequest() */
+    /**
+     * @throws JUploadIOException
+     * @see DefaultFileUploadThread#finishRequest()
+     */
     @Override
     int finishRequest() throws JUploadIOException {
         try {
             getOutputStream().flush();
         } catch (IOException e) {
-            throw new JUploadIOException("FileUploadThreadFTP.finishRequest()", e);
+            throw new JUploadIOException("FileUploadThreadFTP.finishRequest()",
+                    e);
         }
         return 200;
         // Nothing to do

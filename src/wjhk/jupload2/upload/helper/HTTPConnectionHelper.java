@@ -888,6 +888,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * 
      * @see java.io.OutputStream#close()
      */
+    @Override
     public void close() throws IOException {
         throw new IOException("Forbidden action. Please use the "
                 + getClass().getName() + ".sendRequest() method");
@@ -900,6 +901,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * 
      * @see java.io.OutputStream#flush()
      */
+    @Override
     public void flush() throws IOException {
         if (this.connectionStatus == STATUS_WRITING_REQUEST) {
             this.outputStream.flush();

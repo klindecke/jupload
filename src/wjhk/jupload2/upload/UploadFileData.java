@@ -77,7 +77,7 @@ class UploadFileData implements FileData {
      * This field is no more static, as we could decide to upload two files
      * simultaneously.
      */
-    private final byte readBuffer[] = new byte[BUFLEN];
+    private final byte readBuffer[] = new byte[this.BUFLEN];
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
     // //////////////////////////////////// CONSTRUCTOR
@@ -132,7 +132,7 @@ class UploadFileData implements FileData {
     String getMD5() throws JUploadException {
         StringBuffer ret = new StringBuffer();
         MessageDigest digest = null;
-        byte md5Buffer[] = new byte[BUFLEN];
+        byte md5Buffer[] = new byte[this.BUFLEN];
         int nbBytes;
 
         // Calculation of the MD5 sum. Now done before upload, to prepare the
@@ -142,7 +142,7 @@ class UploadFileData implements FileData {
         InputStream md5InputStream = this.fileData.getInputStream();
         try {
             digest = MessageDigest.getInstance("MD5");
-            while ((nbBytes = md5InputStream.read(md5Buffer, 0, BUFLEN)) > 0) {
+            while ((nbBytes = md5InputStream.read(md5Buffer, 0, this.BUFLEN)) > 0) {
                 digest.update(md5Buffer, 0, nbBytes);
             }
             md5InputStream.close();
@@ -172,8 +172,8 @@ class UploadFileData implements FileData {
      * @param amount The number of bytes to write.
      * @throws JUploadException if an I/O error occurs.
      */
-    void uploadFile(OutputStream outputStream, int numOfFileInCurrentRequest,
-            long amount) throws JUploadException {
+    void uploadFile(OutputStream outputStream, long amount)
+            throws JUploadException {
         this.uploadPolicy.displayDebug("in UploadFileData.uploadFile (amount:"
                 + amount + ", getUploadLength(): " + getUploadLength() + ")",
                 30);
@@ -183,12 +183,19 @@ class UploadFileData implements FileData {
         getInputStream();
 
         while (!this.fileUploadManagerThread.isUploadStopped() && (0 < amount)) {
-            int toread = (amount > BUFLEN) ? BUFLEN : (int) amount;
+            int toread = (amount > this.BUFLEN) ? this.BUFLEN : (int) amount;
             int towrite = 0;
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e1) {
+
+            if (this.uploadPolicy.getDebugLevel() > 100) {
+                // Let's have a little time to check the upload messages written
+                // on
+                // the progress bar.
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e1) {
+                }
             }
+
             try {
                 towrite = this.inputStream.read(this.readBuffer, 0, toread);
             } catch (IOException e) {
@@ -198,8 +205,7 @@ class UploadFileData implements FileData {
             if (towrite > 0) {
                 try {
                     outputStream.write(this.readBuffer, 0, towrite);
-                    this.fileUploadManagerThread.nbBytesUploaded(
-                            numOfFileInCurrentRequest, towrite);
+                    this.fileUploadManagerThread.nbBytesUploaded(towrite);
                     amount -= towrite;
                     this.uploadRemainingLength -= towrite;
                 } catch (IOException e) {

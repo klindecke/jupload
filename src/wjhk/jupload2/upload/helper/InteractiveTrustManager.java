@@ -208,12 +208,12 @@ public class InteractiveTrustManager implements X509TrustManager,
             this.hostname = hostname;
             // Initialize the keystore only once, so that we can
             // reuse it during the session
-            if (null == ts) {
-                ts = KeyStore.getInstance(KeyStore.getDefaultType());
+            if (null == this.ts) {
+                this.ts = KeyStore.getInstance(KeyStore.getDefaultType());
                 while (true) {
                     try {
                         FileInputStream is = new FileInputStream(this.tsname);
-                        ts.load(is, passwd.toCharArray());
+                        this.ts.load(is, passwd.toCharArray());
                         is.close();
                         // need it later for eventual storing.
                         this.tspasswd = passwd;
@@ -234,7 +234,7 @@ public class InteractiveTrustManager implements X509TrustManager,
             }
             this.tmf = TrustManagerFactory.getInstance(TrustManagerFactory
                     .getDefaultAlgorithm());
-            this.tmf.init(ts);
+            this.tmf.init(this.ts);
         }
         if ((this.mode & CLIENT) != 0) {
             String ksname = System.getProperty("javax.net.ssl.keyStore");
@@ -246,7 +246,7 @@ public class InteractiveTrustManager implements X509TrustManager,
             if (!(f.exists() && f.isFile()))
                 throw new KeyStoreException("Keystore " + ksname
                         + " does not exist.");
-            if (null == kmf) {
+            if (null == this.kmf) {
                 String kstype = ksname.toLowerCase().endsWith(".p12") ? "PKCS12"
                         : KeyStore.getDefaultType();
                 this.ks = KeyStore.getInstance(kstype);
@@ -268,9 +268,9 @@ public class InteractiveTrustManager implements X509TrustManager,
                                 + e.getMessage());
                     }
                 }
-                kmf = KeyManagerFactory.getInstance(KeyManagerFactory
+                this.kmf = KeyManagerFactory.getInstance(KeyManagerFactory
                         .getDefaultAlgorithm());
-                kmf.init(this.ks, cpass.toCharArray());
+                this.kmf.init(this.ks, cpass.toCharArray());
             }
         }
 
@@ -282,7 +282,7 @@ public class InteractiveTrustManager implements X509TrustManager,
      * @return The current array of key managers.
      */
     public KeyManager[] getKeyManagers() {
-        return ((this.mode & CLIENT) == 0) ? null : kmf.getKeyManagers();
+        return ((this.mode & CLIENT) == 0) ? null : this.kmf.getKeyManagers();
     }
 
     /**
@@ -511,7 +511,7 @@ public class InteractiveTrustManager implements X509TrustManager,
             case JOptionPane.YES_OPTION:
                 // Add certificate to truststore
                 try {
-                    ts.setCertificateEntry(fp.toString(), c);
+                    this.ts.setCertificateEntry(fp.toString(), c);
                 } catch (KeyStoreException e) {
                     throw new CertificateException(
                             "Unable to add certificate: " + e.getMessage());
@@ -541,13 +541,13 @@ public class InteractiveTrustManager implements X509TrustManager,
                             }
                             FileOutputStream os = new FileOutputStream(
                                     this.tsname);
-                            ts.store(os, this.tspasswd.toCharArray());
+                            this.ts.store(os, this.tspasswd.toCharArray());
                             os.close();
                             if (old && (!f.delete()))
                                 throw new IOException(
                                         "Could not delete old truststore");
                             // Must re-initialize TrustManagerFactory
-                            this.tmf.init(ts);
+                            this.tmf.init(this.ts);
                             System.out.println("Saved cert to " + this.tsname);
                             break;
                         } catch (Exception e) {

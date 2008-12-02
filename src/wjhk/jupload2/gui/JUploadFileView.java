@@ -134,9 +134,9 @@ class IconWorker implements Runnable {
                 // changes of directory, then went back to it.
                 // We ask again to calculate its icon.
                 this.fileView.execute(this);
-                return fileView.emptyIcon;
+                return this.fileView.emptyIcon;
             default:
-                return fileView.emptyIcon;
+                return this.fileView.emptyIcon;
         }// switch
     }// getIcon
 
@@ -196,8 +196,7 @@ public class JUploadFileView extends FileView implements
      * {@link JUploadFileView#JUploadFileView(UploadPolicy, JFileChooser)}
      * constructor.
      */
-    ThreadGroup iconWorkerThreadGroup = new ThreadGroup(
-            "JUpload ThreadGroup");
+    ThreadGroup iconWorkerThreadGroup = new ThreadGroup("JUpload ThreadGroup");
 
     /** The current upload policy. */
     UploadPolicy uploadPolicy = null;
@@ -219,7 +218,7 @@ public class JUploadFileView extends FileView implements
     /**
      * An empty icon, having the good file size.
      */
-    public  ImageIcon emptyIcon = null;
+    public ImageIcon emptyIcon = null;
 
     /**
      * Creates a new instance.
@@ -234,20 +233,19 @@ public class JUploadFileView extends FileView implements
 
         // The real interest of the threa group, here, is to lower the priority
         // of the icon workers threads:
-        this.iconWorkerThreadGroup
-                .setMaxPriority(Thread.MIN_PRIORITY);
+        this.iconWorkerThreadGroup.setMaxPriority(Thread.MIN_PRIORITY);
 
         // emptyIcon needs an upload policy, to be set, but we'll create it
         // only once.
-        if (emptyIcon == null
-                || emptyIcon.getIconHeight() != uploadPolicy
+        if (this.emptyIcon == null
+                || this.emptyIcon.getIconHeight() != uploadPolicy
                         .getFileChooserIconSize()) {
             // The empty icon has not been calculated yet, or its size changed
             // since the icon creation. This can happen when the applet is
             // reloaded, and the applet parameter changed: the static attribute
             // are not recalculated.
             // Let's construct the resized picture.
-            emptyIcon = new ImageIcon(new BufferedImage(uploadPolicy
+            this.emptyIcon = new ImageIcon(new BufferedImage(uploadPolicy
                     .getFileChooserIconSize(), uploadPolicy
                     .getFileChooserIconSize(), BufferedImage.TYPE_INT_ARGB_PRE));
         }
@@ -363,7 +361,7 @@ public class JUploadFileView extends FileView implements
             // later.
             execute(iconWorker);
             // We currently have no icon to display.
-            return emptyIcon;
+            return this.emptyIcon;
         }
         // Ok, let's take the icon.
         return iconWorker.getIcon();
@@ -396,8 +394,7 @@ public class JUploadFileView extends FileView implements
      * @return The newly created thread
      */
     public Thread newThread(Runnable runnable) {
-        Thread thread = new Thread(this.iconWorkerThreadGroup,
-                runnable);
+        Thread thread = new Thread(this.iconWorkerThreadGroup, runnable);
         thread.setPriority(Thread.MIN_PRIORITY);
         return thread;
     }
