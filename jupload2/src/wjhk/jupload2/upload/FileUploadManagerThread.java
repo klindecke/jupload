@@ -574,7 +574,10 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         } else {
             // Some new files are ready, let's look if the packet is ready. We
             // add at least the first one.
-            FileData[] tempFileData = new FileData[this.nbFilesPerRequest];
+            int maxPacketSize = Math.min(this.nbPreparedFiles
+                    - this.nbUploadedFiles - this.nbFilesBeingUploaded,
+                    this.nbFilesPerRequest);
+            FileData[] tempFileData = new FileData[maxPacketSize];
             int nbFilesInPacket = 0;
             long packetLength = 0;
             boolean isPacketFinished = false;
@@ -584,9 +587,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // uploaded by another upload thread),
             // 2) The number of files per request is no more than the
             // nbFilesPerRequest applet parameter.
-            while (nbFilesInPacket < this.nbPreparedFiles
-                    - this.nbUploadedFiles - this.nbFilesBeingUploaded
-                    && nbFilesInPacket < this.nbFilesPerRequest) {
+            while (nbFilesInPacket < maxPacketSize) {
                 // If the packet is not empty, we don't allow to add a new file,
                 // if this new file make the total upload size be more than a
                 // chunk size, as chunk upload expects that files are sent file
