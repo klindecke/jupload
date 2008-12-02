@@ -195,7 +195,10 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <LI>90: Details about query and server response when sending debug output to
  * urlToSendErrorTo
  * <LI>100: Maximum output information level. The redirection toward
- * afterUploadURL is blocked </DIR> <br>
+ * afterUploadURL is blocked
+ * <LI>>100: Additional things for internal debug, like some wait in the code
+ * to check what messages the applet displays, while uploading small files on
+ * localhost.</DIR> <br>
  * Note: All debug messages are stored in a temporary log file. This can be used
  * to display more information, if needed. See also the <I>urlToSendErrorTo</I>
  * applet parameter. </td>
