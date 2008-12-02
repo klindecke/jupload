@@ -98,19 +98,21 @@ public interface FilePanel {
      * @return The drop component target
      */
     public Component getDropComponent();
-    
+
     /**
      * Transfer handler, to manage copy/paste operations.
-     * @param newHandler 
+     * 
+     * @param newHandler
      * @see JComponent#setTransferHandler(TransferHandler)
      */
     public void setTransferHandler(TransferHandler newHandler);
 
     /**
      * Allows to get standard action map, like paste action.
+     * 
      * @return Get the current actionMap
      * @see JComponent#getActionMap()
      */
     public ActionMap getActionMap();
-     
+
 }

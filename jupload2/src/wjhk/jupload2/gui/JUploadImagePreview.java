@@ -76,7 +76,7 @@ class LoadImageThread extends Thread {
 
         this.jUploadImagePreview.uploadPolicy.displayDebug(
                 "LoadImageThread.start (start)", 50);
-        this.jUploadImagePreview.jFileChooser.setCursor(waitCursor);
+        this.jUploadImagePreview.jFileChooser.setCursor(this.waitCursor);
         ImageIcon thumbnail = PictureFileData.getImageIcon(this.file,
                 this.jUploadImagePreview.getWidth(), this.jUploadImagePreview
                         .getHeight());

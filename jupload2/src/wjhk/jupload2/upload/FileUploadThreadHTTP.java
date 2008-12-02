@@ -68,7 +68,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * Creates a new instance.
      * 
      * @param uploadPolicy The policy to be applied.
-     * @param fileUploadManagerThread 
+     * @param fileUploadManagerThread
      */
     public FileUploadThreadHTTP(UploadPolicy uploadPolicy,
             FileUploadManagerThread fileUploadManagerThread) {
@@ -149,6 +149,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     @Override
     int finishRequest() throws JUploadException {
+        if (this.uploadPolicy.getDebugLevel() > 100) {
+            // Let's have a little time to check the upload messages written on
+            // the progress bar.
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+            }
+        }
         int status = this.connectionHelper.readHttpResponse();
         setResponseMsg(this.connectionHelper.getResponseMsg());
         setResponseBody(this.connectionHelper.getResponseBody());

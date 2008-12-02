@@ -59,7 +59,7 @@ public class DefaultFileData implements FileData {
     /**
      * the mime type list, coming from: http://www.mimetype.org/ Thanks to them!
      */
-    public Properties mimeTypes = null;
+    static public Properties mimeTypesProperties = null;
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// Protected attributes
@@ -131,16 +131,17 @@ public class DefaultFileData implements FileData {
         }
 
         // Let's load the mime types list.
-        if (mimeTypes == null) {
-            mimeTypes = new Properties();
+        if (mimeTypesProperties == null) {
+            mimeTypesProperties = new Properties();
             final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
             try {
                 /*
-                 * mimeTypes.load(getClass().getResourceAsStream(
+                 * mimeTypesProperties.load(getClass().getResourceAsStream(
                  * mimetypePropertiesFilename));
                  */
-                mimeTypes.load(Class.forName("wjhk.jupload2.JUploadApplet")
-                        .getResourceAsStream(mimetypePropertiesFilename));
+                mimeTypesProperties.load(Class.forName(
+                        "wjhk.jupload2.JUploadApplet").getResourceAsStream(
+                        mimetypePropertiesFilename));
                 uploadPolicy.displayDebug("Mime types list loaded Ok ("
                         + mimetypePropertiesFilename + ")", 50);
             } catch (Exception e) {
@@ -151,7 +152,8 @@ public class DefaultFileData implements FileData {
         }
 
         // Let
-        this.mimeType = mimeTypes.getProperty(getFileExtension().toLowerCase());
+        this.mimeType = mimeTypesProperties.getProperty(getFileExtension()
+                .toLowerCase());
         if (this.mimeType == null) {
             this.mimeType = "application/octet-stream";
         }

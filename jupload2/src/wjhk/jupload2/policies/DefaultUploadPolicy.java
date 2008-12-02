@@ -588,10 +588,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public boolean checkUploadSuccess(int status, String msg, String body)
             throws JUploadException {
         boolean bReturn = false;
-        
-        try {
-            Thread.sleep(300);
-        } catch (InterruptedException e) {
+
+        if (getDebugLevel() > 100) {
+            // Let's have a little time to check the upload messages written on
+            // the progress bar.
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+            }
         }
 
         this.lastResponseBody = body;
@@ -2049,7 +2053,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             this.debugFile));
                 }
                 boolean endsLF = msg.endsWith("\n");
-                msg = msg.replaceAll("\n", CRLF);
+                msg = msg.replaceAll("\n", this.CRLF);
                 if (endsLF) {
                     this.debugOut.print(msg);
                 } else {

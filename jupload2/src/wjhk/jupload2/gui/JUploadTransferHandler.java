@@ -56,13 +56,14 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
      * @see javax.swing.TransferHandler#importData(javax.swing.JComponent,
      *      java.awt.datatransfer.Transferable)
      */
+    @Override
     @SuppressWarnings("unchecked")
     public boolean importData(JComponent c, Transferable t) {
         FilePanel filePanel = this.uploadPanel.getFilePanel();
         if (canImport(c, t.getTransferDataFlavors())) {
             try {
                 List<File> fileList = (List<File>) t
-                        .getTransferData(fileListFlavor);
+                        .getTransferData(this.fileListFlavor);
                 Iterator<File> iterator = fileList.iterator();
                 File[] fileArray = new File[1];
                 while (iterator.hasNext()) {
@@ -82,6 +83,7 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
     /**
      * @see javax.swing.TransferHandler#getSourceActions(javax.swing.JComponent)
      */
+    @Override
     public int getSourceActions(JComponent c) {
         return MOVE;
     }
@@ -90,9 +92,10 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
      * @see javax.swing.TransferHandler#canImport(javax.swing.JComponent,
      *      java.awt.datatransfer.DataFlavor[])
      */
+    @Override
     public boolean canImport(JComponent c, DataFlavor[] flavors) {
         for (int i = 0; i < flavors.length; i++) {
-            if (fileListFlavor.equals(flavors[i])) {
+            if (this.fileListFlavor.equals(flavors[i])) {
                 return true;
             }
         }
@@ -103,7 +106,7 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        String action = (String) e.getActionCommand();
+        String action = e.getActionCommand();
         String a = action;
         action = a;
         /*

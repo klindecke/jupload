@@ -77,7 +77,7 @@ public class JUploadApplet extends Applet {
      * build.xml ant file, packaged with the applet.
      */
     public final String VERSION = "4.0b1 [SVN-Rev: "
-            + svnProperties.getProperty("revision") + "]";
+            + this.svnProperties.getProperty("revision") + "]";
 
     /**
      * The last modification of this applet. Not accurate: would work only if
@@ -86,7 +86,7 @@ public class JUploadApplet extends Applet {
      * @deprecated since v3.1
      */
     @Deprecated
-    public final String LAST_MODIFIED = svnProperties
+    public final String LAST_MODIFIED = this.svnProperties
             .getProperty("lastSrcDirModificationDate");
 
     /**
@@ -94,7 +94,8 @@ public class JUploadApplet extends Applet {
      * build.xml packaged by the script. If compiled with eclipse (for
      * instance), the build_date is noted as 'unknown'.
      */
-    public final String BUILD_DATE = svnProperties.getProperty("buildDate");
+    public final String BUILD_DATE = this.svnProperties
+            .getProperty("buildDate");
 
     /**
      * The current upload policy. This class is responsible for the call to the

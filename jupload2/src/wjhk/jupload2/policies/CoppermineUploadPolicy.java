@@ -105,8 +105,6 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                 PROP_ALBUM_ID, DEFAULT_ALBUM_ID, this);
     }
 
-
-
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#onFileSelected(wjhk.jupload2.filedata.FileData)
      */

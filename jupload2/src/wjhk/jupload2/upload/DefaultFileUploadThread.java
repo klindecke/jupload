@@ -275,14 +275,15 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * method, until a set of files is ready. Then, it calls the doUpload()
      * method, to send these files to the server.
      */
+    @Override
     final public void run() {
         this.uploadPolicy.displayDebug("Start of the FileUploadThread", 5);
 
         try {
             // We'll stop the upload if an error occurs. So the try/catch is
             // outside the while.
-            while (!fileUploadManagerThread.isUploadStopped()
-                    && !fileUploadManagerThread.isUploadFinished()) {
+            while (!this.fileUploadManagerThread.isUploadStopped()
+                    && !this.fileUploadManagerThread.isUploadFinished()) {
                 // If a packet is ready, we take it into account. Otherwise, we
                 // wait for a new packet.
                 this.filesToUpload = this.fileUploadManagerThread
@@ -332,6 +333,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
         long totalContentLength = 0;
         long totalFileLength = 0;
 
+        // We are about to start a new upload.
+        this.fileUploadManagerThread.setUploadStatus(0,
+                FileUploadManagerThread.UPLOAD_STATUS_UPLOADING);
+
         // Prepare upload, for all files to be uploaded.
         beforeRequest();
 
@@ -371,6 +376,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
         } else {
             doNonChunkedUpload(totalContentLength, totalFileLength);
         }
+
+        // We are finished with this packet. Let's display it.
+        this.fileUploadManagerThread.setUploadStatus(this.filesToUpload.length,
+                FileUploadManagerThread.UPLOAD_STATUS_UPLOADED);
     }
 
     /**
@@ -426,8 +435,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             beforeFile(0);
 
             // Actual upload of the file:
-            this.filesToUpload[0].uploadFile(getOutputStream(), 0,
-                    thisChunkSize);
+            this.filesToUpload[0].uploadFile(getOutputStream(), thisChunkSize);
 
             // If we are not in chunk mode, or if it was the last chunk,
             // upload should be finished.
@@ -442,10 +450,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
             }
             // Let's add any file-specific header.
             afterFile(0);
-
-            // We are finished with this one. Let's display it.
-            // FIXME set file: 100%
-            this.fileUploadManagerThread.updateUploadProgressBar();
 
             // Let's finish the request, and wait for the server Output, if
             // any (not applicable in FTP)
@@ -478,32 +482,32 @@ public abstract class DefaultFileUploadThread extends Thread implements
         startRequest(totalContentLength, false, 0, true);
 
         // Then, upload each file.
-        for (int i = 0; i < filesToUpload.length
+        for (int i = 0; i < this.filesToUpload.length
                 && !this.fileUploadManagerThread.isUploadStopped(); i++) {
-            // We are finished with this one. Let's display it.
-            this.fileUploadManagerThread.nbBytesUploaded(i, 0);
-            this.fileUploadManagerThread.updateUploadProgressBar();
+            // We are about to start a new upload.
+            this.fileUploadManagerThread.setUploadStatus(i,
+                    FileUploadManagerThread.UPLOAD_STATUS_UPLOADING);
 
             // Let's add any file-specific header.
             beforeFile(i);
 
             // Actual upload of the file:
-            this.filesToUpload[i].uploadFile(getOutputStream(), i,
+            this.filesToUpload[i].uploadFile(getOutputStream(),
                     this.filesToUpload[i].getUploadLength());
 
             // Let's add any file-specific header.
             afterFile(i);
-
-            // FIXME set file: 100%
-
         }
+
+        // We are finished with this one. Let's display it.
+        this.fileUploadManagerThread
+                .setUploadStatus(
+                        this.filesToUpload.length,
+                        FileUploadManagerThread.UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE);
 
         // Let's finish the request, and wait for the server Output, if
         // any (not applicable in FTP)
         int status = finishRequest();
-
-        // We are finished with this one. Let's display it.
-        this.fileUploadManagerThread.updateUploadProgressBar();
 
         // We now ask to the uploadPolicy, if it was a success.
         // If not, the isUploadSuccessful should raise an exception.
@@ -513,7 +517,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         cleanRequest();
 
         // Let's tell our manager that we've done the job!
-        for (int i = 0; i < filesToUpload.length
+        for (int i = 0; i < this.filesToUpload.length
                 && !this.fileUploadManagerThread.isUploadStopped(); i++) {
             this.fileUploadManagerThread
                     .anotherFileHasBeenUploaded(this.filesToUpload[i]);

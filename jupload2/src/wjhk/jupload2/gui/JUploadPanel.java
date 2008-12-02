@@ -74,7 +74,6 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /** The main popup menu of the applet */
     private JUploadMainPopupMenu jUploadMainPopupMenu;
 
-
     // ------------- VARIABLES ----------------------------------------------
 
     /**
@@ -401,7 +400,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         if (e.getActionCommand().equals(actionPaste)) {
             Action a = getActionMap().get(actionPaste);
             if (a != null) {
-                a.actionPerformed(new ActionEvent(filePanel,
+                a.actionPerformed(new ActionEvent(this.filePanel,
                         ActionEvent.ACTION_PERFORMED, null));
             }
         } else if (e.getActionCommand() == this.browseButton.getActionCommand()) {
@@ -505,8 +504,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * Select or unselect the applet buttons
      */
     public void updateButtonState() {
-        if (fileUploadManagerThread != null
-                && !fileUploadManagerThread.isUploadFinished()) {
+        if (this.fileUploadManagerThread != null
+                && !this.fileUploadManagerThread.isUploadFinished()) {
             // An upload is running on.
             this.browseButton.setEnabled(false);
             this.removeButton.setEnabled(false);

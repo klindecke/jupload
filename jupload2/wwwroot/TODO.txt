@@ -123,7 +123,8 @@ We also changed the related lang_en.properties entry:
 #infoUploading = Uploading files %1$s 
 infoUploading = Uploading %1$s file(s) 
 
-==> Up to you. I prefer the old one. A simple way is also to put nbFilesPerRequest to 1.
+==> Partially changed: taking into account for the 'uploading' and 'uploaded' string, but the waiting for server response remains 
+with the n-m/p string (if it fails, files from n to m will remain in the applet).
 
 +++++++++++++++++++++++++++++++ 
  
@@ -215,6 +216,7 @@ As always, a lot of things can be made better:
 
 TODO list:
 - Remove the sleep in UploadFileData
+- Remove the sleep in FileUploadThreadHTTP
 - Remove the sleep in DefaultUploadPolicy
 - Correct the status bar: it's wrong, while uploading.
 - Check paste or drop files on the applet, while uploading.
