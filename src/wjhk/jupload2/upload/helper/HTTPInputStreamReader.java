@@ -535,6 +535,10 @@ public class HTTPInputStreamReader {
         this.responseBody = new String(this.body, this.charset);
 
         // At the higher debug level, we display the response.
+        this.uploadPolicy.displayDebug("-------- Response Body Start --------",
+                100);
         this.uploadPolicy.displayDebug(this.responseBody, 100);
+        this.uploadPolicy.displayDebug("-------- Response Body End --------",
+                100);
     }// readBody
 }
