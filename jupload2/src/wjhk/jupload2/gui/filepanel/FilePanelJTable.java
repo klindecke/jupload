@@ -20,7 +20,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.gui;
+package wjhk.jupload2.gui.filepanel;
 
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
@@ -33,6 +33,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
+import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**

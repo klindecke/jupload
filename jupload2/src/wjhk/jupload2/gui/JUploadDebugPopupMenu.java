@@ -56,6 +56,8 @@ final class JUploadDebugPopupMenu extends JPopupMenu implements ActionListener,
 
     JMenuItem jMenuItemViewLastResponseBody = null;
 
+    JMenuItem jMenuItemClearLogWindowContent = null;
+
     JMenuItem jMenuItemCopyLogWindowContent = null;
 
     /**
@@ -82,6 +84,11 @@ final class JUploadDebugPopupMenu extends JPopupMenu implements ActionListener,
                 .equals("true"));
         add(this.cbmiLogWindowOnOff);
         this.cbmiLogWindowOnOff.addItemListener(this);
+        // Clear the last responseBody
+        this.jMenuItemClearLogWindowContent = new JMenuItem(
+                "Clear the log window content");
+        add(this.jMenuItemClearLogWindowContent);
+        this.jMenuItemClearLogWindowContent.addActionListener(this);
         // Copy the last responseBody
         this.jMenuItemCopyLogWindowContent = new JMenuItem(
                 "Copy the log window content");
@@ -124,6 +131,8 @@ final class JUploadDebugPopupMenu extends JPopupMenu implements ActionListener,
             } catch (JUploadIOException e1) {
                 this.uploadPolicy.displayErr(e1);
             }
+        } else if (this.jMenuItemClearLogWindowContent == e.getSource()) {
+            this.uploadPolicy.getApplet().getUploadPanel().clearLogWindow();
         } else if (this.jMenuItemCopyLogWindowContent == e.getSource()) {
             this.uploadPolicy.getApplet().getUploadPanel().copyLogWindow();
         }

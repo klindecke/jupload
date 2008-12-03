@@ -44,10 +44,10 @@ import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
-import wjhk.jupload2.gui.JUploadImagePreview;
 import wjhk.jupload2.gui.JUploadPanel;
-import wjhk.jupload2.gui.PictureDialog;
-import wjhk.jupload2.gui.PicturePanel;
+import wjhk.jupload2.gui.image.JUploadImagePreview;
+import wjhk.jupload2.gui.image.PictureDialog;
+import wjhk.jupload2.gui.image.PicturePanel;
 
 /**
  * This class add handling of pictures to upload. <BR>

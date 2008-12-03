@@ -8,9 +8,9 @@ import javax.swing.Timer;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
-import wjhk.jupload2.gui.FilePanel;
 import wjhk.jupload2.gui.JUploadPanel;
-import wjhk.jupload2.gui.SizeRenderer;
+import wjhk.jupload2.gui.filepanel.FilePanel;
+import wjhk.jupload2.gui.filepanel.SizeRenderer;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**

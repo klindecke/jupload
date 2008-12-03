@@ -19,6 +19,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
+import wjhk.jupload2.gui.filepanel.FilePanel;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class JUploadTransferHandler extends TransferHandler implements ActionListener {

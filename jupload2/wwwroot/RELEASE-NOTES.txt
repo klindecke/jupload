@@ -8,6 +8,11 @@ prepare files, one to upload files. Especially useful for picture mode.
 of the total amount of bytes.
 - [Minor] Hidden files are no more visible in the file chooser. They can still be added by drag'n'drop 
 or paste operations. 
+- [Minor] When a file is too big, the alert message now displays a size in Mb, Gb... (not the while byte number).
+- [Minor] Hidden files are not visible within the FileChooser. Hidden files can still be dropped or pasted
+onto the applet.
+- [Minor] There are now two progress bar: file preparation (quite useless for default upload policy) and the 
+upload progress. Text has been updated.  
 
 Fix:
 - Allows sending very large number of files. Previous version was crashing with 4000 files.
