@@ -40,7 +40,7 @@ import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadFileView;
 import wjhk.jupload2.gui.JUploadPanel;
-import wjhk.jupload2.gui.PictureDialog;
+import wjhk.jupload2.gui.image.PictureDialog;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
 /**

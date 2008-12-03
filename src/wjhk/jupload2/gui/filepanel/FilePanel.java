@@ -18,7 +18,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.gui;
+package wjhk.jupload2.gui.filepanel;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.JUploadPanel;
 
 /**
  * Defines the interface used in the applet, when dealing with the file panel.

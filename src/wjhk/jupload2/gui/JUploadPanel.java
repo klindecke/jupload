@@ -44,6 +44,8 @@ import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
 
 import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.gui.filepanel.FilePanel;
+import wjhk.jupload2.gui.filepanel.FilePanelTableImp;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 import wjhk.jupload2.upload.FileUploadManagerThread;
@@ -478,7 +480,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * @param mouseEvent The triggered mouse event.
      * @return true if the popup menu was opened, false otherwise.
      */
-    boolean maybeOpenPopupMenu(MouseEvent mouseEvent) {
+    public boolean maybeOpenPopupMenu(MouseEvent mouseEvent) {
         // Should we open one out of the numerous (2!) popup menus ?
         if (mouseEvent.isPopupTrigger()) {
             if ((mouseEvent.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
@@ -523,6 +525,11 @@ public class JUploadPanel extends JPanel implements ActionListener,
             this.uploadButton.setEnabled(enabled);
         }
 
+    }
+
+    /** Clear the current log window content. */
+    public void clearLogWindow() {
+        this.logWindow.setText("");
     }
 
     /**

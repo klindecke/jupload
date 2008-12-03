@@ -17,7 +17,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.gui;
+package wjhk.jupload2.gui.image;
 
 /**
  * This class contains the accessory that displays the image preview, when in

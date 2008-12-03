@@ -1017,13 +1017,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // Then we copy the debug output to the clipboard, and say it to the
         // current user.
-        if (getApplet().getUploadPanel() != null) {
+        if (getApplet().getUploadPanel() != null && getDebugLevel() == 100) {
             // Ok, the applet has been fully built.
             getApplet().getUploadPanel().copyLogWindow();
-            if (getDebugLevel() == 100) {
-                alert("messageLogWindowCopiedToClipboard");
-            }
+            alert("messageLogWindowCopiedToClipboard");
         }
+
     }
 
     /**

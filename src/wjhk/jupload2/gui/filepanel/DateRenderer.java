@@ -20,7 +20,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.gui;
+package wjhk.jupload2.gui.filepanel;
 
 import java.awt.Component;
 import java.text.SimpleDateFormat;
@@ -33,7 +33,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * Technical class, used to display dates. Used in
- * {@link wjhk.jupload2.gui.FilePanelJTable}.
+ * {@link wjhk.jupload2.gui.filepanel.FilePanelJTable}.
  */
 public class DateRenderer extends DefaultTableCellRenderer {
     /** A generated serialVersionUID, to avoid warning during compilation */

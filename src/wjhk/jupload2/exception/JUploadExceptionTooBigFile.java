@@ -20,7 +20,7 @@
 
 package wjhk.jupload2.exception;
 
-import wjhk.jupload2.gui.SizeRenderer;
+import wjhk.jupload2.gui.filepanel.SizeRenderer;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**

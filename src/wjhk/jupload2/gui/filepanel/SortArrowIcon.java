@@ -20,7 +20,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.gui;
+package wjhk.jupload2.gui.filepanel;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -30,7 +30,7 @@ import javax.swing.Icon;
 
 /**
  * Icon implementation, to control and indicate the current sort order, into the
- * {@link wjhk.jupload2.gui.FilePanelJTable}.
+ * {@link wjhk.jupload2.gui.filepanel.FilePanelJTable}.
  */
 public class SortArrowIcon implements Icon {
     /**

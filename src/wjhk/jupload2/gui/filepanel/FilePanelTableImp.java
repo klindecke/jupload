@@ -18,7 +18,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 675 Mass Ave, Cambridge, MA 02139, USA.
 
-package wjhk.jupload2.gui;
+package wjhk.jupload2.gui.filepanel;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -31,11 +31,12 @@ import javax.swing.table.TableColumnModel;
 
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.filedata.FileData;
+import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * Implementation of the FilePanel : it creates the
- * {@link wjhk.jupload2.gui.FilePanelJTable}, and handles the necessary
+ * {@link wjhk.jupload2.gui.filepanel.FilePanelJTable}, and handles the necessary
  * functionalities.
  * 
  * @author William JinHua Kwong
@@ -92,7 +93,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     }
 
     /**
-     * @see wjhk.jupload2.gui.FilePanel#addFiles(java.io.File[],java.io.File)
+     * @see wjhk.jupload2.gui.filepanel.FilePanel#addFiles(java.io.File[],java.io.File)
      */
     public final void addFiles(File[] f, File root) {
 
@@ -150,7 +151,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     }
 
     /**
-     * @see wjhk.jupload2.gui.FilePanel#getFiles()
+     * @see wjhk.jupload2.gui.filepanel.FilePanel#getFiles()
      */
     public final FileData[] getFiles() {
         FileData[] files = new FileData[getFilesLength()];
@@ -161,14 +162,14 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     }
 
     /**
-     * @see wjhk.jupload2.gui.FilePanel#getFilesLength()
+     * @see wjhk.jupload2.gui.filepanel.FilePanel#getFilesLength()
      */
     public final int getFilesLength() {
         return this.jtable.getRowCount();
     }
 
     /**
-     * @see wjhk.jupload2.gui.FilePanel#removeSelected()
+     * @see wjhk.jupload2.gui.filepanel.FilePanel#removeSelected()
      */
     public final void removeSelected() {
         int[] rows = this.jtable.getSelectedRows();
@@ -204,13 +205,13 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
         this.jtable.clearSelection();
     }
 
-    /** @see wjhk.jupload2.gui.FilePanel#focusTable() */
+    /** @see wjhk.jupload2.gui.filepanel.FilePanel#focusTable() */
     public final void focusTable() {
         if (0 < this.jtable.getRowCount())
             this.jtable.requestFocus();
     }
 
-    /** @see wjhk.jupload2.gui.FilePanel#getFileDataAt(Point) */
+    /** @see wjhk.jupload2.gui.filepanel.FilePanel#getFileDataAt(Point) */
     public FileData getFileDataAt(Point point) {
         int row = this.jtable.rowAtPoint(point);
         return this.model.getFileDataAt(row);
