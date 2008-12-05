@@ -310,6 +310,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             } catch (InterruptedException e) {
                 // Nothing to do
             }
+            // The job is finished for long enough, let's clear the progression
+            // bars.
             this.preparationProgressBar.setValue(0);
             this.preparationProgressBar.setString("");
             this.uploadProgressBar.setValue(0);
@@ -537,7 +539,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             } catch (ArithmeticException e1) {
                 eta = this.uploadPolicy.getString("timefmt_unknown");
             }
-            this.uploadProgressBar.setValue((int) percent);
             String format = this.uploadPolicy.getString("status_msg");
             String status = String.format(format, new Integer((int) percent),
                     SizeRenderer.formatFileUploadSpeed(cps, this.uploadPolicy),
@@ -740,6 +741,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             }
         }
 
+        this.uploadPolicy.displayDebug("   ProgressBar value: "
+                + (100 * this.nbUploadedFiles + percent), 101);
         this.uploadProgressBar.setValue(100 * this.nbUploadedFiles + percent);
 
         String msg = null;
