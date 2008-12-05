@@ -6,6 +6,7 @@ Changes:
 prepare files, one to upload files. Especially useful for picture mode.
 - [Major] Add of a new applet parameter: browsingDirectory. It allows the control of the directory in which
 the browse button will open the FileChooser for the first time.
+- [Minor] The allowHttpPersistent default value is now false, as a lot of people had troubles with persistent connections.
 - [Minor] When opening the FileChooser a second time, it will open where the user has closed it the previous time.
 - [Minor] When the file is too big, the applet now displays a file size in Gb, Mb or Kb, instead
 of the total amount of bytes.
