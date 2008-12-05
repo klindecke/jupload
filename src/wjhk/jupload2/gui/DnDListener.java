@@ -103,10 +103,10 @@ public class DnDListener implements DropTargetListener {
                 this.uploadPolicy.afterFileDropped(e);
 
             } catch (IOException ioe) {
-                ioe.printStackTrace();
+                this.uploadPolicy.displayErr("DnDListener.drop()", ioe);
                 e.rejectDrop();
             } catch (UnsupportedFlavorException ufe) {
-                ufe.printStackTrace();
+                this.uploadPolicy.displayErr("DnDListener.drop()", ufe);
                 e.rejectDrop();
             }
 
