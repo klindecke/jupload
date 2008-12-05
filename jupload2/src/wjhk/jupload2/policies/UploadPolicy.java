@@ -178,6 +178,17 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * box using a loopback interface only.</td>
  * </tr>
  * <tr>
+ * <td>browsingDirectory</td>
+ * <td><i>null</i><br>
+ * since 4.0.0b2<br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
+ * <td>This parameter allows to control the starting browsing directory, that
+ * is, the directory the is the current one when the file chooser is open.<BR>
+ * <U>Note:</U> if the directory doesn't exist, or can not be read, a warning
+ * is written on the local log window (visible only in debug mode), and this
+ * parameter is ignored.</td>
+ * </tr>
+ * <tr>
  * <td>debugLevel</td>
  * <td>0 <br>
  * <br>
@@ -592,9 +603,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>Allows the caller to add any header(s) to the applet. These headers will
  * be sent with each HTTP request to the server. If you put several lines in
- * this parameter, these parameter should be separated by the "\\n" strings (not
- * the \n character, but the \ character followed by the n character). No "\\n"
- * at the end: it will be added by the applet. <BR>
+ * this parameter, these parameter should be separated by the "\n" string (not
+ * the \n character, but the \ character followed by the n character, like
+ * msg="\\n";). No "\\n" at the end: it will be added by the applet. <BR>
  * This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  * a header like this one:<BR>
  * Authorization: Basic Base64EncodedString Where Base64EncodedString is the
@@ -840,6 +851,12 @@ public interface UploadPolicy {
     public final static String PROP_ALBUM_ID = "albumId";
 
     /**
+     * Indicates the directory, from which the applet should open the browsing
+     * window (file chooser) first.
+     */
+    public final static String PROP_BROWSING_DIRECTORY = "browsingDirectory";
+
+    /**
      * Parameter/Property name for specifying if images should be cached in
      * memory. Be careful: if set to true, you'll probably have memory problems
      * while in a navigator.
@@ -1066,6 +1083,11 @@ public interface UploadPolicy {
      * true, you'll probably have memory problems while in a navigator.
      */
     public final static boolean DEFAULT_STORE_BUFFERED_IMAGE = false;
+
+    /**
+     * Default value for the browsing window first: no specific directory.
+     */
+    public final static String DEFAULT_BROWSING_DIRECTORY = null;
 
     /**
      * Default value for date format when changing date/time variable to String.
@@ -1404,6 +1426,26 @@ public interface UploadPolicy {
      * @return Reference to the applet.
      */
     public JUploadApplet getApplet();
+
+    /**
+     * Set the current directory.
+     * 
+     * @param currentBrowsingDirectoryParam The directory that will be the
+     *            current one, the next time the file chooser is opened.
+     * @see #getCurrentBrowsingDirectory()
+     */
+    public void setCurrentBrowsingDirectory(File currentBrowsingDirectoryParam);
+
+    /**
+     * Returns the current browsing directory, that is: the directory that will
+     * be current the next time the file chooser is opened. It is initialized
+     * with the browsingDirectory applet parameter. Then, it contains the last
+     * directory used in the file chooser.
+     * 
+     * @return The directory that will be the current one, the next time the
+     *         file chooser is opened.
+     */
+    public File getCurrentBrowsingDirectory();
 
     /**
      * Returns the currently choosen format for date. It must be compatible with

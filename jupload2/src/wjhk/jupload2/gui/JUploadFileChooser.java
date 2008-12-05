@@ -21,6 +21,8 @@
 
 package wjhk.jupload2.gui;
 
+import java.io.File;
+
 import javax.swing.JFileChooser;
 
 import wjhk.jupload2.policies.UploadPolicy;
@@ -68,6 +70,12 @@ public class JUploadFileChooser extends JFileChooser {
         // .getProperty("user.dir")));
         setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         setMultiSelectionEnabled(true);
+
+        // The current Directory can controled by the applet
+        File currentDirectory = this.uploadPolicy.getCurrentBrowsingDirectory();
+        if (currentDirectory != null) {
+            setCurrentDirectory(currentDirectory);
+        }
 
         // Hidden file should not be visible.
         setFileHidingEnabled(true);

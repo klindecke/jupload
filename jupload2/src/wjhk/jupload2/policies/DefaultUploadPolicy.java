@@ -157,9 +157,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     private String specificHeaders = null;
 
-    /**
-     * The current debug level.
-     */
+    /** Indicates the directory in which the file chooser is to be opened */
+    private File currentBrowsingDirectory = null;
+
+    /** The current debug level. */
     private int debugLevel = UploadPolicy.DEFAULT_DEBUG_LEVEL;
 
     /**
@@ -418,18 +419,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setShowLogWindow(UploadPolicyFactory.getParameter(theApplet,
                 PROP_SHOW_LOGWINDOW, DEFAULT_SHOW_LOGWINDOW, this));
 
-        // get the fileChooserIconFromFileContent.
+        // set the fileChooser relative stuff.
         setFileChooserIconFromFileContent(UploadPolicyFactory.getParameter(
                 theApplet, PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT,
                 DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT, this));
-
-        // get the fileChooserIconSize.
         setFileChooserIconSize(UploadPolicyFactory.getParameter(theApplet,
                 PROP_FILE_CHOOSER_ICON_SIZE, DEFAULT_FILE_CHOOSER_ICON_SIZE,
                 this));
+        setCurrentBrowsingDirectory(UploadPolicyFactory.getParameter(theApplet,
+                PROP_BROWSING_DIRECTORY, DEFAULT_BROWSING_DIRECTORY, this));
 
         // get the filenameEncoding. If not null, it should be a valid argument
         // for the URLEncoder.encode method.
+        // DEPRECATED.
         setFilenameEncoding(UploadPolicyFactory.getParameter(theApplet,
                 PROP_FILENAME_ENCODING, DEFAULT_FILENAME_ENCODING, this));
 
@@ -437,7 +439,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setNbFilesPerRequest(UploadPolicyFactory.getParameter(theApplet,
                 PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST, this));
 
-        // get the maximum size of a file on one HTTP request (indicate if the
+        // get the maximum size of a file on one HTTP request (indicates if the
         // file must be splitted before upload, see UploadPolicy comment).
         setMaxChunkSize(UploadPolicyFactory.getParameter(theApplet,
                 PROP_MAX_CHUNK_SIZE, DEFAULT_MAX_CHUNK_SIZE, this));
@@ -1410,6 +1412,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 + getAllowHttpPersistent(), 30);
         displayDebug(PROP_ALLOWED_FILE_EXTENSIONS + ": "
                 + getAllowedFileExtensions(), 30);
+        displayDebug(PROP_BROWSING_DIRECTORY + " (current value): "
+                + getCurrentBrowsingDirectory(), 30);
         displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
                 + " (debugfile: " + this.debugFile.getAbsolutePath() + ")", 1);
         displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
@@ -1522,6 +1526,37 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#getApplet() */
     public JUploadApplet getApplet() {
         return this.applet;
+    }
+
+    /** @see UploadPolicy#setCurrentBrowsingDirectory(File) */
+    public void setCurrentBrowsingDirectory(File currentBrowsingDirectoryParam) {
+        try {
+            if (currentBrowsingDirectoryParam.isDirectory()) {
+                this.currentBrowsingDirectory = currentBrowsingDirectoryParam;
+            } else {
+                displayWarn("DefaultUploadPolicy.setCurrentBrowsingDirectory(): "
+                        + currentBrowsingDirectoryParam + " doesn't exist.");
+            }
+        } catch (SecurityException se) {
+            displayWarn(se.getClass().getName()
+                    + " in DefaultUploadPolicy.setCurrentBrowsingDirectory(): "
+                    + currentBrowsingDirectoryParam + " is ignored.");
+        }
+    }
+
+    /** @see UploadPolicy#setCurrentBrowsingDirectory(File) */
+    private void setCurrentBrowsingDirectory(
+            String currentBrowsingDirectoryParam) {
+        if (currentBrowsingDirectoryParam == null) {
+            this.currentBrowsingDirectory = null;
+        } else {
+            setCurrentBrowsingDirectory(new File(currentBrowsingDirectoryParam));
+        }
+    }
+
+    /** @see UploadPolicy#getCurrentBrowsingDirectory() */
+    public File getCurrentBrowsingDirectory() {
+        return this.currentBrowsingDirectory;
     }
 
     /** @see UploadPolicy#getDateFormat() */
