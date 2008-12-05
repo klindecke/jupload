@@ -1066,7 +1066,7 @@ public interface UploadPolicy {
     /**
      * Default value for parameter "allowHttpPersisten".
      */
-    public final static boolean DEFAULT_ALLOW_HTTP_PERSISTENT = true;
+    public final static boolean DEFAULT_ALLOW_HTTP_PERSISTENT = false;
 
     /**
      * Default value for parameter "allowedFileExtensions".
