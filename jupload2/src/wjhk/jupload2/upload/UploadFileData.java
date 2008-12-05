@@ -199,7 +199,6 @@ class UploadFileData implements FileData {
             try {
                 towrite = this.inputStream.read(this.readBuffer, 0, toread);
             } catch (IOException e) {
-                e.printStackTrace();
                 throw new JUploadIOException(e);
             }
             if (towrite > 0) {
