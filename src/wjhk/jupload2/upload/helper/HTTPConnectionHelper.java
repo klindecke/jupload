@@ -581,7 +581,7 @@ public class HTTPConnectionHelper extends OutputStream {
                                     + (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
                                             : " socket") + ")", 70);
         }
-        
+
         return this;
     }
 
@@ -615,13 +615,15 @@ public class HTTPConnectionHelper extends OutputStream {
                             + getStatusLabel() + "]");
         }
 
-        this.uploadPolicy
-                .displayDebug(
-                        "[HTTPConnectionHelper append] ("
-                                + len
-                                + " bytes appended to "
-                                + (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
-                                        : " socket") + ")", 70);
+        if (this.uploadPolicy.getDebugLevel() > 100) {
+            this.uploadPolicy
+                    .displayDebug(
+                            "[HTTPConnectionHelper append] ("
+                                    + len
+                                    + " bytes appended to "
+                                    + (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
+                                            : " socket") + ")", 101);
+        }
 
         return this;
     }
