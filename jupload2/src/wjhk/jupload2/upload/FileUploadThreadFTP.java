@@ -138,6 +138,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             FileUploadManagerThread fileUploadManagerThread)
             throws JUploadException {
         super(uploadPolicy, fileUploadManagerThread);
+        this.uploadPolicy.displayDebug("  Using " + this.getClass().getName(), 30);
 
         // Some coherence checks, for parameter given to the applet.
 
