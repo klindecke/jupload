@@ -113,13 +113,14 @@ public abstract class DefaultFileUploadThread extends Thread implements
             FileUploadManagerThread fileUploadManagerThread) {
         // Thread parameters.
         super("FileUploadThread");
-        // this.setPriority(Thread.MAX_PRIORITY);
 
         // Specific stuff.
         this.uploadPolicy = uploadPolicy;
         this.fileUploadManagerThread = fileUploadManagerThread;
         // Let's read up to date upload parameters.
         this.maxChunkSize = this.uploadPolicy.getMaxChunkSize();
+        
+        this.uploadPolicy.displayDebug("DefaultFileUploadThread created", 30);
     }
 
     /**
@@ -392,7 +393,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
     final private void doChunkedUpload(final long totalContentLength,
             final long totalFileLength) throws JUploadException {
         boolean bLastChunk = false;
-        boolean bChunkEnabled = false;
         int chunkPart = 0;
 
         long contentLength = 0;
@@ -429,7 +429,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             contentLength = thisChunkSize + getAdditionnalBytesForUpload(0);
 
             // Ok, we've prepare the job for chunk upload. Let's do it!
-            startRequest(contentLength, bChunkEnabled, chunkPart, bLastChunk);
+            startRequest(contentLength, true, chunkPart, bLastChunk);
 
             // Let's add any file-specific header.
             beforeFile(0);
