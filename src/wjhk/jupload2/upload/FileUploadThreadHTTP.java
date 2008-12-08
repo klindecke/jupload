@@ -73,6 +73,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     public FileUploadThreadHTTP(UploadPolicy uploadPolicy,
             FileUploadManagerThread fileUploadManagerThread) {
         super(uploadPolicy, fileUploadManagerThread);
+        this.uploadPolicy.displayDebug("  Using " + this.getClass().getName(), 30);
+
         uploadPolicy.displayDebug("Upload done by using the "
                 + getClass().getName() + " class", 30);
         // Name the thread (useful for debugging)
