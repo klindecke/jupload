@@ -32,6 +32,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.policies.PictureUploadPolicy;
@@ -151,10 +152,11 @@ public class ImageHelper implements ImageObserver {
      * @param targetMaxWidth
      * @param targetMaxHeight
      * @param quarterRotation Current quarter rotation (from 0 to 3)
+     * @throws JUploadIOException
      */
     public ImageHelper(PictureUploadPolicy uploadPolicy,
             PictureFileData pictureFileData, int targetMaxWidth,
-            int targetMaxHeight, int quarterRotation) {
+            int targetMaxHeight, int quarterRotation) throws JUploadIOException {
         this.uploadPolicy = uploadPolicy;
         this.pictureFileData = pictureFileData;
         this.maxWidth = targetMaxWidth;
@@ -171,7 +173,7 @@ public class ImageHelper implements ImageObserver {
      * is based on the maximum width and height, the current rotation, and the
      * picture size.
      */
-    private void initScale() {
+    private void initScale() throws JUploadIOException {
         double theta = Math.toRadians(90 * this.quarterRotation);
 
         // The width and height depend on the current rotation :

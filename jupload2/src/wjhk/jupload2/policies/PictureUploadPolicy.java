@@ -718,8 +718,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /**
      * Returns an icon, calculated from the image content. Currently only
-     * pictures managed by ImageIO can be displayed. Once upon a day, axtracting
-     * the first picture of a video may become reality... ;-)
+     * pictures managed by ImageIO can be displayed. Once upon a day, extracting
+     * the first picture of a video may become reality... ;-) <BR>
+     * Note: this method is called in a dedicated thread by the
+     * JUploadFileChooser, to avoid to calculate the icon for all pictures, when
+     * opening a new folder.
      * 
      * @return The calculated ImageIcon, or null if no picture can be extracted.
      * @see UploadPolicy#fileViewGetIcon(File)
@@ -727,19 +730,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      */
     @Override
     public Icon fileViewGetIcon(File file) {
-        /*
-         * // Default is to retuen a null ImageIcon. ImageIcon imageIcon = null;
-         * if (null != file) { try { // First, we load the picture BufferedImage
-         * image = ImageIO.read(file); if (image == null) { displayDebug(
-         * file.getName() + " is not an image (in
-         * PictureUploadPolicy.fileViewGetIcon()", 80); } else { BufferedImage
-         * resized = resizePicture(image, getFileChooserIconSize(),
-         * getFileChooserIconSize(), false, this); imageIcon = new
-         * ImageIcon(resized); } } catch (IllegalArgumentException e) { //
-         * ignore, but still displays a warning.
-         * displayWarn(e.getClass().getName() + ": " + e.getMessage()); } catch
-         * (IOException e) { displayErr(e); } } return imageIcon;
-         */
         return PictureFileData.getImageIcon(file, getFileChooserIconSize(),
                 getFileChooserIconSize());
     }

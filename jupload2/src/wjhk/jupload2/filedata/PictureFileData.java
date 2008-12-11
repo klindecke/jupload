@@ -128,13 +128,13 @@ public class PictureFileData extends DefaultFileData {
      * instance, for animated gif). Calculated in the
      * {@link #PictureFileData(File, File, PictureUploadPolicy)} constructor.
      */
-    int originalWidth;
+    int originalWidth = -1;
 
     /**
-     * Same as {@link #originalWidth}, for the height of the fisst image in the
+     * Same as {@link #originalWidth}, for the height of the first image in the
      * picture file.
      */
-    int originalHeight;
+    int originalHeight = -1;
 
     /**
      * transformedPictureFile contains the reference to the temporary file that
@@ -182,26 +182,8 @@ public class PictureFileData extends DefaultFileData {
         String fileExtension = getFileExtension();
 
         // Is it a picture?
-        Iterator<ImageReader> iter = ImageIO
-                .getImageReadersByFormatName(fileExtension);
-        if (iter.hasNext()) {
-            // It's a picture: we store its original width and height, for
-            // further calculation (rescaling and rotation).
-            this.isPicture = true;
-            try {
-                FileImageInputStream fiis = new FileImageInputStream(getFile());
-                ImageReader ir = iter.next();
-                ir.setInput(fiis);
-                this.originalHeight = ir.getHeight(0);
-                this.originalWidth = ir.getWidth(0);
-                ir.dispose();
-                fiis.close();
-            } catch (IOException e) {
-                throw new JUploadIOException("PictureFileData()", e);
-            }
-        } else {
-            this.isPicture = false;
-        }
+        this.isPicture = isFileAPictrue(file);
+
         // Let's log the test result
         uploadPolicy.displayDebug("isPicture=" + this.isPicture + " ("
                 + file.getName() + "), extension=" + fileExtension, 50);
@@ -647,48 +629,40 @@ public class PictureFileData extends DefaultFileData {
         }
     }
 
-    // ////////////////////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////////// static methods
-    // ////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
-     * Returns an ImageIcon for the given file, resized according to the given
-     * dimensions. If the original file contains a pictures smaller than these
-     * width and height, the picture is returned as is (nor resized).
+     * This method loads the picture width and height of the picture. It's
+     * called by the current instance when necessary.
      * 
-     * @param pictureFile The file, containing a picture, from which the user
-     *            wants to extract a static picture.
-     * @param maxWidth The maximum allowed width for the static picture to
-     *            generate.
-     * @param maxHeight The maximum allowed height for the static picture to
-     *            generate.
-     * @return The created static picture, or null if the file is null.
+     * @throws JUploadIOException
+     * 
+     * @see #getOriginalHeight()
+     * @see #getOriginalWidth()
      */
-    public static ImageIcon getImageIcon(File pictureFile, int maxWidth,
-            int maxHeight) {
-        ImageIcon thumbnail = null;
-
-        if (pictureFile != null) {
-            ImageIcon tmpIcon = new ImageIcon(pictureFile.getPath());
-            if (tmpIcon != null) {
-                double scaleWidth = ((double) maxWidth)
-                        / tmpIcon.getIconWidth();
-                double scaleHeight = ((double) maxHeight)
-                        / tmpIcon.getIconHeight();
-                double scale = Math.min(scaleWidth, scaleHeight);
-
-                if (scale < 1) {
-                    thumbnail = new ImageIcon(tmpIcon.getImage()
-                            .getScaledInstance(
-                                    (int) (scale * tmpIcon.getIconWidth()),
-                                    (int) (scale * tmpIcon.getIconHeight()),
-                                    Image.SCALE_FAST));
-                } else { // no need to miniaturize
-                    thumbnail = tmpIcon;
+    private void initWidthAndHeight() throws JUploadIOException {
+        // Is it a picture?
+        if (this.isPicture
+                && (this.originalHeight < 0 || this.originalWidth < 0)) {
+            // Ok: it's a picture and is original width and height have not been
+            // loaded yet.
+            Iterator<ImageReader> iter = ImageIO
+                    .getImageReadersByFormatName(getFileExtension());
+            if (iter.hasNext()) {
+                // It's a picture: we store its original width and height, for
+                // further calculation (rescaling and rotation).
+                try {
+                    FileImageInputStream fiis = new FileImageInputStream(
+                            getFile());
+                    ImageReader ir = iter.next();
+                    ir.setInput(fiis);
+                    this.originalHeight = ir.getHeight(0);
+                    this.originalWidth = ir.getWidth(0);
+                    ir.dispose();
+                    fiis.close();
+                } catch (IOException e) {
+                    throw new JUploadIOException("PictureFileData()", e);
                 }
             }
         }
-        return thumbnail;
     }
 
     /**
@@ -785,15 +759,76 @@ public class PictureFileData extends DefaultFileData {
 
     /**
      * @return the originalWidth of the picture
+     * @throws JUploadIOException
      */
-    public int getOriginalWidth() {
+    public int getOriginalWidth() throws JUploadIOException {
+        initWidthAndHeight();
         return this.originalWidth;
     }
 
     /**
      * @return the originalHeight of the picture
+     * @throws JUploadIOException
      */
-    public int getOriginalHeight() {
+    public int getOriginalHeight() throws JUploadIOException {
+        initWidthAndHeight();
         return this.originalHeight;
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////
+    // /////////////////////// static methods
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns an ImageIcon for the given file, resized according to the given
+     * dimensions. If the original file contains a pictures smaller than these
+     * width and height, the picture is returned as is (nor resized).
+     * 
+     * @param pictureFile The file, containing a picture, from which the user
+     *            wants to extract a static picture.
+     * @param maxWidth The maximum allowed width for the static picture to
+     *            generate.
+     * @param maxHeight The maximum allowed height for the static picture to
+     *            generate.
+     * @return The created static picture, or null if the file is null.
+     */
+    public static ImageIcon getImageIcon(File pictureFile, int maxWidth,
+            int maxHeight) {
+        ImageIcon thumbnail = null;
+
+        if (pictureFile != null) {
+            ImageIcon tmpIcon = new ImageIcon(pictureFile.getPath());
+            if (tmpIcon != null) {
+                double scaleWidth = ((double) maxWidth)
+                        / tmpIcon.getIconWidth();
+                double scaleHeight = ((double) maxHeight)
+                        / tmpIcon.getIconHeight();
+                double scale = Math.min(scaleWidth, scaleHeight);
+
+                if (scale < 1) {
+                    thumbnail = new ImageIcon(tmpIcon.getImage()
+                            .getScaledInstance(
+                                    (int) (scale * tmpIcon.getIconWidth()),
+                                    (int) (scale * tmpIcon.getIconHeight()),
+                                    Image.SCALE_FAST));
+                } else { // no need to miniaturize
+                    thumbnail = tmpIcon;
+                }
+            }
+        }
+        return thumbnail;
+    }
+
+    /**
+     * Indicates whether a file is a picture or not. The information is based on
+     * the fact the an ImageRead is found, or not, for this file.
+     * 
+     * @param file
+     * @return true if the file can be opened as a picture, false otherwise.
+     */
+    public static boolean isFileAPictrue(File file) {
+        Iterator<ImageReader> iter = ImageIO
+                .getImageReadersByFormatName(DefaultFileData.getExtension(file));
+        return iter.hasNext();
     }
 }
