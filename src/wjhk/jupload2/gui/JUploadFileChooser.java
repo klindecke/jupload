@@ -71,7 +71,7 @@ public class JUploadFileChooser extends JFileChooser {
         setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         setMultiSelectionEnabled(true);
 
-        // The current Directory can controled by the applet
+        // The current Directory can controlled by the applet
         File currentDirectory = this.uploadPolicy.getCurrentBrowsingDirectory();
         if (currentDirectory != null) {
             setCurrentDirectory(currentDirectory);

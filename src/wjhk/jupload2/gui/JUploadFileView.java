@@ -149,16 +149,22 @@ class IconWorker implements Runnable {
         try {
             if (this.status == STATUS_TO_BE_LOADED) {
                 this.status = STATUS_LOADING;
-                this.uploadPolicy.displayDebug("In IconWorker.loadIcon("
-                        + this.file.getName() + ")", 50);
 
-                // This class is used only to do the callbe low, in a separate
+                // This thread is of the lower possible priority. So we first
+                // give a change for other thread to work
+                Thread.yield();
+
+                // This class is used only to do this call, in a separate
                 // thread.
                 this.icon = this.uploadPolicy.fileViewGetIcon(this.file);
+                this.status = STATUS_LOADED;
+
+                // This thread is of the lower possible priority. So we first
+                // give a change for other thread to work
+                Thread.yield();
 
                 // Let's notify the fact the work is done.
-                this.status = STATUS_LOADED;
-                this.fileChooser.repaint(0);
+                this.fileChooser.repaint();
 
                 // A try to minimize memory footprint
                 Runtime.getRuntime().gc();
@@ -205,7 +211,8 @@ public class JUploadFileView extends FileView implements
     JFileChooser fileChooser = null;
 
     /** This map will contain all instances of {@link IconWorker}. */
-    ConcurrentHashMap<String, IconWorker> hashMap = new ConcurrentHashMap<String, IconWorker>();
+    ConcurrentHashMap<String, IconWorker> hashMap = new ConcurrentHashMap<String, IconWorker>(
+            1000, (float) 0.5);
 
     /**
      * This executor will crate icons from files, one at a time. It is used to
@@ -252,14 +259,7 @@ public class JUploadFileView extends FileView implements
     }
 
     synchronized void execute(IconWorker iconWorker) {
-        this.uploadPolicy.displayDebug(
-                "[JUploadFileView.execute] Adding (to FileChooser) "
-                        + iconWorker.file.getAbsolutePath(), 50);
         if (this.executorService == null || this.executorService.isShutdown()) {
-            this.uploadPolicy
-                    .displayDebug(
-                            "JUploadFileView.execute: creating the executorService",
-                            50);
             this.executorService = Executors.newSingleThreadExecutor();
         }
         iconWorker.status = IconWorker.STATUS_TO_BE_LOADED;
@@ -283,20 +283,14 @@ public class JUploadFileView extends FileView implements
      * Lazily mark all jobs as not done. No particular thread management.
      */
     private void stopRunningJobs() {
-        this.uploadPolicy.displayDebug(
-                "Shutting down all IconWorker running jobs", 50);
         Enumeration<IconWorker> e = this.hashMap.elements();
         IconWorker iw = null;
         while (e.hasMoreElements()) {
             iw = e.nextElement();
             if (iw.status == IconWorker.STATUS_TO_BE_LOADED) {
-                this.uploadPolicy.displayDebug("   Shutting down "
-                        + iw.file.getAbsolutePath(), 50);
                 iw.status = IconWorker.STATUS_NOT_LOADED;
             }
         }
-        this.uploadPolicy.displayDebug(
-                "All IconWorker running jobs are now marked as stopped.", 50);
     }
 
     /**

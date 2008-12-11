@@ -17,6 +17,8 @@ or paste operations.
 onto the applet.
 - [Minor] There are now two progress bar: file preparation (quite useless for default upload policy) and the 
 upload progress. Text has been updated.  
+- [Minor] In picture mode, the file chooser is much more reactive to user interactions, especially on directory 
+containing a lot of files.
 
 Fix:
 - Allows sending very large number of files. Previous version was crashing with 4000 files.
