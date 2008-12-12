@@ -138,7 +138,8 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             FileUploadManagerThread fileUploadManagerThread)
             throws JUploadException {
         super(uploadPolicy, fileUploadManagerThread);
-        this.uploadPolicy.displayDebug("  Using " + this.getClass().getName(), 30);
+        this.uploadPolicy.displayDebug("  Using " + this.getClass().getName(),
+                30);
 
         // Some coherence checks, for parameter given to the applet.
 
@@ -167,7 +168,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         }
     }
 
-    /** @see DefaultFileUploadThread#beforeRequest(int, int) */
+    /** @see DefaultFileUploadThread#beforeRequest() */
     @Override
     void beforeRequest() throws JUploadException {
 
@@ -292,15 +293,20 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
      * @see DefaultFileUploadThread#finishRequest()
      */
     @Override
-    int finishRequest() throws JUploadIOException {
+    int finishRequest() throws JUploadException {
         try {
             getOutputStream().flush();
-        } catch (IOException e) {
+            return 200;
+        } catch (IOException ioe) {
             throw new JUploadIOException("FileUploadThreadFTP.finishRequest()",
+                    ioe);
+        } catch (Exception e) {
+            // When the user may not override an existing file, I got a
+            // NullPointerException. Let's trap all errors here.
+            throw new JUploadException(
+                    "FileUploadThreadFTP.finishRequest()  (check the user permission on the server)",
                     e);
         }
-        return 200;
-        // Nothing to do
     }
 
     /** @see DefaultFileUploadThread#getAdditionnalBytesForUpload(int) */
