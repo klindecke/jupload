@@ -47,7 +47,7 @@ class UploadFileData implements FileData {
      * Instance of the fileUploadManagerThread. This allow this class to send
      * feedback to the thread.
      * 
-     * @see FileUploadThread#nbBytesUploaded(long)
+     * @see FileUploadManagerThread#nbBytesUploaded(long)
      */
     private FileUploadManagerThread fileUploadManagerThread = null;
 
@@ -207,9 +207,16 @@ class UploadFileData implements FileData {
                     this.fileUploadManagerThread.nbBytesUploaded(towrite);
                     amount -= towrite;
                     this.uploadRemainingLength -= towrite;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    throw new JUploadIOException(e);
+                } catch (IOException ioe) {
+                    throw new JUploadIOException(this.getClass().getName()
+                            + ".uploadFile()", ioe);
+                } catch (Exception e) {
+                    // When the user may not override an existing file, I got a
+                    // NullPointerException. Let's trap all errors here.
+                    throw new JUploadException(
+                            this.getClass().getName()
+                                    + "finishRequest()  (check the user permission on the server)",
+                            e);
                 }
             }
         }// while

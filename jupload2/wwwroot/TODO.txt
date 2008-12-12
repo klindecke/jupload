@@ -88,7 +88,9 @@ time, it sorts correctly and the data are in the correct columns.
 As always, a lot of things can be made better:
 
 TODO list:
-- Check "At debugLevel 99 the applet doesnt prepare all 4000 files, and stops at 1000 files."
+- Ading 4000 files to the file list is long (at least with the file chooser).
+	Add the approveSelection() method to the JFileChooser, to shutdown all running tasks. 
+- Check "At debugLevel 99 the applet doesn't prepare all 4000 files, and stops at 1000 files."
 Answer to: https://sourceforge.net/forum/message.php?msg_id=5775795
 - Mime type is set as Application/qdqd in DefaultFileData: to be updated !
 - implement setUncaughtExceptionHandler for the uploading threads.

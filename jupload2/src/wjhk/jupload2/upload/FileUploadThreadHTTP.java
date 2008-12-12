@@ -82,7 +82,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         this.connectionHelper = new HTTPConnectionHelper(uploadPolicy);
     }
 
-    /** @see DefaultFileUploadThread#beforeRequest(int, int) */
+    /** @see DefaultFileUploadThread#beforeRequest() */
     @Override
     void beforeRequest() throws JUploadException {
         setAllHead(this.connectionHelper.getBoundary());
@@ -317,11 +317,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * Construction of the head for each file.
      * 
-     * @param firstFileToUpload The index of the first file to upload, in the
-     *            {@link #filesToUpload} area.
-     * @param nbFilesToUpload Number of file to upload, in the next HTTP upload
-     *            request. These files are taken from the {@link #filesToUpload}
-     *            area
      * @param bound The String boundary between the post data in the HTTP
      *            request.
      * @throws JUploadException
@@ -336,11 +331,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     /**
      * Construction of the tail for each file.
      * 
-     * @param firstFileToUpload The index of the first file to upload, in the
-     *            {@link #filesToUpload} area.
-     * @param nbFilesToUpload Number of file to upload, in the next HTTP upload
-     *            request. These files are taken from the {@link #filesToUpload}
-     *            area
      * @param bound Current boundary, to apply for these tails.
      */
     private final void setAllTail(String bound) throws JUploadException {

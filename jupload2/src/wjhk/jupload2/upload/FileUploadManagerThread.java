@@ -216,11 +216,16 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         // General shortcuts on the current applet.
         this.uploadPolicy = uploadPolicy;
         this.uploadPanel = uploadPolicy.getApplet().getUploadPanel();
-
         this.filePanel = this.uploadPanel.getFilePanel();
         this.uploadProgressBar = this.uploadPanel.getUploadProgressBar();
         this.preparationProgressBar = this.uploadPanel
                 .getPreparationProgressBar();
+
+        // Let's start the upload thread. It will wait until the first
+        // packet is ready.
+        createUploadThread();
+
+        // Let's store some upload parameters, to avoid querying all the time.
         this.nbFilesPerRequest = this.uploadPolicy.getNbFilesPerRequest();
         this.maxChunkSize = this.uploadPolicy.getMaxChunkSize();
 
@@ -253,11 +258,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // Let's prepare the progress bar, to display the current upload
             // stage.
             initProgressBar();
-
-            // Let's start the upload thread. It will wait until the first
-            // packet
-            // is ready.
-            createUploadThread();
 
             // Create a timer, to update the status bar.
             this.timerUpload.start();
@@ -557,7 +557,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * prepared for upload (compared to the nbFilesPerRequest applet parameter)
      * or if the sum of bytes for the prepared files are more than the
      * maxChunkSize applet parameter (if it was given as an applet parameter).
-     * The result is stored in the {@link #nextPacketReady} attribute. <BR>
+     * The result is stored in the {@link #nextPacket} attribute. <BR>
      * Note: Take care that the result of this method (isNextPacketReady)
      * doesn't take into account the number of files that are actually being
      * uploaded.
