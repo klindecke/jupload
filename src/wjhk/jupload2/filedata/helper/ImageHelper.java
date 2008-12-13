@@ -270,7 +270,6 @@ public class ImageHelper implements ImageObserver {
             irwh = null;
             if (nbImages > 1) {
                 // Too bad. We can not transform it.
-                // TODO Be able to transform animated gif.
                 this.hasToTransformPicture = Boolean.FALSE;
                 this.uploadPolicy
                         .displayWarn("No transformation for gif picture file, that contain several pictures. (see JUpload documentation for details)");
