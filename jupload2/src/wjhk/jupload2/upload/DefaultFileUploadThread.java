@@ -119,7 +119,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         this.fileUploadManagerThread = fileUploadManagerThread;
         // Let's read up to date upload parameters.
         this.maxChunkSize = this.uploadPolicy.getMaxChunkSize();
-        
+
         this.uploadPolicy.displayDebug("DefaultFileUploadThread created", 30);
     }
 
@@ -497,6 +497,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
             // Let's add any file-specific header.
             afterFile(i);
+
+            // Let's tell our manager that we've done the job!
+            // Ok, maybe the server will refuse it, but we won't say that now!
+                this.fileUploadManagerThread
+                        .anotherFileHasBeenUploaded(this.filesToUpload[i]);
         }
 
         // We are finished with this one. Let's display it.
@@ -516,12 +521,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         cleanRequest();
 
-        // Let's tell our manager that we've done the job!
-        for (int i = 0; i < this.filesToUpload.length
-                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
-            this.fileUploadManagerThread
-                    .anotherFileHasBeenUploaded(this.filesToUpload[i]);
-        }
     }// doNonChunkedUpload
 
     /** @see FileUploadThread#close() */

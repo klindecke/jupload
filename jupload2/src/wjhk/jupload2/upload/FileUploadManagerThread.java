@@ -462,6 +462,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     public synchronized void setUploadStatus(int numOfFileInCurrentRequest,
             int uploadStatus) throws JUploadException {
+        // TODO check if this method is used.
         this.numOfFileInCurrentRequest = numOfFileInCurrentRequest;
         this.uploadStatus = uploadStatus;
 
@@ -659,6 +660,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     public synchronized void anotherFileHasBeenUploaded(
             FileData newlyUploadedFileData) throws JUploadException {
+        this.uploadPolicy.displayWarn("-- In anotherFileHasBeenUploaded()");
         this.nbUploadedFiles += 1;
         this.nbFilesBeingUploaded -= 1;
         this.nbBytesUploadedForCurrentFile = 0;
@@ -733,6 +735,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // Usually, a percentage if advancement for one file is no more than
             // 100. Let's check that.
             if (percent > 100) {
+                // FIXME occurs for upload of more than 1 files at a time!
                 this.uploadPolicy
                         .displayWarn("percent is more than 100 ("
                                 + percent
@@ -746,27 +749,33 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.uploadProgressBar.setValue(100 * this.nbUploadedFiles + percent);
 
         String msg = null;
+        // FIXME numOfFileInCurrentRequest is wrong, with new doNonChunkUpload
         switch (this.uploadStatus) {
             case UPLOAD_STATUS_NOT_STARTED:
                 msg = "";
                 break;
             case UPLOAD_STATUS_UPLOADING:
+                // Uploading files %1$s
                 msg = String.format(msgInfoUploading, (this.nbUploadedFiles
-                        + this.numOfFileInCurrentRequest + 1));
+                /* + this.numOfFileInCurrentRequest */+ 1));
                 break;
             case UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE:
+                // %1$s file(s) uploaded. Waiting for server response ...
                 if (this.numOfFileInCurrentRequest == 1) {
-                    msg = (this.nbUploadedFiles + 1) + "/"
+                    msg = (this.nbUploadedFiles) + "/"
                             + (this.uploadFileDataArray.length);
                 } else {
-                    msg = (this.nbUploadedFiles + 1)
-                            + "-"
-                            + (this.nbUploadedFiles + this.numOfFileInCurrentRequest)
-                            + "/" + (this.uploadFileDataArray.length);
+                    msg = (this.nbUploadedFiles
+                            - this.numOfFileInCurrentRequest + 1)
+                            + "-" + (this.nbUploadedFiles /*
+                                                             * +
+                                                             * this.numOfFileInCurrentRequest
+                                                             */) + "/" + (this.uploadFileDataArray.length);
                 }
                 msg = String.format(msgInfoUploaded, msg);
                 break;
             case UPLOAD_STATUS_UPLOADED:
+                // %1$d file(s) uploaded
                 msg = String.format(msgNbUploadedFiles, (this.nbUploadedFiles));
                 break;
             default:
