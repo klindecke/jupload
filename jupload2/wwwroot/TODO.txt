@@ -89,7 +89,7 @@ As always, a lot of things can be made better:
 
 TODO list:
 - Add browsingDirectory to the advanced_demo script
-
+- Waht to do with NoAler ?
 - test relpathinfo, especially with dra'n drop (and paste)
 response to https://sourceforge.net/forum/message.php?msg_id=5798445
 
