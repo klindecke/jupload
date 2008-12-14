@@ -1,5 +1,5 @@
 
-V4.0.0b1
+V4.0.0rc1
 
 Changes:
 - [MAJOR] Rewrite of the core upload code. Introduction of multi-threading: one thread to
