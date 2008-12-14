@@ -88,28 +88,16 @@ time, it sorts correctly and the data are in the correct columns.
 As always, a lot of things can be made better:
 
 TODO list:
-- Ading 4000 files to the file list is long (at least with the file chooser).
-	Add the approveSelection() method to the JFileChooser, to shutdown all running tasks. 
-- Check "At debugLevel 99 the applet doesn't prepare all 4000 files, and stops at 1000 files."
-Answer to: https://sourceforge.net/forum/message.php?msg_id=5775795
+- Add browsingDirectory to the advanced_demo script
+
+- test relpathinfo, especially with dra'n drop (and paste)
+response to https://sourceforge.net/forum/message.php?msg_id=5798445
+
 - Mime type is set as Application/qdqd in DefaultFileData: to be updated !
 - implement setUncaughtExceptionHandler for the uploading threads.
-- Check the browse on 'big' directories. Seems to block the applet (100% CPU), and generate errors ?
 
 - 99.111.222.333 - - [19/Nov/2008:15:51:48 -0800] "GET /app/wjhk/jupload2/lang/lang_en_US.properties HTTP/1.1" 404 1123 "-" "Mozilla/4.0 (Windows XP 5.1) Java/1.6.0_07" 
 Response to https://sourceforge.net/forum/message.php?msg_id=5678495
-
-- The file length for 'XXXXX' is too big (654343212 bytes) 
-While I know nobody ever agrees on such error messages, a cleaner response might be something like: 
-The file 'XXXX' is too big (654MB). Maximum limit is 100MB. 
-Response to https://sourceforge.net/forum/message.php?msg_id=5678446 
-
-- Bug [ 2174306 ] 'Upload' button disabled after using 'Browse..' button
-it seems that the 'Upload' buttons stays disabled if you use the 'Browse...' button to add files to the upload list in the
-DefaultUploadPolicy. 
-- [ 1993250 ] Can't run jupload in two browser windows simultaneously...
-I cannot load the 'advanced demo' page into Firefox at the same time that I
-have it loaded in IE.
 
 - Enable compression
 - Add a new parameter, to control the current applet directory, that is: the directory that should be used
