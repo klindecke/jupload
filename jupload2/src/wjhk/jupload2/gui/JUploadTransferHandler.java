@@ -13,13 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import wjhk.jupload2.gui.filepanel.FilePanel;
+import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
 class JUploadTransferHandler extends TransferHandler implements ActionListener {
@@ -60,22 +59,20 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
     @Override
     @SuppressWarnings("unchecked")
     public boolean importData(JComponent c, Transferable t) {
-        FilePanel filePanel = this.uploadPanel.getFilePanel();
         if (canImport(c, t.getTransferDataFlavors())) {
             try {
                 List<File> fileList = (List<File>) t
                         .getTransferData(this.fileListFlavor);
-                Iterator<File> iterator = fileList.iterator();
-                File[] fileArray = new File[1];
-                while (iterator.hasNext()) {
-                    fileArray[0] = iterator.next();
-                    filePanel.addFiles(fileArray, null);
-                }
+                File[] fileArray = (File[]) fileList.toArray();
+                this.uploadPanel.getFilePanel().addFiles(fileArray,
+                        DefaultFileData.getRoot(fileArray));
                 return true;
             } catch (UnsupportedFlavorException ufe) {
-                System.out.println("importData: unsupported data flavor");
+                this.uploadPolicy.displayErr(this.getClass().getName()
+                        + ".importData()", ufe);
             } catch (IOException ioe) {
-                System.out.println("importData: I/O exception");
+                this.uploadPolicy.displayErr(this.getClass().getName()
+                        + ".importData()", ioe);
             }
         }
         return false;

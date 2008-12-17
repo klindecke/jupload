@@ -36,8 +36,8 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * Implementation of the FilePanel : it creates the
- * {@link wjhk.jupload2.gui.filepanel.FilePanelJTable}, and handles the necessary
- * functionalities.
+ * {@link wjhk.jupload2.gui.filepanel.FilePanelJTable}, and handles the
+ * necessary functionalities.
  * 
  * @author William JinHua Kwong
  * @version $Revision$
@@ -96,8 +96,10 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
      * @see wjhk.jupload2.gui.filepanel.FilePanel#addFiles(java.io.File[],java.io.File)
      */
     public final void addFiles(File[] f, File root) {
-
-        if (null != f) {
+        if (null == f) {
+            throw new java.lang.IllegalArgumentException(
+                    "FilePanelTableImpl: f may not be null)");
+        } else {
             try {
                 for (int i = 0; i < f.length; i++) {
                     addDirectoryFiles(f[i], root);

@@ -1,4 +1,11 @@
 
+
+v4.0.0rc2
+
+Fix:
+- [Minor] relpathinfo was empty, when files were dropped or pasted onto the applet.
+
+
 V4.0.0rc1
 
 Changes:
@@ -21,10 +28,9 @@ upload progress. Text has been updated.
 containing a lot of files.
 
 Fix:
-- Allows sending very large number of files. Previous version was crashing with 4000 files.
+- [Major] Allows sending very large number of files. Previous version was crashing with 4000 files.
 - [2189777] The applet would generate a non-blocking NullPointerException for server response
 with Content-Length to 0. Typically: a HEAD response.
-
 
 
 V3.5.1

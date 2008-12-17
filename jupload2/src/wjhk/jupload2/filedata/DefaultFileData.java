@@ -291,4 +291,82 @@ public class DefaultFileData implements FileData {
         return name.substring(name.lastIndexOf('.') + 1);
     }
 
+    /**
+     * Return the 'biggest' common ancestror of the given file array. For
+     * instance, the root for the files /usr/bin/toto and /usr/titi is /usr.
+     * 
+     * @param fileArray
+     * @return The common root for the given files.
+     */
+    public static File getRoot(File[] fileArray) {
+        // Let's find the common root for the dropped files.
+        // If one file has been dropped (the minimum), it's path is the
+        File root = fileArray[0];
+        // Let's find the higher root level.
+        while (root != null && !root.isDirectory()) {
+            // We have a file. Let's take it's folder.
+            root = root.getParentFile();
+        }
+
+        if (root != null) {
+            // root is the root for the first file. We add all directories,
+            // and higher until the root. This will allow to find the
+            // 'bigger' directory, which is the common root for all dropped
+            // files.
+            // If several files are being added, we take the common root for
+            // them.
+            String pathRoot = root.getAbsolutePath();
+            String pathCurrentFileParentPath;
+            File pathCurrentFileParent;
+            for (int i = 1; i < fileArray.length; i += 1) {
+                // Let's check that all files in l are parents of the current
+                // file.
+                pathCurrentFileParent = fileArray[i];
+                // Let's find the higher root level.
+                while (pathCurrentFileParent != null
+                        && !pathCurrentFileParent.isDirectory()) {
+                    // We have a file. Let's take it's folder.
+                    pathCurrentFileParent = pathCurrentFileParent
+                            .getParentFile();
+                }
+
+                if (pathCurrentFileParent != null) {
+                    pathCurrentFileParentPath = pathCurrentFileParent
+                            .getAbsolutePath();
+                    if (pathCurrentFileParentPath.startsWith(pathRoot)) {
+                        // The current root is in the path of the current file:
+                        // it's our current root.
+                    } else if (pathRoot.startsWith(pathCurrentFileParentPath)) {
+                        // The path of the current file is in the current root:
+                        // it's our new current root.
+                        pathRoot = pathCurrentFileParentPath;
+                    } else {
+                        // No common root. We parse the root and current file
+                        // path to find the common root.
+                        char[] rootPathChars = pathRoot.toCharArray();
+                        char[] currentFileParentPathChars = pathCurrentFileParentPath
+                                .toCharArray();
+                        StringBuffer commonPath = new StringBuffer(Math.max(
+                                rootPathChars.length,
+                                currentFileParentPathChars.length));
+                        for (int j = 0; j < pathRoot.length()
+                                && j < pathCurrentFileParentPath.length(); j += 1) {
+                            if (rootPathChars[j] != currentFileParentPathChars[j]) {
+                                break;
+                            } else {
+                                commonPath.append(rootPathChars[j]);
+                            }
+                        }
+                        root = new File(commonPath.toString());
+                        break;
+                    }
+                }
+            }// for
+
+            // pathRoot contains the path for the found root.
+            root = new File(pathRoot);
+        }
+
+        return root;
+    }
 }

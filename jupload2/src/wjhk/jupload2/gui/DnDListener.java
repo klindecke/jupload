@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -93,8 +94,9 @@ public class DnDListener implements DropTargetListener {
             try {
                 List<File> fileList = (List<File>) e.getTransferable()
                         .getTransferData(DataFlavor.javaFileListFlavor);
-                this.uploadPanel.getFilePanel().addFiles(
-                        (File[]) fileList.toArray(), null);
+
+                File[] fileArray = (File[]) fileList.toArray();
+                this.uploadPanel.getFilePanel().addFiles(fileArray, DefaultFileData.getRoot(fileArray));
 
                 e.getDropTargetContext().dropComplete(true);
 
