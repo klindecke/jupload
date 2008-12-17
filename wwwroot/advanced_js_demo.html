@@ -98,6 +98,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	afterUploadURL = "";
 	allowHttpPersistent = "";
 	allowedFileExtensions = "";
+	browsingDirectory = "";
 	debugLevel = "";
 	fileChooserIconFromFileContent = "";
 	fileChooserIconSize = "";
@@ -227,6 +228,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeParam("afterUploadTarget", afterUploadTarget);
 	writeParam("afterUploadURL", afterUploadURL);
 	writeParam("allowHttpPersistent", allowHttpPersistent);
+	writeParam("browsingDirectory", browsingDirectory);	
 	writeParam("debugLevel", debugLevel);
 	writeParam("fileChooserIconFromFileContent", fileChooserIconFromFileContent);
 	writeParam("fileChooserIconSize", fileChooserIconSize);
@@ -297,6 +299,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeInputText("afterUploadURL", afterUploadURL, "");
 	writeInputText("allowedFileExtensions", allowedFileExtensions, "");
 	writeBooleanInputSelect("allowHttpPersistent", allowHttpPersistent, "");
+	writeInputText("browsingDirectory", browsingDirectory, "");
 	writeInputText("filenameEncoding", filenameEncoding, "");
 	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
 	writeInputText("formdata", formdata, "");
