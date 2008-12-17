@@ -88,12 +88,10 @@ time, it sorts correctly and the data are in the correct columns.
 As always, a lot of things can be made better:
 
 TODO list:
-- Add browsingDirectory to the advanced_demo script
-- Waht to do with NoAler ?
+- What to do with NoAlertPolicy ?
 - test relpathinfo, especially with dra'n drop (and paste)
 response to https://sourceforge.net/forum/message.php?msg_id=5798445
 
-- Mime type is set as Application/qdqd in DefaultFileData: to be updated !
 - implement setUncaughtExceptionHandler for the uploading threads.
 
 - 99.111.222.333 - - [19/Nov/2008:15:51:48 -0800] "GET /app/wjhk/jupload2/lang/lang_en_US.properties HTTP/1.1" 404 1123 "-" "Mozilla/4.0 (Windows XP 5.1) Java/1.6.0_07" 
