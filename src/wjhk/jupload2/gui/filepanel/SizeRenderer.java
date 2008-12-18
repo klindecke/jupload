@@ -80,7 +80,8 @@ public class SizeRenderer extends DefaultTableCellRenderer {
             setValue(formatFileSize(((Long) value).longValue(),
                     this.uploadPolicy));
             super.setHorizontalAlignment(RIGHT);
-        } else {
+        } else if (value != null) {
+            // We have a value, but it's not a Long.
             this.uploadPolicy
                     .displayWarn("value is not an instance of Long, in SizeRenderer.getTableCellRendererComponent(");
         }

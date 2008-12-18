@@ -140,10 +140,6 @@ public class FilePanelJTable extends JTable implements MouseListener {
                 this.uploadPolicy.onFileSelected(this.filePanelDataModel
                         .getFileDataAt(selectedRow));
             }
-
-            // FIXME The double click is not received here, unless on it is on
-            // the column header
-
         } else if (!this.uploadPolicy.getApplet().getUploadPanel()
                 .maybeOpenPopupMenu(event)) {
             // We did not open the displays the contextual menu. So we do what

@@ -95,8 +95,6 @@ public class JUploadFileChooser extends JFileChooser {
      * Shutdown any running task. Currently, only the JUploadFileView may have
      * running tasks, when calculating icon for picture files.
      */
-    // TODO remove this method: it should be triggered by itself, when the file
-    // chooser is closed.
     public void shutdownNow() {
         this.fileView.shutdownNow();
     }
