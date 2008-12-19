@@ -782,7 +782,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
         // Let's show the modifications to the user
         this.uploadProgressBar.setString(msg);
-        this.uploadProgressBar.repaint();
+        this.uploadProgressBar.repaint(0);
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
