@@ -5,6 +5,9 @@ v4.0.0rc2
 Fix:
 - [Minor] relpathinfo was empty, when files were dropped or pasted onto the applet.
 
+Translation:
+- [Arabic] Add of the Arabic translation, thanks to Abdullah Abduction 
+
 
 V4.0.0rc1
 
