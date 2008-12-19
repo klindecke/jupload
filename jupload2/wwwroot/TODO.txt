@@ -88,9 +88,8 @@ time, it sorts correctly and the data are in the correct columns.
 As always, a lot of things can be made better:
 
 TODO list:
+- Message incorrect (no 'wait for server response' when using the applet with Coppermine)
 - What to do with NoAlertPolicy ?
-- test relpathinfo, especially with dra'n drop (and paste)
-response to https://sourceforge.net/forum/message.php?msg_id=5798445
 
 - implement setUncaughtExceptionHandler for the uploading threads.
 
