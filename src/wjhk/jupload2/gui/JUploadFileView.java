@@ -212,7 +212,7 @@ public class JUploadFileView extends FileView implements
 
     /** This map will contain all instances of {@link IconWorker}. */
     ConcurrentHashMap<String, IconWorker> hashMap = new ConcurrentHashMap<String, IconWorker>(
-            1000, (float) 0.5);
+            1000, (float) 0.5, 3);
 
     /**
      * This executor will crate icons from files, one at a time. It is used to
