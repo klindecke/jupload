@@ -603,6 +603,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 // Let's add this file.
                 tempFileData[nbFilesInPacket] = this.uploadFileDataArray[this.nbUploadedFiles
                         + this.nbFilesBeingUploaded + nbFilesInPacket];
+                packetLength += this.uploadFileDataArray[nbFilesInPacket]
+                        .getUploadLength();
 
                 nbFilesInPacket += 1;
             }
