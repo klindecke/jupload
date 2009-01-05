@@ -365,7 +365,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             if (this.filesToUpload.length > 1) {
                 this.fileUploadManagerThread
                         .setUploadException(new JUploadException(
-                                "totalContentLength >= chunkSize: this.filesToUpload.length should be more than 1 (doUpload)"));
+                                "totalContentLength >= chunkSize: this.filesToUpload.length should be 1 (doUpload)"));
             }
             bChunkEnabled = true;
         }
