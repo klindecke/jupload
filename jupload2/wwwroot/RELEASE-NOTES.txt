@@ -1,12 +1,15 @@
 
 
-v4.0.0rc2
+v4.0.0
 
 Fix:
+- [Major] Fixed a regression in chunk upload, which came with the 4.0.0rc1 version.
 - [Minor] relpathinfo was empty, when files were dropped or pasted onto the applet.
+- [Minor] JUpload is compatible again with a JRE 1.5.
+
 
 Translation:
-- [Arabic] Add of the Arabic translation, thanks to Abdullah Abduction 
+- [Arabic] Add of the Arabic translation, thanks to Abdulrhman Alkhodiry 
 
 
 V4.0.0rc1

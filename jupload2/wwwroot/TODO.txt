@@ -1,81 +1,19 @@
- 
-++++++++++++ 
- 
-wjhk.jupload2.gui.SizeRenderer 
- 
-//private static final double gB = 1024L * 1024L * 1024L; 
-//private static final double mB = 1024L * 1024L; 
-//private static final double kB = 1024L; 
-private static final double kB = 1024L; 
-private static final double mB = kB * 1000L; 
-private static final double gB = mB * 1000L; 
- 
-While I read the discussion about MiB, etc., few systems I know of use such calculations in showing files size, so the values in JUpload didn't match the values people saw in their own folders/directories. And even less have I seen MiB as to reference megabytes in a listing. So we also changed the lang_us.properties entries: 
- 
-#unitGigabytes = GiB 
-#unitMegabytes = MiB 
-#unitKilobytes = KiB 
-unitGigabytes = GB 
-unitMegabytes = MB 
-unitKilobytes = KB 
-
-
-==> #
-
-
-
-
-
-
 
 ============================================================================================================================================
-Response to http://sourceforge.net/forum/message.php?msg_id=5634453
+Response to https://sourceforge.net/forum/forum.php?thread_id=2789445&forum_id=199107
 ============================================================================================================================================
-        	<applet code="wjhk.jupload2.JUploadApplet"
-	            name="JUpload"
-	            archive="/app/downloads/jupload351.jar"
-	            width="640"
-	            height="200"
-	            mayscript
-	            alt="Java 1.5 or higher plugin must be installed.">
-            	<param name="postURL"
-value="/app/send/attachment.jsp?m=8592082391923&appletPost=true&appletResponseMi
-x=IWckmO6MaL4mEdmB96Tw" />
-            	<param name="afterUploadURL"
-value="/app/send/attachment.jsp?m=8592082391923&appletResponseMix=IWckmO6MaL4mEd
-mB96Tw" />
-            	<param name="formdata" value="aform" />
-            	<param name="lookAndFeel" value="system" />
-            	<param name="lang" value="en" />
-            	<param name="maxFileSize" value="102400000" />
-            	<param name="showLogWindow" value="false" />
+Here is little bit more information to reproduce it. 
+ 
+1) In the applet-basic.html page, duplicate the applet tag pertaining to JUploadApplet (so that there are two applets on the page now). 
+ 
+2) Open IE6 and there is a good chance that both applets will be displayed 
+ 
+3) Now, close IE6 and reopen the same page and you will notice that the applets don't display any more. Sometimes it works if I cleaned the cache and tried again. 
+ 
+Thanks, 
+-Senthil
 
-            	<param name="stringUploadSuccess" value=".*" />
-            A Java 1.5 or higher plugin is required to upload using this option.
-Please use the standard web browser upload procedure below instead.
-        	</applet>
-
-For us to reproduce we need to:
-1) Ensure no browser is running.
-2) Start the browser and load the applet.
-3) Click Browse.
-4) Click select your C:\ drive or Desktop as long as there are several files
-in there.
-5) Click the File Details icon to show the files, mod times, file sizes, etc.
-6) Click a column header, such as Size.
-
-The list gets confused (some data is not even in the right columns) and is not
-sorted correctly.  If you click the same (or different) column header a second
-time, it sorts correctly and the data are in the correct columns.
-
-
-==> Can't repeat it (on windows 2000, Java 1.6.0_07)
-
-============================================================================================================================================
-
-
-
-
+==> Works for me. 
 
 
 
@@ -89,6 +27,12 @@ As always, a lot of things can be made better:
 
 TODO list:
 - Finish automation (ant script), about translations.
+=> Generated translation/generated/available_translations.html
+=> Make a link to it from:
+   - the doc
+   - the main readme.
+   
+
 - Message incorrect (no 'wait for server response' when using the applet with Coppermine)
 - What to do with NoAlertPolicy ?
 
