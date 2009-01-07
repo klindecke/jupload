@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+  $Id: build.xml 485 2008-06-28 14:07:47Z etienne_sf $
+  
+  =======================================================================
+         Ant build file FOR documentation of translation for JUpload2
+         
+         Version $Revision: 485 $
+         
+  =======================================================================
+-->
+
+<project name="jupload2_translation" default="generate" basedir=".">
+
+
+	<target name="generate" depends="initEnv" description="Generate the translation file, based on the translation/template directory">
+
+	</target>
+
+	<target name="initEnv">
+	</target>
+
+	<target name="generateOneLanguageWikiPage" description="Generate one language wiki page, from one language template.">
+		<copy file="${path.doc}/wjhk/jupload2/policies/UploadPolicy.html" tofile="${path.build}/tmpdoc.html" />
+		<echo>Extracting parameter section from javadoc of JUloadPolicy class</echo>
+		<replaceregexp file="${path.build}/tmpdoc.html" match=".*!-- ANT_COPYDOC_START -->(.*?).!-- ANT_COPYDOC_END -->.*" replace="\1" flags="s" />
+		<replaceregexp file="${path.build}/tmpdoc.html" match="a href=(.)\.\./\.\./\.\./" replace="a href=\1doc/" flags="sig" />
+		<loadfile srcfile="${path.build}/tmpdoc.html" property="doc.param.section">
+		</loadfile>
+		<echo>Inserting parameter section into howto-customization.html</echo>
+		<replaceregexp file="${path.wwwroot}/howto-customization.html" match="(.*!-- ANT_INSERTDOC_START -->.)(.*?)(.!-- ANT_INSERTDOC_END -->.*)" replace="\1${doc.param.section}\3" flags="s" />
+	</target>
+
+</project>
