@@ -1,37 +1,33 @@
 
-============================================================================================================================================
-Response to https://sourceforge.net/forum/forum.php?thread_id=2789445&forum_id=199107
-============================================================================================================================================
-Here is little bit more information to reproduce it. 
- 
-1) In the applet-basic.html page, duplicate the applet tag pertaining to JUploadApplet (so that there are two applets on the page now). 
- 
-2) Open IE6 and there is a good chance that both applets will be displayed 
- 
-3) Now, close IE6 and reopen the same page and you will notice that the applets don't display any more. Sometimes it works if I cleaned the cache and tried again. 
- 
-Thanks, 
--Senthil
-
-==> Works for me. 
-
-
-
-
-
-
-
-
 
 As always, a lot of things can be made better:
 
 TODO list:
+
+- BUG: urlToSendErrorTo() isnt working
+Response to https://sourceforge.net/forum/forum.php?thread_id=2916845&forum_id=199107
+
+- BUG: relpathinfo not being set when dragging
+https://sourceforge.net/tracker2/index.php?func=detail&aid=2529111&group_id=59144&atid=490053
+
+
 - Finish automation (ant script), about translations.
 => Generated translation/generated/available_translations.html
+   - Check %1, %2... parameters in translated text.
+   - Check Maintainer
+   - Complete the language, which is UTF-8 file is to rebuild.
 => Make a link to it from:
    - the doc
    - the main readme.
-   
+
+
+- When a file is too big, it could non-blocking, and up to the user to go on or not.
+Suggestion from Michel Verstraeten, in https://sourceforge.net/forum/forum.php?thread_id=2593046&forum_id=199106 
+
+- Update the directory structure, in FTP. Answer to:
+https://sourceforge.net/forum/forum.php?thread_id=2900783&forum_id=199107
+
+- Document the content of the HTTP post of the applet (folders...).
 
 - Message incorrect (no 'wait for server response' when using the applet with Coppermine)
 - What to do with NoAlertPolicy ?
