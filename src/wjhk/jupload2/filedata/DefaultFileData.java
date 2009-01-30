@@ -265,6 +265,8 @@ public class DefaultFileData implements FileData {
 
     /** {@inheritDoc} */
     public String getRelativeDir() {
+        String root = this.fileRoot;
+        String dir = this.fileDir;
         if (null != this.fileRoot && (!this.fileRoot.equals(""))
                 && (this.fileDir.startsWith(this.fileRoot))) {
             int skip = this.fileRoot.length();
@@ -300,8 +302,9 @@ public class DefaultFileData implements FileData {
      */
     public static File getRoot(File[] fileArray) {
         // Let's find the common root for the dropped files.
-        // If one file has been dropped (the minimum), it's path is the
-        File root = fileArray[0];
+        // If one file has been dropped (the minimum), the path of its parent
+        // should be the root.
+        File root = fileArray[0].getParentFile();
         // Let's find the higher root level.
         while (root != null && !root.isDirectory()) {
             // We have a file. Let's take it's folder.
@@ -323,8 +326,7 @@ public class DefaultFileData implements FileData {
                 // file.
                 pathCurrentFileParent = fileArray[i];
                 // Let's find the higher root level.
-                while (pathCurrentFileParent != null
-                        && !pathCurrentFileParent.isDirectory()) {
+                while (pathCurrentFileParent != null) {
                     // We have a file. Let's take it's folder.
                     pathCurrentFileParent = pathCurrentFileParent
                             .getParentFile();
