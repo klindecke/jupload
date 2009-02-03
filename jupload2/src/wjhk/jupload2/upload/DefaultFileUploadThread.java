@@ -71,7 +71,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * 
      * @see FileUploadManagerThread
      */
-    private FileUploadManagerThread fileUploadManagerThread = null;
+    FileUploadManagerThread fileUploadManagerThread = null;
 
     /**
      * The upload policy contains all parameters needed to define the way files
