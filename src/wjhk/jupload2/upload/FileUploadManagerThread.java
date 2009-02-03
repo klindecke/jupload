@@ -302,6 +302,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
             if (getUploadException() == null) {
                 afterUploadOk();
+            } else {
+                this.uploadPolicy.sendDebugInformation("Error in Upload",
+                        getUploadException());
             }
 
             // We wait for 5 seconds, and clear the progress bar.
@@ -850,7 +853,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadPolicy.displayErr(
                     "error in uploadPolicy.afterUpload (JUploadPanel)", e1);
         }
-
     }
 
     /**
