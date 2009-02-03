@@ -265,8 +265,6 @@ public class DefaultFileData implements FileData {
 
     /** {@inheritDoc} */
     public String getRelativeDir() {
-        String root = this.fileRoot;
-        String dir = this.fileDir;
         if (null != this.fileRoot && (!this.fileRoot.equals(""))
                 && (this.fileDir.startsWith(this.fileRoot))) {
             int skip = this.fileRoot.length();
