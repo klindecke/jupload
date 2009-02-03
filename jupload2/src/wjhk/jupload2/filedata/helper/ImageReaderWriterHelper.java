@@ -355,10 +355,23 @@ public class ImageReaderWriterHelper {
     private void initImageWriter() throws JUploadIOException {
         if (this.imageWriter == null) {
             // Get the writer (to choose the compression quality)
+            // In the windows world, file extension may be in uppercase, which
+            // is not compatible with the core Java API.
+            String targetPictureFormatLowerCase = this.targetPictureFormat
+                    .toLowerCase();
             Iterator<ImageWriter> iter = ImageIO
-                    .getImageWritersByFormatName(this.targetPictureFormat);
+                    .getImageWritersByFormatName(targetPictureFormatLowerCase);
             if (!iter.hasNext()) {
                 // Too bad: no writer for the selected picture format
+
+                // A particular case: no gif support in JRE 1.5. A JRE upgrade
+                // must be done.
+                if (targetPictureFormatLowerCase.equals("gif")
+                        && System.getProperty("java.version").startsWith("1.5")) {
+                    throw new JUploadIOException(
+                            "gif pictures are not supported in Java 1.5. Please switch to JRE 1.6.");
+                }
+
                 throw new JUploadIOException("No writer for the '"
                         + this.targetPictureFormat + "' picture format.");
             } else {
