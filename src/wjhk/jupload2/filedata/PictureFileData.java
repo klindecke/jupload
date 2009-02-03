@@ -493,7 +493,17 @@ public class PictureFileData extends DefaultFileData {
             // We have to create a resized or rotated picture file, and all
             // needed information.
             // ...let's do it
-            createTranformedPictureFile(imageHelper);
+            try {
+                createTranformedPictureFile(imageHelper);
+            } catch (JUploadException e) {
+                // Hum, too bad.
+                // if any file was created, we remove it.
+                if (this.transformedPictureFile != null) {
+                    this.transformedPictureFile.delete();
+                    this.transformedPictureFile = null;
+                }
+                throw e;
+            }
         }
     }// end of initTransformedPictureFile
 
@@ -644,8 +654,11 @@ public class PictureFileData extends DefaultFileData {
                 && (this.originalHeight < 0 || this.originalWidth < 0)) {
             // Ok: it's a picture and is original width and height have not been
             // loaded yet.
+            // In the windows world, file extension may be in uppercase, which
+            // is not compatible with the core Java API.
             Iterator<ImageReader> iter = ImageIO
-                    .getImageReadersByFormatName(getFileExtension());
+                    .getImageReadersByFormatName(getFileExtension()
+                            .toLowerCase());
             if (iter.hasNext()) {
                 // It's a picture: we store its original width and height, for
                 // further calculation (rescaling and rotation).
@@ -821,14 +834,20 @@ public class PictureFileData extends DefaultFileData {
 
     /**
      * Indicates whether a file is a picture or not. The information is based on
-     * the fact the an ImageRead is found, or not, for this file.
+     * the fact the an ImageRead is found, or not, for this file. This test uses
+     * the core Java API. As in the windows world, file extension may be in
+     * uppercase, the test is based on the lowercase value for the given file
+     * extension.
      * 
      * @param file
      * @return true if the file can be opened as a picture, false otherwise.
      */
     public static boolean isFileAPictrue(File file) {
+        // In the windows world, file extension may be in uppercase, which is
+        // not compatible with the core Java API.
         Iterator<ImageReader> iter = ImageIO
-                .getImageReadersByFormatName(DefaultFileData.getExtension(file));
+                .getImageReadersByFormatName(DefaultFileData.getExtension(file)
+                        .toLowerCase());
         return iter.hasNext();
     }
 }
