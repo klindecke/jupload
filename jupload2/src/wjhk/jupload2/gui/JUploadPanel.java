@@ -509,6 +509,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      */
     public void updateButtonState() {
         if (this.fileUploadManagerThread != null
+                && this.fileUploadManagerThread.isAlive()
                 && !this.fileUploadManagerThread.isUploadFinished()) {
             // An upload is running on.
             this.browseButton.setEnabled(false);

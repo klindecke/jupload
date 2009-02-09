@@ -86,6 +86,18 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 <div align="center">
 <script language="JavaScript" type="text/javascript">
 
+	//test_js allows to test javascript values for afterUploadURL.
+	//success, msg, and body will test the values of %success%, %msg%, and %body%
+	//To use it, put the following value in the afterUploadURL applet parameter:
+	// javascript:test_js('%success%', '%msg%', '%body%');
+	//(see the given doc for more information) 
+	function test_js(success, msg, body) {
+		alert('Let\'s go!');
+		alert(success);
+		alert(msg);
+		alert(body);
+	}
+
 	//All managed parameters are below, with there default value :
 	appletWidth = "640";
 	appletHeight = "300";

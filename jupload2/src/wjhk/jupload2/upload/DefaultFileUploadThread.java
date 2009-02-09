@@ -283,6 +283,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         try {
             // We'll stop the upload if an error occurs. So the try/catch is
             // outside the while.
+            // FIXME isUploadFinished will be true, when this thread stops!
             while (!this.fileUploadManagerThread.isUploadStopped()
                     && !this.fileUploadManagerThread.isUploadFinished()) {
                 // If a packet is ready, we take it into account. Otherwise, we
@@ -378,6 +379,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
             doNonChunkedUpload(totalContentLength, totalFileLength);
         }
 
+        this.fileUploadManagerThread
+                .currentRequestIsFinished(this.filesToUpload);
+
         // We are finished with this packet. Let's display it.
         this.fileUploadManagerThread.setUploadStatus(this.filesToUpload.length,
                 FileUploadManagerThread.UPLOAD_STATUS_UPLOADED);
@@ -465,7 +469,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         // Let's tell our manager that we've done the job!
         this.fileUploadManagerThread
-                .anotherFileHasBeenUploaded(this.filesToUpload[0]);
+                .anotherFileHasBeenSent(this.filesToUpload[0]);
     }// doChunkedUpload
 
     /**
@@ -500,8 +504,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
             // Let's tell our manager that we've done the job!
             // Ok, maybe the server will refuse it, but we won't say that now!
-                this.fileUploadManagerThread
-                        .anotherFileHasBeenUploaded(this.filesToUpload[i]);
+            this.fileUploadManagerThread
+                    .anotherFileHasBeenSent(this.filesToUpload[i]);
         }
 
         // We are finished with this one. Let's display it.
