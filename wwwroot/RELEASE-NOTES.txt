@@ -1,3 +1,11 @@
+v4.1.0
+
+Fix:
+- [Major] Regression in the 4.0: the SUCCESS or ERROR in the HTTP return was not properly checked.
+- [Major] For afterUploadURL in javascript: the parameters msg and body were not correctly managed.
+- [Minor] Add of a new message, when trying to transform (resize, rotate) a gif picture, in JRE 1.5: not supported
+by the sun JRE. JRE 1.6 is needed. 
+- [Minor] FTP: add of the ftpTransfertBinary and ftpTransfertPassive parameters.
 
 
 v4.0.0

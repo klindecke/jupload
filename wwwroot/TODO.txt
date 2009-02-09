@@ -1,8 +1,12 @@
-
-
 As always, a lot of things can be made better:
 
 TODO list:
+
+- When an error occurs, the button states doesn't go back to normal state
+(try to send a big gif picture, with JRE 1.5. A special case?)
+
+- BUG: mimetype works only when the extension is in lower case.
+Reponse to: https://sourceforge.net/forum/forum.php?thread_id=2925505&forum_id=199107
 
 - BUG: urlToSendErrorTo() isnt working
 Response to https://sourceforge.net/forum/forum.php?thread_id=2916845&forum_id=199107

@@ -92,10 +92,18 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     private int nbPreparedFiles = 0;
 
     /**
-     * Number of files that have already been uploaded. Include the success
-     * server response.
+     * Number of files that have already been sent. The control on the upload
+     * success may be done or not. It's used to properly display the progress
+     * bar.
      */
-    private int nbUploadedFiles = 0;
+    private int nbSentFiles = 0;
+
+    /**
+     * Number of files that have been successfully uploaded. already been sent.
+     * The control on the upload success may be done or not. It's used to
+     * properly display the progress bar.
+     */
+    private int nbSuccessfullyUploadedFiles = 0;
 
     /**
      * Indicated the number of bytes that have currently been sent for the
@@ -107,7 +115,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * Sum of the length for all prepared files. This allow the calculation of
      * the estimatedTotalLength.
      * 
-     * @see #anotherFileHasBeenUploaded(FileData)
+     * @see #anotherFileHasBeenSent(FileData)
      */
     private long nbTotalNumberOfPreparedBytes = 0;
 
@@ -269,16 +277,16 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             prepareFiles();
 
             // The thread upload may need some information about the current
-            // one,
-            // like ... knowing that upload is actually finished (no more file
-            // to
-            // send).
+            // one, like ... knowing that upload is actually finished (no more
+            // file to send).
             while (this.fileUploadThread != null
                     && this.fileUploadThread.isAlive()
-                    && this.nbUploadedFiles < this.uploadFileDataArray.length
-                    && !this.stop) {
+                    && this.nbSuccessfullyUploadedFiles < this.uploadFileDataArray.length
+                    && this.getUploadException() == null && !this.stop) {
                 try {
-                    this.fileUploadThread.join(100);
+                    this.uploadPolicy.displayDebug(
+                            "Waiting for fileUploadThread to die", 10);
+                    this.fileUploadThread.join();
                 } catch (InterruptedException e) {
                     // This should not occur, and should not be a problem. Let's
                     // trace a warning info.
@@ -286,9 +294,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                             .displayWarn("An InterruptedException occured in FileUploadManagerThread.run()");
                 }
             }
-
-            // The upload is finished.
-            this.uploadFinished = true;
 
             // Let's restore the button state.
             this.uploadPanel.updateButtonState();
@@ -332,7 +337,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
             // And go back into a 'normal' way.
             stopUpload();
-
+        } finally {
             // We restore the button state, just to be sure.
             this.uploadPanel.updateButtonState();
         }
@@ -370,7 +375,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @return Total number of uploaded files.
      */
     public int getNbUploadedFiles() {
-        return this.nbUploadedFiles;
+        return this.nbSentFiles;
     }
 
     /**
@@ -403,8 +408,18 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @param uploadException
      */
     public void setUploadException(JUploadException uploadException) {
+        // We don't override an existing exception
+        if (this.uploadException != null) {
+            this.uploadPolicy
+                    .displayWarn("An exception has already been set in FileUploadManagerThread. The next one is just logged.");
+        } else {
+            this.uploadException = uploadException;
+        }
+
         this.uploadPolicy.displayErr(uploadException);
-        this.uploadException = uploadException;
+        this.preparationProgressBar.setString(uploadException.getMessage());
+        // We stop the upload as soon as an error occurs.
+        this.uploadFinished = true;
     }
 
     /**
@@ -425,7 +440,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @return true if the upload is finished. False otherwise.
      */
     public boolean isUploadFinished() {
-        // Indicate whether or not the upload is finished. Several condit
+        // Indicate whether or not the upload is finished. Several conditions.
         return this.uploadFinished;
     }
 
@@ -571,14 +586,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
         if (this.nextPacket != null) {
             // Nothing to do: the next packet is already prepared
-        } else if (this.nbUploadedFiles + this.nbFilesBeingUploaded == this.nbPreparedFiles) {
+        } else if (this.nbSentFiles + this.nbFilesBeingUploaded == this.nbPreparedFiles) {
             // No file is ready to sent: Upload is finished or all files are
             // been sent to the FileUploadThread.
         } else {
             // Some new files are ready, let's look if the packet is ready. We
             // add at least the first one.
             int maxPacketSize = Math.min(this.nbPreparedFiles
-                    - this.nbUploadedFiles - this.nbFilesBeingUploaded,
+                    - this.nbSentFiles - this.nbFilesBeingUploaded,
                     this.nbFilesPerRequest);
             FileData[] tempFileData = new FileData[maxPacketSize];
             int nbFilesInPacket = 0;
@@ -604,7 +619,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                     break;
                 }
                 // Let's add this file.
-                tempFileData[nbFilesInPacket] = this.uploadFileDataArray[this.nbUploadedFiles
+                tempFileData[nbFilesInPacket] = this.uploadFileDataArray[this.nbSentFiles
                         + this.nbFilesBeingUploaded + nbFilesInPacket];
                 packetLength += this.uploadFileDataArray[nbFilesInPacket]
                         .getUploadLength();
@@ -614,8 +629,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
             // We've extracted some files into the tempFileData array. The
             // question is: is this packet full ?
-            if (this.nbUploadedFiles + this.nbFilesBeingUploaded
-                    + nbFilesInPacket == this.uploadFileDataArray.length) {
+            if (this.nbSentFiles + this.nbFilesBeingUploaded + nbFilesInPacket == this.uploadFileDataArray.length) {
                 // Ok, we've up to the last file.
                 isPacketFinished = true;
             } else if (nbFilesInPacket == this.nbFilesPerRequest) {
@@ -654,16 +668,17 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     }
 
     /**
-     * This method is called each time a new file is successfully uploaded. It
-     * calculates if a new packet of files is ready to upload. It is public, as
-     * upload is done in another thread, whose class maybe in another package.
+     * This method is called each time a new file is sent to the server. It's
+     * main aim is to allow a proper display of the progress bar. It is public,
+     * as upload is done in another thread, whose class maybe in another
+     * package.
      * 
      * @param newlyUploadedFileData
      * @throws JUploadException
      */
-    public synchronized void anotherFileHasBeenUploaded(
+    public synchronized void anotherFileHasBeenSent(
             FileData newlyUploadedFileData) throws JUploadException {
-        this.nbUploadedFiles += 1;
+        this.nbSentFiles += 1;
         this.nbFilesBeingUploaded -= 1;
         this.nbBytesUploadedForCurrentFile = 0;
         this.nbBytesReadyForUpload -= newlyUploadedFileData.getUploadLength();
@@ -671,10 +686,37 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         // We are finished with this one. Let's display it.
         this.uploadStatus = UPLOAD_STATUS_UPLOADED;
         updateUploadProgressBar();
+    }
 
-        // We should now remove this file from the list of files to upload, to
-        // show the user that there is less and less work to do.
-        this.filePanel.remove(newlyUploadedFileData);
+    /**
+     * This method is called when the server response for the upload indicates a
+     * success. It is public, as upload is done in another thread, whose class
+     * maybe in another package.
+     * 
+     * @param currentPacket The packet of files that was successfully uploaded.
+     * @throws JUploadException
+     */
+    public synchronized void currentRequestIsFinished(
+            UploadFileData[] currentPacket) throws JUploadException {
+        // If no error occurs, we're happy ! (that's a useful comment...)
+        if (this.getUploadException() == null) {
+            // We should now remove this file from the list of files to upload,
+            // to show the user that there is less and less work to do.
+            for (int i = 0; i < currentPacket.length; i += 1) {
+                this.filePanel.remove(currentPacket[i]);
+                this.nbSuccessfullyUploadedFiles += 1;
+            }
+
+            // If all files have been sent, the upload is finished.
+            if (!this.uploadFinished) {
+                this.uploadFinished = (this.nbSuccessfullyUploadedFiles == this.uploadFileDataArray.length);
+            }
+
+        } else {
+            // Hum, we're not happy! We stop here.
+            this.uploadFinished = true;
+            // Nothing else to do: the error is already displayed to the user.
+        }
     }
 
     /**
@@ -698,7 +740,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         } else {
             // If it's the first packet, we noted the current time as the upload
             // start time.
-            if (this.nbUploadedFiles == 0 && this.uploadStartTime == 0) {
+            if (this.nbSentFiles == 0 && this.uploadStartTime == 0) {
                 this.uploadStartTime = System.currentTimeMillis();
             }
 
@@ -712,7 +754,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
     /**
      * Update the progress bar, based on the following data: <DIR>
-     * <LI>nbUploadedFiles: number of files that have already been updated.
+     * <LI>nbSentFiles: number of files that have already been updated.
      * <LI>nbBytesUploadedForCurrentFile: allows calculation of the upload
      * progress for the current file, based on it total upload length. </DIR>
      * 
@@ -729,10 +771,10 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
         // First, we update the bar itself.
         if (this.nbBytesUploadedForCurrentFile == 0
-                || this.nbUploadedFiles == this.uploadFileDataArray.length) {
+                || this.nbSentFiles == this.uploadFileDataArray.length) {
             percent = 0;
         } else {
-            percent = (int) (this.nbBytesUploadedForCurrentFile * 100 / this.uploadFileDataArray[this.nbUploadedFiles]
+            percent = (int) (this.nbBytesUploadedForCurrentFile * 100 / this.uploadFileDataArray[this.nbSentFiles]
                     .getUploadLength());
             // Usually, a percentage if advancement for one file is no more than
             // 100. Let's check that.
@@ -746,8 +788,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         }
 
         this.uploadPolicy.displayDebug("   ProgressBar value: "
-                + (100 * this.nbUploadedFiles + percent), 101);
-        this.uploadProgressBar.setValue(100 * this.nbUploadedFiles + percent);
+                + (100 * this.nbSentFiles + percent), 101);
+        this.uploadProgressBar.setValue(100 * this.nbSentFiles + percent);
 
         String msg = null;
         switch (this.uploadStatus) {
@@ -756,19 +798,17 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 break;
             case UPLOAD_STATUS_UPLOADING:
                 // Uploading files %1$s
-                msg = String.format(msgInfoUploading,
-                        (this.nbUploadedFiles + 1));
+                msg = String.format(msgInfoUploading, (this.nbSentFiles + 1));
                 break;
             case UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE:
                 // %1$s file(s) uploaded. Waiting for server response ...
                 if (this.numOfFileInCurrentRequest == 1) {
-                    msg = (this.nbUploadedFiles) + "/"
+                    msg = (this.nbSentFiles) + "/"
                             + (this.uploadFileDataArray.length);
                 } else {
-                    msg = (this.nbUploadedFiles
-                            - this.numOfFileInCurrentRequest + 1)
+                    msg = (this.nbSentFiles - this.numOfFileInCurrentRequest + 1)
                             + "-"
-                            + (this.nbUploadedFiles)
+                            + (this.nbSentFiles)
                             + "/"
                             + (this.uploadFileDataArray.length);
                 }
@@ -776,7 +816,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 break;
             case UPLOAD_STATUS_UPLOADED:
                 // %1$d file(s) uploaded
-                msg = String.format(msgNbUploadedFiles, (this.nbUploadedFiles));
+                msg = String.format(msgNbUploadedFiles, (this.nbSentFiles));
                 break;
             default:
                 // Hum, that's strange !
@@ -832,9 +872,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             }
 
         } catch (JUploadException e) {
-            this.uploadException = e;
-            this.uploadPolicy.displayErr(e);
-            this.preparationProgressBar.setString(e.getMessage());
+            setUploadException(e);
             stopUpload();
         }
     }

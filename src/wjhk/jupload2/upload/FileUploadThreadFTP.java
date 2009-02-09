@@ -25,7 +25,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -207,8 +206,11 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
                     throw new JUploadException("Invalid username / password");
 
-                this.ftp.changeWorkingDirectory(this.dir);
-                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
+                // if configured to, we create all target subfolders, on the
+                // server side.
+                if (uploadPolicy.getFtpCreateDirectoryStructure()) {
+                    createDirectoryStructure();
+                }
 
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
                     throw new JUploadException("Invalid directory specified");
@@ -232,6 +234,17 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     @Override
     void beforeFile(int index) throws JUploadException {
         try {
+            // if configured to, we go to the relative sub-folder of the current
+            // file, or on the root of the postURL.
+            if (uploadPolicy.getFtpCreateDirectoryStructure()) {
+                this.ftp.changeWorkingDirectory(this.filesToUpload[index]
+                        .getRelativeDir());
+                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
+            } else {
+                this.ftp.changeWorkingDirectory(this.dir);
+                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
+            }
+
             setTransferType(index);
             // just in case, delete anything that exists
 
@@ -342,38 +355,74 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
      * @throws IOException if an error occurs while setting mode data
      */
     private void setTransferType(@SuppressWarnings("unused")
-    int index) throws IOException {
-        // FileData file
+    int index) throws JUploadIOException {
         try {
-            String binVal = this.uploadPolicy.getString("binary");
-
             // read the value given from the user
-            if (Boolean.getBoolean(binVal))
+            if (this.uploadPolicy.getFtpTransfertBinary()) {
                 this.ftp.setFileType(FTP.BINARY_FILE_TYPE);
-            else
+            } else {
                 this.ftp.setFileType(FTP.ASCII_FILE_TYPE);
-
-        } catch (MissingResourceException e) {
-            // should set based on extension (not implemented)
-            this.ftp.setFileType(FTP.BINARY_FILE_TYPE);
+            }
+        } catch (IOException ioe) {
+            throw new JUploadIOException(
+                    "Cannot set transfert binary or ascii mode (binary: "
+                            + this.uploadPolicy.getFtpTransfertBinary() + ")",
+                    ioe);
         }
 
-        // now do the same for the passive/active parameter
         try {
-            String pasVal = this.uploadPolicy.getString("passive");
-
-            if (Boolean.getBoolean(pasVal)) {
+            // now do the same for the passive/active parameter
+            if (this.uploadPolicy.getFtpTransfertPassive()) {
                 this.ftp.enterRemotePassiveMode();
                 this.ftp.enterLocalPassiveMode();
             } else {
                 this.ftp.enterLocalActiveMode();
+
                 this.ftp.enterRemoteActiveMode(
                         InetAddress.getByName(this.host), Integer
                                 .parseInt(this.port));
             }
-        } catch (MissingResourceException e) {
-            this.ftp.enterRemotePassiveMode();
-            this.ftp.enterLocalPassiveMode();
+        } catch (IOException ioe) {
+            throw new JUploadIOException(
+                    "Cannot set transfert passive or active mode (passive: "
+                            + this.uploadPolicy.getFtpTransfertBinary() + ")",
+                    ioe);
+
+        }
+    }
+
+    /**
+     * Create all relative sub-directories, so the structure on the server
+     * reflects the structure of the uploaded files.
+     * 
+     * @throws JUploadIOException When an error occurs during folder creation
+     */
+    // A tester
+    private void createDirectoryStructure() throws JUploadIOException {
+        // We expect the files are sorted in a relevant order, which allow the
+        // creation of sub-directories in the same order.
+        for (int i = 0; i < this.filesToUpload.length
+                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
+            try {
+                this.ftp.changeWorkingDirectory(this.filesToUpload[i]
+                        .getRelativeDir());
+            } catch (IOException ioe) {
+                // The directory doesn't exist, we try to create it.
+                try {
+                    this.ftp.makeDirectory(this.filesToUpload[i]
+                            .getRelativeDir());
+                    this.uploadPolicy.displayDebug(this.ftp.getReplyString(),
+                            80);
+                } catch (IOException ioe2) {
+                    // Hum, the directory creation crashes.
+                    this.uploadPolicy
+                            .displayDebug(this.ftp.getReplyString(), 1);
+                    throw new JUploadIOException(
+                            "(FTP) Erreur while creating the "
+                                    + this.filesToUpload[i].getRelativeDir(),
+                            ioe2);
+                }
+            }
         }
     }
 }

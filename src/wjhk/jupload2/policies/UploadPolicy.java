@@ -127,7 +127,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * document context. For example: If afterUloadURL is<br>
  * <code>"javascript:alert('Thanks for the upload');"</code>,</br> then
  * after a successful upload, a messagebox would pop up. Since 3.0.2b3 there are
- * now three placeholders available which can be used as parameters in function
+ * now three place holders available which can be used as parameters in function
  * calls:
  * <ul>
  * <li><code>%success%</code> is replaced by <b>true</b> or <b>false</b>
@@ -139,8 +139,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * complete response body. Inside that string, all occurances of the
  * single-quote character (hex 27) are quoted by backslashes.
  * </ul>
- * So if you set afterUloadURL to <code>"alert('%body%');"</code>, then the
- * resulting message box would show the body content of the last server
+ * So if you set afterUloadURL to <code>"javascript:alert('%body%');"</code>,
+ * then the resulting message box will show the body content of the last server
  * response.</td>
  * </tr>
  * <tr>
@@ -277,6 +277,38 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>With this parameter, the name of a HTML form can be specified. If the
  * specified form exists in the same document like the applet, all all
  * form-variables are added as POST parameters to the applet's POST request.</td>
+ * </tr>
+ * <tr>
+ * <td>ftpCreateDirectoryStructure</td>
+ * <td><i>false</i><br>
+ * since 4.1.0<br>
+ * {@link wjhk.jupload2.policies.UploadPolicy}</td>
+ * <td>This parameter allows to control whether the directory structure on the
+ * client side must be created on the server side.<BR>
+ * Example: if the user upload the test/ directory, which contains the
+ * readme.txt file. With <I>ftpCreateDirectoryStructure</I> to false (or
+ * default value), the readme.txt is uploaded in the postURL directory. If set
+ * to true, the test/ folder is created in the postURL directory, and the
+ * readme.txt is uploaded in this subfolder.<BR>
+ * Note: in HTTP upload, the pathinfo and relpathinfo allows the server side
+ * script to manage this directory structure. </td>
+ * </tr>
+ * <tr>
+ * <td>ftpTransfertBinary</td>
+ * <td><i>true</i><br>
+ * since 4.1.0<br>
+ * {@link wjhk.jupload2.policies.UploadPolicy}</td>
+ * <td>This parameter allows to control whether the upload should be done in
+ * binary or ascii mode. Default is to upload in binary mode.</td>
+ * </tr>
+ * <tr>
+ * <td>ftpTransfertPassive</td>
+ * <td><i>true</i><br>
+ * since 4.1.0<br>
+ * {@link wjhk.jupload2.policies.UploadPolicy}</td>
+ * <td>This parameter allows to control whether the upload should be done in
+ * FTP passive mode, or in active mode (where tehe FTP server opens a connexion
+ * to the client, to do the upload). Default passive mode.</td>
  * </tr>
  * <tr>
  * <td>highQualityPreview</td>
@@ -907,6 +939,18 @@ public interface UploadPolicy {
     public final static String PROP_FORMDATA = "formdata";
 
     /**
+     * Parameter/Property name to specify, when in FTP mode, if subfolders must
+     * be created, or if all files must be uploaded on the root of postURL.
+     */
+    public final static String PROP_FTP_CREATE_DIRECTORY_STRUCTURE = "ftpCreateDirectoryStructure";
+
+    /** FTP: binary or ascii mode */
+    public final static String PROP_FTP_TRANSFERT_BINARY = "ftpTransfertBinary";
+
+    /** FTP: passive or active mode */
+    public final static String PROP_FTP_TRANSFERT_PASSIVE = "ftpTransfertPassive";
+
+    /**
      * Parameter/Property name for specifying high quality previews.
      */
     public final static String PROP_HIGH_QUALITY_PREVIEW = "highQualityPreview";
@@ -1121,8 +1165,19 @@ public interface UploadPolicy {
     public final static boolean DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW = true;
 
     /**
-     * Default value for parameter "lang".
+     * Default value for applet parameter "ftpCreateDirectoryStructure".
+     * 
+     * @see #PROP_FTP_CREATE_DIRECTORY_STRUCTURE
      */
+    public final static boolean DEFAULT_FTP_CREATE_DIRECTORY_STRUCTURE = false;
+
+    /** FTP: binary or ascii mode */
+    public final static boolean DEFAULT_FTP_TRANSFERT_BINARY = true;
+
+    /** FTP: passive or active mode */
+    public final static boolean DEFAULT_FTP_TRANSFERT_PASSIVE = true;
+
+    /** Default value for parameter "lang". */
     public final static String DEFAULT_LANG = null;
 
     /**
@@ -1131,19 +1186,13 @@ public interface UploadPolicy {
      */
     public final static String DEFAULT_FILENAME_ENCODING = null;
 
-    /**
-     * Default value for parameter "highQualityPreview".
-     */
+    /** Default value for parameter "highQualityPreview". */
     public final static boolean DEFAULT_HIGH_QUALITY_PREVIEW = false;
 
-    /**
-     * Default value for parameter "lookAndFeel".
-     */
+    /** Default value for parameter "lookAndFeel". */
     public final static String DEFAULT_LOOK_AND_FEEL = "";
 
-    /**
-     * Default value for parameter "maxChunkSize".
-     */
+    /** Default value for parameter "maxChunkSize". */
     public final static long DEFAULT_MAX_CHUNK_SIZE = Long.MAX_VALUE;
 
     /**
@@ -1152,14 +1201,10 @@ public interface UploadPolicy {
      */
     public final static long DEFAULT_MAX_FILE_SIZE = Long.MAX_VALUE;
 
-    /**
-     * Default value for parameter "maxPicWidth".
-     */
+    /** Default value for parameter "maxPicWidth". */
     public final static int DEFAULT_MAX_WIDTH = Integer.MAX_VALUE;
 
-    /**
-     * Default value for parameter "maxPicHeight".
-     */
+    /** Default value for parameter "maxPicHeight". */
     public final static int DEFAULT_MAX_HEIGHT = Integer.MAX_VALUE;
 
     /**
@@ -1495,13 +1540,35 @@ public interface UploadPolicy {
     public int getFileChooserIconSize();
 
     /**
-     * Return the encoding that should be used for the filename. This encoding
+     * Returns the encoding that should be used for the filename. This encoding
      * has no impact on the content of the file that will be uploaded.
      * 
      * @return The encoding name, like UTF-8 (see the Charset JDK
      *         documentation).
      */
     public String getFilenameEncoding();
+
+    /**
+     * Returns the current value for the ftpCreateDirectoryStructure applet
+     * parameter.
+     * 
+     * @return The current value of ftpCreateDirectoryStructure
+     */
+    public boolean getFtpCreateDirectoryStructure();
+
+    /**
+     * Returns the current value for the ftpTransfertBinary applet parameter.
+     * 
+     * @return The current value of ftpTransfertBinary
+     */
+    public boolean getFtpTransfertBinary();
+
+    /**
+     * Returns the current value for the ftpTransfertPassive applet parameter.
+     * 
+     * @return The current value of ftpTransfertPassive
+     */
+    public boolean getFtpTransfertPassive();
 
     /**
      * This method sets the current language to take into account. It loads the

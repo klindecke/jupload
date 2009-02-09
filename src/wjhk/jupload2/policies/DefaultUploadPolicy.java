@@ -184,6 +184,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     private String filenameEncoding = UploadPolicy.DEFAULT_FILENAME_ENCODING;
 
+    /** Default value for the ftpCreateDirectoryStructure applet parameter */
+    private boolean ftpCreateDirectoryStructure = UploadPolicy.DEFAULT_FTP_CREATE_DIRECTORY_STRUCTURE;
+
+    /** Default value for the ftpCreateDirectoryStructure applet parameter */
+    private boolean ftpTransfertBinary = UploadPolicy.DEFAULT_FTP_TRANSFERT_BINARY;
+
+    /** Default value for the ftpCreateDirectoryStructure applet parameter */
+    private boolean ftpTransfertPassive = UploadPolicy.DEFAULT_FTP_TRANSFERT_PASSIVE;
+
     /**
      * The lang parameter, given to the applet.
      */
@@ -404,6 +413,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setAfterUploadURL(UploadPolicyFactory.getParameter(theApplet,
                 PROP_AFTER_UPLOAD_URL, DEFAULT_AFTER_UPLOAD_URL, this));
 
+        // Whether or not to create subfolders on the server side.
+        setFtpCreateDirectoryStructure(UploadPolicyFactory.getParameter(
+                theApplet, PROP_FTP_CREATE_DIRECTORY_STRUCTURE,
+                DEFAULT_FTP_CREATE_DIRECTORY_STRUCTURE, this));
+        // Whether or not to create subfolders on the server side.
+        setFtpTransfertBinary(UploadPolicyFactory.getParameter(theApplet,
+                PROP_FTP_TRANSFERT_BINARY, DEFAULT_FTP_TRANSFERT_BINARY, this));
+        // Whether or not to create subfolders on the server side.
+        setFtpTransfertPassive(UploadPolicyFactory
+                .getParameter(theApplet, PROP_FTP_TRANSFERT_PASSIVE,
+                        DEFAULT_FTP_TRANSFERT_PASSIVE, this));
+
         // get the allowedFileExtensions applet parameter
         setAllowedFileExtensions(UploadPolicyFactory.getParameter(theApplet,
                 PROP_ALLOWED_FILE_EXTENSIONS, DEFAULT_ALLOWED_FILE_EXTENSIONS,
@@ -428,7 +449,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 this));
         setCurrentBrowsingDirectory(UploadPolicyFactory.getParameter(theApplet,
                 PROP_BROWSING_DIRECTORY, DEFAULT_BROWSING_DIRECTORY, this));
-
         // get the filenameEncoding. If not null, it should be a valid argument
         // for the URLEncoder.encode method.
         // DEPRECATED.
@@ -708,8 +728,39 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 + "\" was not found in the response body");
     } // checkUploadSuccess
 
+    /**
+     * Generate a js String, that can be written in a javascript expression.
+     * It's up to the caller to put the starting and ending quotes. The double
+     * quotes are replaced by simple quotes (to let simple quotes unchanged, as
+     * it may be used in common language). Thus, start and end of JS string
+     * should be with double quotes, when using the return of this function.
+     * 
+     * @param s
+     * @return
+     */
     private String jsString(String s) {
-        return "'" + s.replaceAll("'", "\\'") + "'";
+        String dollarReplacement = Matcher.quoteReplacement("\\$");
+        String singleQuoteReplacement = Matcher.quoteReplacement("\\'");
+        String linefeedReplacement = Matcher.quoteReplacement("\\n");
+
+        if (s == null || s.equals("")) {
+            displayDebug("jsString (nothing to do, s is an empty string)", 100);
+            return "";
+        } else {
+            displayDebug("jsString:", 100);
+            displayDebug("  original string:" + s, 100);
+            s = s.replaceAll("\\$", dollarReplacement);
+            displayDebug("  after dollar changed:" + s, 100);
+            s = s.replaceAll("\"", "'");
+            displayDebug("  after double quote changed:" + s, 100);
+            s = s.replaceAll("'", singleQuoteReplacement);
+            displayDebug("  after single quote changed:" + s, 100);
+            s = s.replaceAll("\n", linefeedReplacement);
+            displayDebug("  after LF changed:" + s, 100);
+            s = s.replaceAll("\r", "");
+            displayDebug("  after CR changed:" + s, 100);
+            return s;
+        }
     }
 
     /**
@@ -725,21 +776,26 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 if (url.toLowerCase().startsWith("javascript:")) {
                     // A JavaScript expression was specified. Execute it.
                     String expr = url.substring(11);
-                    if (expr.contains("%msg%"))
-                        // FIX given by Jon Gjengset, to be able to replace $
-                        // characters.
-                        expr = expr.replaceAll("%msg%", jsString(
-                                getLastResponseMessage()).replaceAll("\\$",
-                                "\\\\\\$"));
-                    if (expr.contains("%body%"))
-                        // FIX given by Jon Gjengset, to be able to replace $
-                        // characters.
-                        expr = expr.replaceAll("%body%", jsString(
-                                getLastResponseBody()).replaceAll("\\$",
-                                "\\\\\\$"));
-                    if (expr.contains("%success%"))
-                        expr = expr.replaceAll("%success%",
-                                (null == e) ? "true" : "false");
+
+                    // Replacement of %msg%. Will do something only if the %msg%
+                    // string exists in expr.
+                    expr = expr
+                            .replaceAll(
+                                    "%msg%",
+                                    Matcher
+                                            .quoteReplacement(jsString(getLastResponseMessage())));
+
+                    // Replacement of %body%. Will do something only if the
+                    // %body% string exists in expr.
+                    expr = expr.replaceAll("%body%", Matcher
+                            .quoteReplacement(jsString(getLastResponseBody())));
+
+                    // Replacement of %success%. Will do something only if the
+                    // %success% string exists in expr.
+                    expr = expr.replaceAll("%success%", Matcher
+                            .quoteReplacement((null == e) ? "true" : "false"));
+
+                    displayDebug("Calling javascript expression: " + expr, 80);
                     JSObject.getWindow(getApplet()).eval(expr);
                 } else if (null == e) {
                     // This is not a javascript URL: we change the current page
@@ -1421,6 +1477,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
                 + getFileChooserIconSize(), 30);
         displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(), 30);
+        displayDebug(PROP_FTP_CREATE_DIRECTORY_STRUCTURE + ": "
+                + getFtpCreateDirectoryStructure(), 30);
+        displayDebug(
+                PROP_FTP_TRANSFERT_BINARY + ": " + getFtpTransfertBinary(), 30);
+        displayDebug(PROP_FTP_TRANSFERT_PASSIVE + ": "
+                + getFtpTransfertPassive(), 30);
         displayDebug("lang: " + this.lang, 30);
         displayDebug(PROP_MAX_CHUNK_SIZE + ": " + getMaxChunkSize(), 30);
         if (this.maxFileSize == Long.MAX_VALUE) {
@@ -1783,6 +1845,38 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @param filenameEncoding the filenameEncoding to set */
     protected void setFilenameEncoding(String filenameEncoding) {
         this.filenameEncoding = filenameEncoding;
+    }
+
+    /** @see UploadPolicy#getFtpCreateDirectoryStructure() */
+    public boolean getFtpCreateDirectoryStructure() {
+        return this.ftpCreateDirectoryStructure;
+    }
+
+    /** @param ftpCreateDirectoryStructure the ftpCreateDirectoryStructure to set */
+    protected void setFtpCreateDirectoryStructure(
+            boolean ftpCreateDirectoryStructure) {
+        this.ftpCreateDirectoryStructure = ftpCreateDirectoryStructure;
+    }
+
+    /** @see UploadPolicy#getFtpTransfertBinary() */
+    public boolean getFtpTransfertBinary() {
+        return this.ftpTransfertBinary;
+    }
+
+    /** @param ftpTransfertBinary the ftpTransfertBinary to set */
+    protected void setFtpTransfertBinary(boolean ftpTransfertBinary) {
+        this.ftpTransfertBinary = ftpTransfertBinary;
+        ;
+    }
+
+    /** @see UploadPolicy#getFtpTransfertPassive() */
+    public boolean getFtpTransfertPassive() {
+        return this.ftpTransfertPassive;
+    }
+
+    /** @param ftpTransfertPassive the ftpTransfertPassive to set */
+    protected void setFtpTransfertPassive(boolean ftpTransfertPassive) {
+        this.ftpTransfertPassive = ftpTransfertPassive;
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getPostURL() */
