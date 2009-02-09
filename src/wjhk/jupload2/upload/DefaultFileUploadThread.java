@@ -405,7 +405,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // No more than one file, when in chunk mode.
         if (this.filesToUpload.length > 1) {
             throw new JUploadException(
-                    "totalContentLength >= chunkSize: this.filesToUpload.length should be more than 1 (doUpload)");
+                    "totalContentLength >= chunkSize: this.filesToUpload.length should not be more than 1 (doUpload)");
         }
 
         // This while enables the chunk management:
