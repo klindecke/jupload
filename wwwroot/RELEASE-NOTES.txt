@@ -6,6 +6,7 @@ Fix:
 - [Minor] Add of a new message, when trying to transform (resize, rotate) a gif picture, in JRE 1.5: not supported
 by the sun JRE. JRE 1.6 is needed. 
 - [Minor] FTP: add of the ftpTransfertBinary and ftpTransfertPassive parameters.
+- [Minor] Regression in the 4.0: after the STOP button has been hit, the other button would not return to their correct state.
 
 
 v4.0.0

@@ -283,9 +283,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         try {
             // We'll stop the upload if an error occurs. So the try/catch is
             // outside the while.
-            // FIXME isUploadFinished will be true, when this thread stops!
-            while (!this.fileUploadManagerThread.isUploadStopped()
-                    && !this.fileUploadManagerThread.isUploadFinished()) {
+            while (!this.fileUploadManagerThread.isUploadFinished()) {
                 // If a packet is ready, we take it into account. Otherwise, we
                 // wait for a new packet.
                 this.filesToUpload = this.fileUploadManagerThread

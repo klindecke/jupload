@@ -148,8 +148,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     private JProgressBar uploadProgressBar = null;
 
     /**
-     * Indicates whether the upload is finished or not. Passed to true in the
-     * {@link #run()} method.
+     * Indicates whether the upload is finished or not. Passed to true as soon
+     * as one of these conditions becomes true: <DIR>
+     * <LI>All files are uploaded (in the
+     * {@link #currentRequestIsFinished(UploadFileData[])} method)
+     * <LI>An exception occurs (in the
+     * {@link #setUploadException(JUploadException)} method)
+     * <LI>The user stops the upload (in the {@link #stopUpload()} method)
+     * </DIR>
      */
     private boolean uploadFinished = false;
 
@@ -312,11 +318,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                         getUploadException());
             }
 
-            // We wait for 5 seconds, and clear the progress bar.
-            try {
-                sleep(5000);
-            } catch (InterruptedException e) {
-                // Nothing to do
+            // If the upload was successful, we wait for 5 seconds, before
+            // clearing the progress bar.
+            if (!isUploadStopped() && getUploadException() != null) {
+                try {
+                    sleep(5000);
+                } catch (InterruptedException e) {
+                    // Nothing to do
+                }
             }
             // The job is finished for long enough, let's clear the progression
             // bars.
@@ -494,6 +503,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     public void stopUpload() {
         this.stop = true;
+
+        // The upload is now finished ...
+        this.uploadFinished = true;
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
@@ -729,13 +741,18 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     public synchronized UploadFileData[] getNextPacket()
             throws JUploadException {
 
+        // If the upload is finished, we stop here.
+        if (isUploadFinished()) {
+            return null;
+        }
+
         // If no packet was ready before, perhaps one is ready now ?
         if (this.nextPacket == null) {
             checkIfNextPacketIsReady();
         }
 
         // If the next packet is ready, let's manage it.
-        if (this.nextPacket == null) {
+        if (this.nextPacket == null || isUploadFinished()) {
             return null;
         } else {
             // If it's the first packet, we noted the current time as the upload
@@ -843,7 +860,10 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.preparationProgressBar
                 .setMaximum(100 * this.uploadFileDataArray.length);
         try {
-            for (int i = 0; i < this.uploadFileDataArray.length; i += 1) {
+            // We loop through all files, and check before each if we should
+            // stop (for instance if an error occurs)
+            for (int i = 0; i < this.uploadFileDataArray.length
+                    && !isUploadFinished(); i += 1) {
                 this.uploadPolicy.displayDebug(
                         "============== Start of file preparation ("
                                 + this.uploadFileDataArray[i].getFileName()
