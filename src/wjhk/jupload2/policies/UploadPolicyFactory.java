@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import wjhk.jupload2.JUploadApplet;
-
+ 
 /**
  * This class is used to control creation of the uploadPolicy instance,
  * according to applet parameters (or System properties). <BR>
