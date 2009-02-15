@@ -45,29 +45,26 @@ import wjhk.jupload2.policies.UploadPolicy;
  * This class contains utilities to delegate network manipulation. It hides the
  * management for the current upload policy connection parameters.<BR>
  * This class goes through the following states, stored in the private
- * connectionStatus attribute: <DIR>
- * <LI>STATUS_NOT_INITIALIZED: default status when the instance in created.
- * Only available action: {@link #initRequest(URL, String, boolean, boolean)}
- * <LI>STATUS_BEFORE_SERVER_CONNECTION: the instance is initialized, and the
- * caller may begin writing the request to this ConnectionHelper. All data
- * written to it, will be stored in a {@link ByteArrayEncoderHTTP}. The
- * connection switches to this status when the
- * {@link #initRequest(URL, String, boolean, boolean)} is called.
- * <LI>STATUS_WRITING_REQUEST: The network connection to the server is now
- * opened. The content of the ByteArrayEncoderHTTP has been sent to the server.
- * All subsequent calls to write methods will directly write on the socket to
- * the server. The {@link #sendRequest()} method changes the connection to this
- * status.
- * <LI>STATUS_READING_RESPONSE: The request to the server has been totally
- * written. No more calls to the write methods are allowed. The
- * {@link #readHttpResponse()} is responsible to put the connectionHelper to
- * this status.
- * <LI>STATUS_CONNECTION_CLOSED: The response has been read. All getters can be
- * called, to get information about the server response. The only other method
- * allowed is the {@link #initRequest(URL, String, boolean, boolean)}, to start
- * a new request to the server. Using the same connectionHelper allows to use
- * the same network connection, when the allowHttpPersistent applet parameter is
- * used. </DIR>
+ * connectionStatus attribute: <DIR> <LI>STATUS_NOT_INITIALIZED: default status
+ * when the instance in created. Only available action:
+ * {@link #initRequest(URL, String, boolean, boolean)} <LI>
+ * STATUS_BEFORE_SERVER_CONNECTION: the instance is initialized, and the caller
+ * may begin writing the request to this ConnectionHelper. All data written to
+ * it, will be stored in a {@link ByteArrayEncoderHTTP}. The connection switches
+ * to this status when the {@link #initRequest(URL, String, boolean, boolean)}
+ * is called. <LI>STATUS_WRITING_REQUEST: The network connection to the server
+ * is now opened. The content of the ByteArrayEncoderHTTP has been sent to the
+ * server. All subsequent calls to write methods will directly write on the
+ * socket to the server. The {@link #sendRequest()} method changes the
+ * connection to this status. <LI>STATUS_READING_RESPONSE: The request to the
+ * server has been totally written. No more calls to the write methods are
+ * allowed. The {@link #readHttpResponse()} is responsible to put the
+ * connectionHelper to this status. <LI>STATUS_CONNECTION_CLOSED: The response
+ * has been read. All getters can be called, to get information about the server
+ * response. The only other method allowed is the
+ * {@link #initRequest(URL, String, boolean, boolean)}, to start a new request
+ * to the server. Using the same connectionHelper allows to use the same network
+ * connection, when the allowHttpPersistent applet parameter is used. </DIR>
  * 
  * @author etienne_sf
  * 
@@ -286,8 +283,8 @@ public class HTTPConnectionHelper extends OutputStream {
     }
 
     /**
-     * Return the current {@link ByteArrayEncoder}. If it was not created, it
-     * is initialized.
+     * Return the current {@link ByteArrayEncoder}. If it was not created, it is
+     * initialized.
      * 
      * @return The current {@link ByteArrayEncoder}, null if called before the
      *         first initialization.
@@ -416,9 +413,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * Return the current socket. If the byteArrayEncoder is not closed: close
      * it, and send the request to the server.
      * 
-     * @return
-     * 
-     * public Socket getSocket() { }
+     * @return public Socket getSocket() { }
      */
 
     /**
@@ -852,7 +847,10 @@ public class HTTPConnectionHelper extends OutputStream {
             // Hum, HTTPConnectionHelper catch IOException, and throws a
             // JUploadIOException. Now we get the cause, that is the original
             // IOException. Not optimized.
-            if (e.getCause() instanceof IOException) {
+            if (e.getCause() == null) {
+                // This should not happen
+                throw new IOException(e);
+            } else if (e.getCause() instanceof IOException) {
                 throw (IOException) e.getCause();
             } else {
                 // Hum, can something like an OutOfMemory. We must throw it.
@@ -870,7 +868,10 @@ public class HTTPConnectionHelper extends OutputStream {
             // Hum, HTTPConnectionHelper catch IOException, and throws a
             // JUploadIOException. Now we get the cause, that is the original
             // IOException. Not optimized.
-            if (e.getCause() instanceof IOException) {
+            if (e.getCause() == null) {
+                // This should not happen
+                throw new IOException(e);
+            } else if (e.getCause() instanceof IOException) {
                 throw (IOException) e.getCause();
             } else {
                 // Hum, can something like an OutOfMemory. We must throw it.
