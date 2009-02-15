@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import wjhk.jupload2.JUploadApplet;
- 
+
 /**
  * This class is used to control creation of the uploadPolicy instance,
  * according to applet parameters (or System properties). <BR>
@@ -63,21 +63,32 @@ public class UploadPolicyFactory {
             String uploadPolicyStr = getParameter(theApplet,
                     UploadPolicy.PROP_UPLOAD_POLICY,
                     UploadPolicy.DEFAULT_UPLOAD_POLICY, null);
+            int debugLevel = getParameter(theApplet,
+                    UploadPolicy.PROP_DEBUG_LEVEL,
+                    UploadPolicy.DEFAULT_DEBUG_LEVEL, null);
 
             String action = null;
             boolean usingDefaultUploadPolicy = false;
             try {
+                logDebug("Trying to load the given uploadPolicy: "
+                        + uploadPolicyStr, debugLevel);
+
                 action = uploadPolicyStr;
                 Class<?> uploadPolicyClass = null;
                 // Our default is "DefaultUploadPolicy", (without prefix)
                 // so we try the prefixed variant first. But only, if the
-                // user had specified an unqualified classname.
+                // user had specified an unqualified class name.
                 if (!uploadPolicyStr.contains(".")) {
                     try {
                         uploadPolicyClass = Class
                                 .forName("wjhk.jupload2.policies."
                                         + uploadPolicyStr);
+                        logDebug("wjhk.jupload2.policies." + uploadPolicyStr
+                                + " successfully loaded.", debugLevel);
                     } catch (ClassNotFoundException e1) {
+                        logDebug(e1.getClass().getName()
+                                + " when looking for [wjhk.jupload2.policies.]"
+                                + uploadPolicyStr, debugLevel);
                         uploadPolicyClass = null;
                     }
                 }
@@ -85,12 +96,20 @@ public class UploadPolicyFactory {
                     // Let's try without the prefix
                     try {
                         uploadPolicyClass = Class.forName(uploadPolicyStr);
+                        logDebug(uploadPolicyStr + " successfully loaded.",
+                                debugLevel);
                     } catch (ClassNotFoundException e2) {
+                        logDebug(e2.getClass().getName()
+                                + " when looking for the given uploadPolicy ("
+                                + uploadPolicyStr + ")", debugLevel);
                         // Too bad, we don't know how to create this class.
                         // Fall back to builtin default.
                         usingDefaultUploadPolicy = true;
                         uploadPolicyClass = Class
                                 .forName("wjhk.jupload2.policies.DefaultUploadPolicy");
+                        logDebug(
+                                "Using default upload policy: wjhk.jupload2.policies.DefaultUploadPolicy",
+                                debugLevel);
                     }
                 }
                 action = "constructorParameters";
@@ -119,7 +138,7 @@ public class UploadPolicyFactory {
                 throw e;
             }
 
-            // The current values are dispayed here, after the full
+            // The current values are displayed here, after the full
             // initialization of all classes.
             // It could also be displayed in the DefaultUploadPolicy (for
             // instance), but then, the
@@ -377,6 +396,18 @@ public class UploadPolicyFactory {
                         + ", using default value: " + def);
             }
             return def;
+        }
+    }
+
+    /**
+     * Help to log debug information to the user. Use of log4j, one day in the
+     * future, would help.
+     * 
+     * @param currentDebugLevel
+     */
+    private static void logDebug(String msg, int currentDebugLevel) {
+        if (currentDebugLevel > 0) {
+            System.out.println("[DEBUG] " + msg);
         }
     }
 }
