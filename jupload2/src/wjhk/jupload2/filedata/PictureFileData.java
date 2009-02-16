@@ -51,11 +51,11 @@ import wjhk.jupload2.policies.UploadPolicy;
  * This class contains all data about files to upload as a picture. It adds the
  * following elements to the {@link wjhk.jupload2.filedata.FileData} class :<BR>
  * <UL>
- * <LI> Ability to define a target format (to convert pictures to JPG before
+ * <LI>Ability to define a target format (to convert pictures to JPG before
  * upload, for instance)
- * <LI> Optional definition of a maximal width and/or height.
- * <LI> Ability to rotate a picture, with {@link #addRotation(int)}
- * <LI> Ability to store a picture into a BufferedImage. This is actualy a bad
+ * <LI>Optional definition of a maximal width and/or height.
+ * <LI>Ability to rotate a picture, with {@link #addRotation(int)}
+ * <LI>Ability to store a picture into a BufferedImage. This is actualy a bad
  * idea within an applet (should run within a java application) : the applet
  * runs very quickly out of memory. With pictures from my Canon EOS20D (3,5M), I
  * can only display two pictures. The third one generates an out of memory
@@ -144,9 +144,9 @@ public class PictureFileData extends DefaultFileData {
     private File transformedPictureFile = null;
 
     /**
-     * uploadLength contains the uploadLength, which is : <BR> - The size of the
-     * original file, if no transformation is needed. <BR> - The size of the
-     * transformed file, if a transformation were made. <BR>
+     * uploadLength contains the uploadLength, which is : <BR>
+     * - The size of the original file, if no transformation is needed. <BR>
+     * - The size of the transformed file, if a transformation were made. <BR>
      * <BR>
      * It is set to -1 whenever the user ask for a rotation (current only action
      * that need to recalculate the picture).
@@ -391,8 +391,8 @@ public class PictureFileData extends DefaultFileData {
      * This function is used to rotate the picture. The current rotation state
      * is kept in the quarterRotation private attribute.
      * 
-     * @param quarter Number of quarters (90°) the picture should rotate. 1
-     *            means rotating of 90° clockwise. Can be negative.
+     * @param quarter Number of quarters (90 degrees) the picture should rotate.
+     *            1 means rotating of 90 degrees clockwise. Can be negative.
      */
     public void addRotation(int quarter) {
         this.quarterRotation += quarter;
@@ -618,7 +618,7 @@ public class PictureFileData extends DefaultFileData {
 
     /**
      * If {@link #transformedPictureFile} is null, create a new temporary file,
-     * and assign it to {@link  #transformedPictureFile}. Otherwise, no action.
+     * and assign it to {@link #transformedPictureFile}. Otherwise, no action.
      * 
      * @throws IOException
      */
@@ -680,7 +680,7 @@ public class PictureFileData extends DefaultFileData {
 
     /**
      * If {@link #workingCopyTempFile} is null, create a new temporary file, and
-     * assign it to {@link  #transformedPictureFile}. Otherwise, no action.
+     * assign it to {@link #transformedPictureFile}. Otherwise, no action.
      * 
      * @throws IOException
      */
