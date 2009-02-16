@@ -277,8 +277,7 @@ public class PicturePanel extends Canvas implements MouseListener,
     // /////////////////////// MouseListener interface
     // ////////////////////////////////////////////////////////////////////////////////////////////////////
     /** @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent) */
-    public void mouseClicked(@SuppressWarnings("unused")
-    MouseEvent arg0) {
+    public void mouseClicked(MouseEvent arg0) {
         if (this.pictureFileData != null) {
             // Ok, we have a picture. Let's display it.
             this.uploadPolicy.onFileDoubleClicked(this.pictureFileData);
@@ -286,26 +285,22 @@ public class PicturePanel extends Canvas implements MouseListener,
     }
 
     /** @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent) */
-    public void mouseEntered(@SuppressWarnings("unused")
-    MouseEvent arg0) {
+    public void mouseEntered(MouseEvent arg0) {
         // Nothing to do.
     }
 
     /** @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent) */
-    public void mouseExited(@SuppressWarnings("unused")
-    MouseEvent arg0) {
+    public void mouseExited(MouseEvent arg0) {
         // Nothing to do.
     }
 
     /** @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent) */
-    public void mousePressed(@SuppressWarnings("unused")
-    MouseEvent arg0) {
+    public void mousePressed(MouseEvent arg0) {
         // Nothing to do.
     }
 
     /** @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent) */
-    public void mouseReleased(@SuppressWarnings("unused")
-    MouseEvent arg0) {
+    public void mouseReleased(MouseEvent arg0) {
         // Nothing to do.
     }
 
@@ -316,24 +311,21 @@ public class PicturePanel extends Canvas implements MouseListener,
     /**
      * @see java.awt.event.ComponentListener#componentHidden(java.awt.event.ComponentEvent)
      */
-    public void componentHidden(@SuppressWarnings("unused")
-    ComponentEvent arg0) {
+    public void componentHidden(ComponentEvent arg0) {
         // No action
     }
 
     /**
      * @see java.awt.event.ComponentListener#componentMoved(java.awt.event.ComponentEvent)
      */
-    public void componentMoved(@SuppressWarnings("unused")
-    ComponentEvent arg0) {
+    public void componentMoved(ComponentEvent arg0) {
         // No action
     }
 
     /**
      * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
      */
-    public void componentResized(@SuppressWarnings("unused")
-    ComponentEvent arg0) {
+    public void componentResized(ComponentEvent arg0) {
         this.uploadPolicy.displayDebug("Within componentResized", 10);
         if (this.offscreenImage != null) {
             this.offscreenImage.flush();
@@ -348,8 +340,7 @@ public class PicturePanel extends Canvas implements MouseListener,
     /**
      * @see java.awt.event.ComponentListener#componentShown(java.awt.event.ComponentEvent)
      */
-    public void componentShown(@SuppressWarnings("unused")
-    ComponentEvent arg0) {
+    public void componentShown(ComponentEvent arg0) {
         // No action
     }
 }

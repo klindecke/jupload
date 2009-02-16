@@ -31,10 +31,10 @@ import wjhk.jupload2.JUploadApplet;
  * <BR>
  * The used parameters are:
  * <UL>
- * <LI> postURL: The URL where files are to be uploaded. This parameter is
+ * <LI>postURL: The URL where files are to be uploaded. This parameter is
  * mandatory if called from a servlet.
- * <LI> uploadPolicy: the class name to be used as a policy. Currently available :
- * not defined (then use DefaultUploadPolicy),
+ * <LI>uploadPolicy: the class name to be used as a policy. Currently available
+ * : not defined (then use DefaultUploadPolicy),
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy},
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}
  * </UL>
@@ -175,8 +175,7 @@ public class UploadPolicyFactory {
      *         returns the given default value.
      */
     static public String getParameter(JUploadApplet theApplet, String key,
-            String def, @SuppressWarnings("unused")
-            UploadPolicy uploadPolicy) {
+            String def, UploadPolicy uploadPolicy) {
         if (theApplet == null) {
             return (System.getProperty(key) != null ? System.getProperty(key)
                     : def);

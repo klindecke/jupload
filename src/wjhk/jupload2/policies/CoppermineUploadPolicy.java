@@ -43,10 +43,8 @@ import wjhk.jupload2.filedata.PictureFileData;
  * the URL pointed by urlToSendErrorTo. This URL should send a mail to the
  * manager of the Coppermine galery.
  * </UL>
- * <A NAME="example1">
- * <H3>Call of the applet from a php script in coppermine</H3>
- * </A> You'll find below an example of how to put the applet into a PHP page:
- * <BR>
+ * <A NAME="example1"> <H3>Call of the applet from a php script in coppermine</H3>
+ * </A> You'll find below an example of how to put the applet into a PHP page: <BR>
  * <XMP> <?php $URL = $CONFIG['site_url'] . 'xp_publish.php'; $lang =
  * $lang_translation_info['lang_country_code']; $max_upl_width_height =
  * $CONFIG['max_upl_width_height']; ?> <APPLET NAME="JUpload"
@@ -58,14 +56,15 @@ import wjhk.jupload2.filedata.PictureFileData;
  * Then, optional parameters --> <PARAM NAME="lang" VALUE="$lang"> <PARAM
  * NAME="maxPicHeight" VALUE="$max_upl_width_height"> <PARAM NAME="maxPicWidth"
  * VALUE="$max_upl_width_height"> <PARAM NAME="debugLevel" VALUE="0"> Java 1.4
- * or higher plugin required. </APPLET> </XMP> <A NAME="example1">
- * <H3>Example 2: albumId set by a javascript call.</H3>
- * </A> <XMP> <script language="javascript" type="text/javascript"> function
- * onAlbumChange() { if (document.form_album.album_id.selectedIndex >= 0) {
+ * or higher plugin required. </APPLET> </XMP> <A NAME="example1"> <H3>Example
+ * 2: albumId set by a javascript call.</H3> </A> <XMP> <script
+ * language="javascript" type="text/javascript"> function onAlbumChange() { if
+ * (document.form_album.album_id.selectedIndex >= 0) {
  * document.applets['JUpload'].setProperty('albumId',
  * document.form_album.album_id.value); document.form_album.album_name.value =
- * document.form_album.album_id.options[document.form_album.album_id.selectedIndex].text;
- * document.form_album.album_description.value =
+ * document
+ * .form_album.album_id.options[document.form_album.album_id.selectedIndex
+ * ].text; document.form_album.album_description.value =
  * description[document.form_album.album_id.value]; } else {
  * document.JUpload.setProperty('albumId', '');
  * document.form_album.album_name.value = '';
@@ -165,9 +164,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * @see UploadPolicy#getUploadName(FileData, int)
      */
     @Override
-    public String getUploadName(@SuppressWarnings("unused")
-    FileData fileData, @SuppressWarnings("unused")
-    int index) {
+    public String getUploadName(FileData fileData, int index) {
         return "userpicture";
     }
 
@@ -196,8 +193,8 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 
     /** @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String) */
     @Override
-    public void afterUpload(Exception e, @SuppressWarnings("unused")
-    String serverOutput) throws JUploadException {
+    public void afterUpload(Exception e, String serverOutput)
+            throws JUploadException {
         int nbPictureAfterUpload = getApplet().getUploadPanel().getFilePanel()
                 .getFilesLength();
         if (nbPictureAfterUpload > this.nbPictureInUpload) {

@@ -40,10 +40,10 @@ import wjhk.jupload2.policies.UploadPolicy;
  * classes, or create new ones. <BR>
  * Some ides of improvements :
  * <UL>
- * <LI> Compression of picture before Upload (see
+ * <LI>Compression of picture before Upload (see
  * {@link wjhk.jupload2.filedata.PictureFileData})
- * <LI> Could be XML validation before sending to the server
- * <LI> Up to your imagination...
+ * <LI>Could be XML validation before sending to the server
+ * <LI>Up to your imagination...
  * </UL>
  */
 class FilePanelDataModel2 extends AbstractTableModel {
@@ -292,9 +292,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
     @Override
-    public boolean isCellEditable(@SuppressWarnings("unused")
-    int arg0, @SuppressWarnings("unused")
-    int arg1) {
+    public boolean isCellEditable(int arg0, int arg1) {
         // No editable columns.
         return false;
     }
@@ -305,7 +303,6 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @param col The index of the column to sort
      * @param ascending true if ascending, false if descending.
      */
-    @SuppressWarnings("unchecked")
     public void sortColumn(int col, boolean ascending) {
         synchronized (this.rows) {
             Collections.sort(this.rows, new ColumnComparator(col, ascending));
@@ -365,10 +362,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
      * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
      */
     @Override
-    public void setValueAt(@SuppressWarnings("unused")
-    Object arg0, @SuppressWarnings("unused")
-    int arg1, @SuppressWarnings("unused")
-    int arg2) {
+    public void setValueAt(Object arg0, int arg1, int arg2) {
         this.uploadPolicy.displayWarn(this.getClass().getName()
                 + ".setValueAt: no action");
     }

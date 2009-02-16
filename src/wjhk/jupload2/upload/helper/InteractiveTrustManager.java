@@ -303,9 +303,7 @@ public class InteractiveTrustManager implements X509TrustManager,
      * @see javax.net.ssl.X509TrustManager#checkClientTrusted(java.security.cert.X509Certificate[],
      *      java.lang.String)
      */
-    public void checkClientTrusted(@SuppressWarnings("unused")
-    X509Certificate[] arg0, @SuppressWarnings("unused")
-    String arg1) {
+    public void checkClientTrusted(X509Certificate[] arg0, String arg1) {
         // Nothing to do.
     }
 

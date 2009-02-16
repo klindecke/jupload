@@ -73,7 +73,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     public FileUploadThreadHTTP(UploadPolicy uploadPolicy,
             FileUploadManagerThread fileUploadManagerThread) {
         super(uploadPolicy, fileUploadManagerThread);
-        this.uploadPolicy.displayDebug("  Using " + this.getClass().getName(), 30);
+        this.uploadPolicy.displayDebug("  Using " + this.getClass().getName(),
+                30);
 
         uploadPolicy.displayDebug("Upload done by using the "
                 + getClass().getName() + " class", 30);
@@ -131,7 +132,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     }
 
     /** @see DefaultFileUploadThread#cleanAll() */
-    @SuppressWarnings("unused")
+
     @Override
     void cleanAll() throws JUploadException {
         // Nothing to do in HTTP mode.
@@ -172,7 +173,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      */
 
     /** @see DefaultFileUploadThread#getOutputStream() */
-    @SuppressWarnings("unused")
+
     @Override
     OutputStream getOutputStream() throws JUploadException {
         return this.connectionHelper.getOutputStream();
@@ -261,7 +262,6 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
      * @throws JUploadException
      */
     private final ByteArrayEncoder getFileHeader(int index, String bound,
-            @SuppressWarnings("unused")
             int chunkPart) throws JUploadException {
         String filenameEncoding = this.uploadPolicy.getFilenameEncoding();
         String mimetype = this.filesToUpload[index].getMimeType();

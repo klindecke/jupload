@@ -65,12 +65,10 @@ import wjhk.jupload2.policies.UploadPolicy;
  * @see FileUploadThread
  * @see DefaultFileUploadThread
  * @version 1.0, 01 Jan 2007 * Update march 2007, etienne_sf Adaptation to match
- *          all JUpload functions: <DIR>
- *          <LI>Inheritance from the {@link FileUploadThread} class,
- *          <LI>Use of the UploadFileData class,
- *          <LI>Before upload file preparation,
- *          <LI>Upload stop by the user.
- *          <LI> </DIR>
+ *          all JUpload functions: <DIR> <LI>Inheritance from the
+ *          {@link FileUploadThread} class, <LI>Use of the UploadFileData class,
+ *          <LI>Before upload file preparation, <LI>Upload stop by the user. <LI>
+ *          </DIR>
  */
 public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
@@ -225,8 +223,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
     /** @see DefaultFileUploadThread#afterFile(int) */
     @Override
-    void afterFile(@SuppressWarnings("unused")
-    int index) {
+    void afterFile(int index) {
         // Nothing to do
     }
 
@@ -324,8 +321,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
     /** @see DefaultFileUploadThread#getAdditionnalBytesForUpload(int) */
     @Override
-    long getAdditionnalBytesForUpload(@SuppressWarnings("unused")
-    int indexFile) {
+    long getAdditionnalBytesForUpload(int indexFile) {
         // Default: no additional byte.
         return 0;
     }
@@ -338,11 +334,8 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
     /** @see DefaultFileUploadThread#startRequest(long, boolean, int, boolean) */
     @Override
-    void startRequest(@SuppressWarnings("unused")
-    long contentLength, @SuppressWarnings("unused")
-    boolean bChunkEnabled, @SuppressWarnings("unused")
-    int chunkPart, @SuppressWarnings("unused")
-    boolean bLastChunk) {
+    void startRequest(long contentLength, boolean bChunkEnabled, int chunkPart,
+            boolean bLastChunk) {
         // Nothing to do
     }
 
@@ -354,8 +347,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
      *            of files to upload.
      * @throws IOException if an error occurs while setting mode data
      */
-    private void setTransferType(@SuppressWarnings("unused")
-    int index) throws JUploadIOException {
+    private void setTransferType(int index) throws JUploadIOException {
         try {
             // read the value given from the user
             if (this.uploadPolicy.getFtpTransfertBinary()) {
