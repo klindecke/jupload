@@ -163,16 +163,14 @@ public class FilePanelJTable extends JTable implements MouseListener {
     /**
      * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
      */
-    public void mouseEntered(@SuppressWarnings("unused")
-    MouseEvent event) {
+    public void mouseEntered(MouseEvent event) {
         // Nothing to do.
     }
 
     /**
      * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
-    public void mouseExited(@SuppressWarnings("unused")
-    MouseEvent event) {
+    public void mouseExited(MouseEvent event) {
         // Nothing to do.
     }
 

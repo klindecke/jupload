@@ -54,38 +54,35 @@ import wjhk.jupload2.gui.image.PicturePanel;
  * <BR>
  * <H4>Functionalities:</H4>
  * <UL>
- * <LI> The top panel (upper part of the applet display) is modified, by using
- * UploadPolicy.{@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}.
- * It contains a <B>preview</B> picture panel, and two additional buttons to
+ * <LI>The top panel (upper part of the applet display) is modified, by using
+ * UploadPolicy.
+ * {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}
+ * . It contains a <B>preview</B> picture panel, and two additional buttons to
  * rotate the selected picture in one direction or the other.
- * <LI> Ability to set maximum width or height to a picture (with maxPicWidth
- * and maxPicHeight applet parameters, see the global explanation on the <a
+ * <LI>Ability to set maximum width or height to a picture (with maxPicWidth and
+ * maxPicHeight applet parameters, see the global explanation on the <a
  * href="UploadPolicy.html#parameters">parameters</a> section) of the
  * UploadPolicy API page.
- * <LI> Rotation of pictures, by quarter of turn.
- * <LI> <I>(To be implemented)</I> A target picture format can be used, to
- * force all uploaded pictures to be in one picture format, jpeg for instance.
- * All details are in the UploadPolicy <a
+ * <LI>Rotation of pictures, by quarter of turn.
+ * <LI><I>(To be implemented)</I> A target picture format can be used, to force
+ * all uploaded pictures to be in one picture format, jpeg for instance. All
+ * details are in the UploadPolicy <a
  * href="UploadPolicy.html#parameters">parameters</a> section.
  * </UL>
  * <BR>
  * <BR>
- * See an example of HTML that calls this applet, just below.
- * <H4>Parameters</H4>
+ * See an example of HTML that calls this applet, just below. <H4>Parameters</H4>
  * The description for all parameters of all polices has been grouped in the
- * UploadPolicy <a href="UploadPolicy.html#parameters">parameters</a> section.
- * <BR>
+ * UploadPolicy <a href="UploadPolicy.html#parameters">parameters</a> section. <BR>
  * The parameters implemented in this class are:
  * <UL>
- * <LI> maxPicWidth: Maximum width for the uploaded picture.
- * <LI> maxPicHeight: Maximum height for the uploaded picture.
- * <LI> <I>(To be implemented)</I> targetPictureFormat : Define the target
+ * <LI>maxPicWidth: Maximum width for the uploaded picture.
+ * <LI>maxPicHeight: Maximum height for the uploaded picture.
+ * <LI><I>(To be implemented)</I> targetPictureFormat : Define the target
  * picture format. Eg: jpeg, png, gif...
  * </UL>
- * <A NAME="example">
- * <H4>HTML call example</H4>
- * </A> You'll find below an example of how to put the applet into a PHP page:
- * <BR>
+ * <A NAME="example"> <H4>HTML call example</H4> </A> You'll find below an
+ * example of how to put the applet into a PHP page: <BR>
  * <XMP> <APPLET NAME="JUpload" CODE="wjhk.jupload2.JUploadApplet"
  * ARCHIVE="plugins/jupload/wjhk.jupload.jar" <!-- Applet display size, on the
  * navigator page --> WIDTH="500" HEIGHT="700" <!-- The applet call some
@@ -124,8 +121,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * Iimage type that should be uploaded (JPG, GIF...). It should be a
      * standard type, as the JVM will create this file. If null, the same format
      * as the original file is used. <BR>
-     * Currently <B>this flag is ignored when createBufferedImage is false</B> .
-     * <BR>
+     * Currently <B>this flag is ignored when createBufferedImage is false</B> . <BR>
      * Default: null.
      * 
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_TARGET_PICTURE_FORMAT
@@ -745,13 +741,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @param arg5
      * @return true or false
      */
-    public boolean imageUpdate(@SuppressWarnings("unused")
-    Image arg0, @SuppressWarnings("unused")
-    int arg1, @SuppressWarnings("unused")
-    int arg2, @SuppressWarnings("unused")
-    int arg3, @SuppressWarnings("unused")
-    int arg4, @SuppressWarnings("unused")
-    int arg5) {
+    public boolean imageUpdate(Image arg0, int arg1, int arg2, int arg3,
+            int arg4, int arg5) {
         return true;
     }
 }

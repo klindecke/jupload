@@ -69,16 +69,14 @@ public class DnDListener implements DropTargetListener {
     /**
      * @see java.awt.dnd.DropTargetListener#dragOver(java.awt.dnd.DropTargetDragEvent)
      */
-    public void dragOver(@SuppressWarnings("unused")
-    DropTargetDragEvent e) {
+    public void dragOver(DropTargetDragEvent e) {
         // Nothing to do.
     }
 
     /**
      * @see java.awt.dnd.DropTargetListener#dropActionChanged(java.awt.dnd.DropTargetDragEvent)
      */
-    public void dropActionChanged(@SuppressWarnings("unused")
-    DropTargetDragEvent e) {
+    public void dropActionChanged(DropTargetDragEvent e) {
         // Nothing to do.
     }
 
@@ -96,7 +94,8 @@ public class DnDListener implements DropTargetListener {
                         .getTransferData(DataFlavor.javaFileListFlavor);
 
                 File[] fileArray = (File[]) fileList.toArray();
-                this.uploadPanel.getFilePanel().addFiles(fileArray, DefaultFileData.getRoot(fileArray));
+                this.uploadPanel.getFilePanel().addFiles(fileArray,
+                        DefaultFileData.getRoot(fileArray));
 
                 e.getDropTargetContext().dropComplete(true);
 
@@ -118,8 +117,7 @@ public class DnDListener implements DropTargetListener {
     /**
      * @see java.awt.dnd.DropTargetListener#dragExit(java.awt.dnd.DropTargetEvent)
      */
-    public void dragExit(@SuppressWarnings("unused")
-    DropTargetEvent e) {
+    public void dragExit(DropTargetEvent e) {
         // Nothing to do.
     }
 }

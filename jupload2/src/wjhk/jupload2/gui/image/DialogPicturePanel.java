@@ -64,8 +64,7 @@ public class DialogPicturePanel extends PicturePanel {
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
     @Override
-    public void mouseClicked(@SuppressWarnings("unused")
-    MouseEvent arg0) {
+    public void mouseClicked(MouseEvent arg0) {
         // Let's close the current DialogBox, if it has not already be done.
         if (this.pictureDialog != null) {
             this.uploadPolicy.displayDebug(

@@ -30,9 +30,8 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
-
 /**
- * Techical class, to display the column headers, for column that may be sorted.
+ * Technical class, to display the column headers, for column that may be sorted.
  */
 public class SortHeaderRenderer extends DefaultTableCellRenderer {
 
@@ -61,10 +60,7 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer {
      */
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
-            @SuppressWarnings("unused")
-            boolean isSelected, @SuppressWarnings("unused")
-            boolean hasFocus, @SuppressWarnings("unused")
-            int row, int col) {
+            boolean isSelected, boolean hasFocus, int row, int col) {
         int index = -1;
         boolean ascending = true;
         if (table instanceof FilePanelJTable) {

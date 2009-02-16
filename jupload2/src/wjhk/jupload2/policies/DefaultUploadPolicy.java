@@ -220,15 +220,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private int nbFilesPerRequest = UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST;
 
     /**
-     * Current value (or default value) of the maxChunkSize applet parameter.
-     * <BR>
+     * Current value (or default value) of the maxChunkSize applet parameter. <BR>
      * Default : Long.MAX_VALUE
      */
     private long maxChunkSize = UploadPolicy.DEFAULT_MAX_CHUNK_SIZE;
 
     /**
-     * Current value (or default value) of the maxFileSize applet parameter.
-     * <BR>
+     * Current value (or default value) of the maxFileSize applet parameter. <BR>
      * Default : Long.MAX_VALUE
      */
     private long maxFileSize = UploadPolicy.DEFAULT_MAX_FILE_SIZE;
@@ -530,13 +528,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             + this.userAgent + ")", 30);
             /*
              * Exemple of parameter when calling the JVM:
-             * -Ddebug_cookie="Cookie:
-             * cpg146_data=YTo0OntzOjI6IklEIjtzOjMyOiJhZGU3MWIxZmU4OTZjNThhZjQ5N2FiY2ZiNmFlZTUzOCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGl2IjthOjI6e2k6MDtOO2k6MTtzOjQ6IjE0ODgiO319;
-             * cpg143_data=YTozOntzOjI6IklEIjtzOjMyOiI4NjhhNmQ4ZmNlY2IwMTc5YTJiNmZlMGY3YWQzNThkNSI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO30%3D;
+             * -Ddebug_cookie="Cookie:cpg146_data=
+             * YTo0OntzOjI6IklEIjtzOjMyOiJhZGU3MWIxZmU4OTZjNThhZjQ5N2FiY2ZiNmFlZTUzOCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGl2IjthOjI6e2k6MDtOO2k6MTtzOjQ6IjE0ODgiO319
+             * ;cpg143_data=
+             * YTozOntzOjI6IklEIjtzOjMyOiI4NjhhNmQ4ZmNlY2IwMTc5YTJiNmZlMGY3YWQzNThkNSI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO30
+             * %3D;
              * 8387c97d1f683b758a67a0473b586126=5ed998846fec70d6d2f73971b9cbbf0b;
-             * b1d7468cf1b317c97c7c284f6bb14ff8=587b82a7abb3d2aca134742b1df9acf7"
-             * -Ddebug_agent="userAgent: Mozilla/5.0 (Windows; U; Windows NT
-             * 5.0; fr; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"
+             * b1d7468cf1b317c97c7c284f6bb14ff8
+             * =587b82a7abb3d2aca134742b1df9acf7" -Ddebug_agent="userAgent:
+             * Mozilla/5.0 (Windows; U; Windows NT 5.0; fr; rv:1.8.1.3)
+             * Gecko/20070309 Firefox/2.0.0.3"
              */
         }
         // The cookies and user-agent will be added to the header sent by the
@@ -585,15 +586,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * The default behaviour (see {@link DefaultUploadPolicy}) is to check that
      * the stringUploadSuccess applet parameter is present in the response from
-     * the server. The return is tested, in the order below: <DIR>
-     * <LI>False, if the stringUploadError is found. An error message is then
-     * displayed.
-     * <LI>True, if the stringUploadSuccess is null or empty (no test at all).
-     * <LI>True, if the stringUploadSuccess string is present in the
-     * serverOutputBody.
-     * <LI>True, If previous condition is not filled, but the HTTP header
-     * "HTTP(.*)200OK$" is present: the test is currently non blocking, because
-     * I can not test all possible HTTP configurations.<BR>
+     * the server. The return is tested, in the order below: <DIR> <LI>False, if
+     * the stringUploadError is found. An error message is then displayed. <LI>
+     * True, if the stringUploadSuccess is null or empty (no test at all). <LI>
+     * True, if the stringUploadSuccess string is present in the
+     * serverOutputBody. <LI>True, If previous condition is not filled, but the
+     * HTTP header "HTTP(.*)200OK$" is present: the test is currently non
+     * blocking, because I can not test all possible HTTP configurations.<BR>
      * <LI>False if the previous conditions are not fullfilled. </DIR>
      * 
      * <BR>
@@ -766,8 +765,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String)
      */
-    public void afterUpload(Exception e, @SuppressWarnings("unused")
-    String serverOutput) throws JUploadException {
+    public void afterUpload(Exception e, String serverOutput)
+            throws JUploadException {
         // If there was no error, and afterUploadURL is defined, let's try to go
         // to this URL.
         String url = getAfterUploadURL();
@@ -863,16 +862,15 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Default implementation of
-     * {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}.
-     * IT creates a JPanel, containing the three given JButton. It creates the
+     * {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}
+     * . IT creates a JPanel, containing the three given JButton. It creates the
      * same panel as the original JUpload.
      * 
      * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton,
      *      JButton, JUploadPanel)
      */
     public JPanel createTopPanel(JButton browse, JButton remove,
-            JButton removeAll, @SuppressWarnings("unused")
-            JUploadPanel jUploadPanel) {
+            JButton removeAll, JUploadPanel jUploadPanel) {
         JPanel jPanel = new JPanel();
 
         jPanel.setLayout(new GridLayout(1, 3, 10, 5));
@@ -893,8 +891,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public JPanel createProgressPanel(JProgressBar preparationProgressBar,
             JProgressBar uploadProgressBar, JButton uploadButton,
-            JButton stopButton, @SuppressWarnings("unused")
-            JPanel mainPanel) {
+            JButton stopButton, JPanel mainPanel) {
 
         // There may be two progress bar: one for preparation progress of files
         // (preparation before upload) and one to follow the actual upload.
@@ -916,8 +913,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see wjhk.jupload2.policies.UploadPolicy#createStatusBar(javax.swing.JLabel,
      *      javax.swing.JPanel)
      */
-    public JPanel createStatusBar(JLabel content, @SuppressWarnings("unused")
-    JPanel mainPanel) {
+    public JPanel createStatusBar(JLabel content, JPanel mainPanel) {
         if (this.showStatusbar) {
             JPanel pstatus = new JPanel();
             pstatus.setLayout(new BorderLayout());
@@ -1005,8 +1001,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * If debug is off, the log window may not be visible. We switch the debug
-     * to on, to be sure that some information will be displayed to the user.
-     * <BR>
+     * to on, to be sure that some information will be displayed to the user. <BR>
      * If debug is -1, the log window remains hidden.
      * 
      * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
@@ -1120,9 +1115,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * @see UploadPolicy#getUploadFilename(FileData, int)
      */
-    public String getUploadFilename(FileData fileData,
-            @SuppressWarnings("unused")
-            int index) throws JUploadException {
+    public String getUploadFilename(FileData fileData, int index)
+            throws JUploadException {
         if (this.filenameEncoding == null || this.filenameEncoding.equals(""))
             return fileData.getFileName();
         try {
@@ -1134,8 +1128,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /** @see UploadPolicy#getUploadName(FileData, int) */
-    public String getUploadName(@SuppressWarnings("unused")
-    FileData fileData, int index) {
+    public String getUploadName(FileData fileData, int index) {
         // This is the original way of working of JUpload.
         // It can easily be modified, by using another UploadPolicy.
         return "File" + index;
@@ -1162,18 +1155,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Default implementation of the
-     * {@link wjhk.jupload2.policies.UploadPolicy#onFileSelected(wjhk.jupload2.filedata.FileData)}.
-     * Nothing's done.
+     * {@link wjhk.jupload2.policies.UploadPolicy#onFileSelected(wjhk.jupload2.filedata.FileData)}
+     * . Nothing's done.
      */
-    public void onFileSelected(@SuppressWarnings("unused")
-    FileData fileData) {
+    public void onFileSelected(FileData fileData) {
         // Default implementation : no action
     }
 
     /**
      * Default implementation of the
-     * {@link wjhk.jupload2.policies.UploadPolicy#onFileDoubleClicked(FileData)}.
-     * Nothing's done.
+     * {@link wjhk.jupload2.policies.UploadPolicy#onFileDoubleClicked(FileData)}
+     * . Nothing's done.
      */
     public void onFileDoubleClicked(FileData fileData) {
         // Default implementation : no action
@@ -1304,12 +1296,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         // .. then the debug information
                         /*
                          * debugIn = new BufferedReader(new FileReader(
-                         * this.debugFile)); while ((line = debugIn.readLine()) !=
-                         * null) { baeDebug = new ByteArrayEncoderHTTP(this,
+                         * this.debugFile)); while ((line = debugIn.readLine())
+                         * != null) { baeDebug = new ByteArrayEncoderHTTP(this,
                          * baeBound, baeEncoding);
                          * baeDebug.append(line).append("\r\n");
-                         * baeDebug.close(); connectionHelper.append(baeDebug); }
-                         * debugIn.close();
+                         * baeDebug.close(); connectionHelper.append(baeDebug);
+                         * } debugIn.close();
                          */
 
                         action = "connectionHelper.readHttpResponse()";
@@ -2248,8 +2240,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Default implementation for {@link UploadPolicy#createFileChooser()}:
-     * just a creation of a {@link JUploadFileChooser}.
+     * Default implementation for {@link UploadPolicy#createFileChooser()}: just
+     * a creation of a {@link JUploadFileChooser}.
      * 
      * @see UploadPolicy#createFileChooser()
      */
@@ -2301,8 +2293,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @see UploadPolicy#fileViewGetIcon(File)
      */
-    public Icon fileViewGetIcon(@SuppressWarnings("unused")
-    File file) {
+    public Icon fileViewGetIcon(File file) {
         return null;
     }
 
