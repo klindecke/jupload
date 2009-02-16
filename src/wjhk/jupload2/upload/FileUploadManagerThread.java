@@ -16,16 +16,14 @@ import wjhk.jupload2.policies.UploadPolicy;
 /**
  * This class is responsible for managing the upload. At the end of the upload,
  * the {@link JUploadPanel#updateButtonState()} is called, to refresh the button
- * state. Its job is to: <DIR>
- * <LI>Prepare upload for the file (calls to {@link FileData#beforeUpload()}
- * for each file in the file list.
- * <LI>Create the thread to send a packet of files.
- * <LI>Prepare the packets, that will be red by the upload thread.
- * <LI>Manage the end of upload: trigger the call to
+ * state. Its job is to: <DIR> <LI>Prepare upload for the file (calls to
+ * {@link FileData#beforeUpload()} for each file in the file list. <LI>Create
+ * the thread to send a packet of files. <LI>Prepare the packets, that will be
+ * red by the upload thread. <LI>Manage the end of upload: trigger the call to
  * {@link JUploadPanel#updateButtonState()} and the call to
- * {@link UploadPolicy#afterUpload(Exception, String)}.
- * <LI>Manage the 'stop' button reaction. </DIR> This class is created by
- * {@link JUploadPanel}, when the user clicks on the upload button.
+ * {@link UploadPolicy#afterUpload(Exception, String)}. <LI>Manage the 'stop'
+ * button reaction. </DIR> This class is created by {@link JUploadPanel}, when
+ * the user clicks on the upload button.
  * 
  * @author etienne_sf
  */
@@ -125,7 +123,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     private int numOfFileInCurrentRequest = 0;
 
-    /** Indicates what is the current file being uploaded, and its upload status. */
+    /**
+     * Indicates what is the current file being uploaded, and its upload status.
+     */
     private int uploadStatus = UPLOAD_STATUS_NOT_STARTED;
 
     /**
@@ -149,13 +149,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
     /**
      * Indicates whether the upload is finished or not. Passed to true as soon
-     * as one of these conditions becomes true: <DIR>
-     * <LI>All files are uploaded (in the
-     * {@link #currentRequestIsFinished(UploadFileData[])} method)
-     * <LI>An exception occurs (in the
-     * {@link #setUploadException(JUploadException)} method)
-     * <LI>The user stops the upload (in the {@link #stopUpload()} method)
-     * </DIR>
+     * as one of these conditions becomes true: <DIR> <LI>All files are uploaded
+     * (in the {@link #currentRequestIsFinished(UploadFileData[])} method) <LI>
+     * An exception occurs (in the {@link #setUploadException(JUploadException)}
+     * method) <LI>The user stops the upload (in the {@link #stopUpload()}
+     * method) </DIR>
      */
     private boolean uploadFinished = false;
 
@@ -176,7 +174,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     /**
      * Contains an estimation of the total number of bytes to upload. It's the
      * average upload file size, divided by the total number of files. It is
-     * calculated in {@link  #anotherFileIsReady(FileData)}.
+     * calculated in {@link #anotherFileIsReady(FileData)}.
      */
     private long estimatedTotalLength = 0;
 
@@ -611,41 +609,53 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             int nbFilesInPacket = 0;
             long packetLength = 0;
             boolean isPacketFinished = false;
+            FileData currentFileData;
 
             // We'll add the files, up to :
             // 1) The number of new files prepared and not uploaded (or being
             // uploaded by another upload thread),
             // 2) The number of files per request is no more than the
             // nbFilesPerRequest applet parameter.
-            while (nbFilesInPacket < maxPacketSize) {
-                // If the packet is not empty, we don't allow to add a new file,
-                // if this new file make the total upload size be more than a
-                // chunk size, as chunk upload expects that files are sent file
-                // by file.
-                if (nbFilesInPacket > 0
-                        && packetLength
-                                + this.uploadFileDataArray[nbFilesInPacket]
-                                        .getUploadLength() > this.maxChunkSize) {
-                    // The packet is full, now.
-                    isPacketFinished = true;
-                    break;
-                }
-                // Let's add this file.
-                tempFileData[nbFilesInPacket] = this.uploadFileDataArray[this.nbSentFiles
+            // 3) The total length of files in the packet may be more than the
+            // maxChunkSize applet parameter.
+            while (!isPacketFinished && nbFilesInPacket < maxPacketSize
+                    && packetLength < this.maxChunkSize) {
+                // We're working on this file:
+                currentFileData = this.uploadFileDataArray[this.nbSentFiles
                         + this.nbFilesBeingUploaded + nbFilesInPacket];
-                packetLength += this.uploadFileDataArray[nbFilesInPacket]
-                        .getUploadLength();
 
-                nbFilesInPacket += 1;
+                if (nbFilesInPacket > 0
+                        && packetLength + currentFileData.getUploadLength() > this.maxChunkSize) {
+                    // We can't add this file: the file size would be bigger
+                    // than maxChunkSize. So this packet is ready.
+                    isPacketFinished = true;
+                } else {
+                    // Let's add this file.
+                    tempFileData[nbFilesInPacket] = currentFileData;
+                    packetLength += currentFileData.getUploadLength();
+
+                    nbFilesInPacket += 1;
+                }
             }
 
             // We've extracted some files into the tempFileData array. The
             // question is: is this packet full ?
-            if (this.nbSentFiles + this.nbFilesBeingUploaded + nbFilesInPacket == this.uploadFileDataArray.length) {
-                // Ok, we've up to the last file.
-                isPacketFinished = true;
-            } else if (nbFilesInPacket == this.nbFilesPerRequest) {
-                isPacketFinished = true;
+            if (!isPacketFinished) {
+                if (packetLength > this.maxChunkSize) {
+                    // The packet can't contain more bytes!
+                    if (nbFilesInPacket > 1) {
+                        throw new JUploadException(
+                                "totalContentLength >= chunkSize: this.filesToUpload.length should not be more than 1 (checkIfNextPacketIsReady)");
+                    }
+                    isPacketFinished = true;
+                } else if (nbFilesInPacket == this.nbFilesPerRequest) {
+                    // The packet can't contain more files!
+                    isPacketFinished = true;
+                } else if (this.nbSentFiles + this.nbFilesBeingUploaded
+                        + nbFilesInPacket == this.uploadFileDataArray.length) {
+                    // We're up to the last file.
+                    isPacketFinished = true;
+                }
             }
 
             if (isPacketFinished) {
@@ -770,10 +780,10 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     }
 
     /**
-     * Update the progress bar, based on the following data: <DIR>
-     * <LI>nbSentFiles: number of files that have already been updated.
-     * <LI>nbBytesUploadedForCurrentFile: allows calculation of the upload
-     * progress for the current file, based on it total upload length. </DIR>
+     * Update the progress bar, based on the following data: <DIR> <LI>
+     * nbSentFiles: number of files that have already been updated. <LI>
+     * nbBytesUploadedForCurrentFile: allows calculation of the upload progress
+     * for the current file, based on it total upload length. </DIR>
      * 
      * @throws JUploadException
      */
