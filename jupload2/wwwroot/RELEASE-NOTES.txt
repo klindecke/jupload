@@ -2,12 +2,17 @@ v4.1.0
 
 Fix:
 - [Major] Regression in the 4.0: the SUCCESS or ERROR in the HTTP return was not properly checked.
+- [Major] In some cases, chunk upload would not work (two files would be sent at once, which doesn't work)
 - [Major] For afterUploadURL in javascript: the parameters msg and body were not correctly managed.
+- [Minor] The upload speed, and the estimated time of arrival were wrong. Calculation is now more precise than before.
 - [Minor] Add of a new message, when trying to transform (resize, rotate) a gif picture, in JRE 1.5: not supported
 by the sun JRE. JRE 1.6 is needed. 
 - [Minor] FTP: add of the ftpTransfertBinary and ftpTransfertPassive parameters.
 - [Minor] Regression in the 4.0: after the STOP button has been hit, the other button would not return to their correct state.
 
+Martin Westin found another way to sign applet. See:
+https://sourceforge.net/forum/forum.php?thread_id=2991519&forum_id=199106
+(ref added to the README.txt file)
 
 v4.0.0
 

@@ -2,8 +2,12 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- When an error occurs, the button states doesn't go back to normal state
-(try to send a big gif picture, with JRE 1.5. A special case?)
+- Check if it's possible to make quicker the add of thousands of files.
+
+- Upload 2 by 2, several picture files, than drop files: the upload never ends.
+
+- kb or kB ?
+kB should by kilo bytes. Answer in 'Open Discussions'
 
 - BUG: mimetype works only when the extension is in lower case.
 Reponse to: https://sourceforge.net/forum/forum.php?thread_id=2925505&forum_id=199107
