@@ -103,6 +103,8 @@ the jar package.
     - Verify the jar file have being sign properly.
        jarsigner -verify wjhk.jupload.jar
 
+Another, interesting, way to sign the applet is provided by Martin Westin in this thread:
+https://sourceforge.net/forum/forum.php?thread_id=2991519&forum_id=199106
 
 ~~~~~~~~~~~~~~~~~~~~~~
 4.0	Server scripts
