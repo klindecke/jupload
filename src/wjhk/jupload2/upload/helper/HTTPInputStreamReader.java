@@ -246,8 +246,8 @@ public class HTTPInputStreamReader {
      * Update done by TedA (sourceforge account: tedaaa). Allows to manage
      * response from web server that send LF instead of CRLF ! Here is a part of
      * the RFC: <I>"we recommend that applications, when parsing such headers,
-     * recognize a single LF as a line terminator and ignore the leading CR"</I>.
-     * <BR>
+     * recognize a single LF as a line terminator and ignore the leading
+     * CR"</I>. <BR>
      * Corrected again to manage line finished by CR only. This is not allowed
      * in headers, but this method is also used to read lines in the body.
      * 
@@ -407,8 +407,13 @@ public class HTTPInputStreamReader {
             if (m.matches())
                 this.charset = m.group(1);
             m = pSetCookie.matcher(this.line);
-            if (m.matches())
+            if (m.matches()) {
+                this.uploadPolicy.displayDebug(
+                        "Calling this.cookies.parseCookieHeader, with parameter: "
+                                + m.group(1), 80);
                 this.cookies.parseCookieHeader(m.group(1));
+                this.uploadPolicy.displayDebug("Cookie header parsed.", 80);
+            }
             if (this.line.length() == 0) {
                 // We've finished reading the headers
                 break;
