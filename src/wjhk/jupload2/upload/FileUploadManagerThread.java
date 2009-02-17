@@ -58,6 +58,17 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     // //////////////////// Possible Status for file upload
     // /////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Contains the date/time (as a long) of the start of the current upload.
+     * This allows to sum the time of the actual upload, and ignore the time the
+     * applet is waiting for the server's response. Once the request is
+     * finished, and the applet waits for the server's response, the duration of
+     * the sending to the server is added to currentRequestStartTime, and
+     * currentRequestStartTime is reseted to 0. It's then ready for the next
+     * upload request.
+     */
+    private long currentRequestStartTime = 0;
+
     /** The current file list. */
     private FilePanel filePanel = null;
 
@@ -66,6 +77,12 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * then send it.
      */
     private FileUploadThread fileUploadThread = null;
+
+    /**
+     * Contains the system time of the start of the global upload. This is used
+     * to calculate the ETA, and display it to the user, on the status bar.
+     */
+    private long globalStartTime = 0;
 
     /** @see UploadPolicy#getMaxChunkSize() */
     long maxChunkSize = -1;
@@ -171,15 +188,17 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     private boolean stop = false;
 
-    /**
-     * Contains an estimation of the total number of bytes to upload. It's the
-     * average upload file size, divided by the total number of files. It is
-     * calculated in {@link #anotherFileIsReady(FileData)}.
-     */
-    private long estimatedTotalLength = 0;
-
     /** Thread Exception, if any occurred during upload. */
     private JUploadException uploadException = null;
+
+    /**
+     * Contains the sum of the upload duration for all requests. For instance,
+     * if sending in 10 chunks one big file, the uploadingDuration contains the
+     * sum of the sending of these 10 request to the server. This allows to
+     * calculate the true upload speed, and ignore the time we'll wait for the
+     * server's response.
+     */
+    private long uploadingDuration = 0;
 
     /** Current number of bytes that have been uploaded. */
     private long uploadedLength = 0;
@@ -353,21 +372,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     }// run
 
     /**
-     * Returns the estimated length of the whole upload. This is an estimation,
-     * as file are prepared in a thread and uploaded in another. The more file
-     * are prepared, the most accurate this estimation is. When all files are
-     * prepared, this is no more an estimation, but the real count. This value
-     * is calculated in the anotherFileIsReady(FileData) method.
-     * 
-     * @return The estimation of the total number of bytes to upload, based on
-     *         the average size of the already prepared files.
-     */
-    public long getEstimatedTotalLength() {
-        return this.estimatedTotalLength;
-
-    }
-
-    /**
      * Get the exception that occurs during upload.
      * 
      * @return The exception, or null if no exception were thrown.
@@ -487,6 +491,21 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     public synchronized void setUploadStatus(int numOfFileInCurrentRequest,
             int uploadStatus) throws JUploadException {
+        if (globalStartTime == 0) {
+            // Ok, the upload just starts. We keep the date, to later calculate
+            // the ETA.
+            globalStartTime = System.currentTimeMillis();
+        }
+        if (uploadStatus == UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE) {
+            // We're waiting for the server: let's add it to the sending
+            // duration.
+            uploadingDuration += System.currentTimeMillis()
+                    - currentRequestStartTime;
+            currentRequestStartTime = 0;
+        } else if (uploadStatus == UPLOAD_STATUS_UPLOADING
+                && currentRequestStartTime == 0) {
+            currentRequestStartTime = System.currentTimeMillis();
+        }
         this.numOfFileInCurrentRequest = numOfFileInCurrentRequest;
         this.uploadStatus = uploadStatus;
 
@@ -532,25 +551,77 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         // Time for an update now.
         this.update_counter = 0;
         if (null != this.uploadProgressBar && (getUploadStartTime() != 0)) {
-            long duration = (System.currentTimeMillis() - getUploadStartTime()) / 1000;
+            // actualUploadDuration: contains the sum of the time, when the
+            // applet is actually sending data to the server, and ignores the
+            // time when it waits for the server's response.
+            // This is used to calculate the upload speed.
+            long actualUploadDuration;
             double done = getUploadedLength();
-            double total = getEstimatedTotalLength();
+            double total;
             double percent;
-            double cps;
+            // uploadCPS: contains the upload speed.
+            double uploadSpeed;
+            // globalCPS: contains the average speed, including the time the
+            // applet is waiting for the server response.
+            double globalCPS;
             long remaining;
             String eta;
+
+            // Let's calculate the actual upload duration. That is: the time
+            // during which we're really sending data to the server.
+            if (currentRequestStartTime == 0) {
+                // We're currently sending nothing to the server.
+                actualUploadDuration = uploadingDuration;
+            } else {
+                // We're currently sending data to the server. We add the time
+                // of the current request to the stored upload duration.
+                actualUploadDuration = uploadingDuration
+                        + System.currentTimeMillis() - currentRequestStartTime;
+            }
+            // For next steps, we expect a duration in seconds:
+            actualUploadDuration /= 1000;
+
+            // Let's estimate the total, or calculate it, of all files are
+            // prepared
+            if (this.nbPreparedFiles == this.uploadFileDataArray.length) {
+                // All files are prepared: it's no more an estimation !
+                total = this.nbTotalNumberOfPreparedBytes;
+            } else {
+                // We sum the total number of prepared bytes, and we estimate
+                // the size of the files that are not prepared yet
+                total = this.nbTotalNumberOfPreparedBytes
+                        +
+                        // And we sum it with the average amount per file
+                        // prepared for the others
+                        (this.uploadFileDataArray.length - this.nbPreparedFiles)
+                        * this.nbTotalNumberOfPreparedBytes
+                        / this.nbPreparedFiles;
+            }
             try {
                 percent = 100.0 * done / total;
             } catch (ArithmeticException e1) {
                 percent = 100;
             }
+
+            // Calculation of the 'pure' upload speed.
             try {
-                cps = done / duration;
+                uploadSpeed = done / actualUploadDuration;
             } catch (ArithmeticException e1) {
-                cps = done;
+                uploadSpeed = done;
             }
+
+            // Calculation of the 'global' upload speed.
             try {
-                remaining = (long) ((total - done) / cps);
+                globalCPS = done
+                        / (System.currentTimeMillis() - this.globalStartTime)
+                        * 1000;
+            } catch (ArithmeticException e1) {
+                globalCPS = done;
+            }
+
+            // Calculation of the ETA. It's based on the global upload speed.
+            try {
+                remaining = (long) ((total - done) / globalCPS);
                 if (remaining > 3600) {
                     eta = String.format(this.uploadPolicy
                             .getString("timefmt_hms"), new Long(
@@ -568,10 +639,13 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             }
             String format = this.uploadPolicy.getString("status_msg");
             String status = String.format(format, new Integer((int) percent),
-                    SizeRenderer.formatFileUploadSpeed(cps, this.uploadPolicy),
-                    eta);
+                    SizeRenderer.formatFileUploadSpeed(uploadSpeed,
+                            this.uploadPolicy), eta);
             this.uploadPanel.getStatusLabel().setText(status);
+            this.uploadPanel.getStatusLabel().repaint(100);
             this.uploadPolicy.getApplet().getAppletContext().showStatus(status);
+            // this.uploadPolicy.displayDebug("[updateUploadStatusBar] " +
+            // status, 101);
         }
     }
 
@@ -683,10 +757,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.nbBytesReadyForUpload += newlyPreparedFileData.getUploadLength();
         this.nbTotalNumberOfPreparedBytes += newlyPreparedFileData
                 .getUploadLength();
-
-        // Let's estimate the average size;
-        this.estimatedTotalLength = this.nbTotalNumberOfPreparedBytes
-                / this.nbPreparedFiles;
     }
 
     /**
