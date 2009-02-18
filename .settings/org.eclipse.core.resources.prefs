@@ -1,5 +1,12 @@
-#Tue Jan 06 09:20:30 CET 2009
+#Fri Jan 23 08:41:53 CET 2009
 eclipse.preferences.version=1
 encoding//src/wjhk/jupload2/lang=ISO-8859-1
 encoding//src/wjhk/jupload2/lang/lang_zh.properties=UTF-8
-encoding//wwwroot/translation/translation.utf-8=UTF-8
+encoding//wwwroot/translation=UTF-16
+encoding//wwwroot/translation/translation/applet.utf-16/test=UTF-16
+encoding//wwwroot/translation/translation/applet.utf-16/test.back=UTF-16
+encoding//wwwroot/translation/translation/applet.utf-16/test.back/lang_en.properties=UTF-16
+encoding//wwwroot/translation/translation/applet.utf-16/test.back/lang_fr.properties=UTF-16
+encoding//wwwroot/translation/translation/applet.utf-8/test.back=UTF-8
+encoding//wwwroot/translation/translation/applet.utf-8/test.back/lang_ar-SA.properties=UTF-8
+encoding//wwwroot/translation/translation/applet.utf-8/test.back/lang_ar.properties=UTF-8
