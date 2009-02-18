@@ -735,7 +735,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * should be with double quotes, when using the return of this function.
      * 
      * @param s
-     * @return
+     * @return The transformed string, that can be written in the output, into a
+     *         javascript string. It doesn't contain the starting and ending
+     *         double quotes.
      */
     private String jsString(String s) {
         String dollarReplacement = Matcher.quoteReplacement("\\$");
