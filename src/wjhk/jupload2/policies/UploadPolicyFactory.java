@@ -176,12 +176,18 @@ public class UploadPolicyFactory {
      */
     static public String getParameter(JUploadApplet theApplet, String key,
             String def, UploadPolicy uploadPolicy) {
+        String paramStr;
         if (theApplet == null) {
-            return (System.getProperty(key) != null ? System.getProperty(key)
-                    : def);
+            paramStr = (System.getProperty(key) != null ? System
+                    .getProperty(key) : def);
+        } else {
+            paramStr = (theApplet.getParameter(key) != null ? theApplet
+                    .getParameter(key) : def);
         }
-        return (theApplet.getParameter(key) != null ? theApplet
-                .getParameter(key) : def);
+
+        displayDebugParameterValue(uploadPolicy, key, paramStr);
+
+        return paramStr;
     }
 
     /**
@@ -207,6 +213,8 @@ public class UploadPolicyFactory {
             paramStr = theApplet.getParameter(key) != null ? theApplet
                     .getParameter(key) : paramDef;
         }
+
+        displayDebugParameterValue(uploadPolicy, key, paramStr);
 
         return parseInt(paramStr, def, uploadPolicy);
     }
@@ -235,6 +243,8 @@ public class UploadPolicyFactory {
                     .getParameter(key) : paramDef;
         }
 
+        displayDebugParameterValue(uploadPolicy, key, paramStr);
+
         return parseFloat(paramStr, def, uploadPolicy);
     }
 
@@ -261,6 +271,8 @@ public class UploadPolicyFactory {
             paramStr = theApplet.getParameter(key) != null ? theApplet
                     .getParameter(key) : paramDef;
         }
+
+        displayDebugParameterValue(uploadPolicy, key, paramStr);
 
         return parseLong(paramStr, def, uploadPolicy);
     }// getParameter(int)
@@ -289,6 +301,8 @@ public class UploadPolicyFactory {
             paramStr = theApplet.getParameter(key) != null ? theApplet
                     .getParameter(key) : paramDef;
         }
+
+        displayDebugParameterValue(uploadPolicy, key, paramStr);
 
         return parseBoolean(paramStr, def, uploadPolicy);
     }// getParameter(boolean)
@@ -395,6 +409,17 @@ public class UploadPolicyFactory {
                         + ", using default value: " + def);
             }
             return def;
+        }
+    }
+
+    /**
+     * Displays the debug information for the current parameter.
+     */
+    private static void displayDebugParameterValue(UploadPolicy uploadPolicy,
+            String key, String value) {
+        if (uploadPolicy != null && uploadPolicy.getDebugLevel() >= 80) {
+            uploadPolicy.displayDebug("Parameter '" + key + "' loaded. Value: "
+                    + value, 80);
         }
     }
 
