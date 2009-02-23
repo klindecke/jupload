@@ -136,13 +136,17 @@ public class CookieJar {
     }
 
     private boolean domainMatch(String cd) {
-        if (!cd.startsWith(".")) {
-            int dot = cd.indexOf('.');
-            if (dot >= 0)
-                cd = cd.substring(dot);
+        if (cd == null) {
+            return false;
+        } else {
+            if (!cd.startsWith(".")) {
+                int dot = cd.indexOf('.');
+                if (dot >= 0)
+                    cd = cd.substring(dot);
 
+            }
+            return cd.equals(this.domain);
         }
-        return cd.equals(this.domain);
     }
 
     /**
@@ -205,7 +209,8 @@ public class CookieJar {
             Matcher m = pNvPair.matcher(t.nextToken());
             if (m.matches()) {
                 String n = m.group(1);
-                String v = (m.groupCount() > 2) ? m.group(3).trim() : "";
+                String v = (m.groupCount() > 2 && m.group(3) != null) ? m
+                        .group(3).trim() : "";
                 if (n.compareToIgnoreCase("version") == 0) {
                     cookie.version = Integer.parseInt(v);
                     continue;
