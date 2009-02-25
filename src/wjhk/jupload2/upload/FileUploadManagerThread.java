@@ -181,7 +181,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     private long uploadStartTime = 0;
 
     /**
-     * If set to 'true', the thread will stop the crrent upload. This attribute
+     * If set to 'true', the thread will stop the current upload. This attribute
      * is not private as the {@link UploadFileData} class us it.
      * 
      * @see UploadFileData#uploadFile(java.io.OutputStream, long)
@@ -193,15 +193,15 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
     /**
      * Contains the sum of the upload duration for all requests. For instance,
-     * if sending in 10 chunks one big file, the uploadingDuration contains the
-     * sum of the sending of these 10 request to the server. This allows to
+     * if sending in 10 chunks one big file, the uploadDuration contains the sum
+     * of the sending of these 10 request to the server. This allows to
      * calculate the true upload speed, and ignore the time we'll wait for the
      * server's response.
      */
-    private long uploadingDuration = 0;
+    private long uploadDuration = 0;
 
     /** Current number of bytes that have been uploaded. */
-    private long uploadedLength = 0;
+    private long nbUploadedBytes = 0;
 
     /** A shortcut to the upload panel */
     private JUploadPanel uploadPanel = null;
@@ -329,6 +329,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // upload has been done.
 
             if (getUploadException() == null) {
+                this.uploadPolicy
+                        .displayInfo("Upload finished normally. "
+                                + this.uploadFileDataArray.length
+                                + " file(s) uploaded in "
+                                + (int) ((System.currentTimeMillis() - this.globalStartTime) / 1000)
+                                + " seconds. Average upload speed: "
+                                + (int) (this.nbUploadedBytes / this.uploadDuration)
+                                + " (kbytes/s)");
                 afterUploadOk();
             } else {
                 this.uploadPolicy.sendDebugInformation("Error in Upload",
@@ -401,18 +409,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     }
 
     /**
-     * Return the number of bytes for the files that have been successfully
-     * uploaded. This doesn't count the additional information, like HTTP
-     * headers, form data...
-     * 
-     * @return Total number of uploaded bytes.
-     * 
-     */
-    public long getUploadedLength() {
-        return this.uploadedLength;
-    }
-
-    /**
      * Stores the last upload exception that occurs. This method won't write to
      * the log file.
      * 
@@ -475,7 +471,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     public synchronized void nbBytesUploaded(long nbBytes)
             throws JUploadException {
-        this.uploadedLength += nbBytes;
+        this.nbUploadedBytes += nbBytes;
         this.nbBytesUploadedForCurrentFile += nbBytes;
         // Let's display some information
         updateUploadProgressBar();
@@ -499,7 +495,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         if (uploadStatus == UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE) {
             // We're waiting for the server: let's add it to the sending
             // duration.
-            uploadingDuration += System.currentTimeMillis()
+            uploadDuration += System.currentTimeMillis()
                     - currentRequestStartTime;
             currentRequestStartTime = 0;
         } else if (uploadStatus == UPLOAD_STATUS_UPLOADING
@@ -550,14 +546,16 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     private void updateUploadStatusBar() {
         // Time for an update now.
         this.update_counter = 0;
-        if (null != this.uploadProgressBar && (getUploadStartTime() != 0)) {
+        // We'll update the status bar, only if it exists and if the upload
+        // actually started.
+        if (null != this.uploadPanel.getStatusLabel() && getUploadStartTime() != 0
+                && this.nbUploadedBytes > 0) {
             // actualUploadDuration: contains the sum of the time, when the
             // applet is actually sending data to the server, and ignores the
             // time when it waits for the server's response.
             // This is used to calculate the upload speed.
             long actualUploadDuration;
-            double done = getUploadedLength();
-            double total;
+            double totalFileBytesToSend;
             double percent;
             // uploadCPS: contains the upload speed.
             double uploadSpeed;
@@ -571,11 +569,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // during which we're really sending data to the server.
             if (currentRequestStartTime == 0) {
                 // We're currently sending nothing to the server.
-                actualUploadDuration = uploadingDuration;
+                actualUploadDuration = uploadDuration;
             } else {
                 // We're currently sending data to the server. We add the time
                 // of the current request to the stored upload duration.
-                actualUploadDuration = uploadingDuration
+                actualUploadDuration = uploadDuration
                         + System.currentTimeMillis() - currentRequestStartTime;
             }
             // For next steps, we expect a duration in seconds:
@@ -585,11 +583,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // prepared
             if (this.nbPreparedFiles == this.uploadFileDataArray.length) {
                 // All files are prepared: it's no more an estimation !
-                total = this.nbTotalNumberOfPreparedBytes;
+                totalFileBytesToSend = this.nbTotalNumberOfPreparedBytes;
             } else {
                 // We sum the total number of prepared bytes, and we estimate
                 // the size of the files that are not prepared yet
-                total = this.nbTotalNumberOfPreparedBytes
+                totalFileBytesToSend = this.nbTotalNumberOfPreparedBytes
                         +
                         // And we sum it with the average amount per file
                         // prepared for the others
@@ -598,30 +596,30 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                         / this.nbPreparedFiles;
             }
             try {
-                percent = 100.0 * done / total;
+                percent = 100.0 * this.nbUploadedBytes / totalFileBytesToSend;
             } catch (ArithmeticException e1) {
                 percent = 100;
             }
 
             // Calculation of the 'pure' upload speed.
             try {
-                uploadSpeed = done / actualUploadDuration;
+                uploadSpeed = this.nbUploadedBytes / actualUploadDuration;
             } catch (ArithmeticException e1) {
-                uploadSpeed = done;
+                uploadSpeed = this.nbUploadedBytes;
             }
 
             // Calculation of the 'global' upload speed.
             try {
-                globalCPS = done
+                globalCPS = this.nbUploadedBytes
                         / (System.currentTimeMillis() - this.globalStartTime)
                         * 1000;
             } catch (ArithmeticException e1) {
-                globalCPS = done;
+                globalCPS = this.nbUploadedBytes;
             }
 
             // Calculation of the ETA. It's based on the global upload speed.
             try {
-                remaining = (long) ((total - done) / globalCPS);
+                remaining = (long) ((totalFileBytesToSend - this.nbUploadedBytes) / globalCPS);
                 if (remaining > 3600) {
                     eta = String.format(this.uploadPolicy
                             .getString("timefmt_hms"), new Long(
@@ -642,7 +640,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                     SizeRenderer.formatFileUploadSpeed(uploadSpeed,
                             this.uploadPolicy), eta);
             this.uploadPanel.getStatusLabel().setText(status);
-            this.uploadPanel.getStatusLabel().repaint(100);
+            // this.uploadPanel.getStatusLabel().repaint(100);
             this.uploadPolicy.getApplet().getAppletContext().showStatus(status);
             // this.uploadPolicy.displayDebug("[updateUploadStatusBar] " +
             // status, 101);
