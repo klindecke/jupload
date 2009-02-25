@@ -169,13 +169,14 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>allowHttpPersistent</td>
- * <td><i>true</i><br>
+ * <td><i>false</i><br>
  * since 3.0.0rc1<br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This parameter allows to switch off persistent HTTP connections which
  * are enabled by default (and the protocol version allows it). Currently, we
  * encountered problems with persistent connections when testing on a windows
- * box using a loopback interface only.</td>
+ * box using a loopback interface only.
+ * <BR>Note: default value changed to false in 4.0 version.</td>
  * </tr>
  * <tr>
  * <td>browsingDirectory</td>
