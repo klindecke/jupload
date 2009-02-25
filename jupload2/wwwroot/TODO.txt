@@ -2,6 +2,21 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- [build.xml] The distribution package should be a zip file.
+
+- Add a HowToOptimize page
+(allowHttpPersistent, nbFilesPerRequest...)
+
+- Upload speed slower than before.
+Due to more debug output.
+How to manage the debug output file ?  
+=> Add of new parameter (debugOutputFile) ?
+
+
+- Test sendDebugInformation, without the debugFile
+
+
+
 - Check if it's possible to make quicker the add of thousands of files.
 
 - Upload 2 by 2, several picture files, than drop files: the upload never ends.

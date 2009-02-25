@@ -1,4 +1,17 @@
+
+
+v4.1.1
+
+Fix:
+- [Major] Upload speed restored (50% quicker than 4.x releases): it has slown down due to the increase of debug 
+information logged. The debug file has been removed.
+- [Major] Corrected a NullPointerException, when 'HttpOnly' is in the SetCookie header. Typically, with PHP, when 
+session.cookie_httponly is set to 1.
+
+
 v4.1.0
+
+Mainly a bug correction release.
 
 Fix:
 - [Major] Regression in the 4.0: the SUCCESS or ERROR in the HTTP return was not properly checked.
