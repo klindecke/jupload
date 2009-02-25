@@ -160,7 +160,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** Indicates the directory in which the file chooser is to be opened */
     private File currentBrowsingDirectory = null;
 
-    /** The current debug level. */
+    /**
+     * This parameter controls whether the applet generates a debug file or not.
+     * If true, this file contains the full debug output, whatever the current
+     * debugLevel is.
+     */
+    private boolean debugGenerateFile = false;
+
+    /**
+     * The current debug level. This control the details of information that is
+     * written in the log part of the applet.
+     */
     private int debugLevel = UploadPolicy.DEFAULT_DEBUG_LEVEL;
 
     /**
@@ -317,6 +327,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * The actual file, used for the debug log.
+     * 
+     * @see #debugGenerateFile
      */
     protected File debugFile = null;
 
@@ -1102,9 +1114,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.debugLevel >= minDebugLevel) {
             // displayMsg will add the message to the debugStrignBuffer.
             displayMsg(tag, debug);
-        } else {
-            // Let's store all text in the debug BufferString
-            addMsgToDebugLog(timestamp(tag, debug));
+        } else if (this.debugGenerateFile) {
+            // We have to write the message to the debug file, whatever the
+            // debugLevel is.
+            addMsgToDebugLog(tag + debug);
         }
     }
 
@@ -1244,28 +1257,40 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         baeContent.appendTextProperty("exceptionStackTrace",
                                 exceptionStackTrace);
 
-                        // During debug output, we need to make sure that the
-                        // debug log is not changed, so we set debugOk to false
-                        // temporarily. -> Everything goes to stdout.
-                        action = "flush";
-                        this.debugOut.flush();
-                        this.debugOk = false;
-                        // First, calculate the size of the strings we will
-                        // send.
-                        action = "read debug file";
-                        BufferedReader debugIn = new BufferedReader(
-                                new FileReader(this.debugFile));
                         String baeBound = connectionHelper
                                 .getByteArrayEncoder().getBoundary();
                         String baeEncoding = connectionHelper
                                 .getByteArrayEncoder().getEncoding();
                         ByteArrayEncoder baeDebug = new ByteArrayEncoderHTTP(
                                 this, baeBound, baeEncoding);
-                        while ((line = debugIn.readLine()) != null) {
-                            baeDebug.append(line).append("\r\n");
+                        if (this.debugGenerateFile) {
+                            // During debug output, we need to make sure that
+                            // the debug log is not changed, so we set debugOk
+                            // to false temporarily. -> Everything goes to
+                            // stdout.
+                            action = "flush (debugGenerateFile=true)";
+                            this.debugOut.flush();
+                            this.debugOk = false;
+                            // First, calculate the size of the strings we will
+                            // send.
+                            action = "read debug file (debugGenerateFile=true)";
+                            BufferedReader debugIn = new BufferedReader(
+                                    new FileReader(this.debugFile));
+                            while ((line = debugIn.readLine()) != null) {
+                                baeDebug.append(line).append("\r\n");
+                            }
+                            debugIn.close();
+
+                            // We are done with the debug log, so re-enable it.
+                            this.debugOk = localDebugOk;
+                        }// if (this.debugGenerateFile)
+                        else {
+                            action = "read debug file (debugGenerateFile=false)";
+                            baeDebug.append(this.applet.getLogWindow()
+                                    .getText());
                         }
-                        debugIn.close();
-                        baeDebug.close();
+                        action = "baeDebug.close()";
+                        baeDebug.close();                        
 
                         baeContent.appendTextProperty("debugOutput", baeDebug
                                 .getString());
@@ -1291,9 +1316,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         // Blank line (end of header)
                         connectionHelper.append("\r\n");
                         connectionHelper.append(baeContent);
-
-                        // We are done with the debug log, so re-enable it.
-                        this.debugOk = localDebugOk;
 
                         // .. then the debug information
                         /*
@@ -1464,8 +1486,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 + getAllowedFileExtensions(), 30);
         displayDebug(PROP_BROWSING_DIRECTORY + " (current value): "
                 + getCurrentBrowsingDirectory(), 30);
-        displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel
-                + " (debugfile: " + this.debugFile.getAbsolutePath() + ")", 1);
+        displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel, 1);
+        if (this.debugGenerateFile) {
+            displayDebug("  (debugfile: " + this.debugFile.getAbsolutePath()
+                    + ")", 1);
+        }
         displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
                 + getFileChooserIconFromFileContent(), 30);
         displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
@@ -1642,8 +1667,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // change.
         if (this.debugLevel >= 0) {
             displayInfo("Debug level set to " + debugLevel);
-            displayInfo("Current debug output file: "
-                    + this.debugFile.getAbsolutePath());
+            if (this.debugGenerateFile) {
+                displayInfo("Current debug output file: "
+                        + this.debugFile.getAbsolutePath());
+            }
         }
         this.debugLevel = debugLevel;
 
@@ -2138,17 +2165,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Delete the current log. (called upon applet termination)
      */
     public void deleteLog() {
-        try {
-            if (null != this.debugOut) {
-                this.debugOut.close();
-                this.debugOut = null;
+        if (this.debugGenerateFile) {
+            try {
+                if (null != this.debugOut) {
+                    this.debugOut.close();
+                    this.debugOut = null;
+                }
+                if (null != this.debugFile) {
+                    this.debugFile.delete();
+                    this.debugFile = null;
+                }
+            } catch (Exception e) {
+                // nothing to do
             }
-            if (null != this.debugFile) {
-                this.debugFile.delete();
-                this.debugFile = null;
-            }
-        } catch (Exception e) {
-            // nothing to do
         }
     }
 
@@ -2165,7 +2194,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // If uploading lots of chunks, the buffer gets too large, resulting in
         // a OutOfMemoryError on the heap so we now use a temporary file for the
         // debug log.
-        if (this.debugOk) {
+        if (this.debugGenerateFile && this.debugOk) {
             try {
                 if (null == this.debugOut) {
                     this.getApplet().registerUnload(this, "deleteLog");
@@ -2229,7 +2258,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
             }
         }
         // Let's store all text in the debug logfile
-        addMsgToDebugLog(msg);
+        if (this.debugGenerateFile) {
+            addMsgToDebugLog(msg);
+        }
     }
 
     /**
