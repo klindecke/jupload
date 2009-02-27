@@ -216,25 +216,17 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     // To follow the upload speed.
     // ////////////////////////////////////////////////////////////////////////////
 
-    // Timeout at DEFAULT_TIMEOUT milliseconds
-    private final static int DEFAULT_TIMEOUT = 100;
+    /**
+     * Used to update the status bar (upload speed, ETA...): 300ms make it
+     * accurate, and avoid an always changing value.
+     */
+    private Timer timerStatusBar = new Timer(1000, this);
 
     /**
-     * The upload status (progress bar) gets updated every (DEFAULT_TIMEOUT *
-     * PROGRESS_INTERVAL) ms.
+     * Used to update the progress: 50ms is nice, as it is fast enough, and
+     * doesn't make CPU rise to 100%.
      */
-    private final static int PROGRESS_INTERVAL = 10;
-
-    /**
-     * The counter for updating the upload status. The upload status (progress
-     * bar) gets updated every (DEFAULT_TIMEOUT * PROGRESS_INTERVAL) ms.
-     */
-    private int update_counter = 0;
-
-    /**
-     * Used to wait for the upload to finish.
-     */
-    private Timer timerUpload = new Timer(DEFAULT_TIMEOUT, this);
+    private Timer timerProgressBar = new Timer(50, this);
 
     /**
      * Standard constructor of the class.
@@ -291,7 +283,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             initProgressBar();
 
             // Create a timer, to update the status bar.
-            this.timerUpload.start();
+            this.timerProgressBar.start();
+            this.timerStatusBar.start();
             this.uploadPolicy.displayDebug("Timer started", 50);
 
             // We have to prepare the files, then to create the upload thread
@@ -375,6 +368,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // We restore the button state, just to be sure.
             this.uploadPanel.updateButtonState();
         }
+
+        this.timerProgressBar.stop();
+        this.timerStatusBar.stop();
 
         // And we die of our beautiful death ... until next upload.
     }// run
@@ -473,8 +469,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             throws JUploadException {
         this.nbUploadedBytes += nbBytes;
         this.nbBytesUploadedForCurrentFile += nbBytes;
-        // Let's display some information
-        updateUploadProgressBar();
     }
 
     /**
@@ -532,9 +526,12 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         if (e.getSource() instanceof Timer) {
             // If the upload is finished, we stop the timer here.
             if (isUploadFinished()) {
-                this.timerUpload.stop();
-            } else if ((this.update_counter++ > PROGRESS_INTERVAL)
-                    || (!this.fileUploadThread.isAlive())) {
+                this.timerProgressBar.stop();
+            }
+            if (e.getSource() == timerProgressBar) {
+                updateUploadProgressBar();
+            }
+            if (e.getSource() == timerStatusBar) {
                 updateUploadStatusBar();
             }
         }
@@ -544,12 +541,10 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * Displays the current upload speed on the status bar.
      */
     private void updateUploadStatusBar() {
-        // Time for an update now.
-        this.update_counter = 0;
         // We'll update the status bar, only if it exists and if the upload
         // actually started.
-        if (null != this.uploadPanel.getStatusLabel() && getUploadStartTime() != 0
-                && this.nbUploadedBytes > 0) {
+        if (null != this.uploadPanel.getStatusLabel()
+                && getUploadStartTime() != 0 && this.nbUploadedBytes > 0) {
             // actualUploadDuration: contains the sum of the time, when the
             // applet is actually sending data to the server, and ignores the
             // time when it waits for the server's response.
@@ -851,11 +846,13 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * Update the progress bar, based on the following data: <DIR> <LI>
      * nbSentFiles: number of files that have already been updated. <LI>
      * nbBytesUploadedForCurrentFile: allows calculation of the upload progress
-     * for the current file, based on it total upload length. </DIR>
+     * for the current file, based on it total upload length. </DIR> <BR>
+     * Note: The progress bar update is ignored, if last update was less than
+     * 100ms before.
      * 
      * @throws JUploadException
      */
-    private synchronized void updateUploadProgressBar() throws JUploadException {
+    private synchronized void updateUploadProgressBar() {
         final String msgInfoUploaded = this.uploadPolicy
                 .getString("infoUploaded");
         final String msgInfoUploading = this.uploadPolicy
@@ -869,8 +866,15 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 || this.nbSentFiles == this.uploadFileDataArray.length) {
             percent = 0;
         } else {
-            percent = (int) (this.nbBytesUploadedForCurrentFile * 100 / this.uploadFileDataArray[this.nbSentFiles]
-                    .getUploadLength());
+            try {
+                percent = (int) (this.nbBytesUploadedForCurrentFile * 100 / this.uploadFileDataArray[this.nbSentFiles]
+                        .getUploadLength());
+            } catch (JUploadException e) {
+                this.uploadPolicy.displayWarn(e.getClass().getName()
+                        + " in updateUploadProgressBar (" + e.getMessage()
+                        + "). percent forced to 0.");
+                percent = 0;
+            }
             // Usually, a percentage if advancement for one file is no more than
             // 100. Let's check that.
             if (percent > 100) {
@@ -882,8 +886,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             }
         }
 
-        this.uploadPolicy.displayDebug("   ProgressBar value: "
-                + (100 * this.nbSentFiles + percent), 101);
         this.uploadProgressBar.setValue(100 * this.nbSentFiles + percent);
 
         String msg = null;

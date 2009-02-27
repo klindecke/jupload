@@ -186,16 +186,6 @@ class UploadFileData implements FileData {
             int toread = (amount > this.BUFLEN) ? this.BUFLEN : (int) amount;
             int towrite = 0;
 
-            if (this.uploadPolicy.getDebugLevel() > 100) {
-                // Let's have a little time to check the upload messages written
-                // on
-                // the progress bar.
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e1) {
-                }
-            }
-
             try {
                 towrite = this.inputStream.read(this.readBuffer, 0, toread);
             } catch (IOException e) {
