@@ -35,21 +35,16 @@ import wjhk.jupload2.policies.UploadPolicy;
  * class that contains the default implementation for the
  * {@link FileUploadThread} interface. <BR>
  * It contains the following abstract methods, which must be implemented in the
- * children classes. These methods are called in this order: <DIR>
- * <LI>For each upload request (for instance, upload of 3 files with
- * nbFilesPerRequest to 2, makes 2 request: 2 files, then the last one): <DIR>
- * <LI><I>try</I>
- * <LI>{@link #startRequest}: start of the UploadRequest.
- * <LI>Then, for each file to upload (according to the nbFilesPerRequest and
- * maxChunkSize applet parameters) <DIR>
- * <LI>beforeFile(int) is called before writting the bytes for this file (or
- * this chunk)
- * <LI>afterFile(int) is called after writting the bytes for this file (or this
- * chunk) </DIR>
- * <LI>finishRequest() </DIR> </LI>
- * <I>finally</I>cleanRequest()
- * <LI>Call of cleanAll(), to clean up any used resources, common to the whole
- * upload. </DIR>
+ * children classes. These methods are called in this order: <DIR> <LI>For each
+ * upload request (for instance, upload of 3 files with nbFilesPerRequest to 2,
+ * makes 2 request: 2 files, then the last one): <DIR> <LI><I>try</I> <LI>
+ * {@link #startRequest}: start of the UploadRequest. <LI>Then, for each file to
+ * upload (according to the nbFilesPerRequest and maxChunkSize applet
+ * parameters) <DIR> <LI>beforeFile(int) is called before writting the bytes for
+ * this file (or this chunk) <LI>afterFile(int) is called after writting the
+ * bytes for this file (or this chunk) </DIR> <LI>finishRequest() </DIR></LI>
+ * <I>finally</I>cleanRequest() <LI>Call of cleanAll(), to clean up any used
+ * resources, common to the whole upload. </DIR>
  */
 public abstract class DefaultFileUploadThread extends Thread implements
         FileUploadThread {
@@ -156,14 +151,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * This method is called for each upload request to the server. The number
-     * of request to the server depends on: <DIR>
-     * <LI>The total number of files to upload.
-     * <LI>The value of the nbFilesPerRequest applet parameter.
-     * <LI>The value of the maxChunkSize applet parameter. </DIR> The main
-     * objective of this method is to open the connection to the server, where
-     * the files to upload will be written. It should also send any header
-     * necessary for this upload request. The {@link #getOutputStream()} methods
-     * is then called to know where the uploaded files should be written. <BR>
+     * of request to the server depends on: <DIR> <LI>The total number of files
+     * to upload. <LI>The value of the nbFilesPerRequest applet parameter. <LI>
+     * The value of the maxChunkSize applet parameter. </DIR> The main objective
+     * of this method is to open the connection to the server, where the files
+     * to upload will be written. It should also send any header necessary for
+     * this upload request. The {@link #getOutputStream()} methods is then
+     * called to know where the uploaded files should be written. <BR>
      * Note: it's up to the class containing this method to internally manage
      * the connection.
      * 
@@ -199,8 +193,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
     abstract void beforeFile(int index) throws JUploadException;
 
     /**
-     * Idem as {@link #beforeFile(int)}, but is called after each file (and
-     * each chunks for each file).
+     * Idem as {@link #beforeFile(int)}, but is called after each file (and each
+     * chunks for each file).
      * 
      * @param index The index of the file that was just sent.
      */
@@ -320,11 +314,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * all files, or file by file, depending on the UploadPolicy. The list of
      * files to upload is stored in the {@link #filesToUpload} array.<BR>
      * This method is called by the run() method. The prerequisite about the
-     * filesToUpload array are: <DIR>
-     * <LI>If the sum of contentLength for the files in the array is more than
-     * the maxChunkSize, then nbFilesToUploadParam is one.
-     * <LI>The number of elements in filesToUpload is less (or equal) than the
-     * nbMaxFilesPerUpload. </DIR>
+     * filesToUpload array are: <DIR> <LI>If the sum of contentLength for the
+     * files in the array is more than the maxChunkSize, then
+     * nbFilesToUploadParam is one. <LI>The number of elements in filesToUpload
+     * is less (or equal) than the nbMaxFilesPerUpload. </DIR>
      * 
      * @throws JUploadException
      */
@@ -465,6 +458,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
             cleanRequest();
         }
 
+        // Let's free any locked resource
+        this.filesToUpload[0].afterUpload();
+
         // Let's tell our manager that we've done the job!
         this.fileUploadManagerThread
                 .anotherFileHasBeenSent(this.filesToUpload[0]);
@@ -496,6 +492,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // Actual upload of the file:
             this.filesToUpload[i].uploadFile(getOutputStream(),
                     this.filesToUpload[i].getUploadLength());
+
+            // Let's free any locked resource
+            this.filesToUpload[i].afterUpload();
 
             // Let's add any file-specific header.
             afterFile(i);
