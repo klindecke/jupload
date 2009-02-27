@@ -275,6 +275,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadPolicy.displayDebug(
                     "Start of the FileUploadManagerThread", 5);
 
+            // Let's let the current upload policy have any preparation work
+            this.uploadPolicy.beforeUpload();
+
             // The upload is started. Let's change the button state.
             this.uploadPanel.updateButtonState();
 
@@ -330,7 +333,15 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                                 + " seconds. Average upload speed: "
                                 + (int) (this.nbUploadedBytes / this.uploadDuration)
                                 + " (kbytes/s)");
-                afterUploadOk();
+
+                try {
+                    this.uploadPolicy.afterUpload(this.getUploadException(),
+                            this.fileUploadThread.getResponseMsg());
+                } catch (JUploadException e1) {
+                    this.uploadPolicy.displayErr(
+                            "error in uploadPolicy.afterUpload (JUploadPanel)",
+                            e1);
+                }
             } else {
                 this.uploadPolicy.sendDebugInformation("Error in Upload",
                         getUploadException());
@@ -974,22 +985,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         } catch (JUploadException e) {
             setUploadException(e);
             stopUpload();
-        }
-    }
-
-    /**
-     * Reaction on a successful upload.
-     */
-    private void afterUploadOk() {
-        this.uploadPolicy.displayDebug(
-                "FileUploadManagerThread: in afterUploadOk()", 10);
-        String svrRet = this.fileUploadThread.getResponseMsg();
-
-        try {
-            this.uploadPolicy.afterUpload(this.getUploadException(), svrRet);
-        } catch (JUploadException e1) {
-            this.uploadPolicy.displayErr(
-                    "error in uploadPolicy.afterUpload (JUploadPanel)", e1);
         }
     }
 
