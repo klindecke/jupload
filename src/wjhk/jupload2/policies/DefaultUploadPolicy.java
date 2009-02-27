@@ -1189,6 +1189,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#sendDebugInformation(String, Exception) */
     public void sendDebugInformation(String description, Exception exception) {
         try {
+            displayInfo("Sending debug information to " + getUrlToSendErrorTo());
             if (null != getUrlToSendErrorTo()) {
                 if (JOptionPane.showConfirmDialog(null,
                         getString("questionSendMailOnError"),
@@ -1370,9 +1371,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                                     getString("errHttpResponse"));
                         }
 
-                        // Let's free ressources to the server.
-                        connectionHelper.close();
-
+                        displayInfo("debug information sent correctly");
                     } catch (MalformedURLException e) {
                         throw new JUploadIOException(
                                 "Malformed URL Exception for "
