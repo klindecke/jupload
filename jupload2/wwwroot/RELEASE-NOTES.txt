@@ -1,13 +1,16 @@
 
 
-v4.1.1
+v4.2.0
 
 Fix:
-- [Major] Upload speed restored (50% quicker than 4.x releases): it has slown down due to the increase of debug 
-information logged. The debug file has been removed.
+- [Major] Upload speed restored (50% quicker than 4.x releases): it has slown down due to the management of
+the progress bar, and the increase of debug information logged. The debug file has been removed.
 - [Major] Corrected a NullPointerException, when 'HttpOnly' is in the SetCookie header. Typically, with PHP, when 
 session.cookie_httponly is set to 1.
-
+- [Major] Management of urlToSendErrorTo would generate an error (but the error was correctly sent to the URL). Thanks
+to  (thanks to Zapp29, sourceforge account: brusaf)
+- [Minor] Uploaded file would not be correctly released, until the java applet would close. (thanks to Zapp29, sourceforge account: brusaf)
+- [Minor] Add of the missing call to uploadPolicy.beforeUpload() (regression since 4.0). (thanks to Zapp29, sourceforge account: brusaf)
 
 v4.1.0
 
