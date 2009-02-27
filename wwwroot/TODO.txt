@@ -1,3 +1,4 @@
+
 As always, a lot of things can be made better:
 
 TODO list:
@@ -7,13 +8,10 @@ TODO list:
 - Add a HowToOptimize page
 (allowHttpPersistent, nbFilesPerRequest...)
 
-- Upload speed slower than before.
-Due to more debug output.
-How to manage the debug output file ?  
-=> Add of new parameter (debugOutputFile) ?
+- When uploading 4000 files,, 2 by 2: stopping the upload would generate an error.
 
-
-- Test sendDebugInformation, without the debugFile
+- Test sendDebugInformation, without the debugFile.
+Should be ok, to check.
 
 
 
