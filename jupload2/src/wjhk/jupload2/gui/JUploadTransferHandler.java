@@ -9,8 +9,6 @@ package wjhk.jupload2.gui;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -21,7 +19,7 @@ import javax.swing.TransferHandler;
 import wjhk.jupload2.filedata.DefaultFileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
-class JUploadTransferHandler extends TransferHandler implements ActionListener {
+class JUploadTransferHandler extends TransferHandler {
 
     /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -1241261479500810699L;
@@ -98,23 +96,5 @@ class JUploadTransferHandler extends TransferHandler implements ActionListener {
             }
         }
         return false;
-    }
-
-    /**
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) {
-        String action = e.getActionCommand();
-        String a = action;
-        action = a;
-        /*
-         * this.uploadPolicy.getApplet().getUploadPanel().getFilePanel().actionPerformed(new
-         * ActionEvent(focusOwner, ActionEvent.ACTION_PERFORMED, null));
-         * 
-         * ((JUploadPanel)this.uploadPolicy.getApplet().getUploadPanel()).actionPerformed(new
-         * ActionEvent(this.uploadPolicy.getApplet().getUploadPanel(),
-         * ActionEvent.ACTION_PERFORMED, (String) e.getActionCommand()));
-         */
-        // ((FilePanelTableImp)this.uploadPolicy.getApplet().getUploadPanel().getFilePanel());
     }
 }
