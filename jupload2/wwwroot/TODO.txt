@@ -3,27 +3,27 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- [build.xml] The distribution package should be a zip file.
+- Update the directory structure, in FTP. Answer to:
+https://sourceforge.net/forum/forum.php?thread_id=2900783&forum_id=199107
+- Document ftpCreateDirectoryStructure. Done.
+
+- Allow line breaks in error or warning messages.
+Answer to: https://sourceforge.net/forum/forum.php?thread_id=3059537&forum_id=199107
+Done. Documented.
 
 - Add a HowToOptimize page
 (allowHttpPersistent, nbFilesPerRequest...)
 
 - When uploading 4000 files,, 2 by 2: stopping the upload would generate an error.
-
-- Test sendDebugInformation, without the debugFile.
-Should be ok, to check.
-
-
+Same as the error logged on SF. Due to the stop, in UploadFileData.
 
 - Check if it's possible to make quicker the add of thousands of files.
-
-- Upload 2 by 2, several picture files, than drop files: the upload never ends.
 
 - kb or kB ?
 kB should by kilo bytes. Answer in 'Open Discussions'
 
 - BUG: mimetype works only when the extension is in lower case.
-Reponse to: https://sourceforge.net/forum/forum.php?thread_id=2925505&forum_id=199107
+Response to: https://sourceforge.net/forum/forum.php?thread_id=2925505&forum_id=199107
 
 - BUG: urlToSendErrorTo() isnt working
 Response to https://sourceforge.net/forum/forum.php?thread_id=2916845&forum_id=199107
@@ -44,9 +44,6 @@ https://sourceforge.net/tracker2/index.php?func=detail&aid=2529111&group_id=5914
 
 - When a file is too big, it could non-blocking, and up to the user to go on or not.
 Suggestion from Michel Verstraeten, in https://sourceforge.net/forum/forum.php?thread_id=2593046&forum_id=199106 
-
-- Update the directory structure, in FTP. Answer to:
-https://sourceforge.net/forum/forum.php?thread_id=2900783&forum_id=199107
 
 - Document the content of the HTTP post of the applet (folders...).
 
