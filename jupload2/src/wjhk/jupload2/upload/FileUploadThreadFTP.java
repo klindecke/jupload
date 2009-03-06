@@ -24,12 +24,16 @@ package wjhk.jupload2.upload;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPReply;
 
 import wjhk.jupload2.exception.JUploadException;
@@ -98,16 +102,23 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     // the client that does the actual connecting to the server
     private FTPClient ftp = new FTPClient();
 
-    // info taken from the ftp string
+    /** FTP user, taken from the postURL applet parameter */
     private String user;
 
+    /** FTP password, taken from the postURL applet parameter */
     private String pass;
 
+    /** FTP target host, taken from the postURL applet parameter */
     private String host;
 
+    /** FTP target port, taken from the postURL applet parameter */
     private String port;
 
-    private String dir;
+    /**
+     * FTP target root folder for the upload, taken from the postURL applet
+     * parameter
+     */
+    private String ftpRootFolder;
 
     /**
      * Indicates whether the connection to the FTP server is open or not. This
@@ -169,6 +180,20 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     @Override
     void beforeRequest() throws JUploadException {
 
+        // If we're connected, we need to check the connection.
+        if (this.bConnected) {
+            // Let's check the connection is still Ok.
+            try {
+                this.ftp.sendNoOp();
+            } catch (FTPConnectionClosedException eClosed) {
+                // Let's forget this connection.
+                bConnected = false;
+            } catch (IOException e) {
+                throw new JUploadIOException(e.getClass().getName()
+                        + " while checking FTP connection to the server", e);
+            }
+        }
+
         // If not already connected ... we connect to the server.
         if (!this.bConnected) {
             // Let's connect to the FTP server.
@@ -184,8 +209,12 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             this.host = this.uriMatch.group(4); // no default server
             this.port = this.uriMatch.group(5) == null ? "21" : this.uriMatch
                     .group(5);
-            this.dir = this.uriMatch.group(7) == null ? "/" : this.uriMatch
-                    .group(7);
+            this.ftpRootFolder = (this.uriMatch.group(7) == null) ? "/" : "/"
+                    + this.uriMatch.group(7);
+            // The last character must be a slash
+            if (!this.ftpRootFolder.endsWith("/")) {
+                this.ftpRootFolder += "/";
+            }
 
             // do connect.. any error will be thrown up the chain
             try {
@@ -214,10 +243,26 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                     throw new JUploadException("Invalid directory specified");
 
                 this.bConnected = true;
+            } catch (JUploadException jue) {
+                // No special action, we keep the exception untouched
+                throw jue;
+            } catch (IOException ioe) {
+                throw new JUploadIOException(ioe.getClass().getName()
+                        + "Could not connect to server (" + ioe.getMessage()
+                        + ")", ioe);
             } catch (Exception e) {
-                throw new JUploadIOException("Could not connect to server ("
-                        + e.getMessage() + ")", e);
+                throw new JUploadException(e.getClass().getName()
+                        + "Could not connect to server (" + e.getMessage()
+                        + ")", e);
             }
+
+            // now do the same for the passive/active parameter
+            if (this.uploadPolicy.getFtpTransfertPassive()) {
+                this.ftp.enterLocalPassiveMode();
+            } else {
+                this.ftp.enterLocalActiveMode();
+            }
+
         } // if(!bConnected)
     }
 
@@ -234,13 +279,15 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             // if configured to, we go to the relative sub-folder of the current
             // file, or on the root of the postURL.
             if (uploadPolicy.getFtpCreateDirectoryStructure()) {
-                this.ftp.changeWorkingDirectory(this.filesToUpload[index]
-                        .getRelativeDir());
+                this.ftp.changeWorkingDirectory(this.ftpRootFolder
+                        + this.filesToUpload[index].getRelativeDir());
                 this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
             } else {
-                this.ftp.changeWorkingDirectory(this.dir);
+                this.ftp.changeWorkingDirectory(this.ftpRootFolder);
                 this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
             }
+
+            // FIXME To in beforeRequest, just after connection.
 
             setTransferType(index);
             // just in case, delete anything that exists
@@ -361,26 +408,6 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                             + this.uploadPolicy.getFtpTransfertBinary() + ")",
                     ioe);
         }
-
-        try {
-            // now do the same for the passive/active parameter
-            if (this.uploadPolicy.getFtpTransfertPassive()) {
-                this.ftp.enterRemotePassiveMode();
-                this.ftp.enterLocalPassiveMode();
-            } else {
-                this.ftp.enterLocalActiveMode();
-
-                this.ftp.enterRemoteActiveMode(
-                        InetAddress.getByName(this.host), Integer
-                                .parseInt(this.port));
-            }
-        } catch (IOException ioe) {
-            throw new JUploadIOException(
-                    "Cannot set transfert passive or active mode (passive: "
-                            + this.uploadPolicy.getFtpTransfertBinary() + ")",
-                    ioe);
-
-        }
     }
 
     /**
@@ -391,30 +418,66 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
      */
     // A tester
     private void createDirectoryStructure() throws JUploadIOException {
-        // We expect the files are sorted in a relevant order, which allow the
-        // creation of sub-directories in the same order.
+        SortedSet<String> foldersToCreate = new TreeSet<String>();
+        String folderName;
+        String intermediateFolderName;
+        StringTokenizer st;
+
+        // 1) Let's find all folders and sub-folders we'll have to create.
         for (int i = 0; i < this.filesToUpload.length
                 && !this.fileUploadManagerThread.isUploadStopped(); i++) {
-            try {
-                this.ftp.changeWorkingDirectory(this.filesToUpload[i]
-                        .getRelativeDir());
-            } catch (IOException ioe) {
-                // The directory doesn't exist, we try to create it.
-                try {
-                    this.ftp.makeDirectory(this.filesToUpload[i]
-                            .getRelativeDir());
-                    this.uploadPolicy.displayDebug(this.ftp.getReplyString(),
-                            80);
-                } catch (IOException ioe2) {
-                    // Hum, the directory creation crashes.
-                    this.uploadPolicy
-                            .displayDebug(this.ftp.getReplyString(), 1);
-                    throw new JUploadIOException(
-                            "(FTP) Erreur while creating the "
-                                    + this.filesToUpload[i].getRelativeDir(),
-                            ioe2);
+            folderName = this.filesToUpload[i].getRelativeDir();
+            folderName = folderName.replaceAll("\\\\", "/");
+            // Do we already have this folder ?
+            if (!foldersToCreate.contains(folderName)) {
+                // We add this folder, and all missing intermediate ones
+                st = new StringTokenizer(folderName, "/");
+                intermediateFolderName = this.ftpRootFolder;
+                while (st.hasMoreTokens()) {
+                    intermediateFolderName += st.nextToken() + "/";
+                    if (!foldersToCreate.contains(intermediateFolderName)) {
+                        this.uploadPolicy.displayDebug(
+                                "FTP structure identification: Adding subfolder "
+                                        + intermediateFolderName, 80);
+                        foldersToCreate.add(intermediateFolderName);
+                    }
                 }
             }
+        }
+
+        // 2) Let's create theses folders.
+        try {
+            String folder;
+            for (Iterator<String> it = foldersToCreate.iterator(); it.hasNext();) {
+                folder = it.next();
+
+                // The folder is in the list of folder to create, created from
+                // the file list.
+                // We first check if the folder already exist.
+                this.ftp.changeWorkingDirectory(folder);
+                if (FTPReply.isPositiveCompletion(this.ftp.getReplyCode())) {
+                    this.uploadPolicy.displayDebug("Folder " + folder
+                            + " already exist", 80);
+                } else {
+                    // We can not guess if it's because the folder
+                    // doesn't exist, or if it's a 'real' error.
+                    // Let's try to create the folder.
+                    this.ftp.mkd(folder);
+                    this.uploadPolicy.displayDebug("Folder " + folder
+                            + " created", 80);
+                    if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode())) {
+                        throw new JUploadIOException(
+                                "Error while creating folder '"
+                                        + folder
+                                        + "' ("
+                                        + this.ftp.getReplyString().replaceAll(
+                                                "\r\n", "") + ")");
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            throw new JUploadIOException(ioe.getClass().getName()
+                    + " in FileUploadThreadFTP.createDirectoryStructure()", ioe);
         }
     }
 }
