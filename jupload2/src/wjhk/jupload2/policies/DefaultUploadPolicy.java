@@ -836,7 +836,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /** @see UploadPolicy#alertStr(String) */
     public void alertStr(String str) {
-        JOptionPane.showMessageDialog(null, str, "Alert",
+        String str2 = str.replaceAll("\\\\n", "\n");
+        JOptionPane.showMessageDialog(null, str2, "Alert",
                 JOptionPane.WARNING_MESSAGE);
     }
 
@@ -1291,7 +1292,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                                     .getText());
                         }
                         action = "baeDebug.close()";
-                        baeDebug.close();                        
+                        baeDebug.close();
 
                         baeContent.appendTextProperty("debugOutput", baeDebug
                                 .getString());

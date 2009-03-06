@@ -1,4 +1,14 @@
 
+v4.3.0
+
+Fix:
+- [Minor] FTP connection is better managed (check of FTP connection, before using it).
+- [Minor] Warning and error messages can now contain line breaks (see stringUploadWarning and stringUploadError applet parameters)
+
+Change:
+- [FTP] Add of the ftpCreateDirectoryStructure applet parameter. Default false: all files are uploaded in
+the folder given in postURL. If true, the folder structure will be created on the target FTP server. 
+
 
 v4.2.0
 
