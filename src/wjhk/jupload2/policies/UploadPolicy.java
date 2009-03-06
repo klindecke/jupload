@@ -50,9 +50,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * The class {@link DefaultUploadPolicy} contains a default implementation for
  * all UploadPolicy methods. <br>
  * <br>
- * <h4><a name="parameters">Parameters</a></h4>
- * <!-- ATTENTION: The following comment is used by Ant build. DO NOT CHANGE!!
- * --> <!-- ANT_COPYDOC_START -->
+ * <h4><a name="parameters">Parameters</a></h4> <!-- ATTENTION: The following
+ * comment is used by Ant build. DO NOT CHANGE!! --> <!-- ANT_COPYDOC_START -->
  * <p>
  * Here is the list of all parameters available in the current package, that is:
  * available in available upload policies. These are applet parameters that can
@@ -89,16 +88,15 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * to <code>afterUploadURL</code>. The following values are possible:<br>
  * <ul>
  * <li><code>_self</code> - Show in the window and frame that contain the
- * applet. </li>
- * <li><code>_parent</code> - Show in the applet's parent frame. If the
- * applet's frame has no parent frame, acts the same as <i>_self</i>.</li>
- * <li><code>_top</code> - Show in the top-level frame of the applet's
- * window. If the applet's frame is the top-level frame, acts the same as
- * <i>_self</i>.</li>
+ * applet.</li>
+ * <li><code>_parent</code> - Show in the applet's parent frame. If the applet's
+ * frame has no parent frame, acts the same as <i>_self</i>.</li>
+ * <li><code>_top</code> - Show in the top-level frame of the applet's window.
+ * If the applet's frame is the top-level frame, acts the same as <i>_self</i>.</li>
  * <li><code>_blank</code> - Show in a new, unnamed top-level window.
- * <li><i>name</i> - Show in the frame or window named <i>name</i>. If a
- * target named <i>name</i> does not already exist, a new top-level window with
- * the specified name is created, and the document is shown there.</li>
+ * <li><i>name</i> - Show in the frame or window named <i>name</i>. If a target
+ * named <i>name</i> does not already exist, a new top-level window with the
+ * specified name is created, and the document is shown there.</li>
  * </ul>
  * See also:
  * {@link java.applet.AppletContext#showDocument(java.net.URL, java.lang.String)}
@@ -118,16 +116,16 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <UL>
  * <LI><B>A javascript expression</B>: The URL must start by <I>javascript:</I>.
  * See below for details.</LI>
- * <LI><B>A http URL</B>: the navigator will open this URL, in the current
- * page or another, according to the <I>afterUploadTarget</I> parameter. Any
- * URL that doesn't start by <I>javascript:</I> is handled as an http URL.</LI>
+ * <LI><B>A http URL</B>: the navigator will open this URL, in the current page
+ * or another, according to the <I>afterUploadTarget</I> parameter. Any URL that
+ * doesn't start by <I>javascript:</I> is handled as an http URL.</LI>
  * </UL>
  * If the value of afterUploadURL starts with the string "javascript:", the
  * remainder of the string is evaluated as JavaScript expression in the current
  * document context. For example: If afterUloadURL is<br>
- * <code>"javascript:alert('Thanks for the upload');"</code>,</br> then
- * after a successful upload, a messagebox would pop up. Since 3.0.2b3 there are
- * now three place holders available which can be used as parameters in function
+ * <code>"javascript:alert('Thanks for the upload');"</code>,</br> then after a
+ * successful upload, a messagebox would pop up. Since 3.0.2b3 there are now
+ * three place holders available which can be used as parameters in function
  * calls:
  * <ul>
  * <li><code>%success%</code> is replaced by <b>true</b> or <b>false</b>
@@ -151,10 +149,10 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>This parameter is only used by CoppermineUploadPolicy. So it is to be
  * used to upload into a <a href="http://coppermine.sourceforge.net/">coppermine
  * picture gallery</a>. This parameter contains the identifier of the album,
- * where pictures should be used. See CoppermineUploadPolicy for an example.
- * <br>
- * Before upload, CoppermineUploadPolicy.{@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()}
- * checks that the albumId is correct, that is: >=1. </td>
+ * where pictures should be used. See CoppermineUploadPolicy for an example. <br>
+ * Before upload, CoppermineUploadPolicy.
+ * {@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()} checks
+ * that the albumId is correct, that is: >=1.</td>
  * </tr>
  * <tr>
  * <td>allowedFileExtensions</td>
@@ -165,18 +163,18 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * this parameter is specified, only file with this extension can be selected in
  * the applet.<br>
  * This parameter must contains a list of extensions, in lower case, separated
- * by slashes. eg: jpg/jpeg/gif </td>
+ * by slashes. eg: jpg/jpeg/gif</td>
  * </tr>
  * <tr>
  * <td>allowHttpPersistent</td>
  * <td><i>false</i><br>
  * since 3.0.0rc1<br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>This parameter allows to switch off persistent HTTP connections which
- * are enabled by default (and the protocol version allows it). Currently, we
+ * <td>This parameter allows to switch off persistent HTTP connections which are
+ * enabled by default (and the protocol version allows it). Currently, we
  * encountered problems with persistent connections when testing on a windows
- * box using a loopback interface only.
- * <BR>Note: default value changed to false in 4.0 version.</td>
+ * box using a loopback interface only. <BR>
+ * Note: default value changed to false in 4.0 version.</td>
  * </tr>
  * <tr>
  * <td>browsingDirectory</td>
@@ -185,8 +183,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This parameter allows to control the starting browsing directory, that
  * is, the directory the is the current one when the file chooser is open.<BR>
- * <U>Note:</U> if the directory doesn't exist, or can not be read, a warning
- * is written on the local log window (visible only in debug mode), and this
+ * <U>Note:</U> if the directory doesn't exist, or can not be read, a warning is
+ * written on the local log window (visible only in debug mode), and this
  * parameter is ignored.</td>
  * </tr>
  * <tr>
@@ -207,13 +205,12 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <LI>90: Details about query and server response when sending debug output to
  * urlToSendErrorTo
  * <LI>100: Maximum output information level. The redirection toward
- * afterUploadURL is blocked
- * <LI>>100: Additional things for internal debug, like some wait in the code
- * to check what messages the applet displays, while uploading small files on
- * localhost.</DIR> <br>
+ * afterUploadURL is blocked <LI>>100: Additional things for internal debug,
+ * like some wait in the code to check what messages the applet displays, while
+ * uploading small files on localhost.</DIR> <br>
  * Note: All debug messages are stored in a temporary log file. This can be used
  * to display more information, if needed. See also the <I>urlToSendErrorTo</I>
- * applet parameter. </td>
+ * applet parameter.</td>
  * </tr>
  * <tr>
  * <td>fileChooserIconFromFileContent</td>
@@ -230,7 +227,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <LI>-1: disabled. The default system are used.
  * <LI>0 (default): available only in picture mode. That is: the current upload
  * policy is an instance of or a class inheriting from
- * {@link  PictureUploadPolicy}
+ * {@link PictureUploadPolicy}
  * <LI>1: available for all upload policies. </DIR></td>
  * </tr>
  * <tr>
@@ -241,7 +238,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>This parameter allows to control the size of icons, in pixels, in the
  * file chooser. Used only when fileChooserIconFromFileContent is activated.<BR>
  * Note: The standard icon size is a value of 20. With 50, you'll get a better
- * view of the picture. </td>
+ * view of the picture.</td>
  * </tr>
  * <tr>
  * <td>fileChooserImagePreview</td>
@@ -253,13 +250,14 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * preview in a separate thread, of high priority. This avoid blocking the
  * applet while calculating the preview picture, when the user just
  * double-clicked a picture file. This parameter is ignored for
- * DefaultUploadPolicy. </tr>
+ * DefaultUploadPolicy.
+ * </tr>
  * <tr>
  * <td><s>filenameEncoding</s></td>
  * <td><S><i>null</i></S><br>
  * <br>
  * <S>{@link wjhk.jupload2.policies.DefaultUploadPolicy}</S></td>
- * <td> Since 3.3.0, this parameter is no more used. The full applet upload HTTP
+ * <td>Since 3.3.0, this parameter is no more used. The full applet upload HTTP
  * request to the server is now correctly encoded.<BR>
  * <S>With null, the filename in the <i>Content-Disposition</i> header is not
  * encoded. If not null, the applet tries to encode this filename with the given
@@ -282,17 +280,17 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <tr>
  * <td>ftpCreateDirectoryStructure</td>
  * <td><i>false</i><br>
- * since 4.1.0<br>
+ * since 4.2.0<br>
  * {@link wjhk.jupload2.policies.UploadPolicy}</td>
  * <td>This parameter allows to control whether the directory structure on the
  * client side must be created on the server side.<BR>
  * Example: if the user upload the test/ directory, which contains the
- * readme.txt file. With <I>ftpCreateDirectoryStructure</I> to false (or
- * default value), the readme.txt is uploaded in the postURL directory. If set
- * to true, the test/ folder is created in the postURL directory, and the
- * readme.txt is uploaded in this subfolder.<BR>
+ * readme.txt file. With <I>ftpCreateDirectoryStructure</I> to false (or default
+ * value), the readme.txt is uploaded in the postURL directory. If set to true,
+ * the test/ folder is created as a subfolder of the path given in the postURL
+ * directory, and the readme.txt is uploaded in this subfolder.<BR>
  * Note: in HTTP upload, the pathinfo and relpathinfo allows the server side
- * script to manage this directory structure. </td>
+ * script to manage this directory structure.</td>
  * </tr>
  * <tr>
  * <td>ftpTransfertBinary</td>
@@ -307,9 +305,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td><i>true</i><br>
  * since 4.1.0<br>
  * {@link wjhk.jupload2.policies.UploadPolicy}</td>
- * <td>This parameter allows to control whether the upload should be done in
- * FTP passive mode, or in active mode (where tehe FTP server opens a connexion
- * to the client, to do the upload). Default passive mode.</td>
+ * <td>This parameter allows to control whether the upload should be done in FTP
+ * passive mode, or in active mode (where tehe FTP server opens a connexion to
+ * the client, to do the upload). Default passive mode.</td>
  * </tr>
  * <tr>
  * <td>highQualityPreview</td>
@@ -324,7 +322,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * be displayed at the same speed, whatever is the value of this parameter. <br>
  * Note: when resizing is done before upload, the
  * BufferedImage.getScaledInstance() is always called, so that the uploaded
- * picture is of the best available quality. </td>
+ * picture is of the best available quality.</td>
  * </tr>
  * <tr>
  * <td>lang</td>
@@ -334,7 +332,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>Should be something like <i>en</i>, <i>fr</i>... Currently only french
  * and english are known from the applet. If anyone want to add another language
  * ... Please translate the wjhk.jupload2.lang.lang_en, and send it back to
- * <mailto:etienne_sf@sourceforge.net">. </td>
+ * <mailto:etienne_sf@sourceforge.net">.</td>
  * </tr>
  * <tr>
  * <td>lookAndFeel <br>
@@ -345,8 +343,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>This allows to control the look &amp; feel of the applet. The authorized
  * values are:
  * <ul>
- * <li><i>empty</i>: uses the default look &amp; feel. This is the same as
- * java.
+ * <li><i>empty</i>: uses the default look &amp; feel. This is the same as java.
  * <li>java: uses the java default look &amp; feel. Same as <i>empty</i>.
  * <li>system: uses the current system look and feel. The call will be : <br>
  * UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -371,16 +368,16 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * will probably be smaller than <i>maxChunkSize</i>.
  * </ul>
  * <br>
- * <b>How to build the server part:</b> the server will have to 'guess' that
- * the file is splitted, and then it will have to reconstruct the uploaded file.
+ * <b>How to build the server part:</b> the server will have to 'guess' that the
+ * file is splitted, and then it will have to reconstruct the uploaded file.
  * Here are the necessary informations:
  * <ul>
  * <li>When a file is chunked, the <i>jupart</i> and <i>jufinal</i> parameter
  * are given in the URL (get parameters). This identify a chunk upload. If these
  * parameters are not given, the file(s) is(are) uploaded in one piece.
  * <li><i>jupart</i> identify the part number: from 1 to N for a file being
- * plitted in N pieces. The N-1 chunks should be <i>maxChunkSize</i> bytes
- * long. The last one contains the remaining of the file.
+ * plitted in N pieces. The N-1 chunks should be <i>maxChunkSize</i> bytes long.
+ * The last one contains the remaining of the file.
  * <li><i>jufinal</i> is set to 0 for chunks from 1 to N-1. It is is set to 1
  * only for the last chunk (N, in this 'example').
  * <li>The uploaded filename is not modified when the upload is chunked.
@@ -404,7 +401,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * If one file is bigger than <i>maxChunkSize</i>, all previous files are
  * uploaded (at once or not, depending on nbFilesPerRequest). Then the 'big'
  * file is uploaded alone, splitted in chunk. Then upload goes on, file by file
- * or not, depending on <i>nbFilesPerRequest</i>. </td>
+ * or not, depending on <i>nbFilesPerRequest</i>.</td>
  * </tr>
  * <tr>
  * <td>maxFileSize<br>
@@ -421,8 +418,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * should be the maximum upload size of the server. In this case, it is useful
  * only to display a message when the user select a file that will be refused by
  * the server.
- * <li>If chunk upload is activated, this parameter becomes really important:
- * in this case the maximum file size of an uploaded file is ... the available
+ * <li>If chunk upload is activated, this parameter becomes really important: in
+ * this case the maximum file size of an uploaded file is ... the available
  * space on the server hard drive! (see below, <i>maxChunkSize</i>).
  * </ul>
  * </td>
@@ -449,7 +446,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * colors, ColorModel...). The picture format is ketp, if targetPictureFormat is
  * empty. If the picture format is a destructive (like jpeg), the maximum
  * available quality is choosed. <br>
- * <i>See also maxPicWidth, realMaxPicHeight</i> </td>
+ * <i>See also maxPicWidth, realMaxPicHeight</i></td>
  * </tr>
  * <tr>
  * <td>maxPicWidth</td>
@@ -459,7 +456,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
  * <td>Same as maxPicHeight, but for the maximum width of the uploaded picture.
  * <br>
- * <i>See also maxPicHeight, realMaxPicWidth</i> </td>
+ * <i>See also maxPicHeight, realMaxPicWidth</i></td>
  * </tr>
  * <tr>
  * <td>nbFilesPerRequest</td>
@@ -472,15 +469,15 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * the same HTTP request. <br>
  * If set to 5, for instance, and there are 6 files to upload, there will be two
  * HTTP upload request to the server : 5 files in the first one, and that last
- * file in a second HTTP request. </td>
+ * file in a second HTTP request.</td>
  * </tr>
  * <tr>
  * <td>pictureCompressionQuality</td>
  * <td><i>0.8</i><br>
  * since 3.1.0<br>
  * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
- * <td>This parameter controls the picture compression quality, when writing
- * the picture file. 1 means high quality picture, but big files. 0 means poor
+ * <td>This parameter controls the picture compression quality, when writing the
+ * picture file. 1 means high quality picture, but big files. 0 means poor
  * quality pictures, but small files. 0.8 is a good compromise for the web.<br>
  * It is different from the highQualityPreview, which controls the way picture
  * are resized in memory.<br>
@@ -565,7 +562,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * </ul>
  * <br>
  * <i>See also maxPicHeight, realMaxPicWidth, maxChunkSize (to override any
- * server upload size limitation).</i> </td>
+ * server upload size limitation).</i></td>
  * </tr>
  * <tr>
  * <td>realMaxPicWidth</td>
@@ -576,7 +573,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <i>Since v2.8.1</i></td>
  * <td>Same as realMaxPicHeight, but for the maximum width of uploaded picture
  * that must be transformed. <br>
- * <i>See also maxPicWidth, realMaxPicHeight</i> </td>
+ * <i>See also maxPicWidth, realMaxPicHeight</i></td>
  * </tr>
  * <tr>
  * <td>serverProtocol</td>
@@ -593,7 +590,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}, as the coppermine
  * application also controls that the requests send within an HTTP session uses
  * the same HTTP protocol (as a protection to limit the 'steal' of session
- * cookies). </td>
+ * cookies).</td>
  * </tr>
  * <tr>
  * <td>showLogWindow<br>
@@ -602,19 +599,19 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>true<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>This parameter was formerly known as <i>showStatusBar</i> which now has
- * a different purpose. <BR>
+ * <td>This parameter was formerly known as <i>showStatusBar</i> which now has a
+ * different purpose. <BR>
  * <U>Since 3.5.0:</U> Available values are (case sensitive):<DIR>
  * <LI>true: always visible.
  * <LI>false: always hiden.
  * <LI>onError: the log window is hidden. It will be displayed when an error
  * occurs. If you put 99 into the debugLevel, then the full debugOutput become
  * visible if and only if an error occurs</DIR> <BR>
- * <U>Until 3.4.2</U>, it works this way: If given with the <i>False</i>
- * value, the log window will be hidden. The applet will still store all debug
+ * <U>Until 3.4.2</U>, it works this way: If given with the <i>False</i> value,
+ * the log window will be hidden. The applet will still store all debug
  * information in it. But the user won't see it any more. If a problem occurs,
  * the <i>urlToSendErrorTo</i> can still be used to log all available
- * information. </td>
+ * information.</td>
  * </tr>
  * <tr>
  * <td>showStatusBar</td>
@@ -642,7 +639,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  * a header like this one:<BR>
  * Authorization: Basic Base64EncodedString Where Base64EncodedString is the
- * string "login:passord" encoded in Base 64. </td>
+ * string "login:passord" encoded in Base 64.</td>
  * </tr>
  * <tr>
  * <td>sslVerifyCert<br>
@@ -652,8 +649,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>With this parameter, the handling of certificates when using SSL can be
  * configured. There are 4 possible settings:<br>
  * <ul>
- * <li><i>none</i> (default): Any server cert is accepted, no cert-based
- * client authentication is performed.</li>
+ * <li><i>none</i> (default): Any server cert is accepted, no cert-based client
+ * authentication is performed.</li>
  * <li><i>server</i>: The server cert is verified against the local truststore
  * and if that fails, a dialog pops up which asks the user if the certificate
  * shall be accepted permanently, just for the current session or not at all
@@ -670,20 +667,21 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * a file <b>.truststore</b> exists in the user's home directory. If the user
  * decides to permanently accept an untrusted certificate, the file
  * <b>.truststore</b> in the user's home directory is written. The default
- * keystore (for client certificates) is the file <b>.keystore</b> in the
- * user's home directory. This can be overridden by setting the system property
- * <i>javax.net.ssl.keyStore</i>. If the name of the keystore ends in <b>.p12</b>,
- * it is assumed that the keystore is in <b>PKCS12</b> format, otherwise the
- * default format as specified in the JRE security-configuration is used.
+ * keystore (for client certificates) is the file <b>.keystore</b> in the user's
+ * home directory. This can be overridden by setting the system property
+ * <i>javax.net.ssl.keyStore</i>. If the name of the keystore ends in
+ * <b>.p12</b>, it is assumed that the keystore is in <b>PKCS12</b> format,
+ * otherwise the default format as specified in the JRE security-configuration
+ * is used.
  * <p>
  * <b>Important Note about client authentication:</b>
  * <p>
  * At the time of this writing, a <i>serious</i> bug exists in apache 2.0.x
  * which prevents POST requests when SSL renegotiation is about to happen.
  * Renegotiation is triggered by a location-based (or directory-based) change of
- * the SSLVerifyClient directive in apache. Therefore you <b>can not</b>
- * protect a sub-area of an otherwise unprotected SSL server. You can circumvent
- * that by setting up a virtualhost which is configured to perform SSL client
+ * the SSLVerifyClient directive in apache. Therefore you <b>can not</b> protect
+ * a sub-area of an otherwise unprotected SSL server. You can circumvent that by
+ * setting up a virtualhost which is configured to perform SSL client
  * verification <b>for the complete virtualhost</b>. Attached to the bug report
  * at <a href="http://issues.apache.org/bugzilla/show_bug.cgi?id=12355">ASF
  * Bugzilla</a>, there are several patches which claim to fix the problem.
@@ -692,7 +690,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * alltogether by using the virtualhost aproach described above. It is the
  * understanding of the author, that this bug has been fixed for apache 2.2,
  * however the author did not verify that. Test-Reports from users running
- * apache 2.2 are welcome.</td>
+ * apache 2.2 are welcome.
+ * </td>
  * </tr>
  * <tr>
  * <td>storeBufferedImage</td>
@@ -706,7 +705,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * doesn't change anything. Be careful to this parameter, and let it to the
  * default value, unless you've well tested it under all your target client
  * configurations. <BR>
- * <I>This parameter will probably never be correctly implemented.</I> </td>
+ * <I>This parameter will probably never be correctly implemented.</I></td>
  * </tr>
  * <tr>
  * <td>stringUploadError</td>
@@ -719,8 +718,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>This string is a regular expression. It allows the applet to test that
  * the server has detected an error in the upload. If this parameter is given to
  * the applet, the upload thread will try to match this regular expression
- * against each line of the server response <b>body</b>. If a group is found,
- * it is considered as the error message, and will be displayed to the user.<br>
+ * against each line of the server response <b>body</b>. If a group is found, it
+ * is considered as the error message, and will be displayed to the user.<br>
  * If the match is successfull once, the upload is considered to have failed.
  * and {@link wjhk.jupload2.exception.JUploadExceptionUploadFailed} is thrown.
  * If the expression contains a hunt-group, the matching contents of that group
@@ -730,7 +729,11 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * are extracted as the error message. So, if the server response contains the
  * line "ERROR: md5sum check failed", the string "md5sum check failed" is used
  * for the exception message. But if it returns a line "maybe ERROR: is it an
- * error?", then the applet won't find any error in the server response.</td>
+ * error?", then the applet won't find any error in the server response. <BR>
+ * <B>Note:</B> you can put line breaks in the error message. The message must
+ * be in one line in the HTTP response. To display a line break to the user,
+ * just put the two characters \n in the http response (would be a "\\n" in java
+ * or PHP).</td>
  * </tr>
  * <tr>
  * <td>stringUploadSuccess</td>
@@ -760,7 +763,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * matched if the HTTP body content of the server response contains one line
  * that is exactly 'SUCCESS', without any other character. This 'success' means
  * that the pictures have correctly uploaded to the server, and that he
- * successfully managed the uploaded files. </td>
+ * successfully managed the uploaded files.</td>
  * </tr>
  * <tr>
  * <td>stringUploadWarning</td>
@@ -780,21 +783,27 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * line "WARNING: Bad encoding", the string "Bad encoding" is displayed as
  * warning message to the user. But if it returns a line "maybe WARNING: is it
  * an error?", then the applet won't find any warning in the server response.<BR>
- * <B>Note:</B> there is no link between these warning and the fact the upload
- * is considered to be a success or not. Upload success is only based on the
+ * <B>Notes:</B> <DIR>
+ * <LI>There is no link between these warning and the fact the upload is
+ * considered to be a success or not. Upload success is only based on the
  * success and error string. See the <B>stringUploadSuccess</B> and
- * <B>stringUploadError</B> applet parameters, here above. </td>
+ * <B>stringUploadError</B> applet parameters, here above.
+ * <LI>You can put line breaks in the error message. The message must be in one
+ * line in the HTTP response. To display a line break to the user, just put the
+ * two characters \n in the http response (would be a "\\n" in java or PHP).
+ * </DIR></td>
  * </tr>
  * <tr>
  * <td>targetPictureFormat</td>
  * <td><i>Empty String</i> <br>
- * <br> (<b>to be</b> implemented in
+ * <br>
+ * (<b>to be</b> implemented in
  * {@link wjhk.jupload2.policies.PictureUploadPolicy})</td>
  * <td>This parameter can contain any picture writer known by the JVM. For
  * instance: jpeg, png, gif. All standard formats should be available. More
  * information can be found on the <a
- * href="http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html">java.sun.com</a>
- * web site. </td>
+ * href="http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html"
+ * >java.sun.com</a> web site.</td>
  * </tr>
  * <tr>
  * <td><b>uploadPolicy</b></td>
@@ -803,8 +812,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * see {@link wjhk.jupload2.policies.UploadPolicyFactory}</td>
  * <td>This parameter contains the class name for the UploadPolicy that should
  * be used. If it is not set, or if its value is unknown from
- * {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(JUploadApplet)},
- * the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used. </td>
+ * {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(JUploadApplet)}
+ * , the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used.</td>
  * </tr>
  * <tr>
  * <td>urlToSendErrorTo</td>
@@ -841,7 +850,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  *                                       &lt;param name=&quot;postURL&quot; value=&quot;http://some.host.com/youruploadpage.php&quot;&gt;
  *                                       Java 1.5 or higher plugin required.
  *                                     &lt;/applet&gt;
- * </pre></code> <BR>
+ * </pre></code>
+ * <BR>
  * <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used by Ant
  * build. DO NOT CHANGE!! -->
  * 
@@ -908,12 +918,11 @@ public interface UploadPolicy {
      * If activated, the file chooser will open each pictures, and calculate the
      * icon by resizing the picture. This is done in by using thread of minimam
      * priority, to minimize performances impact on the navigator. Available
-     * values are: <DIR>
-     * <LI>-1: disabled. The default system are used.
-     * <LI>0 (default): available only in picture mode. That is: the current
-     * upload policy is an instance of or a class inheriting from
-     * {@link  PictureUploadPolicy}
-     * <LI>1: available for all upload policies. </DIR>
+     * values are: <DIR> <LI>-1: disabled. The default system are used. <LI>0
+     * (default): available only in picture mode. That is: the current upload
+     * policy is an instance of or a class inheriting from
+     * {@link PictureUploadPolicy} <LI>1: available for all upload policies.
+     * </DIR>
      */
     public final static String PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = "fileChooserIconFromFileContent";
 
@@ -1333,8 +1342,8 @@ public interface UploadPolicy {
      * applet part that is above the file list, called here the 'top panel'.
      * That is: the part that contains the Browse, Remove and RemoveAll buttons.
      * The default implementation is defined in
-     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}.
-     * <BR>
+     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}
+     * . <BR>
      * You can see an example in the
      * {@link PictureUploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}
      * upload policy implementation. <BR>
@@ -1355,7 +1364,8 @@ public interface UploadPolicy {
     /**
      * This method is called to create the progress panel. The default
      * implementation is defined in
-     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createProgressPanel(JProgressBar, JProgressBar, JButton, JButton, JPanel)}.
+     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createProgressPanel(JProgressBar, JProgressBar, JButton, JButton, JPanel)}
+     * .
      * 
      * @param preparationProgressBar The default preparation progress bar.
      * @param uploadProgressBar The default upload progress bar.
@@ -1371,7 +1381,8 @@ public interface UploadPolicy {
     /**
      * This method is used to create a new status bar. The default
      * implementation is defined in
-     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createStatusBar(JLabel, JPanel)}.
+     * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createStatusBar(JLabel, JPanel)}
+     * .
      * 
      * @param statusContent The status bar content
      * @param mainPanel The panel that contains all objects.
@@ -1426,14 +1437,13 @@ public interface UploadPolicy {
     /**
      * This allow runtime modifications of properties. With this method, you can
      * change any applet parameter after the applet initilization, with
-     * JavaScript for instance. If the applet parameters given in <i>prop</i>
-     * is not managed by this method, a warning is displayed in the log window.
+     * JavaScript for instance. If the applet parameters given in <i>prop</i> is
+     * not managed by this method, a warning is displayed in the log window.
      * 
      * @param prop The applet parameter name.
      * @param value The new value for this parameter. If the value is not valid
-     *            (for instance <i>aaa</i> for a number), a warning is
-     *            displayed in the log window, and the existing value is not
-     *            changed.
+     *            (for instance <i>aaa</i> for a number), a warning is displayed
+     *            in the log window, and the existing value is not changed.
      * @throws JUploadException
      * @exception JUploadExceptionStopAddingFiles indicates that the applet
      *                should stop strying adding the current file selection.
@@ -1986,8 +1996,8 @@ public interface UploadPolicy {
      * instance, if the upload is done file by file, and there are three files
      * to upload, this method will be called three times. <br>
      * So this method is different from the
-     * {@link #afterUpload(Exception, String)}, that will be called only once
-     * in this case, after the three calls to the checkUploadSuccess method.
+     * {@link #afterUpload(Exception, String)}, that will be called only once in
+     * this case, after the three calls to the checkUploadSuccess method.
      * 
      * @param status The numeric response status (e.g. 200)
      * @param msg The status message from the first line of the response (e.g.
