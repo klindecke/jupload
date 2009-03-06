@@ -301,8 +301,8 @@ lastSrcDirModificationDate = ${svn.date}
 	<!-- - - - - - - - - - - - - - - - - - 
           target: srcjar                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="srcjar" depends="clean,prepare,customhowto,deploy" description="Create source jar in build/">
-		<jar jarfile="${path.build}/jupload-V${version}-src.jar">
+	<target name="srcjar" depends="clean,prepare,customhowto,deploy" description="Create source zip in build/">
+		<jar jarfile="${path.build}/jupload-V${version}-src.zip">
 			<fileset dir="${basedir}">
 				<include name="src/**/*" />
 				<include name="wwwroot/**/*" />
