@@ -394,6 +394,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Call default constructor for all default initialization;.
         this.applet = theApplet;
         this.logWindow = theApplet.getLogWindow();
+        displayInfo("JUpload applet started, with " + this.getClass().getName()
+                + " upload policy");
 
         // get the debug level. This control the level of debug messages that
         // are written in the log window (see displayDebugMessage). In all
