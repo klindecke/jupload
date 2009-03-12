@@ -233,15 +233,6 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
                     throw new JUploadException("Invalid username / password");
 
-                // if configured to, we create all target subfolders, on the
-                // server side.
-                if (uploadPolicy.getFtpCreateDirectoryStructure()) {
-                    createDirectoryStructure();
-                }
-
-                if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
-                    throw new JUploadException("Invalid directory specified");
-
                 this.bConnected = true;
             } catch (JUploadException jue) {
                 // No special action, we keep the exception untouched
@@ -279,6 +270,10 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             // if configured to, we go to the relative sub-folder of the current
             // file, or on the root of the postURL.
             if (uploadPolicy.getFtpCreateDirectoryStructure()) {
+                // We create the FTP directory structure
+                // TODO: call it once for all files, not once for each file.
+                createDirectoryStructure();
+
                 this.ftp.changeWorkingDirectory(this.ftpRootFolder
                         + this.filesToUpload[index].getRelativeDir());
                 this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
