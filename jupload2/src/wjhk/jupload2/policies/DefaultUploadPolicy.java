@@ -89,7 +89,7 @@ import wjhk.jupload2.upload.helper.InteractiveTrustManager;
  * <I>uploadPolicy</I> parameter is given to the applet, or this parameter has
  * 'DefaultUploadPolicy' as a value. <BR>
  * <P>
- * The <U>default behavior</U> is representated below. It can be overrided by
+ * The <U>default behavior</U> is representated below. It can be overridden by
  * adding parameters to the applet. All available parameters are shown in the
  * presentation of {@link UploadPolicy}.
  * </P>
@@ -100,9 +100,10 @@ import wjhk.jupload2.upload.helper.InteractiveTrustManager;
  * <LI>No handling for particular kind of files: files are transmitted without
  * any transformation.
  * <LI>The file are transmitted to the server with the navigator cookies,
- * userAgent and Protocol. This make upload occurs within the current user
- * session on the server. So, it allows right management and context during the
- * management of uploaded files, on the server.
+ * userAgent and Protocol (see also the readCookieFromNavigator and
+ * serverProtocol applet parameter). This make upload occurs within the current
+ * user session on the server. So, it allows right management and context during
+ * the management of uploaded files, on the server.
  * </UL>
  * 
  * @author etienne_sf
@@ -247,9 +248,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     private String postURL = UploadPolicy.DEFAULT_POST_URL;
 
-    /**
-     * @see UploadPolicy#getServerProtocol()
-     */
+    /** @see UploadPolicy#getReadCookieFromNavigator() */
+    private boolean readCookieFromNavigator = UploadPolicy.DEFAULT_READ_COOKIE_FROM_NAVIGATOR;
+
+    /** @see UploadPolicy#getServerProtocol() */
     private String serverProtocol = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
 
     /**
@@ -507,15 +509,24 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // /////////////////////////////////////////////////////////////////////////////
         // Load session data read from the navigator:
-        // - cookies.
+        // - cookies (according to readCookieFromNavigator)
         // - User-Agent : useful, as the server will then see a post request
         // coming from the same navigator.
-        //
+        setReadCookieFromNavigator(UploadPolicyFactory.getParameter(theApplet,
+                PROP_READ_COOKIE_FROM_NAVIGATOR,
+                DEFAULT_READ_COOKIE_FROM_NAVIGATOR, this));
         try {
             // Patch given by Stani: corrects the use of the applet on Firefox
             // on Mac.
-            this.cookie = (String) JSObject.getWindow(getApplet()).eval(
-                    "document.cookie");
+            if (getReadCookieFromNavigator()) {
+                this.cookie = (String) JSObject.getWindow(getApplet()).eval(
+                        "document.cookie");
+            } else {
+                // If a cookie header must be sent to the server during upload,
+                // the caller should put the relevant Cookie: header in the
+                // specificHeaders applet parameter.
+                this.cookie = null;
+            }
             this.userAgent = (String) JSObject.getWindow(getApplet()).eval(
                     "navigator.userAgent");
 
@@ -1517,6 +1528,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_NB_FILES_PER_REQUEST + ": " + getNbFilesPerRequest(),
                 30);
         displayDebug(PROP_POST_URL + ": " + this.postURL, 30);
+        displayDebug(PROP_READ_COOKIE_FROM_NAVIGATOR + ": " + this.readCookieFromNavigator, 30);
         displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 30);
         displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 30);
         displayDebug(PROP_SHOW_STATUSBAR + ": " + this.showStatusbar, 30);
@@ -1920,6 +1932,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // - If a relative URI is specified, prefix it with the DocumentBase's
         // parent
         this.postURL = normalizeURL(postURL);
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getReadCookieFromNavigator() */
+    public boolean getReadCookieFromNavigator() {
+        return this.readCookieFromNavigator;
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getReadCookieFromNavigator() */
+    private void setReadCookieFromNavigator(boolean readCookieFromNavigator) {
+        this.readCookieFromNavigator = readCookieFromNavigator;
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */
