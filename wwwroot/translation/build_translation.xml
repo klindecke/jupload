@@ -1,0 +1,303 @@
+<?xml version="1.0"?>
+<!--
+  $Id: build.xml 485 2008-06-28 14:07:47Z etienne_sf $
+  
+  =======================================================================
+         Ant build file FOR documentation of translation for JUpload2
+         
+         Version $Revision: 485 $
+         
+  =======================================================================
+-->
+
+<project name="jupload2_translation" default="formatAll" basedir=".">
+
+
+	<!-- Definition du classpath des tâches ant additionnelles  -->
+	<path id="ant.tasks.ant-contrib.classpath">
+		<fileset dir="../../lib">
+			<include name="ant-contrib.jar" />
+		</fileset>
+	</path>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"
+	         classpathref="ant.tasks.ant-contrib.classpath" />
+
+	<!-- path to the svnant libraries. -->
+	<path id="translation.svnant.classpath">
+		<fileset dir="../../lib/svn-ant">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- load the svn task -->
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml"
+	         classpathref="translation.svnant.classpath" />
+
+
+	<!--
+		A debug task, to format one file only.
+	-->
+	<target name="debug" depends="initEnv">
+		<property name="debug.filename" value="lang_fr.properties" />
+		<!--property name="param.file"
+		          value="${translation.text.applet.dir}\${debug.filename}" /-->
+		<antcall target="formatAllLangProperties" />
+	</target>
+
+	<!--
+		Just for debug: restore original files, to allow replaying. Useful, as the scripts update
+		the original files (for instance, to add a newly created item)
+	-->
+	<target name="restoreFiles" if="translation.debug">
+		<echo message="Restoring test case, from test.back" />
+		<copy toDir="${translation.text.applet.dir}" overwrite="true">
+			<path>
+				<fileset dir="${translation.text.dir}/applet.utf-16/original_files" />
+			</path>
+		</copy>
+		<fail />
+	</target>
+
+	<!--
+		Init the global parameters. Loads the config files, and displays any starting message.
+	-->
+	<target name="initEnv">
+		<loadproperties srcFile="conf/global.properties" />
+		<!-- We restore test files. This will do something only if configured to. -->
+		<!-- antcall target="restoreFiles" / -->
+		<mkdir dir="${translation.text.temp.dir}" />
+		<svn javahl="${svn.use.javahl}" failonerror="false">
+			<ignore file="${translation.text.temp.dir}" />
+		</svn>
+
+		<!-- Let's display some inmportant property values -->
+		<echo message="translation.encoding: ${translation.encoding}" />
+	</target>
+
+	<!--
+		Refresh an eclipse folder ... if within eclipse.
+	-->
+	<target name="refresh"
+	        depends="refresh.if_in_eclipse, refresh.if_not_in_eclipse">
+	</target>
+	<target name="refresh.if_in_eclipse" if="eclipse.running">
+		<echo message="[Within eclipse] Refreshing ${param}" />
+		<eclipse.refreshLocal resource="${param}" depth="infinite" />
+	</target>
+	<target name="refresh.if_not_in_eclipse" unless="eclipse.running">
+		<echo message="[Out of eclipse] No refresh of ${param}" />
+		<echo message="[Out of eclipse] To refresh ressource in eclipse, you must execute ant within the eclipse JRE" />
+	</target>
+
+	<!--
+		Generates the applet properties files, in UTF-16, from the unicode or latin-1 files, 
+		coming from the wjhk.jupload2.lang package, in the applet source itself.
+		This should be used only at initialization of the translation files.
+	-->
+	<target name="initEncodedFilesFromLangPackage" depends="initEnv">
+		<native2ascii src="${translation.applet.package.lang}"
+		              dest="${translation.text.applet.dir}/original_files"
+		              encoding="${translation.encoding}"
+		              reverse="true" />
+	</target>
+
+	<!-- 
+		generateLangTemplate generated the template for utf-16 translation files, from the
+		lang_en.properties, which must be correct.
+		Based on this template, all other utf-16 translation files will be re-formated, to be 
+		easily compared: see target formatAllLangProperties.
+	-->
+	<target name="generateLangTemplate" depends="initEnv">
+		<echo message="Generating template:" />
+		<echo message=" from ${template.lang.source.file}" />
+		<echo message=" to ${template.lang.file}" />
+		<copy file="${template.lang.source.file}"
+		      overwrite="true"
+		      tofile="${template.lang.file}"
+		      encoding="${translation.encoding}"
+		      outputencoding="${translation.encoding}" />
+
+		<!-- Let's create the lines: property = #property# -->
+		<replaceregexp file="${template.lang.file}"
+		               match="^(.*) *= *(.*)$"
+		               flags="gm"
+		               replace="\1=#\1#"
+		               encoding="${translation.encoding}" />
+
+		<!--This generates some erroneous lines, with a space before the #:
+					buttonBrowse =#buttonBrowse #
+			Let's remove them.
+		-->
+		<replaceregexp file="${template.lang.file}"
+		               match=" #"
+		               flags="g"
+		               replace="#"
+		               encoding="${translation.encoding}" />
+
+		<!-- A little space after the equal looks better. -->
+		<replaceregexp file="${template.lang.file}"
+		               match="=#"
+		               flags="g"
+		               replace="= #"
+		               encoding="${translation.encoding}" />
+
+		<!-- Let's try to refresh the eclipse template file -->
+		<antcall target="refresh">
+			<param name="param" value="${template.lang.file}" />
+		</antcall>
+	</target>
+
+	<!-- 
+		re-format all utf-16 lang property files, according to the lang template. All missing
+		properties are commented, like this:
+		#MISSING  propertyName = EnglishText
+		The lang template is generated by the English translation by generateLangTemplate.
+	-->
+	<target name="formatAllLangProperties"
+	        depends="initEnv,generateLangTemplate">
+
+		<foreach target="formatOneLangProperty"
+		         param="param.file"
+		         inheritall="true">
+			<path>
+				<fileset dir="${translation.text.applet.dir}"
+				         includes="*.properties" />
+			</path>
+		</foreach>
+	</target>
+
+	<!--
+		Generated the HTML page, that contains a link to each HTML page, for each available translation.
+	-->
+	<target name="generateHtmlSummary">
+		<fail message="To be implemented" />
+	</target>
+
+	<!--
+		Execute all formatting actions. This is the default tasks for this project.
+	-->
+	<target name="formatAll"
+	        depends="formatAllLangProperties, generateHtmlSummary">
+		<!-- Just an empty container, to call the necessary tasks -->
+		<echo message="Normal completion of full translation files generation" />
+	</target>
+
+	<target name="formatOneLangProperty">
+		<!-- 
+			Récupération du nom de fichier, sans chemin et sans le .properties, 
+			pour faire des traitements conditionnels 
+		-->
+		<propertyregex property="param.filename"
+		               override="true"
+		               input="${param.file}"
+		               regexp="[/\\]([^/\\]*).properties$"
+		               select="\1" />
+
+		<!-- 
+			Récupération du nom de fichier, avec chemin et sans le .properties, pour le translate 
+		-->
+		<propertyregex property="param.file.bundlename"
+		               override="true"
+		               input="${param.file}"
+		               regexp="(.*).properties$$"
+		               replace="\1" />
+		<property name="temp.workingTranslationFile"
+		          value="${translation.text.temp.dir}/${template.lang.filename}" />
+
+		<echo message="Translating: ${param.filename}" />
+		<echo message="    path: ${param.file}" />
+		<!-- echo message="param.file.bundlename: ${param.file.bundlename}" />
+		<echo message="    dest_dir: ${translation.text.applet.dir}" />
+		<echo message="    template: ${template.lang.file}" />
+		<echo message="    temp.workingTranslationFile: ${temp.workingTranslationFile}" /-->
+
+
+		<!-- 
+				Translation of the translation template. 
+				We'll move this file to the target file, once everything is finished. 
+		-->
+		<translate toDir="${translation.text.temp.dir}"
+		           starttoken="#"
+		           endtoken="#"
+		           bundle="${param.file.bundlename}"
+		           forceoverwrite="yes"
+		           bundlelanguage=""
+		           bundlecountry=""
+		           bundlevariant=""
+		           srcencoding="${translation.encoding}"
+		           destencoding="${translation.encoding}"
+		           bundleencoding="${translation.encoding}">
+			<fileset file="${template.lang.file}" />
+		</translate>
+
+		<!-- 
+			We replace all non translated text (property = #property#) by a line of this kind:
+			#MISSING property = EnglishTranslation
+			This will allow an eaasy translation of these text.
+		-->
+		<replaceregexp file="${temp.workingTranslationFile}"
+		               match="(.*) = #(.*)#$"
+		               flags="gm"
+		               replace="#MISSING \1 = #\2#"
+		               encoding="${translation.encoding}" />
+
+		<!-- 
+			Now, we replace all missing text (#\2# above) by the English text,
+			to allow an easy translation 
+		-->
+		<translate toDir="${translation.text.applet.dir}"
+		           starttoken="#"
+		           endtoken="#"
+		           bundle="${translation.text.applet.dir}/lang_en"
+		           forceoverwrite="yes"
+		           bundlelanguage=""
+		           bundlecountry=""
+		           bundlevariant=""
+		           srcencoding="${translation.encoding}"
+		           destencoding="${translation.encoding}"
+		           bundleencoding="${translation.encoding}">
+			<fileset file="${temp.workingTranslationFile}" />
+		</translate>
+
+		<!-- 
+			The current name is FullPathOfTranslatedText/lang.properties.template
+			Let's rename it to the target file.
+		-->
+		<move file="${translation.text.applet.dir}/${template.lang.filename}"
+		      tofile="${param.file}" />
+
+		<!--
+			The objective for all that is to create the file that'll go in the applet
+			package. 
+		-->
+		<native2ascii src="${translation.text.applet.dir}"
+		              dest="${translation.applet.package.lang}"
+		              encoding="${translation.encoding}" />
+
+		<!--
+			We now generate the HTML page, that will be displayed to potential translator, who do not
+			have access to the SVN. This page is available on the jupload project web site.
+		-->
+		<loadfile srcFile="${param.file}"
+		          property="temp.translation.applet.result"
+		          encoding="${translation.encoding}" />
+		<echo message="WARNING: Coppermine translation file to load" />
+		<copy toFile="${translation.html.dest.dir}/${param.filename}.html"
+		      overwrite="true"
+		      encoding="${translation.encoding}"
+		      outputencoding="${translation.encoding}">
+			<fileset file="${template.html.file}" />
+			<filterset begintoken="#" endtoken="#">
+				<filter token="encoding" value="${translation.encoding}" />
+				<filter token="language" value="${param.fichier}" />
+				<filter token="appletTranslation"
+				        value="${temp.translation.applet.result}" />
+				<filter token="copperminePluginTranslation"
+				        value="${temp.translation.copperminePlugin.result}" />
+			</filterset>
+		</copy>
+
+	</target>
+
+
+</project>
