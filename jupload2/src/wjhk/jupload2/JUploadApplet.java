@@ -72,11 +72,11 @@ public class JUploadApplet extends Applet {
     private JavascriptHandler jsHandler = null;
 
     /**
-     * The version of this applet. The version itseld is to be updated in the
+     * The version of this applet. The version itself is to be updated in the
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    public final String VERSION = "4.2.1b [SVN-Rev: "
+    public final String VERSION = "4.2.1c [SVN-Rev: "
             + this.svnProperties.getProperty("revision") + "]";
 
     /**
