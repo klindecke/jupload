@@ -33,6 +33,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import wjhk.jupload2.policies.UploadPolicy;
+
 /**
  * This class implements a container for multiple cookies in a single domain.
  * 
@@ -42,6 +44,11 @@ public class CookieJar {
 
     final static Pattern pNvPair = Pattern.compile(
             "^\\s*([^=\\s]+)(\\s*=\\s*(.+))*$", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * The current upload policy, always useful.
+     */
+    private UploadPolicy uploadPolicy = null;
 
     private HashMap<String, Cookie> jar = new HashMap<String, Cookie>();
 
@@ -127,6 +134,23 @@ public class CookieJar {
             return sb.toString();
         }
 
+    }
+
+    /*
+     * **************************************************************************
+     * *************************** Start of CookieJar code
+     * ***********************
+     * ***************************************************
+     * **************************
+     */
+
+    /**
+     * The creator for this class.
+     * 
+     * @param uploadPolicy The current upload policy
+     */
+    public CookieJar(UploadPolicy uploadPolicy) {
+        this.uploadPolicy = uploadPolicy;
     }
 
     private String stripQuotes(String s) {
@@ -263,10 +287,20 @@ public class CookieJar {
                             // cookie.value = stripQuotes(cookie.value);
                         }
                         if (domainMatch(cookie.domain)) {
-                            if (cookie.max_age > 0)
+                            if (cookie.max_age > 0) {
                                 this.jar.put(cookie.getKey(), cookie);
-                            else
+                                this.uploadPolicy.displayDebug(
+                                        "[CookieJar] Adding cookie: "
+                                                + cookie.getKey() + ": "
+                                                + cookie, 50);
+
+                            } else {
                                 this.jar.put(cookie.getKey(), null);
+                                this.uploadPolicy.displayDebug(
+                                        "[CookieJar] Ignoring cookie: "
+                                                + cookie.getKey() + ": "
+                                                + cookie, 50);
+                            }
                         }
                         try {
                             cookie = cookie.clone();
