@@ -3,19 +3,22 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- Update the directory structure, in FTP. Answer to:
-https://sourceforge.net/forum/forum.php?thread_id=2900783&forum_id=199107
-- Document ftpCreateDirectoryStructure. Done.
+- The applet should not ask the user to send the error to urlToSendErrorTo, when there is a functionnal error
+(e.g.: wrong file type, file too big...)
 
-- Allow line breaks in error or warning messages.
-Answer to: https://sourceforge.net/forum/forum.php?thread_id=3059537&forum_id=199107
-Done. Documented.
+- In picture mode: The file size should be checked after file preparation
+(would not block files of 3M, in my standard coppermine conf)
+
+- In picture mode (Coppermine?)
+Uploading an empty text file (niv1.txt) generates an error.
 
 - Add a HowToOptimize page
 (allowHttpPersistent, nbFilesPerRequest...)
 
-- When uploading 4000 files,, 2 by 2: stopping the upload would generate an error.
+- When uploading 4000 files, 2 by 2: stopping the upload would generate an error from time to time.
+https://sourceforge.net/tracker2/?func=detail&aid=2662357&group_id=59144&atid=490053
 Same as the error logged on SF. Due to the stop, in UploadFileData.
+Also: stop attribute in HTTPConnectionHelper is checked by gotStopped(), but never set to true.
 
 - Check if it's possible to make quicker the add of thousands of files.
 
@@ -25,11 +28,10 @@ kB should by kilo bytes. Answer in 'Open Discussions'
 - BUG: mimetype works only when the extension is in lower case.
 Response to: https://sourceforge.net/forum/forum.php?thread_id=2925505&forum_id=199107
 
-- BUG: urlToSendErrorTo() isnt working
-Response to https://sourceforge.net/forum/forum.php?thread_id=2916845&forum_id=199107
-
 - BUG: relpathinfo not being set when dragging
 https://sourceforge.net/tracker2/index.php?func=detail&aid=2529111&group_id=59144&atid=490053
+The content of relpathinfo is not the same for dropped files and for files added by the file chooser.
+Corrected (is Ok in 4.2.0)
 
 
 - Finish automation (ant script), about translations.
