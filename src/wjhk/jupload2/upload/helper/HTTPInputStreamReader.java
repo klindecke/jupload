@@ -47,7 +47,7 @@ public class HTTPInputStreamReader {
     // /////////////////// ATTRIBUTE CONTAINING DATA COMING FROM THE RESPONSE
     // ////////////////////////////////////////////////////////////////////////////////////
 
-    private CookieJar cookies = new CookieJar();
+    private CookieJar cookies = null;
 
     boolean gotClose = false;
 
@@ -109,6 +109,7 @@ public class HTTPInputStreamReader {
             UploadPolicy uploadPolicy) {
         this.httpConnectionHelper = httpConnectionHelper;
         this.uploadPolicy = uploadPolicy;
+        this.cookies = new CookieJar(uploadPolicy);
     }
 
     /**
