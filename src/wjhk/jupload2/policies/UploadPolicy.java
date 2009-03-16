@@ -45,7 +45,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
 /**
  * This package contains upload policies, which allow easy configuration of the
- * applet behaviour. <br>
+ * applet behavior. <br>
  * <br>
  * The class {@link DefaultUploadPolicy} contains a default implementation for
  * all UploadPolicy methods. <br>
@@ -132,9 +132,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * depending on upload success.
  * <li><code>%msg%</code> is replaced by an unquoted string, containing the
  * error message received from the server (if any). Inside that string, all
- * occurances of the single-quote character (hex 27) are quoted by backslashes.
+ * occurrences of the single-quote character (hex 27) are quoted by backslashes.
  * <li><code>%body%</code> is replaced by an unquoted string, containing the
- * complete response body. Inside that string, all occurances of the
+ * complete response body. Inside that string, all occurrences of the
  * single-quote character (hex 27) are quoted by backslashes.
  * </ul>
  * So if you set afterUloadURL to <code>"javascript:alert('%body%');"</code>,
@@ -263,7 +263,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * encoded. If not null, the applet tries to encode this filename with the given
  * encoding. It's up to the receiver (the web site) to decode this encoding (see
  * {@link #getUploadFilename(FileData, int)}. <br>
- * Example: if the "UTF8" encoding is choosen, the PHP function urldecode can be
+ * Example: if the "UTF8" encoding is chosen, the PHP function urldecode can be
  * used to decode the filename. </S></td>
  * </tr>
  * <tr>
@@ -306,7 +306,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * since 4.1.0<br>
  * {@link wjhk.jupload2.policies.UploadPolicy}</td>
  * <td>This parameter allows to control whether the upload should be done in FTP
- * passive mode, or in active mode (where tehe FTP server opens a connexion to
+ * passive mode, or in active mode (where the FTP server opens a connection to
  * the client, to do the upload). Default passive mode.</td>
  * </tr>
  * <tr>
@@ -329,8 +329,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>Navigator language <br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
- * <td>Should be something like <i>en</i>, <i>fr</i>... Currently only french
- * and english are known from the applet. If anyone want to add another language
+ * <td>Should be something like <i>en</i>, <i>fr</i>... Currently only French
+ * and English are known from the applet. If anyone want to add another language
  * ... Please translate the wjhk.jupload2.lang.lang_en, and send it back to
  * <mailto:etienne_sf@sourceforge.net">.</td>
  * </tr>
@@ -361,7 +361,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>This parameters defines the maximum size of an upload.
  * <ul>
  * <li>If not set, or set to a value of 0 or less, the chunk mode is disabled.
- * That is: each file will be uploaded within being splitted in pieces.
+ * That is: each file will be uploaded within being split in pieces.
  * <li>If set to a value of 1 or more, the upload size will be never be more
  * than maxChunkSize. A file bigger will be split in several part of
  * <i>maxChunkSize</i> size, then the last part will contain the remaining, and
@@ -369,20 +369,20 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * </ul>
  * <br>
  * <b>How to build the server part:</b> the server will have to 'guess' that the
- * file is splitted, and then it will have to reconstruct the uploaded file.
- * Here are the necessary informations:
+ * file is split, and then it will have to reconstruct the uploaded file. Here
+ * are the necessary informations:
  * <ul>
  * <li>When a file is chunked, the <i>jupart</i> and <i>jufinal</i> parameter
  * are given in the URL (get parameters). This identify a chunk upload. If these
  * parameters are not given, the file(s) is(are) uploaded in one piece.
  * <li><i>jupart</i> identify the part number: from 1 to N for a file being
- * plitted in N pieces. The N-1 chunks should be <i>maxChunkSize</i> bytes long.
+ * split in N pieces. The N-1 chunks should be <i>maxChunkSize</i> bytes long.
  * The last one contains the remaining of the file.
  * <li><i>jufinal</i> is set to 0 for chunks from 1 to N-1. It is is set to 1
  * only for the last chunk (N, in this 'example').
  * <li>The uploaded filename is not modified when the upload is chunked.
  * Example: upload of the file <i>bigPicture.jpeg</i>, of 4,5 Mb, with chunk of
- * 2Mb. The upload is splitted in three chunk. Chunk 1 and 2 are 2Mb long. The
+ * 2Mb. The upload is split in three chunk. Chunk 1 and 2 are 2Mb long. The
  * third one is 0,5Mb long. The uploaded filename for these three uploads is
  * <i>bigPicture.jpeg</i>. It's up to the server part to read the <i>jupart</i>
  * and <i>jufinal</i> get parameters, to understand that the upload is chunked.
@@ -400,8 +400,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * length is bigger then maxChunkSize.<br>
  * If one file is bigger than <i>maxChunkSize</i>, all previous files are
  * uploaded (at once or not, depending on nbFilesPerRequest). Then the 'big'
- * file is uploaded alone, splitted in chunk. Then upload goes on, file by file
- * or not, depending on <i>nbFilesPerRequest</i>.</td>
+ * file is uploaded alone, split in chunk. Then upload goes on, file by file or
+ * not, depending on <i>nbFilesPerRequest</i>.</td>
  * </tr>
  * <tr>
  * <td>maxFileSize<br>
@@ -443,9 +443,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * If the original picture is smaller than the maximum size, the picture is not
  * enlarged. <br>
  * If the picture is resized, its other characteristics are kept (number of
- * colors, ColorModel...). The picture format is ketp, if targetPictureFormat is
+ * colors, ColorModel...). The picture format is kept, if targetPictureFormat is
  * empty. If the picture format is a destructive (like jpeg), the maximum
- * available quality is choosed. <br>
+ * available quality is chosen. <br>
  * <i>See also maxPicWidth, realMaxPicHeight</i></td>
  * </tr>
  * <tr>
@@ -537,6 +537,18 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * the 'advanced_js_demo.html page for a sample. You'll have to put the two
  * files coming from the JUpload distribution in the same directory as the
  * wjhk.jupload.jar.</td>
+ * </tr>
+ * <tr>
+ * <td>readCookieFromNavigator</td>
+ * <td>Since 4.3.0: Boolean<BR>
+ * (true)<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
+ * <i>Since v2.8.1</i></td>
+ * <td>If true (default), the applet read cookies from the navigator, with the
+ * javascript document.cookie value. If false, the caller should put the
+ * relevant Cookie: header in the specificHeaders applet parameter. This allow
+ * to override any javascript cookie access restriction.</td>
  * </tr>
  * <tr>
  * <td>realMaxPicHeight</td>
@@ -1033,6 +1045,11 @@ public interface UploadPolicy {
     public final static String PROP_AFTER_UPLOAD_TARGET = "afterUploadTarget";
 
     /**
+     * Read cookies from javascript command: document.cookie (or not)
+     */
+    public final static String PROP_READ_COOKIE_FROM_NAVIGATOR = "readCookieFromNavigator";
+
+    /**
      * Parameter/Property name for specifying the real (server-side-desired)
      * picture height.
      */
@@ -1237,6 +1254,11 @@ public interface UploadPolicy {
      * Default value for parameter "postURL".
      */
     public final static String DEFAULT_POST_URL = null;
+
+    /**
+     * Default value for parameter "readCookieFromNavigator".
+     */
+    public final static boolean DEFAULT_READ_COOKIE_FROM_NAVIGATOR = true;
 
     /**
      * Default value for parameter "realMaxPicWidth".
@@ -1624,6 +1646,13 @@ public interface UploadPolicy {
      *         request.
      */
     public int getNbFilesPerRequest();
+
+    /**
+     * Return the current value of readCookieFromNavigator
+     * 
+     * @return Current value of readCookieFromNavigator
+     */
+    public boolean getReadCookieFromNavigator();
 
     /**
      * Get the target URL for upload.
