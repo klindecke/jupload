@@ -2,6 +2,7 @@
 v4.3.0
 
 Fix:
+- [Medium] Chunk upload would not redirect to afterUploadURL, after a successful upload (thanks to Michael LaRosa, SF account: larosa)
 - [Minor] FTP connection is better managed (check of FTP connection, before using it).
 - [Minor] Warning and error messages can now contain line breaks (see stringUploadWarning and stringUploadError applet parameters)
 - [Minor] relpathinfo has now the same value for dropped files, and for files selected by the file chooser (was corrected in 4.2.0)
