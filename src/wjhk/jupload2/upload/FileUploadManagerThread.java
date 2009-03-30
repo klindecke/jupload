@@ -43,16 +43,22 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     public static final int UPLOAD_STATUS_UPLOADING = 2;
 
     /**
-     * All data for the file identified by numOfFileInCurrentRequest has been
-     * sent. But the server response has not been received.
+     * A chunk (a part) of the file identified by numOfFileInCurrentRequest has
+     * been sent. But the server response has not been received yet.
      */
-    public static final int UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE = 3;
+    public static final int UPLOAD_STATUS_CHUNK_UPLOADED_WAITING_FOR_RESPONSE = 3;
+
+    /**
+     * All data for the file identified by numOfFileInCurrentRequest has been
+     * sent. But the server response has not been received yet.
+     */
+    public static final int UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE = 4;
 
     /**
      * The upload for the file identified by numOfFileInCurrentRequest is
      * finished
      */
-    public static final int UPLOAD_STATUS_UPLOADED = 4;
+    public static final int UPLOAD_STATUS_UPLOADED = 5;
 
     // /////////////////////////////////////////////////////////////////////////////////////////
     // //////////////////// Possible Status for file upload
@@ -331,9 +337,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                                 + " file(s) uploaded in "
                                 + (int) ((System.currentTimeMillis() - this.globalStartTime) / 1000)
                                 + " seconds. Average upload speed: "
-                                + (int) (this.nbUploadedBytes / this.uploadDuration)
-                                + " (kbytes/s)");
-
+                                + ((this.uploadDuration > 0) ? ((int) (this.nbUploadedBytes / this.uploadDuration))
+                                        : 0) + " (kbytes/s)");
+                // FIXME uploadDuration displayed is 0!
                 try {
                     this.uploadPolicy.afterUpload(this.getUploadException(),
                             this.fileUploadThread.getResponseMsg());
@@ -497,15 +503,27 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // the ETA.
             globalStartTime = System.currentTimeMillis();
         }
-        if (uploadStatus == UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE) {
-            // We're waiting for the server: let's add it to the sending
-            // duration.
-            uploadDuration += System.currentTimeMillis()
-                    - currentRequestStartTime;
-            currentRequestStartTime = 0;
-        } else if (uploadStatus == UPLOAD_STATUS_UPLOADING
-                && currentRequestStartTime == 0) {
-            currentRequestStartTime = System.currentTimeMillis();
+        switch (uploadStatus) {
+            case UPLOAD_STATUS_CHUNK_UPLOADED_WAITING_FOR_RESPONSE:
+            case UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE:
+                // We're waiting for the server: let's add it to the sending
+                // duration.
+                uploadDuration += System.currentTimeMillis()
+                        - currentRequestStartTime;
+                currentRequestStartTime = 0;
+                break;
+            case UPLOAD_STATUS_UPLOADING:
+                if (currentRequestStartTime == 0) {
+                    currentRequestStartTime = System.currentTimeMillis();
+                }
+                break;
+            case UPLOAD_STATUS_UPLOADED:
+                // Nothing to do
+                break;
+            default:
+                this.uploadPolicy
+                        .displayWarn("Unknown value for uploadStatus: "
+                                + uploadStatus);
         }
         this.numOfFileInCurrentRequest = numOfFileInCurrentRequest;
         this.uploadStatus = uploadStatus;
@@ -905,10 +923,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 msg = "";
                 break;
             case UPLOAD_STATUS_UPLOADING:
+            case UPLOAD_STATUS_CHUNK_UPLOADED_WAITING_FOR_RESPONSE:
                 // Uploading files %1$s
                 msg = String.format(msgInfoUploading, (this.nbSentFiles + 1));
                 break;
-            case UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE:
+            case UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE:
                 // %1$s file(s) uploaded. Waiting for server response ...
                 if (this.numOfFileInCurrentRequest == 1) {
                     msg = (this.nbSentFiles) + "/"
