@@ -403,13 +403,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
         try {
             // This while enables the chunk management:
             // In chunk mode, it loops until the last chunk is uploaded. This
-            // works
-            // only because, in chunk mode,
-            // files are uploaded one y one (the for loop within the while loops
+            // works only because, in chunk mode, files are uploaded one y one
+            // (the for loop within the while loops
             // through ... 1 unique file).
             // In normal mode, it does nothing, as the bLastChunk is set to true
-            // in
-            // the first test, within the while.
+            // in the first test, within the while.
             while (!bLastChunk
                     && this.fileUploadManagerThread.getUploadException() == null
                     && !this.fileUploadManagerThread.isUploadStopped()) {
@@ -426,6 +424,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
                     thisChunkSize = this.maxChunkSize;
                 }
                 contentLength = thisChunkSize + getAdditionnalBytesForUpload(0);
+
+                // We are about to start a new upload.
+                this.fileUploadManagerThread.setUploadStatus(0,
+                        FileUploadManagerThread.UPLOAD_STATUS_UPLOADING);
 
                 // Ok, we've prepare the job for chunk upload. Let's do it!
                 startRequest(contentLength, true, chunkPart, bLastChunk);
@@ -456,6 +458,21 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 // Let's finish the request, and wait for the server Output, if
                 // any (not applicable in FTP)
                 int status = finishRequest();
+
+                if (bLastChunk) {
+                    // We are finished with this one. Let's display it.
+                    this.fileUploadManagerThread
+                            .setUploadStatus(
+                                    0,
+                                    FileUploadManagerThread.UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE);
+                } else {
+                    // We are finished with the current chunk, but not with the
+                    // file. Let's display it.
+                    this.fileUploadManagerThread
+                            .setUploadStatus(
+                                    0,
+                                    FileUploadManagerThread.UPLOAD_STATUS_CHUNK_UPLOADED_WAITING_FOR_RESPONSE);
+                }
 
                 // We now ask to the uploadPolicy, if it was a success.
                 // If not, the isUploadSuccessful should raise an exception.
@@ -521,7 +538,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         this.fileUploadManagerThread
                 .setUploadStatus(
                         this.filesToUpload.length,
-                        FileUploadManagerThread.UPLOAD_STATUS_UPLOADED_WAITING_FOR_RESPONSE);
+                        FileUploadManagerThread.UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE);
 
         // Let's finish the request, and wait for the server Output, if
         // any (not applicable in FTP)
