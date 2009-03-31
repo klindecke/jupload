@@ -1479,8 +1479,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // /////////////////////////////////////////////////////////////////////////////
         // Let's display some information to the user, about the received
         // parameters.
-        displayInfo("JUpload applet, version " + getApplet().VERSION
-                + " (compiled: " + getApplet().BUILD_DATE
+        displayInfo("JUpload applet, version " + getApplet().getVersion()
+                + " (compiled: " + getApplet().getBuildDate()
                 + "), available at http://jupload.sourceforge.net/");
         displayDebug("Java version: " + System.getProperty("java.version"), 30);
         displayDebug("Cookie: " + this.cookie, 30);

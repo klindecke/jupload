@@ -39,10 +39,9 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  * The applet. It contains quite only the call to creation of the
  * {@link wjhk.jupload2.gui.JUploadPanel}, which contains the real code. <BR>
  * <BR>
- * The behaviour of the applet can easily be adapted, by : <DIR>
- * <LI> Using an existing {@link wjhk.jupload2.policies.UploadPolicy}, and
- * specifying parameters.
- * <LI> Creating a new upload policy, based on the
+ * The behavior of the applet can easily be adapted, by : <DIR> <LI>Using an
+ * existing {@link wjhk.jupload2.policies.UploadPolicy}, and specifying
+ * parameters. <LI>Creating a new upload policy, based on the
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}, or created from scratch.
  * </DIR>
  * 
@@ -76,24 +75,16 @@ public class JUploadApplet extends Applet {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    public final String VERSION = "4.2.1c [SVN-Rev: "
-            + this.svnProperties.getProperty("revision") + "]";
-
-    /**
-     * The last modification of this applet. Not accurate: would work only if
-     * the whole src folder is commited. Replaced by the build date.
-     * 
-     * @deprecated since v3.1
-     */
-    @Deprecated
-    public final String LAST_MODIFIED = this.svnProperties
-            .getProperty("lastSrcDirModificationDate");
+    private final String RELEASE_VERSION = "4.2.1c";
 
     /**
      * Date of the build for the applet. It's generated at build time by the
      * build.xml packaged by the script. If compiled with eclipse (for
      * instance), the build_date is noted as 'unknown'.
+     * 
+     * @deprecated since v4.3.0
      */
+    @Deprecated
     public final String BUILD_DATE = this.svnProperties
             .getProperty("buildDate");
 
@@ -138,18 +129,56 @@ public class JUploadApplet extends Applet {
     private Vector<Callback> unloadCallbacks = new Vector<Callback>();
 
     /**
+     * @return The 'official' version (applet version and SVN revision)
+     */
+    public String getVersion() {
+        try {
+            return this.RELEASE_VERSION + " [SVN-Rev: "
+                    + this.svnProperties.getProperty("revision") + "]";
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName()
+                    + " in JUploadApplet.getVersion()");
+        }
+        return this.RELEASE_VERSION;
+    }
+
+    /**
+     * @return Last modification date (date of last commit)
+     */
+    public String getLastModified() {
+        try {
+            return this.svnProperties.getProperty("lastSrcDirModificationDate");
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName()
+                    + " in JUploadApplet.getLastModified()");
+        }
+        return "Unknown";
+    }
+
+    /**
+     * @return Last modification date (date of last commit)
+     */
+    public String getBuildDate() {
+        try {
+            return this.svnProperties.getProperty("buildDate");
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName()
+                    + " in JUploadApplet.getBuildDate()");
+        }
+        return "Unknown";
+    }
+
+    /**
      * @see java.applet.Applet#init()
      */
     @Override
     public void init() {
-
         try {
-            this.setLayout(new BorderLayout());
-
             // Creation of the Panel, containing all GUI objects for upload.
             this.logWindow = new JUploadTextArea(20, 20);
             this.uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
 
+            this.setLayout(new BorderLayout());
             this.jUploadPanel = new JUploadPanel(this, this.logWindow,
                     this.uploadPolicy);
 
@@ -217,7 +246,17 @@ public class JUploadApplet extends Applet {
      */
     public void setProperty(String prop, String value) {
         try {
-            this.uploadPolicy.setProperty(prop, value);
+            // We'll wait up to 2s until the applet initialized (we need an
+            // upload policy).
+            for (int i = 0; i < 20 && this.uploadPolicy == null; i += 1) {
+                this.wait(100);
+            }
+            if (this.uploadPolicy == null) {
+                System.out.println("uploadPolicy is null. Impossible to set "
+                        + prop + " to " + value);
+            } else {
+                this.uploadPolicy.setProperty(prop, value);
+            }
         } catch (Exception e) {
             this.uploadPolicy.displayErr(e);
         }
@@ -284,13 +323,15 @@ public class JUploadApplet extends Applet {
     // /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Helper function for ant build to retrieve the current version.
+     * Helper function for ant build to retrieve the current version. This
+     * method is used by the build.xml ant build file, to get the release
+     * version, and put it into the svn.properties file.
      * 
      * @param args Standard argument for main method. Not used.
      */
     public static void main(String[] args) {
         JUploadApplet juploadApplet = new JUploadApplet();
-        System.out.println(juploadApplet.VERSION.split(" ")[0]);
+        System.out.println(juploadApplet.RELEASE_VERSION);
     }
 
     /**
