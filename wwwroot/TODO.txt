@@ -3,7 +3,7 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- The applet should not ask the user to send the error to urlToSendErrorTo, when there is a functionnal error
+- The applet should not ask the user to send the error to urlToSendErrorTo, when there is a functional error
 (e.g.: wrong file type, file too big...)
 
 - In picture mode: The file size should be checked after file preparation
