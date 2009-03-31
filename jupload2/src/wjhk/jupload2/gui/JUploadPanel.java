@@ -274,7 +274,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         // -------- statusLabel --------
         this.statusLabel = new JLabel("JUpload applet V"
-                + this.uploadPolicy.getApplet().VERSION);
+                + this.uploadPolicy.getApplet().getVersion());
     }
 
     /**
