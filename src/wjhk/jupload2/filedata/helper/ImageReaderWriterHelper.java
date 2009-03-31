@@ -5,7 +5,7 @@
 //
 // Copyright 2008 The JUpload Team
 //
-// Created: 12 févr. 08
+// Created: 12 feb. 08
 // Creator: etienne_sf
 // Last modified: $Date$
 //

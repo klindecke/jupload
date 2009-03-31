@@ -5,7 +5,7 @@
 //
 // Copyright 2008 The JUpload Team
 //
-// Created: 12 févr. 08
+// Created: 12 fevr. 08
 // Creator: etienne_sf
 // Last modified: $Date$
 //
@@ -182,7 +182,7 @@ public class ImageHelper implements ImageObserver {
         int nonScaledRotatedWidth = this.pictureFileData.getOriginalWidth();
         int nonScaledRotatedHeight = this.pictureFileData.getOriginalHeight();
         if (this.quarterRotation % 2 != 0) {
-            // 90° or 270° rotation: width and height are switched.
+            // 90 degrees or 270 degrees rotation: width and height are switched.
             nonScaledRotatedWidth = this.pictureFileData.getOriginalHeight();
             nonScaledRotatedHeight = this.pictureFileData.getOriginalWidth();
         }
