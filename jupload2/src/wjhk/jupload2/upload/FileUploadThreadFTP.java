@@ -274,8 +274,15 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 // TODO: call it once for all files, not once for each file.
                 createDirectoryStructure();
 
-                this.ftp.changeWorkingDirectory(this.ftpRootFolder
-                        + this.filesToUpload[index].getRelativeDir());
+                String workingDir = this.ftpRootFolder
+                        + this.filesToUpload[index].getRelativeDir();
+                // We want to have only slashes, as anti-slashes may generate
+                // FTP errors.
+                workingDir = workingDir.replace("\\", "/");
+
+                this.uploadPolicy.displayDebug(
+                        "Changing working directory to: " + workingDir, 80);
+                this.ftp.changeWorkingDirectory(workingDir);
                 this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
             } else {
                 this.ftp.changeWorkingDirectory(this.ftpRootFolder);
