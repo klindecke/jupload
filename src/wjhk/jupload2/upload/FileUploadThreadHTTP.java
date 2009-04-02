@@ -80,7 +80,8 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                 + getClass().getName() + " class", 30);
         // Name the thread (useful for debugging)
         setName("FileUploadThreadHTTP");
-        this.connectionHelper = new HTTPConnectionHelper(uploadPolicy);
+        this.connectionHelper = new HTTPConnectionHelper(
+                fileUploadManagerThread, uploadPolicy);
     }
 
     /** @see DefaultFileUploadThread#beforeRequest() */

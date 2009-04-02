@@ -9,6 +9,7 @@ import javax.net.ssl.SSLSocket;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.upload.FileUploadManagerThread;
 
 /**
  * A helper, to read the response coming from the server.
@@ -26,6 +27,8 @@ public class HTTPInputStreamReader {
     private UploadPolicy uploadPolicy = null;
 
     private HTTPConnectionHelper httpConnectionHelper = null;
+
+    private FileUploadManagerThread fileUploadManagerThread = null;
 
     /**
      * Contains the HTTP response body, that is: the server response, without
@@ -103,11 +106,15 @@ public class HTTPInputStreamReader {
      * 
      * @param httpConnectionHelper The connection helper, associated with this
      *            instance.
+     * @param fileUploadManagerThread The current upload manager, used to know
+     *            the upload state.
      * @param uploadPolicy The current upload policy.
      */
     public HTTPInputStreamReader(HTTPConnectionHelper httpConnectionHelper,
+            FileUploadManagerThread fileUploadManagerThread,
             UploadPolicy uploadPolicy) {
         this.httpConnectionHelper = httpConnectionHelper;
+        this.fileUploadManagerThread = fileUploadManagerThread;
         this.uploadPolicy = uploadPolicy;
         this.cookies = new CookieJar(uploadPolicy);
     }
@@ -163,7 +170,7 @@ public class HTTPInputStreamReader {
             // If the user requested abort, we are not going to send
             // anymore, so shutdown the outgoing half of the socket.
             // This helps the server to speed up with it's response.
-            if (this.httpConnectionHelper.gotStopped()
+            if (isUploadStopped()
                     && !(this.httpConnectionHelper.getSocket() instanceof SSLSocket))
                 this.httpConnectionHelper.getSocket().shutdownOutput();
 
@@ -356,7 +363,7 @@ public class HTTPInputStreamReader {
         StringBuffer sbHeaders = new StringBuffer();
         // Headers are US-ASCII (See RFC 2616, Section 2.2)
         String tmp;
-        while (!this.httpConnectionHelper.gotStopped()) {
+        while (!isUploadStopped()) {
             tmp = readLine(httpDataIn, "US-ASCII", false);
             if (null == tmp)
                 throw new JUploadException("unexpected EOF (in header)");
@@ -438,7 +445,7 @@ public class HTTPInputStreamReader {
     private void readBody(PushbackInputStream httpDataIn) throws IOException,
             JUploadException {
         // && is evaluated from left to right so !stop must come first!
-        while (!this.httpConnectionHelper.gotStopped()
+        while (!isUploadStopped()
                 && ((!this.gotContentLength) || (this.clen > 0))) {
             if (this.gotChunked) {
                 // Read the chunk header.
@@ -547,4 +554,18 @@ public class HTTPInputStreamReader {
         this.uploadPolicy.displayDebug("-------- Response Body End --------",
                 100);
     }// readBody
+
+    /**
+     * Returns true if the upload is stopped has been stopped by the user, and
+     * false if not stopped or not applicable (fileUploadManagerThread is null)
+     * 
+     * @return
+     */
+    private boolean isUploadStopped() {
+        if (this.fileUploadManagerThread == null) {
+            return false;
+        } else {
+            return this.fileUploadManagerThread.isUploadFinished();
+        }
+    }
 }

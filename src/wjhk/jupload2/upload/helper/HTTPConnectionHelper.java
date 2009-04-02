@@ -39,6 +39,7 @@ import java.security.cert.CertificateException;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.upload.FileUploadManagerThread;
 
 /**
  * 
@@ -148,6 +149,11 @@ public class HTTPConnectionHelper extends OutputStream {
     private int connectionStatus = STATUS_NOT_INITIALIZED;
 
     /**
+     * The current upload manager.
+     */
+    private FileUploadManagerThread fileUploadManagerThread = null;
+
+    /**
      * Contains the HTTP reader. All data coming from the server response are
      * read from it. If this attribute is null, it means that the server
      * response has not been read.
@@ -186,11 +192,6 @@ public class HTTPConnectionHelper extends OutputStream {
     private Socket socket = null;
 
     /**
-     * Indicates if the user request to stop the upload.
-     */
-    private boolean stop = false;
-
-    /**
      * The current upload policy
      */
     private UploadPolicy uploadPolicy = null;
@@ -217,10 +218,14 @@ public class HTTPConnectionHelper extends OutputStream {
     /**
      * The standard constructor for this class.
      * 
+     * @param fileUploadManagerThread
      * @param uploadPolicy The current upload policy.
      */
-    public HTTPConnectionHelper(UploadPolicy uploadPolicy) {
+    public HTTPConnectionHelper(
+            FileUploadManagerThread fileUploadManagerThread,
+            UploadPolicy uploadPolicy) {
         this.uploadPolicy = uploadPolicy;
+        this.fileUploadManagerThread = fileUploadManagerThread;
     }
 
     /**
@@ -504,15 +509,6 @@ public class HTTPConnectionHelper extends OutputStream {
     }
 
     /**
-     * Return true is the upload is stopped.
-     * 
-     * @return Current value of the stop attribute.
-     */
-    public boolean gotStopped() {
-        return this.stop;
-    }
-
-    /**
      * Append bytes to the current query. The bytes will be written to the
      * current ByteArrayEncoder if the the connection to the server is not open,
      * or directly to the server if the connection is opened.
@@ -686,7 +682,7 @@ public class HTTPConnectionHelper extends OutputStream {
         // Let's connect in InputStream to read this server response.
         if (this.httpInputStreamReader == null) {
             this.httpInputStreamReader = new HTTPInputStreamReader(this,
-                    this.uploadPolicy);
+                    fileUploadManagerThread, this.uploadPolicy);
         }
 
         // Let's do the job

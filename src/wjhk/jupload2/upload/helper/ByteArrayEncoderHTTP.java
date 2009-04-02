@@ -34,16 +34,11 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * This class is a utility, which provide easy encoding for HTTP queries. The
- * way to use this class is:
- * <OL TYPE=1>
- * <LI>Instantiate a new object
- * <LI>Append data to it, using the append methods. Available for: String,
- * byte[], other ByteArrayEncode...
- * <LI>Close the stream. This will prevent any new data to be appended to it.
- * The encoded length can now be calculated.
- * <LI>Get the encoded length.
- * <LI>Get the encoded byte array
- * </OL>
+ * way to use this class is: <OL TYPE=1> <LI>Instantiate a new object <LI>Append
+ * data to it, using the append methods. Available for: String, byte[], other
+ * ByteArrayEncode... <LI>Close the stream. This will prevent any new data to be
+ * appended to it. The encoded length can now be calculated. <LI>Get the encoded
+ * length. <LI>Get the encoded byte array </OL>
  * 
  * @author etienne_sf
  * 
@@ -258,6 +253,10 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                 + "].name");
                         Object value = win.eval("document." + formname + "["
                                 + i + "].value");
+                        Object elementType = win.eval("document." + formname
+                                + "[" + i + "].type");
+                        Object elementClass = win.eval("document." + formname
+                                + "[" + i + "].class");
                         Object etype = win.eval("document." + formname + "["
                                 + i + "].type");
                         if (etype instanceof String) {
@@ -276,15 +275,27 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                         }
                         if (name instanceof String) {
                             if (value instanceof String) {
+                                this.uploadPolicy.displayDebug(
+                                        "  Trying to add formdata element num "
+                                                + i + " (name: " + name
+                                                + ", value: " + value
+                                                + ", type: " + elementType
+                                                + ", class: " + elementClass
+                                                + ")", 80);
                                 this.appendTextProperty((String) name,
                                         (String) value);
                             } else {
-                                throw new JUploadIOException(
-                                        "[ByteArrayEncoder.appendFormVariables] value must be an instance of String");
+                                this.uploadPolicy
+                                        .displayWarn("[ByteArrayEncoder.appendFormVariables] value must be an instance of String (name: "
+                                                + name
+                                                + ", value: )"
+                                                + value
+                                                + ")");
                             }
                         } else {
-                            throw new JUploadIOException(
-                                    "[ByteArrayEncoder.appendFormVariables] name must be an instance of String");
+                            this.uploadPolicy
+                                    .displayWarn("[ByteArrayEncoder.appendFormVariables] name must be an instance of String (name: "
+                                            + name + ", value: )" + value + ")");
                         }
                     } catch (JSException e1) {
                         this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
