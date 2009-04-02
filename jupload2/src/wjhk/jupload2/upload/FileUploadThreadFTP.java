@@ -266,6 +266,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     /** @see DefaultFileUploadThread#beforeFile(int) */
     @Override
     void beforeFile(int index) throws JUploadException {
+        String workingDir = null;
         try {
             // if configured to, we go to the relative sub-folder of the current
             // file, or on the root of the postURL.
@@ -274,7 +275,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 // TODO: call it once for all files, not once for each file.
                 createDirectoryStructure();
 
-                String workingDir = this.ftpRootFolder
+                workingDir = this.ftpRootFolder
                         + this.filesToUpload[index].getRelativeDir();
                 // We want to have only slashes, as anti-slashes may generate
                 // FTP errors.
@@ -285,8 +286,14 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 this.ftp.changeWorkingDirectory(workingDir);
                 this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
             } else {
-                this.ftp.changeWorkingDirectory(this.ftpRootFolder);
+                workingDir = this.ftpRootFolder;
+                this.ftp.changeWorkingDirectory(workingDir);
                 this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
+            }
+            if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode())) {
+                throw new JUploadException(
+                        "Error while changing directory to: " + workingDir
+                                + " (" + this.ftp.getReplyString() + ")");
             }
 
             // FIXME To in beforeRequest, just after connection.
