@@ -364,6 +364,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         // Now, we can actually do the job. This is delegate into smaller
         // method, for easier understanding.
+
+        // FIXME Manage thread interruption to stop upload
+
         if (bChunkEnabled) {
             doChunkedUpload(totalContentLength, totalFileLength);
         } else {

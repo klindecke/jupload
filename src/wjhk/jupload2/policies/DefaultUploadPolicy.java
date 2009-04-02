@@ -1220,7 +1220,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
                     try {
                         URL url = new URL(this.urlToSendErrorTo);
-                        connectionHelper = new HTTPConnectionHelper(null, this);
+                        connectionHelper = new HTTPConnectionHelper(this);
                         connectionHelper.initRequest(url, "POST", false, true);
 
                         ByteArrayEncoder baeContent = new ByteArrayEncoderHTTP(
@@ -1528,7 +1528,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_NB_FILES_PER_REQUEST + ": " + getNbFilesPerRequest(),
                 30);
         displayDebug(PROP_POST_URL + ": " + this.postURL, 30);
-        displayDebug(PROP_READ_COOKIE_FROM_NAVIGATOR + ": " + this.readCookieFromNavigator, 30);
+        displayDebug(PROP_READ_COOKIE_FROM_NAVIGATOR + ": "
+                + this.readCookieFromNavigator, 30);
         displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 30);
         displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 30);
         displayDebug(PROP_SHOW_STATUSBAR + ": " + this.showStatusbar, 30);

@@ -39,7 +39,6 @@ import java.security.cert.CertificateException;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.upload.FileUploadManagerThread;
 
 /**
  * 
@@ -149,11 +148,6 @@ public class HTTPConnectionHelper extends OutputStream {
     private int connectionStatus = STATUS_NOT_INITIALIZED;
 
     /**
-     * The current upload manager.
-     */
-    private FileUploadManagerThread fileUploadManagerThread = null;
-
-    /**
      * Contains the HTTP reader. All data coming from the server response are
      * read from it. If this attribute is null, it means that the server
      * response has not been read.
@@ -218,14 +212,10 @@ public class HTTPConnectionHelper extends OutputStream {
     /**
      * The standard constructor for this class.
      * 
-     * @param fileUploadManagerThread
      * @param uploadPolicy The current upload policy.
      */
-    public HTTPConnectionHelper(
-            FileUploadManagerThread fileUploadManagerThread,
-            UploadPolicy uploadPolicy) {
+    public HTTPConnectionHelper(UploadPolicy uploadPolicy) {
         this.uploadPolicy = uploadPolicy;
-        this.fileUploadManagerThread = fileUploadManagerThread;
     }
 
     /**
@@ -682,7 +672,7 @@ public class HTTPConnectionHelper extends OutputStream {
         // Let's connect in InputStream to read this server response.
         if (this.httpInputStreamReader == null) {
             this.httpInputStreamReader = new HTTPInputStreamReader(this,
-                    fileUploadManagerThread, this.uploadPolicy);
+                    this.uploadPolicy);
         }
 
         // Let's do the job
