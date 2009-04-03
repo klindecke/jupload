@@ -1,8 +1,12 @@
 
 v4.3.0
 
+Known problems: 
+- FTP upload doesn't work when the path contain spaces.
+
 Fix:
 - [Medium] Chunk upload would not redirect to afterUploadURL, after a successful upload (thanks to Michael LaRosa, SF account: larosa)
+- [Medium] Fixed a problem when using the formData applet parameter, on complex html FORM. Would prevent upload to work. 
 - [Minor] FTP connection is better managed (check of FTP connection, before using it).
 - [Minor] Warning and error messages can now contain line breaks (see stringUploadWarning and stringUploadError applet parameters)
 - [Minor] relpathinfo has now the same value for dropped files, and for files selected by the file chooser (was corrected in 4.2.0)
@@ -12,6 +16,7 @@ Change:
 the folder given in postURL. If true, the folder structure will be created on the target FTP server. 
 - [Cookies] Add of the readCookieFromNavigator applet parameter. Default to true (applet behavior unchanged). If
 false, the caller should put the relevant Cookie: header in the specificHeaders applet parameter.
+- [nbFilesPerRequest] Default to the nbFilesPerRequest applet parameter is now 1 (was -1!).
 
 
 v4.2.0

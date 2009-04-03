@@ -460,7 +460,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>nbFilesPerRequest</td>
- * <td>-1 <br>
+ * <td>1 since 4.3.0 <BR>(was -1) <br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This allows the control of the maximal number of files that are uploaded
@@ -1238,7 +1238,7 @@ public interface UploadPolicy {
      * Default value for parameter "maxPicHeight". Note: the
      * CoppermineUploadPolicy forces it to 1.
      */
-    public final static int DEFAULT_NB_FILES_PER_REQUEST = -1;
+    public final static int DEFAULT_NB_FILES_PER_REQUEST = 1;
 
     /**
      * Default value for parameter "pictureCompressionQuality".
