@@ -60,7 +60,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
-import javax.swing.text.BadLocationException;
 
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
@@ -349,11 +348,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * update it.
      */
     protected String userAgent = null;
-
-    /**
-     * This constant defines the upper limit of lines, kept in the log window.
-     */
-    private final static int MAX_DEBUG_LINES = 10000;
 
     /**
      * Same as {@link #patternSuccess}, but for the error message. If found,
@@ -764,7 +758,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      *         javascript string. It doesn't contain the starting and ending
      *         double quotes.
      */
-    private String jsString(String s) {
+    public String jsString(String s) {
         String dollarReplacement = Matcher.quoteReplacement("\\$");
         String singleQuoteReplacement = Matcher.quoteReplacement("\\'");
         String linefeedReplacement = Matcher.quoteReplacement("\\n");
@@ -997,12 +991,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /** @see UploadPolicy#displayErr(Exception) */
-    public void displayErr(Exception e) {
+    public synchronized void displayErr(Exception e) {
         displayErr(e.getMessage(), e);
     }
 
     /** @see UploadPolicy#displayErr(String) */
-    public void displayErr(String err) {
+    public synchronized void displayErr(String err) {
         displayErr(err, null);
     }
 
@@ -1011,7 +1005,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param throwable
      */
-    private void displayStackTrace(Throwable throwable) {
+    private synchronized void displayStackTrace(Throwable throwable) {
         if (throwable != null) {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bs);
@@ -1035,7 +1029,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
      *      java.lang.Exception)
      */
-    public void displayErr(String errorText, Exception exception) {
+    public synchronized void displayErr(String errorText, Exception exception) {
 
         if (exception == null) {
             setLastException(new JUploadException("errorText"));
@@ -1109,21 +1103,21 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * @see UploadPolicy#displayInfo(String)
      */
-    public void displayInfo(String info) {
+    public synchronized void displayInfo(String info) {
         displayMsg("[INFO] ", info);
     }
 
     /**
      * @see UploadPolicy#displayWarn(String)
      */
-    public void displayWarn(String warn) {
+    public synchronized void displayWarn(String warn) {
         displayMsg("[WARN] ", warn);
     }
 
     /**
      * @see UploadPolicy#displayDebug(String, int)
      */
-    public void displayDebug(String debug, int minDebugLevel) {
+    public synchronized void displayDebug(String debug, int minDebugLevel) {
         final String tag = "[DEBUG] ";
         if (this.debugLevel >= minDebugLevel) {
             // displayMsg will add the message to the debugStrignBuffer.
@@ -2268,19 +2262,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.logWindow == null) {
             System.out.println(msg);
         } else {
-            this.logWindow.append(msg);
-            if (!msg.endsWith("\n"))
-                this.logWindow.append("\n");
-            int lc = this.logWindow.getLineCount();
-            if (lc > MAX_DEBUG_LINES) {
-                int end;
-                try {
-                    end = this.logWindow.getLineEndOffset(lc - MAX_DEBUG_LINES);
-                    this.logWindow.replaceRange("", 0, end);
-                } catch (BadLocationException e) {
-                    e.printStackTrace();
-                }
-            }
+            this.logWindow.append((msg.endsWith("\n")) ? msg : msg + "\n");
         }
         // Let's store all text in the debug logfile
         if (this.debugGenerateFile) {
