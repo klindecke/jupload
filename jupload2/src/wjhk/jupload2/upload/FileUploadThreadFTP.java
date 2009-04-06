@@ -433,8 +433,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         StringTokenizer st;
 
         // 1) Let's find all folders and sub-folders we'll have to create.
-        for (int i = 0; i < this.filesToUpload.length
-                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
+        for (int i = 0; i < this.filesToUpload.length && !isInterrupted(); i++) {
             folderName = this.filesToUpload[i].getRelativeDir();
             folderName = folderName.replaceAll("\\\\", "/");
             // Do we already have this folder ?
