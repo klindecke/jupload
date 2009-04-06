@@ -2262,7 +2262,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         if (this.logWindow == null) {
             System.out.println(msg);
         } else {
-            this.logWindow.append((msg.endsWith("\n")) ? msg : msg + "\n");
+            this.logWindow.displayMsg((msg.endsWith("\n")) ? msg : msg + "\n");
         }
         // Let's store all text in the debug logfile
         if (this.debugGenerateFile) {
