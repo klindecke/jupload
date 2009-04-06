@@ -333,8 +333,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // Prepare upload, for all files to be uploaded.
         beforeRequest();
 
-        for (int i = 0; i < this.filesToUpload.length
-                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
+        for (int i = 0; i < this.filesToUpload.length && !isInterrupted(); i++) {
             // Total length, for HTTP upload.
             totalContentLength += this.filesToUpload[i].getUploadLength();
             totalContentLength += getAdditionnalBytesForUpload(i);
@@ -364,9 +363,6 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
         // Now, we can actually do the job. This is delegate into smaller
         // method, for easier understanding.
-
-        // FIXME Manage thread interruption to stop upload
-
         if (bChunkEnabled) {
             doChunkedUpload(totalContentLength, totalFileLength);
         } else {
@@ -413,7 +409,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // in the first test, within the while.
             while (!bLastChunk
                     && this.fileUploadManagerThread.getUploadException() == null
-                    && !this.fileUploadManagerThread.isUploadStopped()) {
+                    && !isInterrupted()) {
                 // Let's manage chunk:
                 // Files are uploaded one by one. This is checked just above.
                 chunkPart += 1;
@@ -508,8 +504,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         startRequest(totalContentLength, false, 0, true);
 
         // Then, upload each file.
-        for (int i = 0; i < this.filesToUpload.length
-                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
+        for (int i = 0; i < this.filesToUpload.length && !isInterrupted(); i++) {
             // We are about to start a new upload.
             this.fileUploadManagerThread.setUploadStatus(i,
                     FileUploadManagerThread.UPLOAD_STATUS_UPLOADING);

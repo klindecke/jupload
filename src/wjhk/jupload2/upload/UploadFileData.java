@@ -109,9 +109,9 @@ class UploadFileData implements FileData {
      * Get the number of files that are still to upload. It is initialized at
      * the creation of the file, by a call to the
      * {@link FileData#getUploadLength()}. <BR>
-     * <B>Note:</B> When the upload for this file is finish and you want to
-     * send it again (for instance the upload failed, and you want to do a
-     * retry), you should not reuse this instance, but, instead, create a new
+     * <B>Note:</B> When the upload for this file is finish and you want to send
+     * it again (for instance the upload failed, and you want to do a retry),
+     * you should not reuse this instance, but, instead, create a new
      * UploadFileData instance.
      * 
      * @return Number of bytes still to upload.
@@ -182,7 +182,7 @@ class UploadFileData implements FileData {
         // or leave it unchanged if it is not null.
         getInputStream();
 
-        while (!this.fileUploadManagerThread.isUploadStopped() && (0 < amount)) {
+        while (!this.fileUploadManagerThread.isInterrupted() && (0 < amount)) {
             int toread = (amount > this.BUFLEN) ? this.BUFLEN : (int) amount;
             int towrite = 0;
 
