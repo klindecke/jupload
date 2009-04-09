@@ -183,6 +183,13 @@ public abstract class DefaultFileUploadThread extends Thread implements
     abstract int finishRequest() throws JUploadException;
 
     /**
+     * Reaction of the upload thread, when an interruption has been received.
+     * This method should close all resource to the server, to allow the server
+     * to free any resource (temporary file, network connection...).
+     */
+    abstract void interruptionReceived();
+
+    /**
      * This method is called before sending the bytes corresponding to the file
      * whose index is given in argument. If the file is splitted in chunks (see
      * the maxChunkSize applet parameter), this method is called before each
@@ -333,7 +340,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // Prepare upload, for all files to be uploaded.
         beforeRequest();
 
-        for (int i = 0; i < this.filesToUpload.length && !isInterrupted(); i++) {
+        for (int i = 0; i < this.filesToUpload.length; i++) {
             // Total length, for HTTP upload.
             totalContentLength += this.filesToUpload[i].getUploadLength();
             totalContentLength += getAdditionnalBytesForUpload(i);
@@ -408,8 +415,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // In normal mode, it does nothing, as the bLastChunk is set to true
             // in the first test, within the while.
             while (!bLastChunk
-                    && this.fileUploadManagerThread.getUploadException() == null
-                    && !isInterrupted()) {
+                    && this.fileUploadManagerThread.getUploadException() == null) {
                 // Let's manage chunk:
                 // Files are uploaded one by one. This is checked just above.
                 chunkPart += 1;
@@ -488,6 +494,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // Let's free any locked resource
             this.filesToUpload[0].afterUpload();
         }
+
+        // FIXME interrupted chunk upload should notify the server.
     }// doChunkedUpload
 
     /**
@@ -504,7 +512,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         startRequest(totalContentLength, false, 0, true);
 
         // Then, upload each file.
-        for (int i = 0; i < this.filesToUpload.length && !isInterrupted(); i++) {
+        for (int i = 0; i < this.filesToUpload.length; i++) {
             // We are about to start a new upload.
             this.fileUploadManagerThread.setUploadStatus(i,
                     FileUploadManagerThread.UPLOAD_STATUS_UPLOADING);

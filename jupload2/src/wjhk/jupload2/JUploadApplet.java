@@ -184,8 +184,6 @@ public class JUploadApplet extends Applet {
 
             this.add(this.jUploadPanel, BorderLayout.CENTER);
             
-            //Let's refresh the display, and have the caret well placed.
-            this.uploadPolicy.displayInfo("JUploadApplet is now initialized.");
 
             // We start the jsHandler thread, that allows javascript to send
             // upload command to the applet.
@@ -202,6 +200,14 @@ public class JUploadApplet extends Applet {
                             "Error", JOptionPane.ERROR_MESSAGE);
         }
 
+    }
+    
+    /**
+     * Called each time the applet is shown on the web page.
+     */
+    public void start() {
+        //Let's refresh the display, and have the caret well placed.
+        this.uploadPolicy.displayInfo("JUploadApplet is now started.");
     }
 
     /**

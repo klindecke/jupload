@@ -84,8 +84,7 @@ class LoadImageThread extends Thread {
         // A try to minimize memory footprint
         Runtime.getRuntime().gc();
 
-        // if not interrupted, we display the picture to our jUploadImagePreview
-        if (!isInterrupted() && thumbnail != null) {
+        if (thumbnail != null) {
             this.jUploadImagePreview.setThumbnail(thumbnail);
             this.jUploadImagePreview.jFileChooser.setCursor(null);
         }
