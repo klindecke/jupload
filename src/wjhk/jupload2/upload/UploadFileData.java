@@ -182,7 +182,7 @@ class UploadFileData implements FileData {
         // or leave it unchanged if it is not null.
         getInputStream();
 
-        while (!this.fileUploadManagerThread.isInterrupted() && (0 < amount)) {
+        while (amount > 0) {
             int toread = (amount > this.BUFLEN) ? this.BUFLEN : (int) amount;
             int towrite = 0;
 

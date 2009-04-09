@@ -307,7 +307,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             while (this.fileUploadThread != null
                     && this.fileUploadThread.isAlive()
                     && this.nbSuccessfullyUploadedFiles < this.uploadFileDataArray.length
-                    && this.getUploadException() == null && !this.stop) {
+                    && !isUploadStopped() // Stopped by the user
+                    && this.getUploadException() == null // An error occurs
+            ) {
                 try {
                     this.uploadPolicy.displayDebug(
                             "Waiting for fileUploadThread to die", 10);
@@ -330,7 +332,19 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // successful
             // upload has been done.
 
-            if (getUploadException() == null) {
+            if (getUploadException() != null) {
+                this.uploadPolicy.sendDebugInformation("Error in Upload",
+                        getUploadException());
+            } else if (isUploadStopped()) {
+                this.uploadPolicy
+                .displayInfo("Upload stopped by the user. "
+                        + this.nbSuccessfullyUploadedFiles
+                        + " file(s) uploaded in "
+                        + (int) ((System.currentTimeMillis() - this.globalStartTime) / 1000)
+                        + " seconds. Average upload speed: "
+                        + ((this.uploadDuration > 0) ? ((int) (this.nbUploadedBytes / this.uploadDuration))
+                                : 0) + " (kbytes/s)");
+            } else {
                 this.uploadPolicy
                         .displayInfo("Upload finished normally. "
                                 + this.uploadFileDataArray.length
@@ -348,9 +362,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                             "error in uploadPolicy.afterUpload (JUploadPanel)",
                             e1);
                 }
-            } else {
-                this.uploadPolicy.sendDebugInformation("Error in Upload",
-                        getUploadException());
             }
 
             // If the upload was successful, we wait for 5 seconds, before
@@ -537,7 +548,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * file, and stop before starting the next upload request to the server, to
      * avoid strange problems on the server.
      */
-    public void stopUpload() {
+    public synchronized void stopUpload() {
         this.stop = true;
 
         // The upload is now finished ...

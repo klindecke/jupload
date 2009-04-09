@@ -356,7 +356,7 @@ public class HTTPInputStreamReader {
         StringBuffer sbHeaders = new StringBuffer();
         // Headers are US-ASCII (See RFC 2616, Section 2.2)
         String tmp;
-        while (true) {
+        while (!Thread.interrupted()) {
             tmp = readLine(httpDataIn, "US-ASCII", false);
             if (null == tmp)
                 throw new JUploadException("unexpected EOF (in header)");
@@ -438,7 +438,8 @@ public class HTTPInputStreamReader {
     private void readBody(PushbackInputStream httpDataIn) throws IOException,
             JUploadException {
         // && is evaluated from left to right so !stop must come first!
-        while ((!this.gotContentLength) || (this.clen > 0)) {
+        while (!Thread.interrupted()
+                && ((!this.gotContentLength) || (this.clen > 0))) {
             if (this.gotChunked) {
                 // Read the chunk header.
                 // This is US-ASCII! (See RFC 2616, Section 2.2)

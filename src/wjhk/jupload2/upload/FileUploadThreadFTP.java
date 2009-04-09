@@ -488,4 +488,12 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                     + " in FileUploadThreadFTP.createDirectoryStructure()", ioe);
         }
     }
+
+    /**
+     * If an interruption has been detected, we release any used resource.
+     */
+    @Override
+    void interruptionReceived() {
+        cleanAll();
+    }
 }

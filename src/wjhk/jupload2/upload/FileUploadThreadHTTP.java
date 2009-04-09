@@ -167,6 +167,42 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
     }
 
     /**
+     * When interrupted, we close all network connection.
+     */
+    @Override
+    void interruptionReceived() {
+        // FIXME: this should manage chunked upload (to free temporary files on
+        // the server)
+        try {
+            if (this.connectionHelper != null) {
+                this.connectionHelper.dispose();
+                this.connectionHelper = null;
+            }
+
+            if (this.heads != null) {
+                for (int i = 0; i < this.heads.length; i += 1) {
+                    if (this.heads[i] != null) {
+                        this.heads[i].close();
+                    }
+                }
+                this.heads = null;
+            }
+            if (this.tails != null) {
+                for (int i = 0; i < this.tails.length; i += 1) {
+                    if (this.tails[i] != null) {
+                        this.tails[i].close();
+                    }
+                }
+                this.tails = null;
+            }
+        } catch (Exception e) {
+            this.uploadPolicy.displayWarn("Exception in "
+                    + getClass().getName() + ".interruptionReceived() ("
+                    + e.getClass().getName() + "): " + e.getMessage());
+        }
+    }
+
+    /**
      * @see DefaultFileUploadThread#getResponseBody()
      * @Override String getResponseBody() { return
      *           this.sbHttpResponseBody.toString(); }
