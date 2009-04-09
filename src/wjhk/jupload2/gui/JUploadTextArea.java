@@ -121,9 +121,7 @@ public class JUploadTextArea extends JTextArea {
      * DisplayOneMessageThread within the EventDispatchThread.
      */
     class DisplayMessageThread extends Thread {
-        /**
-         * The current text area, where text must be written.
-         */
+        /** The current text area, where text must be written. */
         JUploadTextArea jUploadTextArea;
 
         /**
