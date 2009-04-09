@@ -23,8 +23,6 @@
 package wjhk.jupload2.gui;
 
 import java.awt.Color;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -35,11 +33,17 @@ import javax.swing.text.BadLocationException;
 /**
  * This class represents the text area for debug output.
  */
-public class JUploadTextArea extends JTextArea implements ComponentListener {
+public class JUploadTextArea extends JTextArea {
     /**
      * This constant defines the upper limit of lines, kept in the log window.
      */
     public final static int MAX_DEBUG_LINES = 10000;
+
+    /**
+     * The queue, that contains all messages to display. They will be displayed
+     * by the {@link #DisplayOneMessageThread} thread.
+     */
+    Queue<String> messages = null;
 
     /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -6037767344615468632L;
@@ -50,7 +54,7 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
      * String.
      */
     class DisplayOneMessageThread extends Thread {
-        String message;
+        Queue<String> messages;
 
         JUploadTextArea textArea;
 
@@ -59,16 +63,25 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
          *            displayed). Just position the caret at the good place.
          * @param textArea
          */
-        DisplayOneMessageThread(String message, JUploadTextArea textArea) {
-            this.message = message;
+        DisplayOneMessageThread(Queue<String> messages, JUploadTextArea textArea) {
+            this.messages = messages;
             this.textArea = textArea;
         }
 
+        @Override
         public void run() {
+            boolean someTextHasBeenAdded = false;
+            String nextMessage = null;
             try {
-                if (this.message != null) {
-                    this.textArea.append(this.message);
-
+                // Let's add all available messages... if any. They may have
+                // been all consumed by a previous execution of this thread.
+                while ((nextMessage = this.messages.poll()) != null) {
+                    someTextHasBeenAdded = true;
+                    this.textArea.append(nextMessage);
+                }
+                // If some text has been added, we may have to truncate the
+                // text, according to the max allowed size for it.
+                if (someTextHasBeenAdded) {
                     int lc = this.textArea.getLineCount();
                     if (lc > JUploadTextArea.MAX_DEBUG_LINES) {
                         int end;
@@ -80,14 +93,16 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
                             e.printStackTrace();
                         }
                     }
+
+                    // The end of the text, is the interesting part of it !
+                    int len = this.textArea.getText().length();
+                    if (len > 0) {
+                        this.textArea.setCaretPosition(len - 1);
+                    }
+
+                    // Let's display the changes to the user.
+                    this.textArea.repaint();
                 }
-
-                // The end of the text, is the interesting part of it !
-                this.textArea
-                        .setCaretPosition(this.textArea.getText().length() - 1);
-
-                // Let's display the changes to the user.
-                this.textArea.repaint();
 
             } catch (Exception e) {
                 // This should not happen !
@@ -100,18 +115,16 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
      * An internal class, to manage the fact that Swing is not Thread safe: all
      * update to the GUI must be done in the EventDispatchThread. <BR>
      * This thread is responsible for collecting all messages to display on a
-     * queue, and add them to the TextArea within the EventDispatchThread.
+     * queue, and add them to the TextArea within the EventDispatchThread. <BR>
+     * <B>Note:</B> this class would be a Executors.newSingleThreadExecutor()
+     * instance in a standard way. But, here, we must call the
+     * DisplayOneMessageThread within the EventDispatchThread.
      */
     class DisplayMessageThread extends Thread {
         /**
          * The current text area, where text must be written.
          */
         JUploadTextArea jUploadTextArea;
-
-        /**
-         * The queue, that contains all messages to display.
-         */
-        Queue<String> messages = null;
 
         /**
          * Indicates whether the thread is working, or waiting for an incoming
@@ -121,7 +134,6 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
 
         DisplayMessageThread(JUploadTextArea textArea) {
             this.jUploadTextArea = textArea;
-            messages = new ConcurrentLinkedQueue<String>();
         }
 
         /**
@@ -131,24 +143,25 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
          *            displayed)
          */
         public void queueMessage(String str) {
-            this.messages.add(str);
+            messages.add(str);
             // If the thread is currently 'blocked' in the sleep statement, we
             // interrupt it.
-            if (waiting) {
-                waiting = false;
+            if (this.waiting) {
+                this.waiting = false;
                 this.interrupt();
             }
         }
 
+        @Override
         public void run() {
             String nextMessage;
             while (!isInterrupted()) {
-                nextMessage = this.messages.poll();
+                nextMessage = messages.poll();
                 if (nextMessage == null) {
                     // Currently: no message. We stop using CPU.
                     // If necessary, we'll get interrupted by the append method,
                     // here above.
-                    waiting = true;
+                    this.waiting = true;
                     try {
                         sleep(1000);
                     } catch (InterruptedException e1) {
@@ -156,12 +169,12 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
                         // display. This will be done in the loop of this
                         // while.
                     }
-                    waiting = false;
+                    this.waiting = false;
                 } else {
                     try {
                         DisplayOneMessageThread displayOneMessageThread = new DisplayOneMessageThread(
-                                nextMessage, this.jUploadTextArea);
-                        SwingUtilities.invokeAndWait(displayOneMessageThread);
+                                messages, this.jUploadTextArea);
+                        SwingUtilities.invokeLater(displayOneMessageThread);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -174,17 +187,6 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
      * The instance of the DisplayMessageThread class.
      */
     private DisplayMessageThread displayMessageThread = null;
-
-    /*
-     * 
-     * final Runnable doHelloWorld = new Runnable() { public void run() {
-     * System.out.println("Hello World on " + Thread.currentThread()); } };
-     * 
-     * Thread appThread = new Thread() { public void run() { try {
-     * SwingUtilities.invokeAndWait(doHelloWorld); } catch (Exception e) {
-     * e.printStackTrace(); } System.out.println("Finished on " +
-     * Thread.currentThread()); } }; appThread.start();
-     */
 
     /**
      * Constructs a new empty TextArea with the specified number of rows and
@@ -200,12 +202,13 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
         setLineWrap(true);
         setWrapStyleWord(true);
 
-        addComponentListener(this);
+        // The queue, where messages to display will be posted.
+        this.messages = new ConcurrentLinkedQueue<String>();
 
         // Let's start the tread that will actually add text to the GUI, in a
         // thread safe mode.
-        displayMessageThread = new DisplayMessageThread(this);
-        displayMessageThread.start();
+        this.displayMessageThread = new DisplayMessageThread(this);
+        this.displayMessageThread.start();
     }
 
     /**
@@ -215,35 +218,10 @@ public class JUploadTextArea extends JTextArea implements ComponentListener {
      * @param str The string to add, at the end of the JUploadTextArea.
      */
     public final synchronized void displayMsg(String str) {
-        this.displayMessageThread.queueMessage(str);
-        // System.out.println("  To display: "+str);
+        // this.displayMessageThread.queueMessage(str);
+        this.messages.add(str);
+        DisplayOneMessageThread displayOneMessageThread = new DisplayOneMessageThread(
+                this.messages, this);
+        SwingUtilities.invokeLater(displayOneMessageThread);
     }
-
-    /** @see ComponentListener#componentHidden(ComponentEvent) */
-    public void componentHidden(ComponentEvent e) {
-        // Nothing to do
-    }
-
-    /** @see ComponentListener#componentMoved(ComponentEvent) */
-    public void componentMoved(ComponentEvent e) {
-        // Nothing to do
-    }
-
-    /** @see ComponentListener#componentResized(ComponentEvent) */
-    public void componentResized(ComponentEvent e) {
-        // Nothing to do
-    }
-
-    /** @see ComponentListener#componentShown(ComponentEvent) */
-    public void componentShown(ComponentEvent e) {
-        // The caret must be placed. A call to repaint doesn't help.
-        // So: we just display an empty string.
-        // Not clean: if anyone has a better solution. The problem is:
-        // Comment the line below, and open the applet with logWindow visible.
-        // You'll see the beginning of the text. Un-comment the next line, and
-        // restart the applet: you'll see the last line (which is the interesting
-        // one).
-        displayMsg("");
-    }
-
 }
