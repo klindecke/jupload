@@ -112,81 +112,6 @@ public class JUploadTextArea extends JTextArea {
     }
 
     /**
-     * An internal class, to manage the fact that Swing is not Thread safe: all
-     * update to the GUI must be done in the EventDispatchThread. <BR>
-     * This thread is responsible for collecting all messages to display on a
-     * queue, and add them to the TextArea within the EventDispatchThread. <BR>
-     * <B>Note:</B> this class would be a Executors.newSingleThreadExecutor()
-     * instance in a standard way. But, here, we must call the
-     * DisplayOneMessageThread within the EventDispatchThread.
-     */
-    class DisplayMessageThread extends Thread {
-        /** The current text area, where text must be written. */
-        JUploadTextArea jUploadTextArea;
-
-        /**
-         * Indicates whether the thread is working, or waiting for an incoming
-         * message.
-         */
-        boolean waiting = false;
-
-        DisplayMessageThread(JUploadTextArea textArea) {
-            this.jUploadTextArea = textArea;
-        }
-
-        /**
-         * Add a string at the end of the queue of messages to display.
-         * 
-         * @param str the String to display. May be null (nothing will be
-         *            displayed)
-         */
-        public void queueMessage(String str) {
-            messages.add(str);
-            // If the thread is currently 'blocked' in the sleep statement, we
-            // interrupt it.
-            if (this.waiting) {
-                this.waiting = false;
-                this.interrupt();
-            }
-        }
-
-        @Override
-        public void run() {
-            String nextMessage;
-            while (!isInterrupted()) {
-                nextMessage = messages.poll();
-                if (nextMessage == null) {
-                    // Currently: no message. We stop using CPU.
-                    // If necessary, we'll get interrupted by the append method,
-                    // here above.
-                    this.waiting = true;
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e1) {
-                        // Nothing to do here: we just have a message to
-                        // display. This will be done in the loop of this
-                        // while.
-                    }
-                    this.waiting = false;
-                } else {
-                    try {
-                        DisplayOneMessageThread displayOneMessageThread = new DisplayOneMessageThread(
-                                messages, this.jUploadTextArea);
-                        SwingUtilities.invokeLater(displayOneMessageThread);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }// while
-        }
-    };
-
-    /**
-     * The instance of the DisplayMessageThread class.
-     */
-    private DisplayMessageThread displayMessageThread = null;
-
-    /**
      * Constructs a new empty TextArea with the specified number of rows and
      * columns.
      * 
@@ -202,11 +127,6 @@ public class JUploadTextArea extends JTextArea {
 
         // The queue, where messages to display will be posted.
         this.messages = new ConcurrentLinkedQueue<String>();
-
-        // Let's start the tread that will actually add text to the GUI, in a
-        // thread safe mode.
-        this.displayMessageThread = new DisplayMessageThread(this);
-        this.displayMessageThread.start();
     }
 
     /**
