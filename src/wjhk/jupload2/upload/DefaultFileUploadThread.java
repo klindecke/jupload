@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.exception.JUploadIOException;
+import wjhk.jupload2.exception.JUploadInterrupted;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -311,6 +312,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
             }
         } catch (JUploadException e) {
             this.fileUploadManagerThread.setUploadException(e);
+        } catch (JUploadInterrupted e) {
+            // The upload has been interrupted, probably by the user (stop
+            // button)
+            this.uploadPolicy.displayInfo("Upload stopped by the user");
+            this.uploadPolicy.displayDebug(e.getMessage(), 30);
         }
 
         this.uploadPolicy.displayDebug("End of the FileUploadThread", 5);
@@ -327,8 +333,10 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * is less (or equal) than the nbMaxFilesPerUpload. </DIR>
      * 
      * @throws JUploadException
+     * @throws JUploadInterrupted Thrown when an interruption of the thread is
+     *             detected.
      */
-    final private void doUpload() throws JUploadException {
+    final private void doUpload() throws JUploadException, JUploadInterrupted {
         boolean bChunkEnabled = false;
         long totalContentLength = 0;
         long totalFileLength = 0;
@@ -390,9 +398,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * 
      * @throws JUploadException When any error occurs, or when there is more
      *             than one file in {@link #filesToUpload}.
+     * @throws JUploadInterrupted Thrown when an interruption of the thread is
+     *             detected.
      */
     final private void doChunkedUpload(final long totalContentLength,
-            final long totalFileLength) throws JUploadException {
+            final long totalFileLength) throws JUploadException, JUploadInterrupted {
         boolean bLastChunk = false;
         int chunkPart = 0;
 
@@ -490,12 +500,23 @@ public abstract class DefaultFileUploadThread extends Thread implements
             // Let's tell our manager that we've done the job!
             this.fileUploadManagerThread
                     .anotherFileHasBeenSent(this.filesToUpload[0]);
+        } catch (JUploadInterrupted e) {
+            // The upload has been stopped. Probably by the user. We free any
+            // used resource.
+            interruptionReceived();
+
+            // FIXME interrupted chunk upload should notify the server.
+
+            // Then, we throw the exception to the caller.
+            throw e;
         } finally {
-            // Let's free any locked resource
-            this.filesToUpload[0].afterUpload();
+            // Let's free any locked resource, if we're not 'stopped' by the
+            // user.
+            if (!interrupted()) {
+                this.filesToUpload[0].afterUpload();
+            }
         }
 
-        // FIXME interrupted chunk upload should notify the server.
     }// doChunkedUpload
 
     /**
@@ -504,9 +525,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * 
      * @throws JUploadException When any error occurs, or when there is more
      *             than one file in {@link #filesToUpload}.
+     * @throws JUploadInterrupted Thrown when an interruption of the thread is
+     *             detected.
      */
     final private void doNonChunkedUpload(final long totalContentLength,
-            final long totalFileLength) throws JUploadException {
+            final long totalFileLength) throws JUploadException, JUploadInterrupted {
 
         // First step is to prepare all files.
         startRequest(totalContentLength, false, 0, true);
@@ -528,7 +551,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
                         this.filesToUpload[i].getUploadLength());
             } finally {
                 // Let's free any locked resource
-                this.filesToUpload[i].afterUpload();
+                if (!interrupted()) {
+                    this.filesToUpload[i].afterUpload();
+                }
             }
 
             // Let's add any file-specific header.

@@ -28,6 +28,7 @@ Uploading an empty text file (niv1.txt) generates an error.
 - Make FTP upload (and HTTP?) work with space in the path
 
 - Check if it's possible to make quicker the add of thousands of files.
+Probably not possible... :-(
 
 - kb or kB ?
 kB should by kilo bytes. Answer in 'Open Discussions'

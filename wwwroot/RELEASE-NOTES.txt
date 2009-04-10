@@ -7,6 +7,7 @@ Known problems:
 Fix:
 - [Medium] Chunk upload would not redirect to afterUploadURL, after a successful upload (thanks to Michael LaRosa, SF account: larosa)
 - [Medium] Fixed a problem when using the formData applet parameter, on complex html FORM. Would prevent upload to work. 
+- [Medium] The STOP button is much more effective. Now manage through a Java exception, to really interrupt the running on upload.
 - [Minor] FTP connection is better managed (check of FTP connection, before using it).
 - [Minor] Warning and error messages can now contain line breaks (see stringUploadWarning and stringUploadError applet parameters)
 - [Minor] relpathinfo has now the same value for dropped files, and for files selected by the file chooser (was corrected in 4.2.0)
