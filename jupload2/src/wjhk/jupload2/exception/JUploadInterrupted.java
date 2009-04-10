@@ -34,7 +34,7 @@ import wjhk.jupload2.upload.DefaultFileUploadThread;
  * @author etienne_sf
  * 
  */
-public class JUploadStopped extends Exception {
+public class JUploadInterrupted extends Exception {
 
     /**
      * A default serial UID.
@@ -48,9 +48,9 @@ public class JUploadStopped extends Exception {
      *            creates this exception. Used to log all needed information.
      * @param uploadPolicy The current upload policy, used to log a message.
      */
-    public JUploadStopped(String detectedInMethod, UploadPolicy uploadPolicy) {
+    public JUploadInterrupted(String detectedInMethod, UploadPolicy uploadPolicy) {
         super("Upload stopped by the user");
-        uploadPolicy.displayInfo(getMessage() + " (detected in: "
+        uploadPolicy.displayInfo(getMessage() + " (interruption detected in: "
                 + detectedInMethod + ")");
     }
 

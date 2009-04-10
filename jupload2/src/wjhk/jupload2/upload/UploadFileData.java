@@ -31,6 +31,7 @@ import java.util.Date;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
 import wjhk.jupload2.exception.JUploadIOException;
+import wjhk.jupload2.exception.JUploadInterrupted;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
@@ -171,9 +172,11 @@ class UploadFileData implements FileData {
      * @param outputStream The stream on which the data is to be written.
      * @param amount The number of bytes to write.
      * @throws JUploadException if an I/O error occurs.
+     * @throws JUploadInterrupted Thrown when an interruption of the thread is
+     *             detected.
      */
     void uploadFile(OutputStream outputStream, long amount)
-            throws JUploadException {
+            throws JUploadException, JUploadInterrupted {
         this.uploadPolicy.displayDebug("in UploadFileData.uploadFile (amount:"
                 + amount + ", getUploadLength(): " + getUploadLength() + ")",
                 30);
@@ -183,6 +186,12 @@ class UploadFileData implements FileData {
         getInputStream();
 
         while (amount > 0) {
+            // Are we interrupted ?
+            if (Thread.interrupted()) {
+                throw new JUploadInterrupted(getClass().getName() + ".uploadFile ["
+                        + this.getFileName() + "]", this.uploadPolicy);
+            }
+
             int toread = (amount > this.BUFLEN) ? this.BUFLEN : (int) amount;
             int towrite = 0;
 
