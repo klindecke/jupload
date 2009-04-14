@@ -191,10 +191,20 @@
 		<echo message="Normal completion of full translation files generation" />
 	</target>
 
-	<target name="formatOneLangProperty">
+	<!-- ==============================================================================================
+		Above this limit are the target that are called once for the whole process.
+		
+		Below this limit are the target that are called once for each language.
+		(see the foreach loop, in the formatAllLangProperties target)
+	============================================================================================== -->
+
+	<!--
+		Extraction of the parameter for the current language.
+	-->
+	<target name="extractCurrentLanguageParameter">
 		<!-- 
-			Récupération du nom de fichier, sans chemin et sans le .properties, 
-			pour faire des traitements conditionnels 
+			Get the name of the file, without the path and the .properties extension, 
+			to allow conditional statement.
 		-->
 		<propertyregex property="param.filename"
 		               override="true"
@@ -202,8 +212,9 @@
 		               regexp="[/\\]([^/\\]*).properties$"
 		               select="\1" />
 
-		<!-- 
-			Récupération du nom de fichier, avec chemin et sans le .properties, pour le translate 
+		<!--
+			Get the name of the file, without the path but with the .properties extension, 
+			for the translate call. 
 		-->
 		<propertyregex property="param.file.bundlename"
 		               override="true"
@@ -219,7 +230,26 @@
 		<echo message="    dest_dir: ${translation.text.applet.dir}" />
 		<echo message="    template: ${template.lang.file}" />
 		<echo message="    temp.workingTranslationFile: ${temp.workingTranslationFile}" /-->
+	</target>
 
+	<!--
+		Complete the translation presentation, with the current language.
+		Principal: 
+		1) The file is initialized from the translation presentation template.
+		2) For each language, the #translation# token is replacef by: 
+			NewTranslation option<BR>
+			#translation#
+		3) After the end of the foreach loop, the #translation# token is removed (replaced by null). 
+	-->
+	<target name="completeHtmlTranslationPresentation">
+		<fail message="to be finished !" />
+	</target>
+
+	<!--
+		Execute all formatting for one language. Called by a foreach loop, in the formatAllLangProperties target.
+	-->
+	<target name="formatOneLangProperty"
+	        depends="extractCurrentLanguageParameter,completeHtmlTranslationPresentation">
 
 		<!-- 
 				Translation of the translation template. 
@@ -293,7 +323,7 @@
 		          encoding="${translation.encoding}" />
 		<echo message="WARNING: Coppermine translation file to load" />
 
-		<copy toFile="${translation.html.dest.dir}/${param.filename}.html"
+		<copy toFile="${langTemplate.html.dest.dir}/${param.filename}.html"
 		      overwrite="true"
 		      encoding="${translation.encoding}"
 		      outputencoding="${translation.encoding}">
