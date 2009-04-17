@@ -63,8 +63,8 @@
 		              dest="${translation.text.applet.dir}"
 		              reverse="true"
 		              encoding="${translation.encoding}">
-			<include name="lang.properties" />
-			<include name="lang_fr.properties" />
+			<!-- include name="lang.properties" />
+			<include name="lang_fr.properties" / -->
 		</native2ascii>
 	</target>
 
@@ -113,7 +113,7 @@
 	-->
 	<target name="initEncodedFilesFromLangPackage" depends="initEnv">
 		<native2ascii src="${translation.applet.package.lang}"
-		              dest="${translation.text.applet.dir}/original_files"
+		              dest="${translation.text.applet.dir}"
 		              encoding="${translation.encoding}"
 		              reverse="true" />
 	</target>
@@ -186,9 +186,21 @@
 		Execute all formatting actions. This is the default tasks for this project.
 	-->
 	<target name="formatAll"
-	        depends="formatAllLangProperties,generateHtmlTranslationPresentation">
+	        depends="formatAllLangProperties,finishProcess">
 		<!-- Just an empty container, to call the necessary tasks -->
 		<echo message="Normal completion of full translation files generation" />
+	</target>
+
+	<!--
+		Finish all actions, once each file has been managed.
+		- Finish the translation presentation
+		- Translate back properties file, into the wjhk.jupload.lang
+	-->
+	<target name="finishProcess"
+	        depends="generateHtmlTranslationPresentation">
+		<native2ascii src="${translation.text.applet.dir}"
+		              dest="${translation.applet.package.lang}"
+		              encoding="${translation.encoding}" />
 	</target>
 
 	<!-- ==============================================================================================
@@ -239,8 +251,6 @@
 		</loadproperties>
 		<delete file="${param.file}.tmp" />
 
-		<echo message="contributor: ${param.java.contributor} (contributor: ${contributor}, param.java.contributor: ${param.java.contributor}" />
-		<echo message="language: ${param.java.language}" />
 		<if>
 			<not>
 				<and>
@@ -253,8 +263,7 @@
 			</then>
 		</if>
 
-		<echo message="Translating: ${param.filename}" />
-		<echo message="    path: ${param.file}" />
+		<echo message="Translating: ${param.filename}, ${param.java.language} (path: ${param.file})" />
 		<!-- echo message="param.file.bundlename: ${param.file.bundlename}" />
 		<echo message="    dest_dir: ${translation.text.applet.dir}" />
 		<echo message="    template: ${langProperties.template.file}" />
@@ -429,7 +438,6 @@ contributor(s): ${param.java.contributor}&lt;/LI&gt;
 		               regexp="&#60;"
 		               global="true"
 		               replace="&amp;lt;" />
-		<echo message="${temp.translation.copperminePlugin.result}" />
 
 		<copy toFile="${translation.html.dest.dir}/${param.filename}.html"
 		      overwrite="true"
