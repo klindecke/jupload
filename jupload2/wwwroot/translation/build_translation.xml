@@ -37,25 +37,35 @@
 	<!--
 		A debug task, to format one file only.
 	-->
-	<target name="debug" depends="initEnv">
-		<property name="debug.filename" value="lang_fr.properties" />
-		<!--property name="param.file"
-		          value="${translation.text.applet.dir}\${debug.filename}" /-->
-		<antcall target="formatAllLangProperties" />
+	<target name="debug" depends="initEnv,initDebug,formatAll">
+	</target>
+
+
+	<!-- Any initialization needed in debug mode -->
+	<target name="initDebug" depends="initEnv, restoreFiles">
 	</target>
 
 	<!--
 		Just for debug: restore original files, to allow replaying. Useful, as the scripts update
 		the original files (for instance, to add a newly created item)
 	-->
-	<target name="restoreFiles" if="translation.debug">
+	<target name="restoreFiles">
 		<echo message="Restoring test case, from test.back" />
-		<copy toDir="${translation.text.applet.dir}" overwrite="true">
+		<!-- copy toDir="${translation.text.applet.dir}" overwrite="true">
 			<path>
 				<fileset dir="${translation.text.dir}/applet.utf-16/original_files" />
 			</path>
-		</copy>
-		<fail />
+		</copy -->
+		<delete>
+			<fileset dir="${translation.text.applet.dir}" includes="*" />
+		</delete>
+		<native2ascii src="${translation.applet.package.lang}"
+		              dest="${translation.text.applet.dir}"
+		              reverse="true"
+		              encoding="${translation.encoding}">
+			<include name="lang.properties" />
+			<include name="lang_fr.properties" />
+		</native2ascii>
 	</target>
 
 	<!--
@@ -72,6 +82,13 @@
 
 		<!-- Let's display some inmportant property values -->
 		<echo message="translation.encoding: ${translation.encoding}" />
+
+		<!-- Let's initialize the html summary file -->
+		<echo message="Intializing translation summary, from ${translationPresentation.template.html.file}" />
+		<echo message="   to ${translationPresentation.target.html.file}" />
+		<copy file="${translationPresentation.template.html.file}"
+		      toFile="${translationPresentation.target.html.file}"
+		      overwrite="true" />
 	</target>
 
 	<!--
@@ -109,16 +126,16 @@
 	-->
 	<target name="generateLangTemplate" depends="initEnv">
 		<echo message="Generating template:" />
-		<echo message=" from ${template.lang.source.file}" />
-		<echo message=" to ${template.lang.file}" />
-		<copy file="${template.lang.source.file}"
+		<echo message=" from ${langProperties.source.file}" />
+		<echo message=" to ${langProperties.template.file}" />
+		<copy file="${langProperties.source.file}"
 		      overwrite="true"
-		      tofile="${template.lang.file}"
+		      tofile="${langProperties.template.file}"
 		      encoding="${translation.encoding}"
 		      outputencoding="${translation.encoding}" />
 
 		<!-- Let's create the lines: property = #property# -->
-		<replaceregexp file="${template.lang.file}"
+		<replaceregexp file="${langProperties.template.file}"
 		               match="^(.*) *= *(.*)$"
 		               flags="gm"
 		               replace="\1=#\1#"
@@ -128,14 +145,14 @@
 					buttonBrowse =#buttonBrowse #
 			Let's remove them.
 		-->
-		<replaceregexp file="${template.lang.file}"
+		<replaceregexp file="${langProperties.template.file}"
 		               match=" #"
 		               flags="g"
 		               replace="#"
 		               encoding="${translation.encoding}" />
 
 		<!-- A little space after the equal looks better. -->
-		<replaceregexp file="${template.lang.file}"
+		<replaceregexp file="${langProperties.template.file}"
 		               match="=#"
 		               flags="g"
 		               replace="= #"
@@ -143,7 +160,7 @@
 
 		<!-- Let's try to refresh the eclipse template file -->
 		<antcall target="refresh">
-			<param name="param" value="${template.lang.file}" />
+			<param name="param" value="${langProperties.template.file}" />
 		</antcall>
 	</target>
 
@@ -155,7 +172,6 @@
 	-->
 	<target name="formatAllLangProperties"
 	        depends="initEnv,generateLangTemplate">
-
 		<foreach target="formatOneLangProperty"
 		         param="param.file"
 		         inheritall="true">
@@ -167,26 +183,10 @@
 	</target>
 
 	<!--
-		Generated the HTML page, that contains a link to each HTML page, for each available translation.
-		What's done here:
-		- The formatOneLangProperty generates one file for each language file
-		- This filenames contains all elements to put on the HTML summary, separated by the '-' character
-		- We just loop through these, to build the summary.
-		
-		
-		H2 append a string to a file ?  
-		
-		see resources. 
-	-->
-	<target name="generateHtmlSummary">
-		<fail message="To be implemented" />
-	</target>
-
-	<!--
 		Execute all formatting actions. This is the default tasks for this project.
 	-->
 	<target name="formatAll"
-	        depends="formatAllLangProperties, generateHtmlSummary">
+	        depends="formatAllLangProperties,generateHtmlTranslationPresentation">
 		<!-- Just an empty container, to call the necessary tasks -->
 		<echo message="Normal completion of full translation files generation" />
 	</target>
@@ -222,34 +222,117 @@
 		               regexp="(.*).properties$$"
 		               replace="\1" />
 		<property name="temp.workingTranslationFile"
-		          value="${translation.text.temp.dir}/${template.lang.filename}" />
+		          value="${translation.text.temp.dir}/${langProperties.template.filename}" />
+
+		<!-- Let's load the properties file, to get the language and the contributor. -->
+		<echo message="Loading properties from ${param.file}, encoding: ${translation.encoding}" />
+		<!-- Seems like loadproperties doesn't like UTF-16 very much. Let's create a temporary UTF-8 file -->
+		<copy file="${param.file}"
+		      overwrite="true"
+		      tofile="${param.file}.tmp"
+		      encoding="${translation.encoding}"
+		      outputencoding="ISO-8859-1" />
+		<loadproperties srcFile="${param.file}.tmp">
+			<filterchain>
+				<prefixlines prefix="param.java." />
+			</filterchain>
+		</loadproperties>
+		<delete file="${param.file}.tmp" />
+
+		<echo message="contributor: ${param.java.contributor} (contributor: ${contributor}, param.java.contributor: ${param.java.contributor}" />
+		<echo message="language: ${param.java.language}" />
+		<if>
+			<not>
+				<and>
+					<isset property="param.java.language" />
+					<isset property="param.java.contributor" />
+				</and>
+			</not>
+			<then>
+				<fail message="language or contributor not set in ${param.file}" />
+			</then>
+		</if>
 
 		<echo message="Translating: ${param.filename}" />
 		<echo message="    path: ${param.file}" />
 		<!-- echo message="param.file.bundlename: ${param.file.bundlename}" />
 		<echo message="    dest_dir: ${translation.text.applet.dir}" />
-		<echo message="    template: ${template.lang.file}" />
+		<echo message="    template: ${langProperties.template.file}" />
 		<echo message="    temp.workingTranslationFile: ${temp.workingTranslationFile}" /-->
 	</target>
 
 	<!--
-		Complete the translation presentation, with the current language.
-		Principal: 
+		Complete the html translation presentation, that contains a link to each translation, with the current language.
+		The way it works: 
 		1) The file is initialized from the translation presentation template.
-		2) For each language, the #translation# token is replacef by: 
+		2) For each language, the #translation# token is replaced by: 
 			NewTranslation option<BR>
 			#translation#
+			
+			To do that: 
+			- We first copy to a temporary file (because the copy need to create a new file)
+			- The #translation# token is replaced by the translation line, and a new token to allow adding the next 
+			language. This 'new' token must be different than #translation#, otherwise we get a 'token loop'. So the
+			#translation# token is replaced by :    NewTranslation option<BR>#translation#
+			- The #translation2# is replaced by #translation" in a copy to the originale file.
+			- The temporary file is removed			
+			
 		3) After the end of the foreach loop, the #translation# token is removed (replaced by null). 
+		See the generateHtmlTranslationPresentation target. 
 	-->
-	<target name="completeHtmlTranslationPresentation">
-		<fail message="to be finished !" />
+	<target name="generateHtmlTranslationPresentation">
+		<if>
+			<isset property="param.filename" />
+			<then>
+				<!-- temp.translation is set only when this target is called from formatOneLangProperty  -->
+				<property name="temp.translation"
+				          value="
+&lt;LI&gt;&lt;A HREF='${param.filename}.html'&gt;${param.java.language}&lt;/A&gt; 
+contributor(s): ${param.java.contributor}&lt;/LI&gt; 
+#translation2#
+" />
+			</then>
+			<else>
+				<!-- temp.translation is not set, when called from the main stream. We then remove the #translation# token -->
+				<property name="temp.translation" value="" />
+			</else>
+		</if>
+		<!-- Creation of a new file, with this translation added -->
+		<echo message="Working on ${translationPresentation.target.html.file} file" />
+		<copy toFile="${translationPresentation.target.html.file}2"
+		      overwrite="true"
+		      encoding="${translation.encoding}"
+		      outputencoding="${translation.encoding}">
+			<fileset file="${translationPresentation.target.html.file}" />
+			<filterset begintoken="#" endtoken="#">
+				<filter token="encoding" value="${translation.encoding}" />
+				<filter token="translation" value="${temp.translation}" />
+			</filterset>
+		</copy>
+		<!-- In the step above, we have to respect constraints of the ant Copy target. So we:
+			1) Create a new file
+			2) Create a token translation2, when replacing the translation token.
+			We correct that (copy the new file to the real target file, and change translation2 by translation
+		-->
+		<!-- Move the new file to its target (that is ... the file we copied from, just above! -->
+		<copy toFile="${translationPresentation.target.html.file}"
+		      overwrite="true"
+		      encoding="${translation.encoding}"
+		      outputencoding="${translation.encoding}">
+			<fileset file="${translationPresentation.target.html.file}2" />
+			<filterset begintoken="#" endtoken="#">
+				<filter token="translation2" value="#translation#" />
+			</filterset>
+		</copy>
+		<!-- The, we remove the temp file -->
+		<delete file="${translationPresentation.target.html.file}2" />
 	</target>
 
 	<!--
 		Execute all formatting for one language. Called by a foreach loop, in the formatAllLangProperties target.
 	-->
 	<target name="formatOneLangProperty"
-	        depends="extractCurrentLanguageParameter,completeHtmlTranslationPresentation">
+	        depends="extractCurrentLanguageParameter,generateHtmlTranslationPresentation">
 
 		<!-- 
 				Translation of the translation template. 
@@ -266,13 +349,13 @@
 		           srcencoding="${translation.encoding}"
 		           destencoding="${translation.encoding}"
 		           bundleencoding="${translation.encoding}">
-			<fileset file="${template.lang.file}" />
+			<fileset file="${langProperties.template.file}" />
 		</translate>
 
 		<!-- 
 			We replace all non translated text (property = #property#) by a line of this kind:
 			#MISSING property = EnglishTranslation
-			This will allow an eaasy translation of these text.
+			This will allow an easy translation of these texts.
 		-->
 		<replaceregexp file="${temp.workingTranslationFile}"
 		               match="(.*) = #(.*)#$"
@@ -287,7 +370,7 @@
 		<translate toDir="${translation.text.applet.dir}"
 		           starttoken="#"
 		           endtoken="#"
-		           bundle="${translation.text.applet.dir}/lang_en"
+		           bundle="${langProperties.source.bundle}"
 		           forceoverwrite="yes"
 		           bundlelanguage=""
 		           bundlecountry=""
@@ -302,7 +385,7 @@
 			The current name is FullPathOfTranslatedText/lang.properties.template
 			Let's rename it to the target file.
 		-->
-		<move file="${translation.text.applet.dir}/${template.lang.filename}"
+		<move file="${translation.text.applet.dir}/${langProperties.template.filename}"
 		      tofile="${param.file}" />
 
 		<!--
@@ -321,13 +404,38 @@
 		<loadfile srcFile="${param.file}"
 		          property="temp.translation.applet.result"
 		          encoding="${translation.encoding}" />
-		<echo message="WARNING: Coppermine translation file to load" />
+		<if>
+			<or>
+				<not>
+					<isset property="param.java.coppermine.language" />
+				</not>
+				<equals arg1="${param.java.coppermine.language}" arg2="" />
+			</or>
+			<then>
+				<!-- No translation: we display the English version -->
+				<loadfile srcFile="${coppermine.juploadplugin.root.dir}/english.php"
+				          property="temp.translation.copperminePlugin.filecontent"
+				          encoding="UTF-8" />
+			</then>
+			<else>
+				<loadfile srcFile="${coppermine.juploadplugin.root.dir}/${param.java.coppermine.language}.php"
+				          property="temp.translation.copperminePlugin.filecontent"
+				          encoding="UTF-8" />
+			</else>
+		</if>
+		<!-- To have a correct display, let's replace < by &lt; -->
+		<propertyregex property="temp.translation.copperminePlugin.result"
+		               input="${temp.translation.copperminePlugin.filecontent}"
+		               regexp="&#60;"
+		               global="true"
+		               replace="&amp;lt;" />
+		<echo message="${temp.translation.copperminePlugin.result}" />
 
-		<copy toFile="${langTemplate.html.dest.dir}/${param.filename}.html"
+		<copy toFile="${translation.html.dest.dir}/${param.filename}.html"
 		      overwrite="true"
 		      encoding="${translation.encoding}"
 		      outputencoding="${translation.encoding}">
-			<fileset file="${template.html.file}" />
+			<fileset file="${oneHtml.template.html.file}" />
 			<filterset begintoken="#" endtoken="#">
 				<filter token="encoding" value="${translation.encoding}" />
 				<filter token="language" value="${param.file}" />
