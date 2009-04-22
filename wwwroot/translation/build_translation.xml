@@ -50,7 +50,7 @@
 		the original files (for instance, to add a newly created item)
 	-->
 	<target name="restoreFiles">
-		<echo message="Restoring test case, from test.back" />
+		<echo level="info" message="Restoring test case, from test.back" />
 		<!-- copy toDir="${translation.text.applet.dir}" overwrite="true">
 			<path>
 				<fileset dir="${translation.text.dir}/applet.utf-16/original_files" />
@@ -81,15 +81,19 @@
 		</svn>
 
 		<!-- Let's display some inmportant property values -->
-		<echo message="translation.encoding: ${translation.encoding}" />
+		<echo level="info"
+		      message="translation.encoding: ${translation.encoding}" />
 
 		<!-- Let's initialize the html summary file -->
-		<echo message="Intializing translation summary, from ${translationPresentation.template.html.file}" />
-		<echo message="   to ${translationPresentation.target.html.file}" />
+		<echo level="info"
+		      message="Intializing translation summary, from ${translationPresentation.template.html.file}" />
+		<echo level="info"
+		      message="   to ${translationPresentation.target.html.file}" />
 		<copy file="${translationPresentation.template.html.file}"
 		      toFile="${translationPresentation.target.html.file}"
 		      overwrite="true" />
 	</target>
+
 
 	<!--
 		Refresh an eclipse folder ... if within eclipse.
@@ -98,7 +102,7 @@
 	        depends="refresh.if_in_eclipse, refresh.if_not_in_eclipse">
 	</target>
 	<target name="refresh.if_in_eclipse" if="eclipse.running">
-		<echo message="[Within eclipse] Refreshing ${param}" />
+		<echo level="info" message="[Within eclipse] Refreshing ${param}" />
 		<eclipse.refreshLocal resource="${param}" depth="infinite" />
 	</target>
 	<target name="refresh.if_not_in_eclipse" unless="eclipse.running">
@@ -125,9 +129,9 @@
 		easily compared: see target formatAllLangProperties.
 	-->
 	<target name="generateLangTemplate" depends="initEnv">
-		<echo message="Generating template:" />
-		<echo message=" from ${langProperties.source.file}" />
-		<echo message=" to ${langProperties.template.file}" />
+		<echo level="info" message="Generating template:" />
+		<echo level="info" message=" from ${langProperties.source.file}" />
+		<echo level="info" message=" to ${langProperties.template.file}" />
 		<copy file="${langProperties.source.file}"
 		      overwrite="true"
 		      tofile="${langProperties.template.file}"
@@ -185,10 +189,10 @@
 	<!--
 		Execute all formatting actions. This is the default tasks for this project.
 	-->
-	<target name="formatAll"
-	        depends="formatAllLangProperties,finishProcess">
+	<target name="formatAll" depends="formatAllLangProperties,finishProcess">
 		<!-- Just an empty container, to call the necessary tasks -->
-		<echo message="Normal completion of full translation files generation" />
+		<echo level="info"
+		      message="Normal completion of full translation files generation" />
 	</target>
 
 	<!--
@@ -196,8 +200,7 @@
 		- Finish the translation presentation
 		- Translate back properties file, into the wjhk.jupload.lang
 	-->
-	<target name="finishProcess"
-	        depends="generateHtmlTranslationPresentation">
+	<target name="finishProcess" depends="finishHtmlTranslationPresentation">
 		<native2ascii src="${translation.text.applet.dir}"
 		              dest="${translation.applet.package.lang}"
 		              encoding="${translation.encoding}" />
@@ -237,7 +240,8 @@
 		          value="${translation.text.temp.dir}/${langProperties.template.filename}" />
 
 		<!-- Let's load the properties file, to get the language and the contributor. -->
-		<echo message="Loading properties from ${param.file}, encoding: ${translation.encoding}" />
+		<echo level="info"
+		      message="Loading properties from ${param.file}, encoding: ${translation.encoding}" />
 		<!-- Seems like loadproperties doesn't like UTF-16 very much. Let's create a temporary UTF-8 file -->
 		<copy file="${param.file}"
 		      overwrite="true"
@@ -263,11 +267,21 @@
 			</then>
 		</if>
 
-		<echo message="Translating: ${param.filename}, ${param.java.language} (path: ${param.file})" />
+		<!-- Should we generate this file ? -->
+		<if>
+			<equals arg1="${param.java.generateHtmlFileForTranslators}"
+			        arg2="true" />
+			<then>
+				<property name="param.generateThisFile" value="true" />
+			</then>
+		</if>
+
+		<echo level="info"
+		      message="Translating: ${param.filename}, ${param.java.language} (path: ${param.file})" />
 		<!-- echo message="param.file.bundlename: ${param.file.bundlename}" />
-		<echo message="    dest_dir: ${translation.text.applet.dir}" />
-		<echo message="    template: ${langProperties.template.file}" />
-		<echo message="    temp.workingTranslationFile: ${temp.workingTranslationFile}" /-->
+		<echo level="info" message="    dest_dir: ${translation.text.applet.dir}" />
+		<echo level="info" message="    template: ${langProperties.template.file}" />
+		<echo level="info" message="    temp.workingTranslationFile: ${temp.workingTranslationFile}" /-->
 	</target>
 
 	<!--
@@ -289,7 +303,18 @@
 		3) After the end of the foreach loop, the #translation# token is removed (replaced by null). 
 		See the generateHtmlTranslationPresentation target. 
 	-->
-	<target name="generateHtmlTranslationPresentation">
+	<target name="defineParamGenerateThisFile">
+		<property name="param.generateThisFile"
+		          value="True, to finish the HTMl part (remove the #translation# token)" />
+	</target>
+	<target name="finishHtmlTranslationPresentation"
+	        depends="defineParamGenerateThisFile, generateHtmlTranslationPresentation" />
+	<!-- generateHtmlTranslationPresentation is called by: 
+		- executeFormatOneLangProperty (for each file)
+		- finishHtmlTranslationPresentation (at the end of the process, once ecah file has been processed)
+	-->
+	<target name="generateHtmlTranslationPresentation"
+	        if="param.generateThisFile">
 		<if>
 			<isset property="param.filename" />
 			<then>
@@ -307,7 +332,8 @@ contributor(s): ${param.java.contributor}&lt;/LI&gt;
 			</else>
 		</if>
 		<!-- Creation of a new file, with this translation added -->
-		<echo message="Working on ${translationPresentation.target.html.file} file" />
+		<echo level="info"
+		      message="Working on ${translationPresentation.target.html.file} file" />
 		<copy toFile="${translationPresentation.target.html.file}2"
 		      overwrite="true"
 		      encoding="${translation.encoding}"
@@ -337,10 +363,11 @@ contributor(s): ${param.java.contributor}&lt;/LI&gt;
 		<delete file="${translationPresentation.target.html.file}2" />
 	</target>
 
+
 	<!--
 		Execute all formatting for one language. Called by a foreach loop, in the formatAllLangProperties target.
 	-->
-	<target name="formatOneLangProperty"
+	<target name="executeFormatOneLangProperty"
 	        depends="extractCurrentLanguageParameter,generateHtmlTranslationPresentation">
 
 		<!-- 
@@ -430,6 +457,143 @@ contributor(s): ${param.java.contributor}&lt;/LI&gt;
 				<loadfile srcFile="${coppermine.juploadplugin.root.dir}/${param.java.coppermine.language}.php"
 				          property="temp.translation.copperminePlugin.filecontent"
 				          encoding="UTF-8" />
+			</else>
+		</if>
+		<!-- To have a correct display, let's replace < by &lt; -->
+		<propertyregex property="temp.translation.copperminePlugin.result"
+		               input="${temp.translation.copperminePlugin.filecontent}"
+		               regexp="&#60;"
+		               global="true"
+		               replace="&amp;lt;" />
+
+		<copy toFile="${translation.html.dest.dir}/${param.filename}.html"
+		      overwrite="true"
+		      encoding="${translation.encoding}"
+		      outputencoding="${translation.encoding}">
+			<fileset file="${oneHtml.template.html.file}" />
+			<filterset begintoken="#" endtoken="#">
+				<filter token="encoding" value="${translation.encoding}" />
+				<filter token="language" value="${param.file}" />
+				<filter token="appletTranslation"
+				        value="${temp.translation.applet.result}" />
+				<filter token="copperminePluginTranslation"
+				        value="${temp.translation.copperminePlugin.result}" />
+			</filterset>
+		</copy>
+
+	</target>
+	<!--
+		Execute all formatting for one language. Called by a foreach loop, in the formatAllLangProperties target.
+	-->
+	<target name="formatOneLangProperty"
+	        depends="extractCurrentLanguageParameter,generateHtmlTranslationPresentation"
+	        if="param.generateThisFile">
+
+		<!-- 
+				Translation of the translation template. 
+				We'll move this file to the target file, once everything is finished. 
+		-->
+		<translate toDir="${translation.text.temp.dir}"
+		           starttoken="#"
+		           endtoken="#"
+		           bundle="${param.file.bundlename}"
+		           forceoverwrite="yes"
+		           bundlelanguage=""
+		           bundlecountry=""
+		           bundlevariant=""
+		           srcencoding="${translation.encoding}"
+		           destencoding="${translation.encoding}"
+		           bundleencoding="${translation.encoding}">
+			<fileset file="${langProperties.template.file}" />
+		</translate>
+
+		<!-- 
+			We replace all non translated text (property = #property#) by a line of this kind:
+			#MISSING property = EnglishTranslation
+			This will allow an easy translation of these texts.
+		-->
+		<replaceregexp file="${temp.workingTranslationFile}"
+		               match="(.*) = #(.*)#$"
+		               flags="gm"
+		               replace="#MISSING \1 = #\2#"
+		               encoding="${translation.encoding}" />
+
+		<!-- 
+			Now, we replace all missing text (#\2# above) by the English text,
+			to allow an easy translation 
+		-->
+		<translate toDir="${translation.text.applet.dir}"
+		           starttoken="#"
+		           endtoken="#"
+		           bundle="${langProperties.source.bundle}"
+		           forceoverwrite="yes"
+		           bundlelanguage=""
+		           bundlecountry=""
+		           bundlevariant=""
+		           srcencoding="${translation.encoding}"
+		           destencoding="${translation.encoding}"
+		           bundleencoding="${translation.encoding}">
+			<fileset file="${temp.workingTranslationFile}" />
+		</translate>
+
+		<!-- 
+			The current name is FullPathOfTranslatedText/lang.properties.template
+			Let's rename it to the target file.
+		-->
+		<move file="${translation.text.applet.dir}/${langProperties.template.filename}"
+		      tofile="${param.file}" />
+
+		<!--
+			The objective for all that is to create the file that'll go in the applet
+			package. 
+		-->
+		<native2ascii src="${translation.text.applet.dir}"
+		              dest="${translation.applet.package.lang}"
+		              includes="${param.filename}"
+		              encoding="${translation.encoding}" />
+
+		<!--
+			We now generate the HTML page, that will be displayed to potential translator, who do not
+			have access to the SVN. This page is available on the jupload project web site.
+		-->
+		<loadfile srcFile="${param.file}"
+		          property="temp.translation.applet.result"
+		          encoding="${translation.encoding}" />
+		<!--
+			Let's load the Coppermine translation part exists on the current computer. Otherwise, the next part 
+			of the script uses the translation given with the applet package, which is probably out of date.
+		-->
+		<if>
+			<not>
+				<available file="${coppermineTranslation.src.lang.dir}/english.php" />
+			</not>
+
+			<then>
+				<echo level="warning"
+				      message="Coppermine path doesn't exist: ${coppermineTranslation.src.lang.dir}" />
+			</then>
+
+			<else>
+				<if>
+					<or>
+						<not>
+							<isset property="param.java.coppermine.language" />
+						</not>
+						<equals arg1="${param.java.coppermine.language}"
+						        arg2="" />
+					</or>
+					<then>
+						<!-- No translation: we display the English version -->
+						<loadfile srcFile="${coppermineTranslation.src.lang.dir}/english.php"
+						          property="temp.translation.copperminePlugin.filecontent"
+						          encoding="UTF-8" />
+					</then>
+					<else>
+						<loadfile srcFile="${coppermineTranslation.src.lang.dir}/${param.java.coppermine.language}.php"
+						          property="temp.translation.copperminePlugin.filecontent"
+						          encoding="UTF-8" />
+					</else>
+				</if>
 			</else>
 		</if>
 		<!-- To have a correct display, let's replace < by &lt; -->

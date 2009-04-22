@@ -1,8 +1,9 @@
-#Fri Apr 17 12:00:00 CEST 2009
+#Tue Apr 21 08:19:47 CEST 2009
 eclipse.preferences.version=1
 encoding//src/wjhk/jupload2/lang=ISO-8859-1
 encoding//src/wjhk/jupload2/lang/lang_zh.properties=UTF-8
 encoding//wwwroot/translation=UTF-16
+encoding//wwwroot/translation/conf/translation-presentation.html.template=UTF-16
 encoding//wwwroot/translation/translation/applet.utf-16/lang.properties=UTF-16
 encoding//wwwroot/translation/translation/applet.utf-16/lang_ar.properties=UTF-16
 encoding//wwwroot/translation/translation/applet.utf-16/lang_ar_SA.properties=UTF-16
