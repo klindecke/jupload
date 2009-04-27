@@ -7,15 +7,108 @@
 <body>
 <script language="javascript" src="common.js" type=""> </script>
 
-<h1>How to translate this applet ?</h1>
+<h1>How to translate JUpload ?</h1>
 
-<p>If you want to add a new translation to this applet ... you're
-welcome!</p>
-<p>Please take a look at <a
-    href="http://etienne.lesgauthier.fr/wiki/doku.php?id=jupload_translation">my
-wiki</a>, to get the up-to-date text, in english for instance. All
-instructions are given on this page. <script language="javascript"
-    type=""> footer(); </script><script language="javascript"
-    src="timestamp.js" type="text/javascript"></script></p>
+
+<A href="#Presentation">1) GENERAL PRESENTATION</A><BR>
+<A href="#HowToTranslate">2) HOWTO TRANSLATE</A><BR>
+<A href="#buildScript">3) HOW DOES THE TRANSLATION build.xml SCRIPT WORKS</A><BR>
+
+
+
+<H2><A name="Presentation">GENERAL PRESENTATION</A></H2>
+
+<P>This directory contains the translation stuff for JUpload. JUpload is used for two main open source developpement:</P>
+<DIR>
+<LI> The applet itself. It is contained in the jupload sourceforge project.<BR>
+  See http://sourceforge.net/projects/jupload/
+<LI> A plugin for Coppermine, based on this applet. Coppermine is a nice picture gallery.
+<DIR>
+  <LI>For more information on Coppermine: <a href="http://www.coppermine-gallery.net">http://www.coppermine-gallery.net</A>
+  <LI>For more information on the JUpload plugin for Coppermine: 
+  <a href="http://forum.coppermine-gallery.net/index.php/board,100.0.html">http://forum.coppermine-gallery.net/index.php/board,100.0.html</a>
+</DIR></DIR>
+
+<P>So the translation part also contains two parts:</P>
+<OL> 
+<LI>The text for the applet itself. The original text is encoded in UTF-16, and stored in the /wwwroot/translation directory. The text is  then encoded in Unicode by the /wwwroot/translation/build_translation.xml and script, to be embedded into the applet. It's a java property file, 
+filled with lines like:
+  property = the translated text
+<LI>The text for the PHP part, specific to the JUpload Coppermine plugin. It's a PHP file, that fills an array. 
+It contains an array initialization, like this:
+<PRE>
+	$lang_jupload_php = array_merge (
+		$lang_jupload_php,
+		array(
+		  'link_comment' => 'Upload files to the gallery, with the help of an applet',
+		  ...
+		)
+	);
+</PRE>
+</OL>
+
+
+<H2><A name="HowToTranslate">2) HOWTO TRANSLATE</A></H2>
+
+<P><B>For all translaters:</B>
+<U>Please also check/translate the Coppermine part</U>, even if you don't use it. This will allow the plugin to be used by more and more people.
+</P> 
+
+<P>The list of existing translations is <A href="translation/generated/html/available_translations.html">available here (local package)</A> and
+the reference is <A href="http://jupload.svn.sourceforge.net/viewvc/jupload/trunk/jupload2/wwwroot/translation/generated/html/available_translations.html">available translations (on SVN)</A>.</P>
+  
+<H3>Where are the original files ?</H3>
+
+<P>The files are stored in the text subdirectory:</P>
+<DIR>
+<LI>/wwwroot/translation/translation/applet.utf-16 contains the text for the applet itself
+<LI>The texts for the CopperminePlugin are stored in a project, dedicated to this plugin.
+</DIR>
+
+<H3>File encoding</H3>
+
+<P>To allow an easier management of characters specific to each languages (accents...), <U><B>applet files are stored in UTF-16</B>. 
+The Coppermine files are in UTF-8, and I cant't change that</U>. The file are publish in an HTML page, itself encoded in UTF-16.</P>
+
+<H3>How to publish a new translation</H3>
+ 
+<OL>
+	<LI>Please <B>keep this UTF-16</B> file encoding, or publish files in a <B>RTF document</B></LI>.
+	<LI>Check the <A href="http://jupload.svn.sourceforge.net/viewvc/jupload/trunk/jupload2/wwwroot/translation/generated/html/available_translations.html">available translations (on SVN)</A>
+	<LI>If your language exists, please update the existing translation. All missing text is indicated there, in a comment, with the corresponding
+	English translation. You just have to uncomment the line (remove the # at the beginning of the line), and translate the English text behind.
+	<U>Please also translate/check the Coppermine translation</U>, even if you don't use it.</LI>
+	<LI> If your language doesn't exist, please start from the English language, on the link below:
+		<A href="http://jupload.svn.sourceforge.net/viewvc/jupload/trunk/jupload2/wwwroot/translation/generated/html/lang.html">lang.html (on SVN)</A>     
+	<LI>To avoid any problem with character encoding, the easiest way is to save file as an RTF document.     
+	<LI>Get the last English translation for the two files below, translate them, and send them to   
+		<a href="mailto:etienne_sf@sourceforge.net?subject=Jupload translation">my sourceforge mail address</a>
+</OL>
+
+
+<H2><A name="buildScript">3) HOW DOES THE TRANSLATION build.xml SCRIPT WORKS</A></H2>
+
+
+<P>All the material for JUpload translation is stored, in the /wwwroot/translation folder. This contains:</P>
+<DIR>
+	<LI>The applet translation text.
+	<LI>The <B>/wwwroot/translation/build_translation.xml</B> script, that get the translated from theses directories, and publish them in the target folder. 
+		<B>This script is called by the main build script</B>. It works this way:
+	<DIR>
+		<LI>The applet text is converted from UTF-16 to Unicode in /src/wjhk/jupload/lang, by a call to the native2ascii java utilities. 
+		Thanks to SVN capabilities, the file will be noted as changed only if the file content actually changed. 
+		This means that the build file can be run any number of time, without any impact, if no change occurred.</LI>
+		<LI>Both the applet and the CopperminePlugin text are published in one file per language, in the /wwwroot/translation/generated/html folder.</LI>
+		<LI>The available_translations.html file is built, to list the available translations.</LI>
+		<LI>These files are published on the JUpload web site , as quick as possible (at least for each release)</LI>
+	</DIR>
+</DIR>
+
+<script language="javascript" type=""> 
+	footer(); 
+</script>
+<script language="javascript"
+    src="timestamp.js" type="text/javascript">
+</script>
 </body>
 </html>
