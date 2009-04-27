@@ -41,7 +41,7 @@ public class JUploadTextArea extends JTextArea {
 
     /**
      * The queue, that contains all messages to display. They will be displayed
-     * by the {@link #DisplayOneMessageThread} thread.
+     * by the {@link DisplayOneMessageThread} thread.
      */
     Queue<String> messages = null;
 
@@ -59,8 +59,7 @@ public class JUploadTextArea extends JTextArea {
         JUploadTextArea textArea;
 
         /**
-         * @param message the String to display. May be null (nothing will be
-         *            displayed). Just position the caret at the good place.
+         * @param messages the queue, that will contain the messages to display.
          * @param textArea
          */
         DisplayOneMessageThread(Queue<String> messages, JUploadTextArea textArea) {
