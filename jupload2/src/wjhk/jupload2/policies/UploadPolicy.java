@@ -460,7 +460,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>nbFilesPerRequest</td>
- * <td>1 since 4.3.0 <BR>(was -1) <br>
+ * <td>1 since 4.3.0 <BR>
+ * (was -1) <br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This allows the control of the maximal number of files that are uploaded
@@ -536,7 +537,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * jakarta-commons-net.jar jar files in the applet ARCHIVE tag attribute. See
  * the 'advanced_js_demo.html page for a sample. You'll have to put the two
  * files coming from the JUpload distribution in the same directory as the
- * wjhk.jupload.jar.</td>
+ * wjhk.jupload.jar. <br>
+ * <u>Note 4:</u> in FTP, you can't use path that contain spaces. Filename may
+ * contain spaces.</td>
  * </tr>
  * <tr>
  * <td>readCookieFromNavigator</td>
