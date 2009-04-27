@@ -1,8 +1,9 @@
 
 v4.3.0
 
-Known problems: 
-- FTP upload doesn't work when the path contain spaces.
+IMPORTANT NOTE: the language packaging has changed. Please check the:
+* That the applet still work the way you want, in your language.
+* That your translation is up-to-date: 
 
 Fix:
 - [Medium] Chunk upload would not redirect to afterUploadURL, after a successful upload (thanks to Michael LaRosa, SF account: larosa)

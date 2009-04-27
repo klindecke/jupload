@@ -3,11 +3,8 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- When uploading 4000 files, 2 by 2: stopping the upload would generate an error from time to time.
-https://sourceforge.net/tracker2/?func=detail&aid=2662357&group_id=59144&atid=490053
-Same as the error logged on SF. Due to the stop, in UploadFileData.
-Also: stop attribute in HTTPConnectionHelper is checked by gotStopped(), but never set to true.
-Also: button STOP doesn't work (generate an HTTP error, success not found, due to the response body being empty).
+- Translation: 
+Should compile, even if Coppermine is undefined.
 
 - STOP button: problems in chunk upload.
 Add a way to advertise the server, that the upload was stopped.
