@@ -1,4 +1,15 @@
 
+v4.3.1
+
+IMPORTANT NOTE (repeated from 4.3.0 release): the language packaging has changed. Please check the:
+* That the applet still work the way you want, in your language.
+* That your translation is up-to-date: 
+
+
+Fix:
+- [Major] https upload did not work (probably since 4.0)
+
+
 v4.3.0
 
 IMPORTANT NOTE: the language packaging has changed. Please check the:
