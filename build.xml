@@ -127,13 +127,15 @@
 		</svn>
 
 		<!-- Let's publish the web site, from the previous export -->
-		<ftp server="${jupload.ftp.host}"
+		<!--
+		  THIS DOES'N WORK. I NEED TO PLAY WITH FTP LIBRARIES, AND I'M NOT SURE THAT FTPS FOR SOURCEFORGE WILL WORK WITH IT. 
+		ftp server="${jupload.ftp.host}"
 		     port="${jupload.ftp.port}"
 		     userid="${jupload.ftp.userid}"
 		     password="${jupload.ftp.password}"
 		     remotedir="${jupload.ftp.remotedir}">
 			<fileset dir="${path.wwwroot}/wwwroot" />
-		</ftp>
+		</ftp -->
 	</target>
 
 	<!--
@@ -433,9 +435,9 @@ lastSrcDirModificationDate = ${svn.date}
 	</target>
 
 	<target name="dist"
-	        depends="clean,deploy,srcjar"
+	        depends="clean,deploy,srcjar,prepare_ftp"
 	        description="Make a distribution (buld and pack everything)">
-		<echo message="Distribution is ready" level="info" />
+		<echo message="Distribution is ready (the jupload web site has been exported in ${path.temp})" level="info" />
 	</target>
 
 </project>
