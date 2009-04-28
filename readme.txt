@@ -13,6 +13,7 @@ QUICK START :
 The three main entry points are:
 - Compiled applet: /wwwroot/wjhk.jupload.jar
 - full sources :  /src  
+- all translation material: /wwwroot/translation
 - demo web site:  /wwwroot/index.html
   It contains links to all docs for the JUpload project.
 
