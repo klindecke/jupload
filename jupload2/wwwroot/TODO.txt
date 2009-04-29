@@ -3,8 +3,8 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- Translation: 
-Should compile, even if Coppermine is undefined.
+- When an error occurs, the alert box seems to block the PC.
+(perhaps only due to the particular https error that is corrected in the 4.3.1 release)
 
 - STOP button: problems in chunk upload.
 Add a way to advertise the server, that the upload was stopped.
