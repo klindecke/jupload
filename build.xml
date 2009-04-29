@@ -107,25 +107,27 @@
 	-->
 	<target name="prepare_ftp"
 	        description="Publish the wwwroot directory to the jupload web site">
-		<!-- 
-			All these properties are asked to the user. They should not be stored in a config file.
-			But:
-			they can be added in the eclipse launch properties, so that they are not in SVN, nor asked to the user.
-		-->
-		<input addproperty="jupload.ftp.host" />
-		<input addproperty="jupload.ftp.port" />
-		<input addproperty="jupload.ftp.remotedir" />
-		<input addproperty="jupload.ftp.userid" />
-		<input addproperty="jupload.ftp.password" />
+
 
 		<!-- Let's copy the web site, to remove the svn stuff -->
 		<delete dir="${path.temp}/wwwroot" />
+		<echo message="Exporting wwwroot to ${path.temp}" level="info" />
 		<svn javahl="${svn.use.javahl}">
 			<export srcPath="${path.wwwroot}"
 			        destPath="${path.temp}/wwwroot"
 			        force="true" />
 		</svn>
 
+		<!-- 
+			All these properties are asked to the user. They should not be stored in a config file.
+			But:
+			they can be added in the eclipse launch properties, so that they are not in SVN, nor asked to the user.
+		
+		<input addproperty="jupload.ftp.host" />
+		<input addproperty="jupload.ftp.port" />
+		<input addproperty="jupload.ftp.remotedir" />
+		<input addproperty="jupload.ftp.userid" />
+		<input addproperty="jupload.ftp.password" / -->
 		<!-- Let's publish the web site, from the previous export -->
 		<!--
 		  THIS DOES'N WORK. I NEED TO PLAY WITH FTP LIBRARIES, AND I'M NOT SURE THAT FTPS FOR SOURCEFORGE WILL WORK WITH IT. 
@@ -437,7 +439,8 @@ lastSrcDirModificationDate = ${svn.date}
 	<target name="dist"
 	        depends="clean,deploy,srcjar,prepare_ftp"
 	        description="Make a distribution (buld and pack everything)">
-		<echo message="Distribution is ready (the jupload web site has been exported in ${path.temp})" level="info" />
+		<echo message="Distribution is ready (the jupload web site has been exported in ${path.temp})"
+		      level="info" />
 	</target>
 
 </project>
