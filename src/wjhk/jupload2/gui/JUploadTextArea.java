@@ -53,7 +53,7 @@ public class JUploadTextArea extends JTextArea {
      * tread-safe update of the GUI. This thread is responsible to display one
      * String.
      */
-    class DisplayOneMessageThread extends Thread {
+    class DisplayOneMessageThread implements Runnable {
         Queue<String> messages;
 
         JUploadTextArea textArea;
@@ -67,7 +67,7 @@ public class JUploadTextArea extends JTextArea {
             this.textArea = textArea;
         }
 
-        @Override
+        /** The run method of the Runnable Interface */
         public void run() {
             boolean someTextHasBeenAdded = false;
             String nextMessage = null;
