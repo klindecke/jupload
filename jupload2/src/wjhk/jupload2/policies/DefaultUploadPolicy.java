@@ -755,21 +755,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
         String linefeedReplacement = Matcher.quoteReplacement("\\n");
 
         if (s == null || s.equals("")) {
-            displayDebug("jsString (nothing to do, s is an empty string)", 100);
             return "";
         } else {
-            displayDebug("jsString:", 100);
-            displayDebug("  original string:" + s, 100);
             s = s.replaceAll("\\$", dollarReplacement);
-            displayDebug("  after dollar changed:" + s, 100);
             s = s.replaceAll("\"", "'");
-            displayDebug("  after double quote changed:" + s, 100);
             s = s.replaceAll("'", singleQuoteReplacement);
-            displayDebug("  after single quote changed:" + s, 100);
             s = s.replaceAll("\n", linefeedReplacement);
-            displayDebug("  after LF changed:" + s, 100);
             s = s.replaceAll("\r", "");
-            displayDebug("  after CR changed:" + s, 100);
             return s;
         }
     }
