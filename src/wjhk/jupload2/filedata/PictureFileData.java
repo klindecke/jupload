@@ -237,7 +237,8 @@ public class PictureFileData extends DefaultFileData {
                 // created.
                 deleteTransformedPictureFile();
                 //
-                tooBigPicture();
+                throw new JUploadException(e.getClass().getName()
+                        + " in PictureFileData", e);
             }
 
             // If the transformed picture is correctly created, we'll upload it.
