@@ -1,4 +1,15 @@
 
+v4.3.2
+
+IMPORTANT NOTE (repeated from 4.3.0 release): the language packaging has changed. Please check the:
+* That the applet still work the way you want, in your language.
+* That your translation is up-to-date: 
+
+
+Fix:
+- [Major] Applet would freeze, when an error occurs (while displaying an error message)
+
+
 v4.3.1
 
 IMPORTANT NOTE (repeated from 4.3.0 release): the language packaging has changed. Please check the:
@@ -7,6 +18,7 @@ IMPORTANT NOTE (repeated from 4.3.0 release): the language packaging has changed
 
 
 Fix:
+- [Major] Applet would freeze, when an error occurs (while displaying an error message)
 - [Major] https upload did not work (probably since 4.0)
 
 
