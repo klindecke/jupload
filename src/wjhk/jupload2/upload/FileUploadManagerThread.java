@@ -384,9 +384,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                     "End of the FileUploadManagerThread", 5);
         } catch (JUploadException jue) {
             // Let's have a little information.
-            if (this.uploadException == null) {
-                this.uploadException = jue;
-            }
+            setUploadException(jue);
             this.uploadPolicy.displayErr(
                     "Uncaught exception in FileUploadManagerThread/run()", jue);
 
@@ -438,7 +436,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @param uploadException
      */
-    public void setUploadException(JUploadException uploadException) {
+    public synchronized void setUploadException(JUploadException uploadException) {
         // We don't override an existing exception
         if (this.uploadException != null) {
             this.uploadPolicy
