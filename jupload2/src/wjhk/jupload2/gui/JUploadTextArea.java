@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
 
 /**
  * This class represents the text area for debug output.
@@ -37,7 +36,11 @@ public class JUploadTextArea extends JTextArea {
     /**
      * This constant defines the upper limit of lines, kept in the log window.
      */
-    public final static int MAX_DEBUG_LINES = 10000;
+    // public final static int MAX_DEBUG_LINES = 10000;
+    /**
+     * Maximum number of characters in the logWindow.
+     */
+    public final static int MAX_LOG_WINDOW_LENGTH = 100000;
 
     /**
      * The queue, that contains all messages to display. They will be displayed
@@ -71,30 +74,31 @@ public class JUploadTextArea extends JTextArea {
         public void run() {
             boolean someTextHasBeenAdded = false;
             String nextMessage = null;
+            StringBuffer sbLogContent = new StringBuffer(this.textArea
+                    .getText());
+            String newLogContent = null;
+
             try {
                 // Let's add all available messages... if any. They may have
                 // been all consumed by a previous execution of this thread.
                 while ((nextMessage = this.messages.poll()) != null) {
                     someTextHasBeenAdded = true;
-                    this.textArea.append(nextMessage);
+                    sbLogContent.append(nextMessage);
                 }
                 // If some text has been added, we may have to truncate the
                 // text, according to the max allowed size for it.
                 if (someTextHasBeenAdded) {
-                    int lc = this.textArea.getLineCount();
-                    if (lc > JUploadTextArea.MAX_DEBUG_LINES) {
-                        int end;
-                        try {
-                            end = this.textArea.getLineEndOffset(lc
-                                    - JUploadTextArea.MAX_DEBUG_LINES);
-                            this.textArea.replaceRange("", 0, end);
-                        } catch (BadLocationException e) {
-                            e.printStackTrace();
-                        }
+                    newLogContent = sbLogContent.toString();
+                    int len = newLogContent.length();
+                    if (newLogContent.length() > JUploadTextArea.MAX_LOG_WINDOW_LENGTH) {
+                        newLogContent = newLogContent.substring(len
+                                - MAX_LOG_WINDOW_LENGTH, len - 1);
+                        len = MAX_LOG_WINDOW_LENGTH;
                     }
+                    
+                    this.textArea.setText(newLogContent);
 
                     // The end of the text, is the interesting part of it !
-                    int len = this.textArea.getText().length();
                     if (len > 0) {
                         this.textArea.setCaretPosition(len - 1);
                     }
@@ -134,8 +138,7 @@ public class JUploadTextArea extends JTextArea {
      * 
      * @param str The string to add, at the end of the JUploadTextArea.
      */
-    public final synchronized void displayMsg(String str) {
-        // this.displayMessageThread.queueMessage(str);
+    public final void displayMsg(String str) {
         this.messages.add(str);
         DisplayOneMessageThread displayOneMessageThread = new DisplayOneMessageThread(
                 this.messages, this);
