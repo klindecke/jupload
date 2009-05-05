@@ -73,7 +73,6 @@ import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadFileFilter;
 import wjhk.jupload2.gui.JUploadPanel;
-import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 import wjhk.jupload2.upload.helper.ByteArrayEncoderHTTP;
 import wjhk.jupload2.upload.helper.HTTPConnectionHelper;
@@ -309,13 +308,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private Vector<String> headers = new Vector<String>();
 
     /**
-     * The text area, where message are to be displayed.
-     * 
-     * @see #displayMsg(String, String)
-     */
-    private JUploadTextArea logWindow = null;
-
-    /**
      * The resourceBundle contains all localized String (and others ??)
      */
     private ResourceBundle resourceBundle = null;
@@ -389,7 +381,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public DefaultUploadPolicy(JUploadApplet theApplet) throws JUploadException {
         // Call default constructor for all default initialization;.
         this.applet = theApplet;
-        this.logWindow = theApplet.getLogWindow();
         displayInfo("JUpload applet started, with " + this.getClass().getName()
                 + " upload policy");
 
@@ -991,12 +982,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /** @see UploadPolicy#displayErr(Exception) */
-    public synchronized void displayErr(Exception e) {
+    public void displayErr(Exception e) {
         displayErr(e.getMessage(), e);
     }
 
     /** @see UploadPolicy#displayErr(String) */
-    public synchronized void displayErr(String err) {
+    public void displayErr(String err) {
         displayErr(err, null);
     }
 
@@ -1005,7 +996,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param throwable
      */
-    private synchronized void displayStackTrace(Throwable throwable) {
+    private void displayStackTrace(Throwable throwable) {
         if (throwable != null) {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bs);
@@ -1029,7 +1020,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
      *      java.lang.Exception)
      */
-    public synchronized void displayErr(String errorText, Exception exception) {
+    public void displayErr(String errorText, Exception exception) {
 
         if (exception == null) {
             setLastException(new JUploadException("errorText"));
@@ -1103,21 +1094,21 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * @see UploadPolicy#displayInfo(String)
      */
-    public synchronized void displayInfo(String info) {
+    public void displayInfo(String info) {
         displayMsg("[INFO] ", info);
     }
 
     /**
      * @see UploadPolicy#displayWarn(String)
      */
-    public synchronized void displayWarn(String warn) {
+    public void displayWarn(String warn) {
         displayMsg("[WARN] ", warn);
     }
 
     /**
      * @see UploadPolicy#displayDebug(String, int)
      */
-    public synchronized void displayDebug(String debug, int minDebugLevel) {
+    public void displayDebug(String debug, int minDebugLevel) {
         final String tag = "[DEBUG] ";
         if (this.debugLevel >= minDebugLevel) {
             // displayMsg will add the message to the debugStrignBuffer.
@@ -2209,7 +2200,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg
      */
-    protected synchronized void addMsgToDebugLog(String msg) {
+    protected void addMsgToDebugLog(String msg) {
         // If uploading lots of chunks, the buffer gets too large, resulting in
         // a OutOfMemoryError on the heap so we now use a temporary file for the
         // debug log.
@@ -2257,12 +2248,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg The message to display.
      */
-    private synchronized void displayMsg(String tag, String msg) {
+    private void displayMsg(String tag, String msg) {
         msg = timestamp(tag, msg);
-        if (this.logWindow == null) {
+        if (this.applet.getLogWindow() == null) {
             System.out.println(msg);
         } else {
-            this.logWindow.displayMsg((msg.endsWith("\n")) ? msg : msg + "\n");
+            this.applet.getLogWindow().displayMsg(
+                    (msg.endsWith("\n")) ? msg : msg + "\n");
         }
         // Let's store all text in the debug logfile
         if (this.debugGenerateFile) {
