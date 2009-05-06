@@ -75,7 +75,7 @@ public class JUploadApplet extends Applet {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    private final String RELEASE_VERSION = "4.3.3rc1";
+    private final String RELEASE_VERSION = "4.3.3rc2";
 
     /**
      * Date of the build for the applet. It's generated at build time by the
@@ -166,6 +166,19 @@ public class JUploadApplet extends Applet {
                     + " in JUploadApplet.getBuildDate()");
         }
         return "Unknown";
+    }
+
+    /**
+     * @return Last modification date (date of last commit)
+     */
+    public int getBuildNumber() {
+        try {
+            return Integer.parseInt(this.svnProperties.getProperty("buildNumber"));
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName()
+                    + " in JUploadApplet.getBuildDate()");
+        }
+        return 0;
     }
 
     /**
