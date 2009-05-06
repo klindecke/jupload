@@ -164,7 +164,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * If true, this file contains the full debug output, whatever the current
      * debugLevel is.
      */
-    private boolean debugGenerateFile = false;
+    private boolean debugGenerateFile = true;
 
     /**
      * The current debug level. This control the details of information that is
@@ -1075,7 +1075,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // Then we copy the debug output to the clipboard, and say it to the
         // current user.
-        if (getApplet().getUploadPanel() != null && getDebugLevel() == 100) {
+        if (getApplet().getUploadPanel() != null && getDebugLevel() >= 99) {
             // Ok, the applet has been fully built.
             getApplet().getUploadPanel().copyLogWindow();
             alert("messageLogWindowCopiedToClipboard");
@@ -1180,8 +1180,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#sendDebugInformation(String, Exception) */
     public void sendDebugInformation(String description, Exception exception) {
         try {
-            displayInfo("Sending debug information to " + getUrlToSendErrorTo());
-            if (null != getUrlToSendErrorTo()) {
+            if (null == getUrlToSendErrorTo()) {
+                displayInfo("getUrlToSendErrorTo is null. No debug information is sent.");
+                if (exception == null) {
+                    displayInfo("  No exception was stored!");
+                } else {
+                    displayInfo("  The exception was: "
+                            + exception.getClass().getName()
+                            + exception.getMessage());
+                }
+            } else {
+                displayInfo("Sending debug information to "
+                        + getUrlToSendErrorTo());
                 if (JOptionPane.showConfirmDialog(null,
                         getString("questionSendMailOnError"),
                         getString("Confirm"), JOptionPane.YES_NO_OPTION,
