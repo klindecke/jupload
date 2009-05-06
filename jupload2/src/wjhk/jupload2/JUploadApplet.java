@@ -133,8 +133,17 @@ public class JUploadApplet extends Applet {
      */
     public String getVersion() {
         try {
-            return this.RELEASE_VERSION + " [SVN-Rev: "
-                    + this.svnProperties.getProperty("revision") + "]";
+            StringBuffer sb = new StringBuffer();
+            sb.append(this.RELEASE_VERSION);
+            sb.append(" [SVN-Rev: ");
+            sb.append(this.svnProperties.getProperty("revision"));
+            sb.append("]");
+
+            if (getBuildNumber() > 0) {
+                sb.append(" build ");
+                sb.append(getBuildNumber());
+            }
+            return sb.toString();
         } catch (Exception e) {
             System.out.println(e.getClass().getName()
                     + " in JUploadApplet.getVersion()");
@@ -173,7 +182,8 @@ public class JUploadApplet extends Applet {
      */
     public int getBuildNumber() {
         try {
-            return Integer.parseInt(this.svnProperties.getProperty("buildNumber"));
+            return Integer.parseInt(this.svnProperties
+                    .getProperty("buildNumber"));
         } catch (Exception e) {
             System.out.println(e.getClass().getName()
                     + " in JUploadApplet.getBuildDate()");
@@ -196,7 +206,6 @@ public class JUploadApplet extends Applet {
                     this.uploadPolicy);
 
             this.add(this.jUploadPanel, BorderLayout.CENTER);
-            
 
             // We start the jsHandler thread, that allows javascript to send
             // upload command to the applet.
@@ -214,12 +223,12 @@ public class JUploadApplet extends Applet {
         }
 
     }
-    
+
     /**
      * Called each time the applet is shown on the web page.
      */
     public void start() {
-        //Let's refresh the display, and have the caret well placed.
+        // Let's refresh the display, and have the caret well placed.
         this.uploadPolicy.displayInfo("JUploadApplet is now started.");
     }
 
