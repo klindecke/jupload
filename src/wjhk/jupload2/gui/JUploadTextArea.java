@@ -40,7 +40,7 @@ public class JUploadTextArea extends JTextArea {
     /**
      * Maximum number of characters in the logWindow.
      */
-    public final static int MAX_LOG_WINDOW_LENGTH = 100000;
+    public final static int MAX_LOG_WINDOW_LENGTH = 800000;
 
     /**
      * The queue, that contains all messages to display. They will be displayed
@@ -90,12 +90,12 @@ public class JUploadTextArea extends JTextArea {
                 if (someTextHasBeenAdded) {
                     newLogContent = sbLogContent.toString();
                     int len = newLogContent.length();
-                    if (newLogContent.length() > JUploadTextArea.MAX_LOG_WINDOW_LENGTH) {
+                    if (len > JUploadTextArea.MAX_LOG_WINDOW_LENGTH) {
                         newLogContent = newLogContent.substring(len
-                                - MAX_LOG_WINDOW_LENGTH, len - 1);
+                                - MAX_LOG_WINDOW_LENGTH);
                         len = MAX_LOG_WINDOW_LENGTH;
                     }
-                    
+
                     this.textArea.setText(newLogContent);
 
                     // The end of the text, is the interesting part of it !
