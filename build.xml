@@ -48,6 +48,10 @@
 	<property name="path.src" value="${basedir}/src" />
 	<property name="path.temp" value="${basedir}/TEMP" />
 	<property name="path.wwwroot" value="${basedir}/wwwroot" />
+	
+	<!-- Let's load the existing values of the svn.properties -->
+	<property name="path.svnProperties" value="${path.src}/conf/svn.properties"/>
+	<property file="${path.svnProperties}" prefix="currentSvnProperties."/>
 
 	<property name="standard.compile.excludes" value="**/*.class" />
 
@@ -99,6 +103,15 @@
 	<!-- load the svn task -->
 	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml"
 	         classpathref="svnant.classpath" />
+
+	<!-- Definition du classpath des tâches ant additionnelles  -->
+	<path id="ant.tasks.ant-contrib.classpath">
+		<fileset dir="lib">
+			<include name="ant-contrib.jar" />
+		</fileset>
+	</path>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"
+	         classpathref="ant.tasks.ant-contrib.classpath" />
 
 	<!--
 	===================================================================
@@ -281,12 +294,29 @@
 	</target>
 	<target name="-generate_svn_properties"
 	        depends="-get_svn_properties,-default_version">
-		<echo file="${path.src}/conf/svn.properties" level="info">
+		<if>
+			<not>
+				<isset property="currentSvnProperties.buildNumber" />
+			</not>
+			<then>
+				<property name="currentSvnProperties.buildNumber" value="0" />
+			</then>
+		</if>
+		<math result="svn.buildNumber.incremented"
+		      operand1="${currentSvnProperties.buildNumber}"
+		      operation="+"
+		      operand2="1"
+		      datatype="int" />
+
+		<echo file="${path.svnProperties}" level="info">
 # WARNING - This file is auto-generated
 # ANY CHANGES WILL BE OVERWRITTEN BY THE BUILD-PROCESS!
 
 # Date of the compilation
 buildDate = ${TODAY_FULL}
+
+# Compilation number (is resetted to 0, if the svn.properties doesn't exist)
+buildNumber = ${svn.buildNumber.incremented}
 
 #Last revision commited. This compilation may contain other uncommitted changes.
 revision = ${svn.revision.max}
@@ -307,6 +337,7 @@ lastSrcDirModificationDate = ${svn.date}
 		      outputproperty="version"
 		      failonerror="true" />
 	</target>
+
 
 	<!--
  * Create wjhk.jupload.jar
