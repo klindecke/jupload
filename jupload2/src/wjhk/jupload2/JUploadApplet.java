@@ -143,6 +143,9 @@ public class JUploadApplet extends Applet {
                 sb.append(" build ");
                 sb.append(getBuildNumber());
             }
+            
+            sb.append(" on ");
+            sb.append(getBuildDate());
             return sb.toString();
         } catch (Exception e) {
             System.out.println(e.getClass().getName()
