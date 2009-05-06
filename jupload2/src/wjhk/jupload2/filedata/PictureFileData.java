@@ -208,8 +208,12 @@ public class PictureFileData extends DefaultFileData {
         // rt.runFinalization();
         rt.gc();
 
-        this.uploadPolicy.displayDebug("freeMemory (after " + caller + ") : "
-                + rt.freeMemory(), 50);
+        if (this.uploadPolicy.getDebugLevel() >= 50) {
+            this.uploadPolicy.displayDebug("freeMemory (after " + caller
+                    + ") : " + rt.freeMemory() + " (maxMemory: "
+                    + rt.maxMemory() + ", totalMemory: " + rt.totalMemory()
+                    + ")", 50);
+        }
     }
 
     /**
