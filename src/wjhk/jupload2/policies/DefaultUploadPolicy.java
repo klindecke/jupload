@@ -222,6 +222,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String lookAndFeel = UploadPolicy.DEFAULT_LOOK_AND_FEEL;
 
     /**
+     * This value is logged in the debug file, and in the debug output, for each
+     * line. This allows to sort the outputed line correctly.
+     * 
+     * @see #displayMsg(String, String)
+     */
+    private int messageId = 1;
+
+    /**
      * The applet will do as may HTTP requests to upload all files, with the
      * number as a maximum number of files for each HTTP request. <BR>
      * Default : -1
@@ -2237,7 +2245,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private final String timestamp(String tag, String s) {
         final String stamp = new SimpleDateFormat("HH:mm:ss.SSS ")
                 .format(new Date())
-                + tag;
+                + "\t" + tag;
         final boolean endsLF = s.endsWith("\n");
         if (endsLF)
             s = s.substring(0, s.length() - 1);
@@ -2250,8 +2258,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg The message to display.
      */
-    private void displayMsg(String tag, String msg) {
+    private synchronized void displayMsg(String tag, String msg) {
+        // We add the thread name, and the message number to the tag
+        tag = Thread.currentThread().getName() + "\t"
+                + (String.format("%05d", messageId++)) + "\t" + tag;
+        // Then, we add this completed tag to all lines to display
         msg = timestamp(tag, msg);
+        
         if (this.applet.getLogWindow() == null) {
             System.out.println(msg);
         } else {
