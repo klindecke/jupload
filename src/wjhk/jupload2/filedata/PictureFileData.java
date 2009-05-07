@@ -148,8 +148,9 @@ public class PictureFileData extends DefaultFileData {
      * - The size of the original file, if no transformation is needed. <BR>
      * - The size of the transformed file, if a transformation were made. <BR>
      * <BR>
-     * It is set to -1 whenever the user ask for a rotation (current only action
-     * that need to recalculate the picture).
+     * It is set to -1 whenever its calculation is to be done again (for
+     * instance, when the user ask for a rotation, which is currently the only
+     * action that need to recalculate the picture).
      */
     private long uploadLength = -1;
 
@@ -227,8 +228,12 @@ public class PictureFileData extends DefaultFileData {
      */
     @Override
     public void beforeUpload() throws JUploadException {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.beforeUpload()", 95);
+
         if (this.uploadLength < 0) {
             try {
+                freeMemory("beforeUpload");
                 // Get the transformed picture file, if needed.
                 initTransformedPictureFile();
 
@@ -266,7 +271,7 @@ public class PictureFileData extends DefaultFileData {
      *         original file, or the transformed file!
      */
     @Override
-    public long getUploadLength() throws JUploadException {
+    public synchronized long getUploadLength() throws JUploadException {
         if (this.uploadLength < 0) {
             // Hum, beforeUpload should have been called before. Let's correct
             // that.
@@ -286,6 +291,8 @@ public class PictureFileData extends DefaultFileData {
      */
     @Override
     public InputStream getInputStream() throws JUploadException {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.getInputStream()", 95);
         // Do we have to transform the picture ?
         if (this.transformedPictureFile != null) {
             try {
@@ -304,19 +311,15 @@ public class PictureFileData extends DefaultFileData {
      * not removed. This allow control of this created file.
      */
     @Override
-    public void afterUpload() {
+    public synchronized void afterUpload() {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.afterUpload()", 95);
+
         super.afterUpload();
 
-        // Free the temporary file ... if any.
-        if (this.transformedPictureFile != null) {
-            // for debug : if the debugLevel is enough, we keep the temporary
-            // file (for check).
-            if (this.uploadPolicy.getDebugLevel() >= 100) {
-                this.uploadPolicy.displayWarn("Temporary file not deleted");
-            } else {
-                deleteTransformedPictureFile();
-            }
-        }
+        // Free the temporary files ... if any.
+        deleteTransformedPictureFile();
+        deleteWorkingCopyPictureFile();
     }
 
     /**
@@ -399,11 +402,12 @@ public class PictureFileData extends DefaultFileData {
      * @param quarter Number of quarters (90 degrees) the picture should rotate.
      *            1 means rotating of 90 degrees clockwise. Can be negative.
      */
-    public void addRotation(int quarter) {
+    public synchronized void addRotation(int quarter) {
         this.quarterRotation += quarter;
 
         // We'll have to recalculate the upload length, as the resulting file is
         // different.
+        // FIXME If any file has been prepared, they must be deleted
         this.uploadLength = -1;
 
         // We keep the 'quarter' in the segment [0;4[
@@ -445,11 +449,20 @@ public class PictureFileData extends DefaultFileData {
      * Therefore the applet provides a callback which is executed during applet
      * termination. This method performs the actual cleanup.
      */
-    public void deleteTransformedPictureFile() {
-        if (null != this.transformedPictureFile) {
-            this.transformedPictureFile.delete();
-            this.transformedPictureFile = null;
-            this.uploadLength = -1;
+    public synchronized void deleteTransformedPictureFile() {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.deleteTransformedPictureFile()",
+                95);
+        // Free the temporary file ... if any.
+        if (this.transformedPictureFile != null) {
+            // for debug : if the debugLevel is enough, we keep the temporary
+            // file (for check).
+            if (this.uploadPolicy.getDebugLevel() >= 100) {
+                this.uploadPolicy.displayWarn("Temporary file not deleted");
+            } else {
+                this.transformedPictureFile.delete();
+                this.transformedPictureFile = null;
+            }
         }
     }
 
@@ -463,7 +476,10 @@ public class PictureFileData extends DefaultFileData {
      * Note: any JUploadException thrown by a method called within
      * getTransformedPictureFile() will be thrown within this method.
      */
-    private void initTransformedPictureFile() throws JUploadException {
+    private synchronized void initTransformedPictureFile()
+            throws JUploadException {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.initTransformedPictureFile()", 95);
         int targetMaxWidth;
         int targetMaxHeight;
 
@@ -524,6 +540,10 @@ public class PictureFileData extends DefaultFileData {
      */
     void createTranformedPictureFile(ImageHelper imageHelper)
             throws JUploadException {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.createTransformedPictureFile()",
+                95);
+
         IIOMetadata metadata = null;
         IIOImage iioImage = null;
         BufferedImage originalImage = null;
@@ -627,7 +647,11 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @throws IOException
      */
-    private void createTransformedTempFile() throws JUploadIOException {
+    private synchronized void createTransformedTempFile()
+            throws JUploadIOException {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.createTransformedTempFile()", 95);
+
         if (this.transformedPictureFile == null) {
             try {
                 this.transformedPictureFile = File.createTempFile("jupload_",
@@ -653,7 +677,7 @@ public class PictureFileData extends DefaultFileData {
      * @see #getOriginalHeight()
      * @see #getOriginalWidth()
      */
-    private void initWidthAndHeight() throws JUploadIOException {
+    private synchronized void initWidthAndHeight() throws JUploadIOException {
         // Is it a picture?
         if (this.isPicture
                 && (this.originalHeight < 0 || this.originalWidth < 0)) {
@@ -689,7 +713,9 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @throws IOException
      */
-    private void createWorkingCopyTempFile() throws IOException {
+    private synchronized void createWorkingCopyTempFile() throws IOException {
+        this.uploadPolicy.displayDebug(this.hashCode()
+                + "|Entering PictureFileData.createWorkingCopyTempFile()", 95);
         if (this.workingCopyTempFile == null) {
             // The temporary file must have the correct extension, so that
             // native Java method works on it.
@@ -708,10 +734,17 @@ public class PictureFileData extends DefaultFileData {
      * Therefore the applet provides a callback which is executed during applet
      * termination. This method performs the actual cleanup.
      */
-    public void deleteWorkingCopyPictureFile() {
+    public synchronized void deleteWorkingCopyPictureFile() {
         if (null != this.workingCopyTempFile) {
-            this.workingCopyTempFile.delete();
-            this.workingCopyTempFile = null;
+            // for debug : if the debugLevel is enough, we keep the temporary
+            // file (for check).
+            if (this.uploadPolicy.getDebugLevel() >= 100) {
+                this.uploadPolicy.displayWarn("Working copy file not deleted ("
+                        + this.workingCopyTempFile.getAbsolutePath() + ")");
+            } else {
+                this.workingCopyTempFile.delete();
+                this.workingCopyTempFile = null;
+            }
         }
     }
 
@@ -725,7 +758,7 @@ public class PictureFileData extends DefaultFileData {
      *         picture transformation
      * @throws JUploadIOException
      */
-    public File getWorkingSourceFile() throws JUploadIOException {
+    public synchronized File getWorkingSourceFile() throws JUploadIOException {
 
         if (this.workingCopyTempFile == null) {
             this.uploadPolicy.displayDebug(
