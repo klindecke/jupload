@@ -113,7 +113,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
      */
     public void mouseReleased(MouseEvent event) {
         // Displays the contextual menu ?
-        this.uploadPolicy.getApplet().getUploadPanel()
+        this.uploadPolicy.getContext().getUploadPanel()
                 .maybeOpenPopupMenu(event);
     }
 
@@ -122,7 +122,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
      */
     public void mousePressed(MouseEvent event) {
         // Displays the contextual menu ?
-        this.uploadPolicy.getApplet().getUploadPanel()
+        this.uploadPolicy.getContext().getUploadPanel()
                 .maybeOpenPopupMenu(event);
     }
 
@@ -140,7 +140,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
                 this.uploadPolicy.onFileSelected(this.filePanelDataModel
                         .getFileDataAt(selectedRow));
             }
-        } else if (!this.uploadPolicy.getApplet().getUploadPanel()
+        } else if (!this.uploadPolicy.getContext().getUploadPanel()
                 .maybeOpenPopupMenu(event)) {
             // We did not open the displays the contextual menu. So we do what
             // we have to do: sort the clicked column

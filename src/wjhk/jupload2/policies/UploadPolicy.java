@@ -31,7 +31,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.exception.JUploadIOException;
@@ -827,7 +827,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * see {@link wjhk.jupload2.policies.UploadPolicyFactory}</td>
  * <td>This parameter contains the class name for the UploadPolicy that should
  * be used. If it is not set, or if its value is unknown from
- * {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(JUploadApplet)}
+ * {@link wjhk.jupload2.policies.UploadPolicyFactory#getUploadPolicy(JUploadContext)}
  * , the {@link wjhk.jupload2.policies.DefaultUploadPolicy} is used.</td>
  * </tr>
  * <tr>
@@ -1504,9 +1504,9 @@ public interface UploadPolicy {
      * is useful to have it here, as the uploadPolicy is known everywhere in the
      * applet.
      * 
-     * @return Reference to the applet.
+     * @return Reference to the current JUpload context.
      */
-    public JUploadApplet getApplet();
+    public JUploadContext getContext();
 
     /**
      * Set the current directory.
@@ -1890,8 +1890,10 @@ public interface UploadPolicy {
      * {@link #setWaitCursor()}.
      * 
      * @param cursor The cursor that must be set.
+     * @return The cursor that was active before setting the new one. Can be
+     *         used to restore its previous state.
      */
-    public void setCursor(Cursor cursor);
+    public Cursor setCursor(Cursor cursor);
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // DISPLAY OF MESSAGES (ERROR, DEBUG ...)
@@ -2066,7 +2068,7 @@ public interface UploadPolicy {
      * 
      * @param key The key, whose associated text is to retrieve.
      * @return The associated text.
-     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadApplet)
+     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadContext)
      */
     public String getString(String key);
 

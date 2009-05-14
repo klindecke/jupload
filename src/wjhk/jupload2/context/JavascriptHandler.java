@@ -20,7 +20,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package wjhk.jupload2;
+package wjhk.jupload2.context;
 
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.policies.UploadPolicy;

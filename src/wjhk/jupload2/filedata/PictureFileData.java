@@ -389,7 +389,7 @@ public class PictureFileData extends DefaultFileData {
         freeMemory("end of " + this.getClass().getName() + ".getImage()");
 
         // The picture is now loaded. We clear the progressBar
-        this.uploadPolicy.getApplet().getUploadPanel()
+        this.uploadPolicy.getContext().getUploadPanel()
                 .getPreparationProgressBar().setValue(0);
 
         return localImage;
@@ -660,7 +660,7 @@ public class PictureFileData extends DefaultFileData {
                 throw new JUploadIOException(
                         "PictureFileData.createTransformedTempFile()", e);
             }
-            this.uploadPolicy.getApplet().registerUnload(this,
+            this.uploadPolicy.getContext().registerUnload(this,
                     "deleteTransformedPictureFile");
             this.uploadPolicy.displayDebug("Using transformed temp file "
                     + this.transformedPictureFile.getAbsolutePath() + " for "
@@ -683,7 +683,7 @@ public class PictureFileData extends DefaultFileData {
                 && (this.originalHeight < 0 || this.originalWidth < 0)) {
             // Ok: it's a picture and is original width and height have not been
             // loaded yet.
-            // In the windows world, file extension may be in uppercase, which
+            // In the windows world, file extension may be in upper case, which
             // is not compatible with the core Java API.
             Iterator<ImageReader> iter = ImageIO
                     .getImageReadersByFormatName(getFileExtension()
@@ -721,7 +721,7 @@ public class PictureFileData extends DefaultFileData {
             // native Java method works on it.
             this.workingCopyTempFile = File.createTempFile("jupload_", ".tmp."
                     + DefaultFileData.getExtension(getFile()));
-            this.uploadPolicy.getApplet().registerUnload(this,
+            this.uploadPolicy.getContext().registerUnload(this,
                     "deleteWorkingCopyPictureFile");
             this.uploadPolicy.displayDebug("Using working copy temp file "
                     + this.workingCopyTempFile.getAbsolutePath() + " for "

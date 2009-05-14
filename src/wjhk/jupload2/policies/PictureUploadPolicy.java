@@ -37,7 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.exception.JUploadIOException;
@@ -208,39 +208,39 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * The standard constructor, which transmit most informations to the
      * super.Constructor().
      * 
-     * @param theApplet Reference to the current applet. Allows access to
+     * @param juploadContext Reference to the current applet. Allows access to
      *            javascript functions.
      * @throws JUploadException
      */
-    public PictureUploadPolicy(JUploadApplet theApplet) throws JUploadException {
-        super(theApplet);
+    public PictureUploadPolicy(JUploadContext juploadContext)
+            throws JUploadException {
+        super(juploadContext);
 
         // Creation of the PictureFileDataPolicy, from parameters given to the
         // applet, or from default values.
-        setFileChooserImagePreview(UploadPolicyFactory.getParameter(theApplet,
+        setFileChooserImagePreview(juploadContext.getParameter(
                 PROP_FILE_CHOOSER_IMAGE_PREVIEW,
-                DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW, this));
-        setHighQualityPreview(UploadPolicyFactory.getParameter(theApplet,
-                PROP_HIGH_QUALITY_PREVIEW, DEFAULT_HIGH_QUALITY_PREVIEW, this));
-        setMaxHeight(UploadPolicyFactory.getParameter(theApplet,
-                PROP_MAX_HEIGHT, DEFAULT_MAX_HEIGHT, this));
-        setMaxWidth(UploadPolicyFactory.getParameter(theApplet, PROP_MAX_WIDTH,
-                DEFAULT_MAX_WIDTH, this));
-        setPictureCompressionQuality(UploadPolicyFactory.getParameter(
-                theApplet, PROP_PICTURE_COMPRESSION_QUALITY,
-                DEFAULT_PICTURE_COMPRESSION_QUALITY, this));
-        setPictureTransmitMetadata(UploadPolicyFactory.getParameter(theApplet,
+                DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW));
+        setHighQualityPreview(juploadContext.getParameter(
+                PROP_HIGH_QUALITY_PREVIEW, DEFAULT_HIGH_QUALITY_PREVIEW));
+        setMaxHeight(juploadContext.getParameter(PROP_MAX_HEIGHT,
+                DEFAULT_MAX_HEIGHT));
+        setMaxWidth(juploadContext.getParameter(PROP_MAX_WIDTH,
+                DEFAULT_MAX_WIDTH));
+        setPictureCompressionQuality(juploadContext.getParameter(
+                PROP_PICTURE_COMPRESSION_QUALITY,
+                DEFAULT_PICTURE_COMPRESSION_QUALITY));
+        setPictureTransmitMetadata(juploadContext.getParameter(
                 PROP_PICTURE_TRANSMIT_METADATA,
-                DEFAULT_PICTURE_TRANSMIT_METADATA, this));
-        setRealMaxHeight(UploadPolicyFactory.getParameter(theApplet,
-                PROP_REAL_MAX_HEIGHT, DEFAULT_REAL_MAX_HEIGHT, this));
-        setRealMaxWidth(UploadPolicyFactory.getParameter(theApplet,
-                PROP_REAL_MAX_WIDTH, DEFAULT_REAL_MAX_WIDTH, this));
-        setStoreBufferedImage(UploadPolicyFactory.getParameter(theApplet,
-                PROP_STORE_BUFFERED_IMAGE, DEFAULT_STORE_BUFFERED_IMAGE, this));
-        setTargetPictureFormat(UploadPolicyFactory
-                .getParameter(theApplet, PROP_TARGET_PICTURE_FORMAT,
-                        DEFAULT_TARGET_PICTURE_FORMAT, this));
+                DEFAULT_PICTURE_TRANSMIT_METADATA));
+        setRealMaxHeight(juploadContext.getParameter(PROP_REAL_MAX_HEIGHT,
+                DEFAULT_REAL_MAX_HEIGHT));
+        setRealMaxWidth(juploadContext.getParameter(PROP_REAL_MAX_WIDTH,
+                DEFAULT_REAL_MAX_WIDTH));
+        setStoreBufferedImage(juploadContext.getParameter(
+                PROP_STORE_BUFFERED_IMAGE, DEFAULT_STORE_BUFFERED_IMAGE));
+        setTargetPictureFormat(juploadContext.getParameter(
+                PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT));
 
         displayDebug("[PictureUploadPolicy] end of constructor", 30);
     }
@@ -435,7 +435,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         // We clear the current picture selection. This insures a correct
         // managing of enabling/disabling of
         // buttons, even if the user stops the upload.
-        getApplet().getUploadPanel().getFilePanel().clearSelection();
+        getContext().getUploadPanel().getFilePanel().clearSelection();
         if (this.picturePanel != null) {
             this.picturePanel.setPictureFile(null, this.rotateLeftButton,
                     this.rotateRightButton);
@@ -613,32 +613,28 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public void setProperty(String prop, String value) throws JUploadException {
         // The, we check the local properties.
         if (prop.equals(PROP_FILE_CHOOSER_IMAGE_PREVIEW)) {
-            setFileChooserImagePreview(UploadPolicyFactory.parseBoolean(value,
-                    getFileChooserImagePreview(), this));
+            setFileChooserImagePreview(getContext().parseBoolean(value,
+                    getFileChooserImagePreview()));
         } else if (prop.equals(PROP_STORE_BUFFERED_IMAGE)) {
-            setStoreBufferedImage(UploadPolicyFactory.parseBoolean(value,
-                    this.storeBufferedImage, this));
+            setStoreBufferedImage(getContext().parseBoolean(value,
+                    this.storeBufferedImage));
         } else if (prop.equals(PROP_HIGH_QUALITY_PREVIEW)) {
-            setHighQualityPreview(UploadPolicyFactory.parseBoolean(value,
-                    this.highQualityPreview, this));
+            setHighQualityPreview(getContext().parseBoolean(value,
+                    this.highQualityPreview));
         } else if (prop.equals(PROP_MAX_HEIGHT)) {
-            setMaxHeight(UploadPolicyFactory.parseInt(value, this.maxHeight,
-                    this));
+            setMaxHeight(getContext().parseInt(value, this.maxHeight));
         } else if (prop.equals(PROP_MAX_WIDTH)) {
-            setMaxWidth(UploadPolicyFactory
-                    .parseInt(value, this.maxWidth, this));
+            setMaxWidth(getContext().parseInt(value, this.maxWidth));
         } else if (prop.equals(PROP_PICTURE_COMPRESSION_QUALITY)) {
-            setPictureCompressionQuality(UploadPolicyFactory.parseFloat(value,
-                    this.pictureCompressionQuality, this));
+            setPictureCompressionQuality(getContext().parseFloat(value,
+                    this.pictureCompressionQuality));
         } else if (prop.equals(PROP_PICTURE_TRANSMIT_METADATA)) {
-            setPictureTransmitMetadata(UploadPolicyFactory.parseBoolean(value,
-                    this.pictureTransmitMetadata, this));
+            setPictureTransmitMetadata(getContext().parseBoolean(value,
+                    this.pictureTransmitMetadata));
         } else if (prop.equals(PROP_REAL_MAX_HEIGHT)) {
-            setRealMaxHeight(UploadPolicyFactory.parseInt(value,
-                    this.realMaxHeight, this));
+            setRealMaxHeight(getContext().parseInt(value, this.realMaxHeight));
         } else if (prop.equals(PROP_REAL_MAX_WIDTH)) {
-            setRealMaxWidth(UploadPolicyFactory.parseInt(value,
-                    this.realMaxWidth, this));
+            setRealMaxWidth(getContext().parseInt(value, this.realMaxWidth));
         } else if (prop.equals(PROP_TARGET_PICTURE_FORMAT)) {
             setTargetPictureFormat(value);
         } else {
@@ -692,9 +688,10 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @see DefaultUploadPolicy#setCursor(Cursor)
      */
     @Override
-    public void setCursor(Cursor cursor) {
-        super.setCursor(null);
+    public Cursor setCursor(Cursor cursor) {
+        Cursor oldCursor = super.setCursor(null);
         this.picturePanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return oldCursor;
     }
 
     /**

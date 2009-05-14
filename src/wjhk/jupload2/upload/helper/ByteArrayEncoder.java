@@ -1,7 +1,7 @@
 package wjhk.jupload2.upload.helper;
 
+import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadIOException;
-import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.upload.FileUploadThreadHTTP;
 
 /**
@@ -100,7 +100,7 @@ public interface ByteArrayEncoder {
      * form.
      * 
      * @param formname The HTML form name. This method will get the data from
-     *            this form, by using the {@link UploadPolicy#getApplet()}
+     *            this form, by using the {@link JUploadContext#getApplet()}
      *            method.
      * @return Return the current ByteArrayEncoder, to allow chained call (see
      *         explanation, here above).

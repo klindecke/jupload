@@ -141,7 +141,7 @@ public class PicturePanel extends Canvas implements MouseListener,
 
         // Ask for an immediate repaint, to clear the panel (as offscreenImage
         // is now null).
-        repaint(0);
+        repaint();
 
         // Then, we store the new picture data, get the offscreen picture and
         // ask for a repaint.

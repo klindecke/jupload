@@ -138,7 +138,7 @@ public class DebugDialog extends JDialog implements ActionListener {
      */
     public void setText(JEditorPane editorPane, String text)
             throws JUploadIOException {
-        this.uploadPolicy.getApplet().registerUnload(this, "deleteLog");
+        this.uploadPolicy.getContext().registerUnload(this, "deleteLog");
         try {
             // First: creation of a temporary file. This is necessary, as html
             // output is not correctly displayed in the JEditorPane, when using

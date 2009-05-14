@@ -244,7 +244,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
         // General shortcuts on the current applet.
         this.uploadPolicy = uploadPolicy;
-        this.uploadPanel = uploadPolicy.getApplet().getUploadPanel();
+        this.uploadPanel = uploadPolicy.getContext().getUploadPanel();
         this.filePanel = this.uploadPanel.getFilePanel();
         this.uploadProgressBar = this.uploadPanel.getUploadProgressBar();
         this.preparationProgressBar = this.uploadPanel
@@ -324,8 +324,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
             // Let's restore the button state.
             this.uploadPanel.updateButtonState();
-            this.uploadPolicy.getApplet().getAppletContext().showStatus("");
-            this.uploadPolicy.getApplet().getUploadPanel().getStatusLabel()
+            this.uploadPolicy.getContext().showStatus("");
+            this.uploadPolicy.getContext().getUploadPanel().getStatusLabel()
                     .setText("");
 
             // If no error occurs, we tell to the upload policy that a
@@ -678,8 +678,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                     SizeRenderer.formatFileUploadSpeed(uploadSpeed,
                             this.uploadPolicy), eta);
             this.uploadPanel.getStatusLabel().setText(status);
-            // this.uploadPanel.getStatusLabel().repaint(100);
-            this.uploadPolicy.getApplet().getAppletContext().showStatus(status);
+            // this.uploadPanel.getStatusLabel().repaint();
+            this.uploadPolicy.getContext().showStatus(status);
             // this.uploadPolicy.displayDebug("[updateUploadStatusBar] " +
             // status, 101);
         }
@@ -968,7 +968,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
         // Let's show the modifications to the user
         this.uploadProgressBar.setString(msg);
-        this.uploadProgressBar.repaint(0);
+        this.uploadProgressBar.repaint();
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////
@@ -998,7 +998,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                         this.uploadPolicy.getString("preparingFile"),
                         new Integer(i + 1), new Integer(
                                 this.uploadFileDataArray.length)));
-                this.preparationProgressBar.repaint(100);
+                this.preparationProgressBar.repaint();
 
                 // Then, we work
                 this.uploadFileDataArray[i].beforeUpload();

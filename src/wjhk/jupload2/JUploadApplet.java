@@ -21,19 +21,13 @@
 package wjhk.jupload2;
 
 import java.applet.Applet;
-import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Vector;
 
-import javax.swing.JOptionPane;
+import javax.swing.JApplet;
 
-import wjhk.jupload2.gui.JUploadPanel;
-import wjhk.jupload2.gui.JUploadTextArea;
-import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.policies.UploadPolicyFactory;
+import wjhk.jupload2.context.JUploadContext;
+import wjhk.jupload2.context.JUploadContextApplet;
+
+// FIXME Correct the following comment
 
 /**
  * The applet. It contains quite only the call to creation of the
@@ -48,300 +42,24 @@ import wjhk.jupload2.policies.UploadPolicyFactory;
  * @author William JinHua Kwong (updated by etienne_sf)
  * @version $Revision$
  */
-public class JUploadApplet extends Applet {
+public class JUploadApplet extends JApplet {
 
     /** A generated serialVersionUID, to avoid warning during compilation */
     private static final long serialVersionUID = -3207851532114846776L;
 
     /**
-     * The final that contains the SVN properties. These properties are
-     * generated during compilation, by the build.xml ant file.
+     * The current execution context.
      */
-    private final static String svnPropertiesFilename = "/conf/svn.properties";
-
-    /**
-     * The properties, created at build time, by the build.xml ant file. Or a
-     * dummy property set, with 'unknown' values.
-     */
-    private Properties svnProperties = getSvnProperties();
-
-    /**
-     * variable to hold reference to JavascriptHandler object
-     */
-    private JavascriptHandler jsHandler = null;
-
-    /**
-     * The version of this applet. The version itself is to be updated in the
-     * JUploadApplet.java file. The revision is added at build time, by the
-     * build.xml ant file, packaged with the applet.
-     */
-    private final String RELEASE_VERSION = "4.3.3rc2";
-
-    /**
-     * Date of the build for the applet. It's generated at build time by the
-     * build.xml packaged by the script. If compiled with eclipse (for
-     * instance), the build_date is noted as 'unknown'.
-     * 
-     * @deprecated since v4.3.0
-     */
-    @Deprecated
-    public final String BUILD_DATE = this.svnProperties
-            .getProperty("buildDate");
-
-    /**
-     * The current upload policy. This class is responsible for the call to the
-     * UploadPolicyFactory.
-     */
-    private UploadPolicy uploadPolicy = null;
-
-    /**
-     * The JUploadPanel, which actually contains all the applet components.
-     */
-    private JUploadPanel jUploadPanel = null;
-
-    /**
-     * The log messages should go there ...
-     */
-    private JUploadTextArea logWindow = null;
-
-    private class Callback {
-        private String m;
-
-        private Object o;
-
-        Callback(Object o, String m) {
-            this.o = o;
-            this.m = m;
-        }
-
-        void invoke() throws IllegalArgumentException, IllegalAccessException,
-                InvocationTargetException, SecurityException {
-            Object args[] = {};
-            Method methods[] = this.o.getClass().getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getName().equals(this.m)) {
-                    methods[i].invoke(this.o, args);
-                }
-            }
-        }
-    }
-
-    private Vector<Callback> unloadCallbacks = new Vector<Callback>();
-
-    /**
-     * @return The 'official' version (applet version and SVN revision)
-     */
-    public String getVersion() {
-        try {
-            StringBuffer sb = new StringBuffer();
-            sb.append(this.RELEASE_VERSION);
-            sb.append(" [SVN-Rev: ");
-            sb.append(this.svnProperties.getProperty("revision"));
-            sb.append("]");
-
-            if (getBuildNumber() > 0) {
-                sb.append(" build ");
-                sb.append(getBuildNumber());
-            }
-            
-            sb.append(" on ");
-            sb.append(getBuildDate());
-            return sb.toString();
-        } catch (Exception e) {
-            System.out.println(e.getClass().getName()
-                    + " in JUploadApplet.getVersion()");
-        }
-        return this.RELEASE_VERSION;
-    }
-
-    /**
-     * @return Last modification date (date of last commit)
-     */
-    public String getLastModified() {
-        try {
-            return this.svnProperties.getProperty("lastSrcDirModificationDate");
-        } catch (Exception e) {
-            System.out.println(e.getClass().getName()
-                    + " in JUploadApplet.getLastModified()");
-        }
-        return "Unknown";
-    }
-
-    /**
-     * @return Last modification date (date of last commit)
-     */
-    public String getBuildDate() {
-        try {
-            return this.svnProperties.getProperty("buildDate");
-        } catch (Exception e) {
-            System.out.println(e.getClass().getName()
-                    + " in JUploadApplet.getBuildDate()");
-        }
-        return "Unknown";
-    }
-
-    /**
-     * @return Last modification date (date of last commit)
-     */
-    public int getBuildNumber() {
-        try {
-            return Integer.parseInt(this.svnProperties
-                    .getProperty("buildNumber"));
-        } catch (Exception e) {
-            System.out.println(e.getClass().getName()
-                    + " in JUploadApplet.getBuildDate()");
-        }
-        return 0;
-    }
-
-    /**
-     * @see java.applet.Applet#init()
-     */
-    @Override
-    public void init() {
-        try {
-            // Creation of the Panel, containing all GUI objects for upload.
-            this.logWindow = new JUploadTextArea(20, 20);
-            this.uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
-
-            this.setLayout(new BorderLayout());
-            this.jUploadPanel = new JUploadPanel(this, this.logWindow,
-                    this.uploadPolicy);
-
-            this.add(this.jUploadPanel, BorderLayout.CENTER);
-
-            // We start the jsHandler thread, that allows javascript to send
-            // upload command to the applet.
-            this.jsHandler = new JavascriptHandler(this.uploadPolicy,
-                    this.jUploadPanel);
-        } catch (final Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace());
-            // TODO Translate this sentence
-            JOptionPane
-                    .showMessageDialog(
-                            null,
-                            "Error during applet initialization!\nHave a look in your Java console.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
-        }
-
-    }
+    JUploadContext juploadContext = null;
 
     /**
      * Called each time the applet is shown on the web page.
      */
     public void start() {
+        this.juploadContext = new JUploadContextApplet(this);
         // Let's refresh the display, and have the caret well placed.
-        this.uploadPolicy.displayInfo("JUploadApplet is now started.");
-    }
-
-    /**
-     * Retrieves the current log window of this applet. This log window may
-     * visible or not depending on various applet parameter.
-     * 
-     * @return the current log window of this instance.
-     * @see JUploadPanel#showOrHideLogWindow()
-     */
-    public JUploadTextArea getLogWindow() {
-        return this.logWindow;
-    }
-
-    /**
-     * Retrieves the current upload panel.
-     * 
-     * @return the current upload panel of this instance.
-     */
-    public JUploadPanel getUploadPanel() {
-        return this.jUploadPanel;
-    }
-
-    /**
-     * Retrieves the current upload policy.
-     * 
-     * @return the current upload policy of this instance.
-     */
-    public UploadPolicy getUploadPolicy() {
-        return this.uploadPolicy;
-    }
-
-    // ///////////////////////////////////////////////////////////////////////////////////////////////////////:
-    // //////////////// FUNCTIONS INTENDED TO BE CALLED BY JAVASCRIPT FUNCTIONS
-    // ////////////////////////////:
-    // ///////////////////////////////////////////////////////////////////////////////////////////////////////:
-
-    /**
-     * This allow runtime modifications of properties, from javascript.
-     * Currently, this can only be used after full initialization. This method
-     * only calls the UploadPolicy.setProperty method. <BR>
-     * Ex: document.jupload.setProperty(prop, value);
-     * 
-     * @param prop The property name that must be set.
-     * @param value The value of this property.
-     */
-    public void setProperty(String prop, String value) {
-        try {
-            // We'll wait up to 2s until the applet initialized (we need an
-            // upload policy).
-            for (int i = 0; i < 20 && this.uploadPolicy == null; i += 1) {
-                this.wait(100);
-            }
-            if (this.uploadPolicy == null) {
-                System.out.println("uploadPolicy is null. Impossible to set "
-                        + prop + " to " + value);
-            } else {
-                this.uploadPolicy.setProperty(prop, value);
-            }
-        } catch (Exception e) {
-            this.uploadPolicy.displayErr(e);
-        }
-    }
-
-    /**
-     * example public method that can be called by Javascript to start upload
-     * 
-     * @return Returns the upload result. See the constants defined in the
-     *         {@link JavascriptHandler} javadoc.
-     */
-    public String startUpload() {
-        return this.jsHandler.doCommand(JavascriptHandler.COMMAND_START_UPLOAD);
-    }
-
-    /**
-     * Call to {@link UploadPolicy#displayErr(Exception)}
-     * 
-     * @param err The error text to be displayed.
-     */
-    public void displayErr(String err) {
-        this.uploadPolicy.displayErr(err);
-    }
-
-    /**
-     * Call to {@link UploadPolicy#displayInfo(String)}
-     * 
-     * @param info The info text to display
-     */
-    public void displayInfo(String info) {
-        this.uploadPolicy.displayInfo(info);
-    }
-
-    /**
-     * Call to {@link UploadPolicy#displayWarn(String)}
-     * 
-     * @param warn The error text to be displayed.
-     */
-    public void displayWarn(String warn) {
-        this.uploadPolicy.displayWarn(warn);
-    }
-
-    /**
-     * Call to {@link UploadPolicy#displayDebug(String, int)}
-     * 
-     * @param debug The debug message.
-     * @param minDebugLevel The minimum level that debug level should have, to
-     *            display this message. Values can go from 0 to 100.
-     */
-    public void displayDebug(String debug, int minDebugLevel) {
-        this.uploadPolicy.displayDebug(debug, minDebugLevel);
+        this.juploadContext.getUploadPolicy().displayInfo(
+                "JUploadApplet is now started.");
     }
 
     /**
@@ -349,101 +67,8 @@ public class JUploadApplet extends Applet {
      */
     @Override
     public void stop() {
-        runUnload();
+        this.juploadContext.runUnload();
     }
 
-    // /////////////////////////////////////////////////////////////////////////
-    // ////////////////////// Helper functions
-    // /////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Helper function for ant build to retrieve the current version. This
-     * method is used by the build.xml ant build file, to get the release
-     * version, and put it into the svn.properties file.
-     * 
-     * @param args Standard argument for main method. Not used.
-     */
-    public static void main(String[] args) {
-        JUploadApplet juploadApplet = new JUploadApplet();
-        System.out.println(juploadApplet.RELEASE_VERSION);
-    }
-
-    /**
-     * Helper function, to get the Revision number, if available. The applet
-     * must be built from the build.xml ant file.
-     * 
-     * @return The svn properties
-     */
-    public static Properties getSvnProperties() {
-        Properties properties = new Properties();
-        Boolean bPropertiesLoaded = false;
-
-        // Let's try to load the properties file.
-        // The upload policy is not created yet: we can not use its display
-        // methods to trace what is happening here.
-        try {
-            properties.load(Class.forName("wjhk.jupload2.JUploadApplet")
-                    .getResourceAsStream(svnPropertiesFilename));
-            bPropertiesLoaded = true;
-        } catch (Exception e) {
-            // An error occurred when reading the file. The applet was
-            // probably not built with the build.xml ant file.
-            // We'll create a fake property list. See below.
-
-            // We can not output to the uploadPolicy display method, as the
-            // upload policy is not created yet. We output to the system output.
-            // Consequence: if this doesn't work during build, you'll see an
-            // error during the build: the generated file name will contain the
-            // following error message.
-            System.out.println(e.getClass().getName()
-                    + " in JUploadApplet.getSvnProperties() (" + e.getMessage()
-                    + ")");
-        }
-
-        // If we could not read the property file. The applet was probably not
-        // built with the build.xml ant file, we create a fake property list.
-        if (!bPropertiesLoaded) {
-            properties.setProperty("buildDate",
-                    "Unknown build date (please use the build.xml ant script)");
-            properties
-                    .setProperty("lastSrcDirModificationDate",
-                            "Unknown last modification date (please use the build.xml ant script)");
-            properties.setProperty("revision",
-                    "Unknown revision (please use the build.xml ant script)");
-        }
-        return properties;
-    }
-
-    /**
-     * Register a callback to be executed during applet termination.
-     * 
-     * @param o The Object instance to be registered
-     * @param method The Method of that object to be registered. The method must
-     *            be of type void and must not take any parameters and must be
-     *            public.
-     */
-    public void registerUnload(Object o, String method) {
-        this.unloadCallbacks.add(new Callback(o, method));
-    }
-
-    private void runUnload() {
-        Iterator<Callback> i = this.unloadCallbacks.iterator();
-        while (i.hasNext()) {
-            try {
-                i.next().invoke();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        this.unloadCallbacks.clear();
-    }
-
-    /**
-     * @see java.applet.Applet#destroy()
-     */
-    @Override
-    public void destroy() {
-        runUnload();
-    }
 
 }

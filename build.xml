@@ -332,7 +332,7 @@ lastSrcDirModificationDate = ${svn.date}
 	</target>
 
 	<target name="-getversion" depends="compile" unless="version">
-		<java classname="wjhk.jupload2.JUploadApplet"
+		<java classname="wjhk.jupload2.context.DefaultJUploadContext"
 		      classpath="${path.build}"
 		      outputproperty="version"
 		      failonerror="true" />
