@@ -2,6 +2,7 @@
 
 
 function footer() {
+	  document.writeln("<a href='http://sourceforge.net/community/cca09/nominate/?project_name=File Upload Applet&project_url=http://jupload.sourceforge.net/'><img src='http://sourceforge.net/images/cca/cca_nominate.png' border='0'/></a>");
   document.writeln("  <center>");
   document.writeln("      <table width=100% cellpadding=0 cellspacing=0 border=0>");
   document.writeln("       <tr><td colspan=3><hr size=1 noshade width=100%></td></tr>");
