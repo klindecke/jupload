@@ -47,7 +47,6 @@ import wjhk.jupload2.JUploadApplet;
 import wjhk.jupload2.gui.filepanel.FilePanel;
 import wjhk.jupload2.gui.filepanel.FilePanelTableImp;
 import wjhk.jupload2.policies.UploadPolicy;
-import wjhk.jupload2.policies.UploadPolicyFactory;
 import wjhk.jupload2.upload.FileUploadManagerThread;
 
 /**
@@ -119,17 +118,14 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * Standard constructor.
      * 
-     * @param containerParam The container, where all GUI elements are to be
-     *            created.
      * @param logWindow The log window that should already have been created.
      *            This allows putting text into it, before the effective
      *            creation of the layout.
      * @param uploadPolicyParam The current UploadPolicy. Null if a new one must
      *            be created.
      * @throws Exception
-     * @see UploadPolicyFactory#getUploadPolicy(wjhk.jupload2.JUploadApplet)
      */
-    public JUploadPanel(Container containerParam, JUploadTextArea logWindow,
+    public JUploadPanel(JUploadTextArea logWindow,
             UploadPolicy uploadPolicyParam) throws Exception {
         this.logWindow = logWindow;
         this.uploadPolicy = uploadPolicyParam;
@@ -274,7 +270,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
         // -------- statusLabel --------
         this.statusLabel = new JLabel("JUpload applet V"
-                + this.uploadPolicy.getApplet().getVersion());
+                + this.uploadPolicy.getContext().getVersion());
     }
 
     /**

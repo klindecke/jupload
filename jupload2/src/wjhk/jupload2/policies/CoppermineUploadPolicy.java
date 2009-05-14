@@ -21,7 +21,7 @@
 
 package wjhk.jupload2.policies;
 
-import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
@@ -88,20 +88,20 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     private int nbPictureInUpload = 0;
 
     /**
-     * @param theApplet Identifier for the current applet. It's necessary, to
+     * @param juploadContext Identifier for the current applet. It's necessary, to
      *            read information from the navigator.
      * @throws JUploadException
      */
-    public CoppermineUploadPolicy(JUploadApplet theApplet)
+    public CoppermineUploadPolicy(JUploadContext juploadContext)
             throws JUploadException {
         // Let's call our mother ! :-)
-        super(theApplet);
+        super(juploadContext);
 
         // Let's read the albumId from the applet parameter. It can be unset,
         // but the user must then choose
         // an album before upload.
-        this.albumId = UploadPolicyFactory.getParameter(theApplet,
-                PROP_ALBUM_ID, DEFAULT_ALBUM_ID, this);
+        this.albumId = getContext().getParameter(PROP_ALBUM_ID,
+                DEFAULT_ALBUM_ID);
     }
 
     /**
@@ -137,7 +137,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
 
         // Check if it's a local property.
         if (prop.equals(PROP_ALBUM_ID)) {
-            this.albumId = UploadPolicyFactory.parseInt(value, 0, this);
+            this.albumId = getContext().parseInt(value, 0);
             displayDebug("Post URL (modified in CoppermineUploadPolicy) = "
                     + getPostURL(), 10);
         } else {
@@ -184,7 +184,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
         }
 
         // We note the number of files to upload.
-        this.nbPictureInUpload = getApplet().getUploadPanel().getFilePanel()
+        this.nbPictureInUpload = getContext().getUploadPanel().getFilePanel()
                 .getFilesLength();
 
         // Default : Let's ask the mother.
@@ -195,7 +195,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     @Override
     public void afterUpload(Exception e, String serverOutput)
             throws JUploadException {
-        int nbPictureAfterUpload = getApplet().getUploadPanel().getFilePanel()
+        int nbPictureAfterUpload = getContext().getUploadPanel().getFilePanel()
                 .getFilesLength();
         if (nbPictureAfterUpload > this.nbPictureInUpload) {
             displayErr("CoppermineUploadPolicy.afterUpload: The number of uploaded files is negative! ("
@@ -222,7 +222,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                     + this.albumId
                     + "&nb_pictures="
                     + (this.nbPictureInUpload - nbPictureAfterUpload));
-            // ... and call the standard behaviour.
+            // ... and call the standard behavior.
             super.afterUpload(e, serverOutput);
         }
     }

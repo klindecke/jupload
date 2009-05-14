@@ -23,7 +23,7 @@ package wjhk.jupload2.policies;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.context.JUploadContext;
 
 /**
  * This class is used to control creation of the uploadPolicy instance,
@@ -49,23 +49,23 @@ public class UploadPolicyFactory {
      * parameters for the uploadPolicy are take from avaiable applet parameters
      * (or from system properties, if it is not run as an applet).
      * 
-     * @param theApplet if not null : use this Applet Parameters. If null, use
-     *            System properties.
+     * @param theAppletContext if not null : use this Applet Parameters. If
+     *            null, use System properties.
      * @return The newly created UploadPolicy.
      * @throws Exception
      */
-    public static UploadPolicy getUploadPolicy(JUploadApplet theApplet)
+    public static UploadPolicy getUploadPolicy(JUploadContext theAppletContext)
             throws Exception {
-        UploadPolicy uploadPolicy = theApplet.getUploadPolicy();
+        UploadPolicy uploadPolicy = theAppletContext.getUploadPolicy();
 
         if (uploadPolicy == null) {
             // Let's create the update policy.
-            String uploadPolicyStr = getParameter(theApplet,
+            String uploadPolicyStr = theAppletContext.getParameter(
                     UploadPolicy.PROP_UPLOAD_POLICY,
-                    UploadPolicy.DEFAULT_UPLOAD_POLICY, null);
-            int debugLevel = getParameter(theApplet,
+                    UploadPolicy.DEFAULT_UPLOAD_POLICY);
+            int debugLevel = theAppletContext.getParameter(
                     UploadPolicy.PROP_DEBUG_LEVEL,
-                    UploadPolicy.DEFAULT_DEBUG_LEVEL, null);
+                    UploadPolicy.DEFAULT_DEBUG_LEVEL);
 
             String action = null;
             boolean usingDefaultUploadPolicy = false;
@@ -84,7 +84,7 @@ public class UploadPolicyFactory {
                                 .forName("wjhk.jupload2.policies."
                                         + uploadPolicyStr);
                         logDebug("wjhk.jupload2.policies." + uploadPolicyStr
-                                + " successfully loaded.", debugLevel);
+                                + " class found.", debugLevel);
                     } catch (ClassNotFoundException e1) {
                         logDebug(e1.getClass().getName()
                                 + " when looking for [wjhk.jupload2.policies.]"
@@ -96,14 +96,13 @@ public class UploadPolicyFactory {
                     // Let's try without the prefix
                     try {
                         uploadPolicyClass = Class.forName(uploadPolicyStr);
-                        logDebug(uploadPolicyStr + " successfully loaded.",
-                                debugLevel);
+                        logDebug(uploadPolicyStr + " class found.", debugLevel);
                     } catch (ClassNotFoundException e2) {
                         logDebug(e2.getClass().getName()
                                 + " when looking for the given uploadPolicy ("
                                 + uploadPolicyStr + ")", debugLevel);
                         // Too bad, we don't know how to create this class.
-                        // Fall back to builtin default.
+                        // Fall back to built-in default.
                         usingDefaultUploadPolicy = true;
                         uploadPolicyClass = Class
                                 .forName("wjhk.jupload2.policies.DefaultUploadPolicy");
@@ -113,13 +112,14 @@ public class UploadPolicyFactory {
                     }
                 }
                 action = "constructorParameters";
+                // FIXME doc to update !
                 Class<?>[] constructorParameters = {
-                    Class.forName("wjhk.jupload2.JUploadApplet")
+                    Class.forName("wjhk.jupload2.context.JUploadContext")
                 };
                 Constructor<?> constructor = uploadPolicyClass
                         .getConstructor(constructorParameters);
                 Object[] params = {
-                    theApplet
+                    (JUploadContext) theAppletContext
                 };
                 action = "newInstance";
                 uploadPolicy = (UploadPolicy) constructor.newInstance(params);
@@ -127,10 +127,11 @@ public class UploadPolicyFactory {
                 if (e instanceof InvocationTargetException) {
                     // If the policy's constructor has thrown an exception,
                     // Get that "real" exception and print its details and
-                    // stacktrace
+                    // stack trace
                     Throwable t = ((InvocationTargetException) e)
                             .getTargetException();
-                    System.out.println("-ERROR- " + t.getMessage());
+                    System.out.println("-ERROR- " + e.getClass().getName()
+                            + " (message: " + t.getMessage() + ")");
                     t.printStackTrace();
                 }
                 System.out.println("-ERROR- " + e.getClass().getName() + " in "
@@ -159,268 +160,6 @@ public class UploadPolicyFactory {
         }
 
         return uploadPolicy;
-    }
-
-    /**
-     * Get a String parameter value from applet properties or System properties.
-     * 
-     * @param theApplet The applet which provides the parameter. If null, the
-     *            parameter is retrieved from the system property.
-     * @param key The name of the parameter to fetch.
-     * @param def A default value which is used, when the specified parameter is
-     *            not set.
-     * @param uploadPolicy Unused
-     * @return The value of the applet parameter (resp. system property). If the
-     *         parameter was not specified or no such system property exists,
-     *         returns the given default value.
-     */
-    static public String getParameter(JUploadApplet theApplet, String key,
-            String def, UploadPolicy uploadPolicy) {
-        String paramStr;
-        if (theApplet == null) {
-            paramStr = (System.getProperty(key) != null ? System
-                    .getProperty(key) : def);
-        } else {
-            paramStr = (theApplet.getParameter(key) != null ? theApplet
-                    .getParameter(key) : def);
-        }
-
-        displayDebugParameterValue(uploadPolicy, key, paramStr);
-
-        return paramStr;
-    }
-
-    /**
-     * Get a String parameter value from applet properties or System properties.
-     * 
-     * @param theApplet The current applet
-     * @param key The parameter name
-     * @param def The default value
-     * @param uploadPolicy The current upload policy
-     * 
-     * @return the parameter value, or the default, if the system is not set.
-     */
-    static public int getParameter(JUploadApplet theApplet, String key,
-            int def, UploadPolicy uploadPolicy) {
-        String paramStr;
-        String paramDef = Integer.toString(def);
-
-        // First, read the parameter as a String
-        if (theApplet == null) {
-            paramStr = System.getProperty(key) != null ? System
-                    .getProperty(key) : paramDef;
-        } else {
-            paramStr = theApplet.getParameter(key) != null ? theApplet
-                    .getParameter(key) : paramDef;
-        }
-
-        displayDebugParameterValue(uploadPolicy, key, paramStr);
-
-        return parseInt(paramStr, def, uploadPolicy);
-    }
-
-    /**
-     * Get a String parameter value from applet properties or System properties.
-     * 
-     * @param theApplet The current applet
-     * @param key The parameter name
-     * @param def The default value
-     * @param uploadPolicy The current upload policy
-     * 
-     * @return the parameter value, or the default, if the system is not set.
-     */
-    static public float getParameter(JUploadApplet theApplet, String key,
-            float def, UploadPolicy uploadPolicy) {
-        String paramStr;
-        String paramDef = Float.toString(def);
-
-        // First, read the parameter as a String
-        if (theApplet == null) {
-            paramStr = System.getProperty(key) != null ? System
-                    .getProperty(key) : paramDef;
-        } else {
-            paramStr = theApplet.getParameter(key) != null ? theApplet
-                    .getParameter(key) : paramDef;
-        }
-
-        displayDebugParameterValue(uploadPolicy, key, paramStr);
-
-        return parseFloat(paramStr, def, uploadPolicy);
-    }
-
-    /**
-     * Get a String parameter value from applet properties or System properties.
-     * 
-     * @param theApplet The current applet
-     * @param key The parameter name
-     * @param def The default value
-     * @param uploadPolicy The current upload policy
-     * 
-     * @return the parameter value, or the default, if the system is not set.
-     */
-    static public long getParameter(JUploadApplet theApplet, String key,
-            long def, UploadPolicy uploadPolicy) {
-        String paramStr;
-        String paramDef = Long.toString(def);
-
-        // First, read the parameter as a String
-        if (theApplet == null) {
-            paramStr = System.getProperty(key) != null ? System
-                    .getProperty(key) : paramDef;
-        } else {
-            paramStr = theApplet.getParameter(key) != null ? theApplet
-                    .getParameter(key) : paramDef;
-        }
-
-        displayDebugParameterValue(uploadPolicy, key, paramStr);
-
-        return parseLong(paramStr, def, uploadPolicy);
-    }// getParameter(int)
-
-    /**
-     * Get a boolean parameter value from applet properties or System
-     * properties.
-     * 
-     * @param theApplet The current applet
-     * @param key The parameter name
-     * @param def The default value
-     * @param uploadPolicy The current upload policy
-     * 
-     * @return the parameter value, or the default, if the system is not set.
-     */
-    static public boolean getParameter(JUploadApplet theApplet, String key,
-            boolean def, UploadPolicy uploadPolicy) {
-        String paramStr;
-        String paramDef = (def ? "true" : "false");
-
-        // First, read the parameter as a String
-        if (theApplet == null) {
-            paramStr = System.getProperty(key) != null ? System
-                    .getProperty(key) : paramDef;
-        } else {
-            paramStr = theApplet.getParameter(key) != null ? theApplet
-                    .getParameter(key) : paramDef;
-        }
-
-        displayDebugParameterValue(uploadPolicy, key, paramStr);
-
-        return parseBoolean(paramStr, def, uploadPolicy);
-    }// getParameter(boolean)
-
-    /**
-     * This function try to parse value as an integer. If value is not a correct
-     * integer, def is returned.
-     * 
-     * @param value The string value, that must be parsed
-     * @param def The default value
-     * @param uploadPolicy The current upload policy
-     * @return The integer value of value, or def if value is not valid.
-     */
-    static public int parseInt(String value, int def, UploadPolicy uploadPolicy) {
-        int ret = def;
-        // Then, parse it as an integer.
-        try {
-            ret = Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            ret = def;
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid int value: " + value
-                        + ", using default value: " + def);
-            }
-        }
-
-        return ret;
-    }
-
-    /**
-     * This function try to parse value as a float number. If value is not a
-     * correct float, def is returned.
-     * 
-     * @param value The string value, that must be parsed
-     * @param def The default value
-     * @param uploadPolicy The current upload policy
-     * @return The float value of value, or def if value is not valid.
-     */
-    static public float parseFloat(String value, float def,
-            UploadPolicy uploadPolicy) {
-        float ret = def;
-        // Then, parse it as an integer.
-        try {
-            ret = Float.parseFloat(value);
-        } catch (NumberFormatException e) {
-            ret = def;
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid float value: " + value
-                        + ", using default value: " + def);
-            }
-        }
-
-        return ret;
-    }
-
-    /**
-     * This function try to parse value as a Long. If value is not a correct
-     * long, def is returned.
-     * 
-     * @param value The string value, that must be parsed
-     * @param def The default value
-     * @param uploadPolicy The current upload policy
-     * @return The integer value of value, or def if value is not valid.
-     */
-    static public long parseLong(String value, long def,
-            UploadPolicy uploadPolicy) {
-        long ret = def;
-        // Then, parse it as an integer.
-        try {
-            ret = Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            ret = def;
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid long value: " + value
-                        + ", using default value: " + def);
-            }
-        }
-
-        return ret;
-    }
-
-    /**
-     * This function try to parse value as a boolean. If value is not a correct
-     * boolean, def is returned.
-     * 
-     * @param value The new value for this property. If invalid, the default
-     *            value is used.
-     * @param def The default value: used if value is invalid.
-     * @param uploadPolicy If not null, it will be used to display a warning
-     *            when the value is invalid.
-     * @return The boolean value of value, or def if value is not a valid
-     *         boolean.
-     */
-    static public boolean parseBoolean(String value, boolean def,
-            UploadPolicy uploadPolicy) {
-        // Then, parse it as a boolean.
-        if (value.toUpperCase().equals("FALSE")) {
-            return false;
-        } else if (value.toUpperCase().equals("TRUE")) {
-            return true;
-        } else {
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid boolean value: " + value
-                        + ", using default value: " + def);
-            }
-            return def;
-        }
-    }
-
-    /**
-     * Displays the debug information for the current parameter.
-     */
-    private static void displayDebugParameterValue(UploadPolicy uploadPolicy,
-            String key, String value) {
-        if (uploadPolicy != null && uploadPolicy.getDebugLevel() >= 80) {
-            uploadPolicy.displayDebug("Parameter '" + key + "' loaded. Value: "
-                    + value, 80);
-        }
     }
 
     /**

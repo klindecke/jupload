@@ -540,12 +540,12 @@ public class ImageHelper implements ImageObserver {
     public boolean imageUpdate(Image img, int infoflags, int x, int y,
             int width, int height) {
         if ((infoflags & ImageObserver.WIDTH) == ImageObserver.WIDTH) {
-            this.progressBarBaseValue = this.uploadPolicy.getApplet()
+            this.progressBarBaseValue = this.uploadPolicy.getContext()
                     .getUploadPanel().getPreparationProgressBar().getValue();
             this.uploadPolicy.displayDebug(
                     "  imageUpdate (start of), progressBar geValue: "
                             + this.progressBarBaseValue, 50);
-            int max = this.uploadPolicy.getApplet().getUploadPanel()
+            int max = this.uploadPolicy.getContext().getUploadPanel()
                     .getPreparationProgressBar().getMaximum();
             this.uploadPolicy
                     .displayDebug(
@@ -554,7 +554,7 @@ public class ImageHelper implements ImageObserver {
         } else if ((infoflags & ImageObserver.SOMEBITS) == ImageObserver.SOMEBITS) {
             this.nbPixelsRead += width * height;
             int percentage = (int) ((long) this.nbPixelsRead * 100 / this.nbPixelsTotal);
-            this.uploadPolicy.getApplet().getUploadPanel()
+            this.uploadPolicy.getContext().getUploadPanel()
                     .getPreparationProgressBar().setValue(
                             this.progressBarBaseValue + percentage);
             // TODO: drawImage in another thread, to allow repaint of the
@@ -562,8 +562,8 @@ public class ImageHelper implements ImageObserver {
             // Current status: the progress bar is only updated ... when
             // draImage returns, that is: when everything is finished. NO
             // interest.
-            this.uploadPolicy.getApplet().getUploadPanel()
-                    .getPreparationProgressBar().repaint(100);
+            this.uploadPolicy.getContext().getUploadPanel()
+                    .getPreparationProgressBar().repaint();
         } else if ((infoflags & ImageObserver.ALLBITS) == ImageObserver.ALLBITS) {
             this.uploadPolicy.displayDebug(
                     "  imageUpdate, total number of pixels: "

@@ -29,7 +29,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.dnd.DropTargetDropEvent;
 
-import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.gui.JUploadPanel;
 
@@ -48,12 +48,12 @@ public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
      * The JUpload constructor for this upload policy. Like all upload policies,
      * this constructor is called by the {@link UploadPolicyFactory}
      * 
-     * @param theApplet
+     * @param juploadContext
      * @throws JUploadException
      */
-    public FilesTogetherUploadPolicy(JUploadApplet theApplet)
+    public FilesTogetherUploadPolicy(JUploadContext juploadContext)
             throws JUploadException {
-        super(theApplet);
+        super(juploadContext);
     }
 
     /**
@@ -84,7 +84,7 @@ public class FilesTogetherUploadPolicy extends DefaultUploadPolicy {
 
     @Override
     public void afterFileDropped(DropTargetDropEvent dropEvent) {
-        getApplet().getUploadPanel().doStartUpload();
+        getContext().getUploadPanel().doStartUpload();
     }
 
 }

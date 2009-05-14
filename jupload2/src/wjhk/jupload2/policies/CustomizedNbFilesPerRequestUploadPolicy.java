@@ -21,7 +21,7 @@
 
 package wjhk.jupload2.policies;
 
-import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadException;
 
 /**
@@ -31,7 +31,7 @@ import wjhk.jupload2.exception.JUploadException;
  * 
  * @author etienne_sf
  * @version $Revision$
- * @see #CustomizedNbFilesPerRequestUploadPolicy(JUploadApplet)
+ * @see #CustomizedNbFilesPerRequestUploadPolicy(JUploadContext)
  * @deprecated This class is of no use, as it actually behaves exactly as the
  *             {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
  */
@@ -40,13 +40,13 @@ public class CustomizedNbFilesPerRequestUploadPolicy extends
         DefaultUploadPolicy {
 
     /**
-     * @param theApplet The applet to whom the UploadPolicy must apply.
+     * @param theContext The applet to whom the UploadPolicy must apply.
      * @throws JUploadException
      * @see UploadPolicy
      */
-    public CustomizedNbFilesPerRequestUploadPolicy(JUploadApplet theApplet)
+    public CustomizedNbFilesPerRequestUploadPolicy(JUploadContext theContext)
             throws JUploadException {
-        super(theApplet);
+        super(theContext);
     }
 
 }

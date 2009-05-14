@@ -20,7 +20,7 @@
 
 package wjhk.jupload2.policies;
 
-import wjhk.jupload2.JUploadApplet;
+import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadException;
 
 /**
@@ -30,12 +30,12 @@ import wjhk.jupload2.exception.JUploadException;
  * <BR>
  * This policy :
  * <UL>
- * <LI> Upload files without tranformation
+ * <LI> Upload files without transformation
  * <LI> File by file (uploading 5 files needs 5 HTTP request toward the server)
  * <UL>
  * <BR>
  * <BR>
- * The same behaviour can be obtained by specifying no UploadPolicy (or
+ * The same behavior can be obtained by specifying no UploadPolicy (or
  * {@link FileByFileUploadPolicy}), and give the nbFilesPerRequest (with a
  * value set to 1) parameter.
  * 
@@ -50,12 +50,12 @@ import wjhk.jupload2.exception.JUploadException;
 public class FileByFileUploadPolicy extends DefaultUploadPolicy {
 
     /**
-     * @param theApplet The applet on which the UploadPolicy should apply.
+     * @param juploadContext The applet on which the UploadPolicy should apply.
      * @throws JUploadException
      */
-    public FileByFileUploadPolicy(JUploadApplet theApplet)
+    public FileByFileUploadPolicy(JUploadContext juploadContext)
             throws JUploadException {
-        super(theApplet);
+        super(juploadContext);
 
         setNbFilesPerRequest(1);
     }

@@ -132,9 +132,9 @@ final class JUploadDebugPopupMenu extends JPopupMenu implements ActionListener,
                 this.uploadPolicy.displayErr(e1);
             }
         } else if (this.jMenuItemClearLogWindowContent == e.getSource()) {
-            this.uploadPolicy.getApplet().getUploadPanel().clearLogWindow();
+            this.uploadPolicy.getContext().getUploadPanel().clearLogWindow();
         } else if (this.jMenuItemCopyLogWindowContent == e.getSource()) {
-            this.uploadPolicy.getApplet().getUploadPanel().copyLogWindow();
+            this.uploadPolicy.getContext().getUploadPanel().copyLogWindow();
         }
     }
 

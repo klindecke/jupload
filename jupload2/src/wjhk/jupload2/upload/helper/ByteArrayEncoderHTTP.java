@@ -238,7 +238,8 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     public ByteArrayEncoder appendFormVariables(String formname)
             throws JUploadIOException {
         try {
-            JSObject win = JSObject.getWindow(this.uploadPolicy.getApplet());
+            //TODO Do not use getApplet() anymore, here.
+            JSObject win = JSObject.getWindow(this.uploadPolicy.getContext().getApplet());
             Object o = win.eval("document." + formname + ".elements.length");
             if (o instanceof Number) {
                 int len = ((Number) o).intValue();
