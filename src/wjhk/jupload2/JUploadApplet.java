@@ -20,8 +20,6 @@
 
 package wjhk.jupload2;
 
-import java.applet.Applet;
-
 import javax.swing.JApplet;
 
 import wjhk.jupload2.context.JUploadContext;
@@ -69,6 +67,5 @@ public class JUploadApplet extends JApplet {
     public void stop() {
         this.juploadContext.runUnload();
     }
-
 
 }

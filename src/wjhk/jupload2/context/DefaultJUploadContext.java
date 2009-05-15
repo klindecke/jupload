@@ -20,7 +20,6 @@
 
 package wjhk.jupload2.context;
 
-import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

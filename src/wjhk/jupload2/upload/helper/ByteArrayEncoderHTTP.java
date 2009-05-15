@@ -27,8 +27,6 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
 
@@ -239,7 +237,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
             throws JUploadIOException {
         try {
             //TODO Do not use getApplet() anymore, here.
-            JSObject win = JSObject.getWindow(this.uploadPolicy.getContext().getApplet());
+            netscape.javascript.JSObject win = netscape.javascript.JSObject.getWindow(this.uploadPolicy.getContext().getApplet());
             Object o = win.eval("document." + formname + ".elements.length");
             if (o instanceof Number) {
                 int len = ((Number) o).intValue();
@@ -298,7 +296,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                     .displayWarn("[ByteArrayEncoder.appendFormVariables] name must be an instance of String (name: "
                                             + name + ", value: )" + value + ")");
                         }
-                    } catch (JSException e1) {
+                    } catch (netscape.javascript.JSException e1) {
                         this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
                                 + ": got JSException, bailing out", 10);
                         i = len;
@@ -308,7 +306,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                 this.uploadPolicy.displayWarn("The specified form \""
                         + formname + "\" could not be found.");
             }
-        } catch (JSException e) {
+        } catch (netscape.javascript.JSException e) {
             this.uploadPolicy.displayDebug(e.getStackTrace()[1]
                     + ": No JavaScript availabe", 10);
         }

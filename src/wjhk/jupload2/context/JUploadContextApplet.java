@@ -20,9 +20,7 @@
 
 package wjhk.jupload2.context;
 
-import java.applet.Applet;
 import java.awt.Cursor;
-import java.awt.Panel;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -59,6 +57,7 @@ public class JUploadContextApplet extends DefaultJUploadContext {
      * @param theApplet The applet is mandatory, to read the applet parameters.
      */
     public JUploadContextApplet(JApplet theApplet) {
+        // TODO have a constructor with (this.theApplet=applet)
         if (theApplet == null) {
             throw new IllegalArgumentException("theApplet may not be null");
         }

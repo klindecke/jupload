@@ -20,9 +20,7 @@
 
 package wjhk.jupload2.context;
 
-import java.applet.Applet;
 import java.awt.Cursor;
-import java.awt.Panel;
 import java.util.Vector;
 
 import javax.swing.JApplet;

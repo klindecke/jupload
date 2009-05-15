@@ -21,7 +21,7 @@
 
 package wjhk.jupload2.gui;
 
-import java.awt.Container;
+
 import java.awt.Frame;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
