@@ -1852,8 +1852,7 @@ public interface UploadPolicy {
      * @param file Allows the applet to filter files from the file chooser.
      * @return true or false, whether the file is accepted or not.
      * 
-     * @see JUploadPanel#JUploadPanel(java.awt.Container,
-     *      wjhk.jupload2.gui.JUploadTextArea, UploadPolicy)
+     * @see JUploadPanel#JUploadPanel(wjhk.jupload2.gui.JUploadTextArea, UploadPolicy)
      */
     public boolean fileFilterAccept(File file);
 
