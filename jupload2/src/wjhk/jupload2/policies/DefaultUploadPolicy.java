@@ -1376,6 +1376,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
                 + getFileChooserIconSize(), 30);
         displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(), 30);
+        displayDebug(PROP_FORMDATA + ": " + getFormdata(), 30);        
         displayDebug(PROP_FTP_CREATE_DIRECTORY_STRUCTURE + ": "
                 + getFtpCreateDirectoryStructure(), 30);
         displayDebug(
