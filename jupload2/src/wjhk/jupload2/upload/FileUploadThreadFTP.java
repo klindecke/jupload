@@ -296,10 +296,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                                 + " (" + this.ftp.getReplyString() + ")");
             }
 
-            // FIXME To in beforeRequest, just after connection.
-
             setTransferType(index);
-            // just in case, delete anything that exists
 
             // No delete, as the user may not have the right for that. We use,
             // later, the store command:
