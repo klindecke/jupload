@@ -235,9 +235,17 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     /** {@inheritDoc} */
     public ByteArrayEncoder appendFormVariables(String formname)
             throws JUploadIOException {
+        String action = "Entering ByteArrayEncoderHTTP.appendFormVariables()";
         try {
-            //TODO Do not use getApplet() anymore, here.
-            netscape.javascript.JSObject win = netscape.javascript.JSObject.getWindow(this.uploadPolicy.getContext().getApplet());
+            this.uploadPolicy.displayDebug(
+                    "Entering ByteArrayEncoderHTTP.appendFormVariables() [html form: "
+                            + formname + "]", 80);
+            // TODO Do not use getApplet() anymore, here.
+            action = "win = netscape.javascript.JSObject.getWindow";
+            netscape.javascript.JSObject win = netscape.javascript.JSObject
+                    .getWindow(this.uploadPolicy.getContext().getApplet());
+
+            action = "o = win.eval";
             Object o = win.eval("document." + formname + ".elements.length");
             if (o instanceof Number) {
                 int len = ((Number) o).intValue();
@@ -248,19 +256,29 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                 int i;
                 for (i = 0; i < len; i++) {
                     try {
+                        action = "name = win.eval";
                         Object name = win.eval("document." + formname + "[" + i
                                 + "].name");
+                        action = "value = win.eval";
                         Object value = win.eval("document." + formname + "["
                                 + i + "].value");
+                        action = "elementType = win.eval";
                         Object elementType = win.eval("document." + formname
                                 + "[" + i + "].type");
-                        Object elementClass = win.eval("document." + formname
-                                + "[" + i + "].class");
+                        action = "elementClass = win.eval";
+                        // elementClass seems to be not supported by IE7
+                        // The next line prevents formData to be sent to the
+                        // server, when formData is used on IE7. Works fine with
+                        // firefox.
+                        // Object elementClass = win.eval("document." + formname
+                        // + "[" + i + "].class");
+                        action = "etype = win.eval";
                         Object etype = win.eval("document." + formname + "["
                                 + i + "].type");
                         if (etype instanceof String) {
                             String t = (String) etype;
                             if (t.equals("checkbox") || t.equals("radio")) {
+                                action = "on = win.eval";
                                 Object on = win.eval("document." + formname
                                         + "[" + i + "].checked");
                                 if (on instanceof Boolean) {
@@ -279,7 +297,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                                 + i + " (name: " + name
                                                 + ", value: " + value
                                                 + ", type: " + elementType
-                                                + ", class: " + elementClass
+                                                /* + ", class: " + elementClass */
                                                 + ")", 80);
                                 this.appendTextProperty((String) name,
                                         (String) value);
@@ -297,8 +315,12 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                             + name + ", value: )" + value + ")");
                         }
                     } catch (netscape.javascript.JSException e1) {
-                        this.uploadPolicy.displayDebug(e1.getStackTrace()[1]
-                                + ": got JSException, bailing out", 10);
+                        this.uploadPolicy
+                                .displayWarn(e1.getStackTrace()[1]
+                                        + ": got JSException in ByteArrayEncoderHTTP.appendFormVariables() [html form: "
+                                        + formname
+                                        + "] - bailing out (action: " + action
+                                        + ")");
                         i = len;
                     }
                 }
@@ -308,7 +330,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
             }
         } catch (netscape.javascript.JSException e) {
             this.uploadPolicy.displayDebug(e.getStackTrace()[1]
-                    + ": No JavaScript availabe", 10);
+                    + ": No JavaScript available (action: " + action + ")", 10);
         }
         return this;
     }
