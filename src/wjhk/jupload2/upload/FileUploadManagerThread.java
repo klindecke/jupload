@@ -337,13 +337,13 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                         getUploadException());
             } else if (isUploadStopped()) {
                 this.uploadPolicy
-                .displayInfo("Upload stopped by the user. "
-                        + this.nbSuccessfullyUploadedFiles
-                        + " file(s) uploaded in "
-                        + (int) ((System.currentTimeMillis() - this.globalStartTime) / 1000)
-                        + " seconds. Average upload speed: "
-                        + ((this.uploadDuration > 0) ? ((int) (this.nbUploadedBytes / this.uploadDuration))
-                                : 0) + " (kbytes/s)");
+                        .displayInfo("Upload stopped by the user. "
+                                + this.nbSuccessfullyUploadedFiles
+                                + " file(s) uploaded in "
+                                + (int) ((System.currentTimeMillis() - this.globalStartTime) / 1000)
+                                + " seconds. Average upload speed: "
+                                + ((this.uploadDuration > 0) ? ((int) (this.nbUploadedBytes / this.uploadDuration))
+                                        : 0) + " (kbytes/s)");
             } else {
                 this.uploadPolicy
                         .displayInfo("Upload finished normally. "
@@ -436,7 +436,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @param uploadException
      */
-    public synchronized void setUploadException(JUploadException uploadException) {
+    public void setUploadException(JUploadException uploadException) {
         // We don't override an existing exception
         if (this.uploadException != null) {
             this.uploadPolicy
