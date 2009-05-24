@@ -37,24 +37,21 @@ import wjhk.jupload2.gui.JUploadTextArea;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.policies.UploadPolicyFactory;
 
-// FIXME Complete this comment
-
 /**
- * The Jupload Context. One such context is instanciate at run time. It can be
- * the Applet, or the 'main' class, depending on the launch type. <BR>
- * It contains quite only the call to creation of the
- * {@link wjhk.jupload2.gui.JUploadPanel}, which contains the real code. <BR>
+ * The Jupload Context. One such context is created at run time. It can be the
+ * Applet, or the 'main' class, depending on the launch type. <BR>
+ * It contains the call to the creation of the
+ * {@link wjhk.jupload2.gui.JUploadPanel}, which contains the real code, and
+ * some technical stuff that depend on the technical context (mainly applet or
+ * stand alone application). <BR>
+ * The functional control of JUpload is done by using {@link UploadPolicy}. This
+ * class should not be changed, in order to remain compatible with next JUpload
+ * releases. <BR>
  * <BR>
- * The behavior of the applet can easily be adapted, by : <DIR> <LI>Using an
- * existing {@link wjhk.jupload2.policies.UploadPolicy}, and specifying
- * parameters. <LI>Creating a new upload policy, based on the
- * {@link wjhk.jupload2.policies.DefaultUploadPolicy}, or created from scratch.
- * </DIR> <BR>
- * <BR>
- * <B>Note:</B> This class should be abstract. But it is used by the build.xml
- * file, to load the version. So all methods of the {@link JUploadContext}
- * interface are implemented. Those who actually can't be coded here, just
- * generate a UnsupportedOperationException exception.
+ * <B>Technical note:</B> This class should be abstract. But it is used by the
+ * build.xml file, to load the version. So all methods of the
+ * {@link JUploadContext} interface are implemented. Those who actually can't be
+ * coded here, just generate a UnsupportedOperationException exception.
  * 
  * @author etienne_sf
  * @version $Revision: 750 $
@@ -290,12 +287,7 @@ public class DefaultJUploadContext implements JUploadContext {
         }
     }
 
-    /**
-     * example public method that can be called by Javascript to start upload
-     * 
-     * @return Returns the upload result. See the constants defined in the
-     *         {@link JavascriptHandler} javadoc.
-     */
+    /** {@inheritDoc} */
     public String startUpload() {
         return this.jsHandler.doCommand(JavascriptHandler.COMMAND_START_UPLOAD);
     }
