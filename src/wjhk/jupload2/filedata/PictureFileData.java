@@ -407,7 +407,9 @@ public class PictureFileData extends DefaultFileData {
 
         // We'll have to recalculate the upload length, as the resulting file is
         // different.
-        // FIXME If any file has been prepared, they must be deleted
+        // If any file has been prepared, they must be deleted
+        deleteWorkingCopyPictureFile();
+        deleteTransformedPictureFile();
         this.uploadLength = -1;
 
         // We keep the 'quarter' in the segment [0;4[
