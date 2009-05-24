@@ -292,4 +292,23 @@ public interface JUploadContext {
      * Runs all callback that must be called when releasing the applet.
      */
     public void runUnload();
+
+    /**
+     * This allow runtime modifications of properties, from javascript.
+     * Currently, this can only be used after full initialization. This method
+     * only calls the UploadPolicy.setProperty method. <BR>
+     * Ex: document.jupload.setProperty(prop, value);
+     * 
+     * @param prop The property name that must be set.
+     * @param value The value of this property.
+     */
+    public void setProperty(String prop, String value);
+
+    /**
+     * Public method that can be called by Javascript to start upload
+     * 
+     * @return Returns the upload result. See the constants defined in the
+     *         {@link JavascriptHandler} javadoc.
+     */
+    public String startUpload();
 }
