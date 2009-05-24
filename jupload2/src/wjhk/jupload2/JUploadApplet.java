@@ -24,20 +24,23 @@ import javax.swing.JApplet;
 
 import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.context.JUploadContextApplet;
-
-// FIXME Correct the following comment
+import wjhk.jupload2.context.JavascriptHandler;
+import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * The applet. It contains quite only the call to creation of the
- * {@link wjhk.jupload2.gui.JUploadPanel}, which contains the real code. <BR>
+ * {@link JUploadContextApplet}, which contains the technical context. This
+ * context is responsible for loading the relevant {@link UploadPolicy}. <BR>
  * <BR>
  * The behavior of the applet can easily be adapted, by : <DIR> <LI>Using an
  * existing {@link wjhk.jupload2.policies.UploadPolicy}, and specifying
  * parameters. <LI>Creating a new upload policy, based on the
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}, or created from scratch.
- * </DIR>
+ * <BR>
+ * For all details on this point, please read the <a
+ * href="../../../howto-customization.html">howto-customization.html</a> page.
  * 
- * @author William JinHua Kwong (updated by etienne_sf)
+ * @author William JinHua Kwong (largely updated by etienne_sf)
  * @version $Revision$
  */
 public class JUploadApplet extends JApplet {
@@ -68,4 +71,27 @@ public class JUploadApplet extends JApplet {
         this.juploadContext.runUnload();
     }
 
+    /**
+     * This allow runtime modifications of properties, from javascript.
+     * Currently, this can only be used after full initialization. This method
+     * only calls the UploadPolicy.setProperty method. <BR>
+     * Ex: document.jupload.setProperty(prop, value);
+     * 
+     * @param prop The property name that must be set.
+     * @param value The value of this property.
+     * @see JUploadContext#setProperty(String, String)
+     */
+    public void setProperty(String prop, String value) {
+        this.juploadContext.setProperty(prop, value);
+    }
+
+    /**
+     * Javascript can call this method to start the upload.
+     * 
+     * @return Returns the upload result. See the constants defined in the
+     *         {@link JavascriptHandler} javadoc.
+     */
+    public String startUpload() {
+        return this.juploadContext.startUpload();
+    }
 }
