@@ -112,7 +112,6 @@ public class UploadPolicyFactory {
                     }
                 }
                 action = "constructorParameters";
-                // FIXME doc to update !
                 Class<?>[] constructorParameters = {
                     Class.forName("wjhk.jupload2.context.JUploadContext")
                 };
