@@ -151,8 +151,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * picture gallery</a>. This parameter contains the identifier of the album,
  * where pictures should be used. See CoppermineUploadPolicy for an example. <br>
  * Before upload, CoppermineUploadPolicy.
- * {@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUploadReady()} checks
- * that the albumId is correct, that is: >=1.</td>
+ * {@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUpload()} checks that
+ * the albumId is correct, that is: >=1.</td>
  * </tr>
  * <tr>
  * <td>allowedFileExtensions</td>
@@ -1852,7 +1852,8 @@ public interface UploadPolicy {
      * @param file Allows the applet to filter files from the file chooser.
      * @return true or false, whether the file is accepted or not.
      * 
-     * @see JUploadPanel#JUploadPanel(wjhk.jupload2.gui.JUploadTextArea, UploadPolicy)
+     * @see JUploadPanel#JUploadPanel(wjhk.jupload2.gui.JUploadTextArea,
+     *      UploadPolicy)
      */
     public boolean fileFilterAccept(File file);
 
@@ -2005,19 +2006,13 @@ public interface UploadPolicy {
     public void onFileDoubleClicked(FileData fileData);
 
     /**
-     * Indicate if everything is ready for upload.
+     * Execute any action, that must be done before upload. For instance,
+     * {@link PictureUploadPolicy} disable the rotation buttons during buttons.
+     * The {@link DefaultUploadPolicy#isUpload()} method just returns true.
      * 
      * @return indicate if everything is ready for upload.
      */
-    public boolean isUploadReady();
-
-    /**
-     * Enable any action, required before an upload. For instance,
-     * {@link PictureUploadPolicy} disable the rotation buttons during buttons.
-     * 
-     * @see #afterUpload(Exception, String)
-     */
-    public void beforeUpload();
+    public boolean beforeUpload();
 
     /**
      * This method returns true, if upload is a success. A HTTP response of "200

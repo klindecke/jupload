@@ -1,4 +1,19 @@
 
+Fix:
+- [Major] The applet would still block, when an error message is snet by the server
+- [Minor] formData would not work on IE7
+
+Changes: 
+- [Minor] The UploadPolicy.isUploadReady() and UploadPolicy.beforeUpload() has been merged, in the beforeUpload() method.
+
+
+v4.3.3
+
+Fix:
+- [Major, Picture mode] If the picture has too big resized before upload, it was done twice. The applet could event freeze
+while doing that (caused by an OutOfMemory)
+
+
 v4.3.2
 
 IMPORTANT NOTE (repeated from 4.3.0 release): the language packaging has changed. Please check the:

@@ -539,14 +539,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * @see wjhk.jupload2.policies.UploadPolicy#beforeUpload()
-     */
-    public void beforeUpload() {
-        // Default: no special action.
-    }
-
-    /**
-     * The default behaviour (see {@link DefaultUploadPolicy}) is to check that
+     * The default behavior (see {@link DefaultUploadPolicy}) is to check that
      * the stringUploadSuccess juploadContext parameter is present in the
      * response from the server. The return is tested, in the order below: <DIR>
      * <LI>False, if the stringUploadError is found. An error message is then
@@ -1021,8 +1014,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return "File" + index;
     }
 
-    /** @see wjhk.jupload2.policies.UploadPolicy#isUploadReady() */
-    public boolean isUploadReady() {
+    /** @see wjhk.jupload2.policies.UploadPolicy#beforeUpload() */
+    public boolean beforeUpload() {
         // Default : nothing to do before upload, so we're ready.
         return true;
     }
