@@ -431,7 +431,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /** @see UploadPolicy#beforeUpload() */
     @Override
-    public void beforeUpload() {
+    public boolean beforeUpload() {
         // We clear the current picture selection. This insures a correct
         // managing of enabling/disabling of
         // buttons, even if the user stops the upload.
@@ -442,7 +442,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         }
 
         // Then, we call the standard action, if any.
-        super.beforeUpload();
+        return super.beforeUpload();
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////////////////////

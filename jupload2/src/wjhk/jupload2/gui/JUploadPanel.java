@@ -360,7 +360,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // that the upload is not ready!
         // ///////////////////////////////////////////////////////////////////////////////////////////////
         try {
-            if (this.uploadPolicy.isUploadReady()) {
+            if (this.uploadPolicy.beforeUpload()) {
                 // The FileUploadManagerThread will manage everything around
                 // upload, including GUI part.
                 this.fileUploadManagerThread = new FileUploadManagerThread(

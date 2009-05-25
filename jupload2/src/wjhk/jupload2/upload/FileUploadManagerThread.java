@@ -281,9 +281,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadPolicy.displayDebug(
                     "Start of the FileUploadManagerThread", 5);
 
-            // Let's let the current upload policy have any preparation work
-            this.uploadPolicy.beforeUpload();
-
             // The upload is started. Let's change the button state.
             this.uploadPanel.updateButtonState();
 

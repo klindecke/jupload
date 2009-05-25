@@ -177,7 +177,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * @see wjhk.jupload2.policies.UploadPolicy#isUploadReady()
      */
     @Override
-    public boolean isUploadReady() {
+    public boolean beforeUpload() {
         if (this.albumId <= 0) {
             alert("chooseAlbumFirst");
             return false;
@@ -188,7 +188,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
                 .getFilesLength();
 
         // Default : Let's ask the mother.
-        return super.isUploadReady();
+        return super.beforeUpload();
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#afterUpload(Exception, String) */
