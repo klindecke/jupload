@@ -174,7 +174,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * superclass. This number is then used to display to the user the list of
      * pictures he just uploaded.
      * 
-     * @see wjhk.jupload2.policies.UploadPolicy#isUploadReady()
+     * @see wjhk.jupload2.policies.UploadPolicy#beforeUpload()
      */
     @Override
     public boolean beforeUpload() {

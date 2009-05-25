@@ -151,7 +151,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * picture gallery</a>. This parameter contains the identifier of the album,
  * where pictures should be used. See CoppermineUploadPolicy for an example. <br>
  * Before upload, CoppermineUploadPolicy.
- * {@link wjhk.jupload2.policies.CoppermineUploadPolicy#isUpload()} checks that
+ * {@link wjhk.jupload2.policies.CoppermineUploadPolicy#beforeUpload()} checks that
  * the albumId is correct, that is: >=1.</td>
  * </tr>
  * <tr>
@@ -2008,7 +2008,7 @@ public interface UploadPolicy {
     /**
      * Execute any action, that must be done before upload. For instance,
      * {@link PictureUploadPolicy} disable the rotation buttons during buttons.
-     * The {@link DefaultUploadPolicy#isUpload()} method just returns true.
+     * The {@link DefaultUploadPolicy#beforeUpload()} method just returns true.
      * 
      * @return indicate if everything is ready for upload.
      */
