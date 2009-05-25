@@ -67,7 +67,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
      * encoded length or the encoded byte array.<BR>
      * <B>Note:</B> a closed byte array can not be re-opened.
      */
-    private boolean closed = false;
+    boolean closed = false;
 
     /**
      * The actual array, which will collect the encoded bytes.
