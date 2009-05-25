@@ -1,9 +1,11 @@
 package wjhk.jupload2.upload.helper;
 
+import java.util.Arrays;
+
 import wjhk.jupload2.JUploadDaemon;
 import wjhk.jupload2.context.JUploadContext;
-import wjhk.jupload2.context.JUploadContextExecutable;
 import wjhk.jupload2.context.JUploadContextTest;
+import wjhk.jupload2.exception.JUploadIOException;
 import junit.framework.TestCase;
 
 /**
@@ -19,18 +21,28 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
 
     ByteArrayEncoderHTTP byteArrayEncoderHTTP = null;
 
+    final String testCase = "A string, with accents: שאיטüר״ו";
+
+    String boundary = "A boundary";
+
+    String encoding = null;
+
+    byte[] target = null;
+
     protected void setUp() throws Exception {
         super.setUp();
         juploadDaemon = new JUploadDaemon();
         juploadContext = new JUploadContextTest(juploadDaemon,
                 "basicUploadPolicy.properties");
         byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(juploadContext
-                .getUploadPolicy(), null, ByteArrayEncoderHTTP.DEFAULT_ENCODING);
+                .getUploadPolicy(), boundary,
+                ByteArrayEncoderHTTP.DEFAULT_ENCODING);
+        encoding = this.byteArrayEncoderHTTP.getEncoding();
+        target = testCase.getBytes(encoding);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        byteArrayEncoderHTTP.close();
     }
 
     /**
@@ -68,38 +80,39 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
         // Nothing else to do, we just check the instance creation.
     }
 
+    private void finishTestAppend() throws Exception {
+        this.byteArrayEncoderHTTP.close();
+        byte[] result = this.byteArrayEncoderHTTP.getEncodedByteArray();
+        assertTrue(Arrays.equals(result, target));
+    }
+
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testAppendString() throws Exception {
-        final String testCase="A string, with accents: שאיטü";
-        String encoding = this.byteArrayEncoderHTTP.getEncoding();
-        byte[] target = testCase.getBytes(encoding);
-        
-        // String
         this.byteArrayEncoderHTTP.append(testCase);
-        this.byteArrayEncoderHTTP.close();
-        assertTrue(this.byteArrayEncoderHTTP.getEncodedByteArray().equals(target));
+        finishTestAppend();
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testAppendInt() throws Exception {
-
-        // int
         this.byteArrayEncoderHTTP.append((int) 65);
-        fail("Not yet implemented"); // TODO
+        this.byteArrayEncoderHTTP.close();
+        byte[] result = this.byteArrayEncoderHTTP.getEncodedByteArray();
+        byte[] targetInt = {
+            65
+        };
+        assertTrue(Arrays.equals(result, targetInt));
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testAppendByteArray() throws Exception {
-        byte[] b = new byte[1];
-        b[0] = 66;
-        this.byteArrayEncoderHTTP.append(b);
-        fail("Not yet implemented"); // TODO
+        this.byteArrayEncoderHTTP.append(target);
+        finishTestAppend();
     }
 
     /**
@@ -108,25 +121,48 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
     public void testAppendByteArrayEncoder() throws Exception {
         ByteArrayEncoderHTTP bae = new ByteArrayEncoderHTTP(this.juploadContext
                 .getUploadPolicy());
-        bae.append("Another ByteArrayEncoderHTTP");
+        bae.append(this.testCase);
+        bae.close();
         // append should throw an exception, if executed on a non-closed
         this.byteArrayEncoderHTTP.append(bae);
-
-        fail("Not yet implemented"); // TODO
+        finishTestAppend();
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testAppendTextProperty() throws Exception {
-        fail("Not yet implemented"); // TODO
+        String name = "A name";
+        String value = "A value";
+
+        // First: calculate the result.
+        StringBuffer sb = new StringBuffer();
+        sb.append(this.byteArrayEncoderHTTP.getBoundary()).append("\r\n");
+        sb.append("Content-Disposition: form-data; name=\"").append(name)
+                .append("\"\r\n");
+        sb.append("Content-Transfer-Encoding: 8bit\r\n");
+        sb.append("Content-Type: text/plain; ").append(encoding).append("\r\n");
+        sb.append("\r\n");
+        sb.append(value).append("\r\n");
+        this.target = sb.toString().getBytes(encoding);
+
+        // Then, do the test.
+        this.byteArrayEncoderHTTP.appendTextProperty(name, value);
+        finishTestAppend();
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testAppendEndPropertyList() throws Exception {
-        fail("Not yet implemented"); // TODO
+        // First: calculate the result.
+        StringBuffer sb = new StringBuffer();
+        sb.append(this.byteArrayEncoderHTTP.getBoundary()).append("--\r\n");
+        this.target = sb.toString().getBytes(encoding);
+
+        // Then, do the test.
+        this.byteArrayEncoderHTTP.appendEndPropertyList();
+        finishTestAppend();
     }
 
     /**
@@ -134,139 +170,62 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
      */
     public void testAppendFormVariables() throws Exception {
         fail("Not yet implemented"); // TODO
+        finishTestAppend();
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testGetBoundary() throws Exception {
-        fail("Not yet implemented"); // TODO
+        assertTrue("Boundary should be the one given on creation", boundary
+                .equals(this.byteArrayEncoderHTTP.getBoundary()));
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testGetDefaultEncoding() throws Exception {
-        fail("Not yet implemented"); // TODO
+        assertTrue("UTF-8".equals(ByteArrayEncoderHTTP.getDefaultEncoding()));
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testIsClosed() throws Exception {
-        fail("Not yet implemented"); // TODO
+        assertTrue(this.byteArrayEncoderHTTP.isClosed() == this.byteArrayEncoderHTTP.closed);
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testGetEncoding() throws Exception {
-        fail("Not yet implemented"); // TODO
+        assertTrue(this.byteArrayEncoderHTTP.getEncoding()
+                .equals(this.encoding));
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testGetEncodedLength() throws Exception {
-        fail("Not yet implemented"); // TODO
+        testAppendString();
+        assertTrue(this.byteArrayEncoderHTTP.getEncodedLength() == this.target.length);
     }
 
     /**
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testGetEncodedByteArray() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
+        this.byteArrayEncoderHTTP.append("Any string");
 
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testGetString() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testObject() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testGetClass() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testHashCode() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testEquals() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testClone() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testToString() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testNotify() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testNotifyAll() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testWaitLong() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testWaitLongInt() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testWait() throws Exception {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * @throws Exception The test is wrong, if this exception is fired
-     */
-    public void testFinalize() throws Exception {
-        fail("Not yet implemented"); // TODO
+        boolean aJUploadIOExceptionWasFired = false;
+        try {
+            this.byteArrayEncoderHTTP.getEncodedByteArray();
+        } catch (JUploadIOException e) {
+            aJUploadIOExceptionWasFired = true;
+        }
+        assertTrue(
+                "An exception should be fired when getEncodedByteArray is called on a non closed ByteArray",
+                aJUploadIOExceptionWasFired);
     }
 
 }
