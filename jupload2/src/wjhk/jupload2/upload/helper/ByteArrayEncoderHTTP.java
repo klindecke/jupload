@@ -48,7 +48,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
      * The default encoding. It can be retrieved with
      * {@link #getDefaultEncoding()}.
      */
-    private final static String DEFAULT_ENCODING = "UTF-8";
+    final static String DEFAULT_ENCODING = "UTF-8";
 
     /**
      * The boundary, to put between to post variables. Can not be changed during
