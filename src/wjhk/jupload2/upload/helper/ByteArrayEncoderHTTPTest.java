@@ -21,7 +21,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
 
     ByteArrayEncoderHTTP byteArrayEncoderHTTP = null;
 
-    final String testCase = "A string, with accents: שאיטüר״ו";
+    final String testCase = "A string, with accents: שאיט\u00f8\u00e5\u00d8\u00e6";
 
     String boundary = "A boundary";
 
