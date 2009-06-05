@@ -73,35 +73,35 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * currentRequestStartTime is reseted to 0. It's then ready for the next
      * upload request.
      */
-    private long currentRequestStartTime = 0;
+    long currentRequestStartTime = 0;
 
     /** The current file list. */
-    private FilePanel filePanel = null;
+    FilePanel filePanel = null;
 
     /**
      * The upload thread, that will wait for the next file packet to be ready,
      * then send it.
      */
-    private FileUploadThread fileUploadThread = null;
+    FileUploadThread fileUploadThread = null;
 
     /**
      * Contains the system time of the start of the global upload. This is used
      * to calculate the ETA, and display it to the user, on the status bar.
      */
-    private long globalStartTime = 0;
+    long globalStartTime = 0;
 
     /** @see UploadPolicy#getMaxChunkSize() */
     long maxChunkSize = -1;
 
     /** Contains the sum of the files, ready for upload, and not uploaded yet */
-    private long nbBytesReadyForUpload = 0;
+    long nbBytesReadyForUpload = 0;
 
     /**
      * Number of files that has been read by the {@link FileUploadThread}
      * thread. These files have been read by the {@link #getNextPacket()}
      * method.
      */
-    private int nbFilesBeingUploaded = 0;
+    int nbFilesBeingUploaded = 0;
 
     /** @see UploadPolicy#getNbFilesPerRequest() */
     int nbFilesPerRequest = -1;
@@ -110,27 +110,27 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * Number of files that are prepared for upload. A file is prepared for
      * upload, if the {@link FileData#beforeUpload()} has been called.
      */
-    private int nbPreparedFiles = 0;
+    int nbPreparedFiles = 0;
 
     /**
      * Number of files that have already been sent. The control on the upload
      * success may be done or not. It's used to properly display the progress
      * bar.
      */
-    private int nbSentFiles = 0;
+    int nbSentFiles = 0;
 
     /**
      * Number of files that have been successfully uploaded. already been sent.
      * The control on the upload success may be done or not. It's used to
      * properly display the progress bar.
      */
-    private int nbSuccessfullyUploadedFiles = 0;
+    int nbSuccessfullyUploadedFiles = 0;
 
     /**
      * Indicated the number of bytes that have currently been sent for the
      * current file. This allows the management of the progress bar.
      */
-    private long nbBytesUploadedForCurrentFile = 0;
+    long nbBytesUploadedForCurrentFile = 0;
 
     /**
      * Sum of the length for all prepared files. This allow the calculation of
@@ -138,37 +138,37 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @see #anotherFileHasBeenSent(FileData)
      */
-    private long nbTotalNumberOfPreparedBytes = 0;
+    long nbTotalNumberOfPreparedBytes = 0;
 
     /**
      * During the upload, when uploading several files in one packet, this
      * attribute indicates which file is currently being uploaded.
      */
-    private int numOfFileInCurrentRequest = 0;
+    int numOfFileInCurrentRequest = 0;
 
     /**
      * Indicates what is the current file being uploaded, and its upload status.
      */
-    private int uploadStatus = UPLOAD_STATUS_NOT_STARTED;
+    int uploadStatus = UPLOAD_STATUS_NOT_STARTED;
 
     /**
      * Contains the next packet to upload.
      * 
      * @see #getNextPacket()
      */
-    private UploadFileData[] nextPacket = null;
+    UploadFileData[] nextPacket = null;
 
     /**
      * The {@link JUploadPanel} progress bar, to follow the file preparation
      * progress.
      */
-    private JProgressBar preparationProgressBar = null;
+    JProgressBar preparationProgressBar = null;
 
     /**
      * The {@link JUploadPanel} progress bar, to follow the upload of the
      * prepared files to the server.
      */
-    private JProgressBar uploadProgressBar = null;
+    JProgressBar uploadProgressBar = null;
 
     /**
      * Indicates whether the upload is finished or not. Passed to true as soon
@@ -178,24 +178,23 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * method) <LI>The user stops the upload (in the {@link #stopUpload()}
      * method) </DIR>
      */
-    private boolean uploadFinished = false;
+    boolean uploadFinished = false;
 
     /**
      * Contains the time of the actual start of upload. Doesn't take into
      * account the time for preparing files.
      */
-    private long uploadStartTime = 0;
+    long uploadStartTime = 0;
 
     /**
-     * If set to 'true', the thread will stop the current upload. This attribute
-     * is not private as the {@link UploadFileData} class us it.
+     * If set to 'true', the thread will stop the current upload.
      * 
      * @see UploadFileData#uploadFile(java.io.OutputStream, long)
      */
-    private boolean stop = false;
+    boolean stop = false;
 
     /** Thread Exception, if any occurred during upload. */
-    private JUploadException uploadException = null;
+    JUploadException uploadException = null;
 
     /**
      * Contains the sum of the upload duration for all requests. For instance,
@@ -204,19 +203,19 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * calculate the true upload speed, and ignore the time we'll wait for the
      * server's response.
      */
-    private long uploadDuration = 0;
+    long uploadDuration = 0;
 
     /** Current number of bytes that have been uploaded. */
-    private long nbUploadedBytes = 0;
+    long nbUploadedBytes = 0;
 
     /** A shortcut to the upload panel */
-    private JUploadPanel uploadPanel = null;
+    JUploadPanel uploadPanel = null;
 
     /** The current upload policy. */
-    private UploadPolicy uploadPolicy = null;
+    UploadPolicy uploadPolicy = null;
 
     /** The list of files to upload */
-    private UploadFileData[] uploadFileDataArray = null;
+    UploadFileData[] uploadFileDataArray = null;
 
     // ////////////////////////////////////////////////////////////////////////////
     // To follow the upload speed.
@@ -226,21 +225,52 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * Used to update the status bar (upload speed, ETA...): 300ms make it
      * accurate, and avoid an always changing value.
      */
-    private Timer timerStatusBar = new Timer(1000, this);
+    Timer timerStatusBar = new Timer(1000, this);
 
     /**
      * Used to update the progress: 50ms is nice, as it is fast enough, and
      * doesn't make CPU rise to 100%.
      */
-    private Timer timerProgressBar = new Timer(50, this);
+    Timer timerProgressBar = new Timer(50, this);
 
     /**
      * Standard constructor of the class.
      * 
      * @param uploadPolicy
+     * @throws JUploadException
      */
-    public FileUploadManagerThread(UploadPolicy uploadPolicy) {
+    public FileUploadManagerThread(UploadPolicy uploadPolicy)
+            throws JUploadException {
         super("FileUploadManagerThread thread");
+        constructor(uploadPolicy, null);
+    }
+
+    /**
+     * Internal constructor. It is used by the JUnit test, to create a
+     * FileUploadManagerThread instance, based on a non-active
+     * {@link FileUploadThread}.
+     * 
+     * @param uploadPolicy The current uploadPolicy
+     * @param fileUploadThreadParam The instance of {@link FileUploadThread}
+     *            that should be used. Allows execution of unit tests, based on
+     *            a specific FileUploadThread, that does ... nothing.
+     * @throws JUploadException
+     */
+    public FileUploadManagerThread(UploadPolicy uploadPolicy,
+            FileUploadThread fileUploadThreadParam) throws JUploadException {
+        super("FileUploadManagerThread test thread");
+        constructor(uploadPolicy, fileUploadThreadParam);
+    }
+
+    /**
+     * Called by the class constructors, to initialize the current instance.
+     * 
+     * @param uploadPolicy
+     * @param fileUploadThreadParam
+     * @throws JUploadException
+     */
+    private void constructor(UploadPolicy uploadPolicy,
+            FileUploadThread fileUploadThreadParam) throws JUploadException {
 
         // General shortcuts on the current applet.
         this.uploadPolicy = uploadPolicy;
@@ -252,7 +282,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
         // Let's start the upload thread. It will wait until the first
         // packet is ready.
-        createUploadThread();
+        createUploadThread(fileUploadThreadParam);
 
         // Let's store some upload parameters, to avoid querying all the time.
         this.nbFilesPerRequest = this.uploadPolicy.getNbFilesPerRequest();
@@ -287,7 +317,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // Let's prepare the progress bar, to display the current upload
             // stage.
             initProgressBar();
-
+            
             // Create a timer, to update the status bar.
             this.timerProgressBar.start();
             this.timerStatusBar.start();
@@ -297,6 +327,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // for
             // each file packet.
             prepareFiles();
+            
+            //We can now start the upload thread.
+            this.fileUploadThread.start();
 
             // The thread upload may need some information about the current
             // one, like ... knowing that upload is actually finished (no more
@@ -397,15 +430,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
         // And we die of our beautiful death ... until next upload.
     }// run
-
-    /**
-     * Get the exception that occurs during upload.
-     * 
-     * @return The exception, or null if no exception were thrown.
-     */
-    public Exception getException() {
-        return this.uploadException;
-    }
 
     /**
      * Get the total number of files which have been successfully uploaded.
@@ -1021,21 +1045,31 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     /**
      * Creates and starts the upload thread. It will wait until the first packet
      * is ready.
+     * 
+     * @throws JUploadException
      */
-    private void createUploadThread() {
-        try {
-            if (this.uploadPolicy.getPostURL().substring(0, 4).equals("ftp:")) {
-                this.fileUploadThread = new FileUploadThreadFTP(
-                        this.uploadPolicy, this);
-            } else {
-                this.fileUploadThread = new FileUploadThreadHTTP(
-                        this.uploadPolicy, this);
+    private void createUploadThread(FileUploadThread fileUploadThreadParam)
+            throws JUploadException {
+        if (fileUploadThreadParam != null) {
+            // The FileUploadThread has already been created.
+            // We set the FileUploadThreadManager.
+            this.fileUploadThread = fileUploadThreadParam;
+            fileUploadThreadParam.setFileUploadThreadManager(this);
+        } else {
+            try {
+                if (this.uploadPolicy.getPostURL().substring(0, 4).equals(
+                        "ftp:")) {
+                    this.fileUploadThread = new FileUploadThreadFTP(
+                            this.uploadPolicy, this);
+                } else {
+                    this.fileUploadThread = new FileUploadThreadHTTP(
+                            this.uploadPolicy, this);
+                }
+            } catch (JUploadException e1) {
+                // Too bad !
+                this.uploadPolicy.displayErr(e1);
             }
-        } catch (JUploadException e1) {
-            // Too bad !
-            this.uploadPolicy.displayErr(e1);
         }
-        this.fileUploadThread.start();
     }
 
     /**

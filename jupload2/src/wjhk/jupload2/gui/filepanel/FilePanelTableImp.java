@@ -98,7 +98,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     public final void addFiles(File[] f, File root) {
         if (null == f) {
             throw new java.lang.IllegalArgumentException(
-                    "FilePanelTableImpl: f may not be null)");
+                    "FilePanelTableImpl: filesToUpload may not be null)");
         } else {
             try {
                 for (int i = 0; i < f.length; i++) {
@@ -117,7 +117,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     /**
      * This method allows a recursive calls through the file hierarchy.
      * 
-     * @param f
+     * @param filesToUpload
      * @param root
      * @throws JUploadExceptionStopAddingFiles
      */
@@ -140,7 +140,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     /**
      * Adds a single file into the file list.
      * 
-     * @param f
+     * @param filesToUpload
      * @param root
      * @throws JUploadExceptionStopAddingFiles
      */

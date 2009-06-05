@@ -20,6 +20,8 @@
 
 package wjhk.jupload2.upload;
 
+import wjhk.jupload2.exception.JUploadException;
+
 /**
  * This interface defines the methods of the various FileUploadThread classes.
  * These classes are kept in the CVS, as people often update them for their
@@ -44,18 +46,30 @@ public interface FileUploadThread {
     public void close();
 
     /**
+     * This method is created in this interface, and is implemented by
+     * {@link DefaultFileUploadThread}, as this class is a subclass of
+     * {@link Thread}.
+     * 
      * @return true if the thread is currently working.
      * @see java.lang.Thread#isAlive()
      */
     public boolean isAlive();
 
     /**
+     * This method is created in this interface, and is implemented by
+     * {@link DefaultFileUploadThread}, as this class is a subclass of
+     * {@link Thread}.
+     * 
      * @throws InterruptedException
      * @see java.lang.Thread#join()
      */
     public void join() throws InterruptedException;
 
     /**
+     * This method is created in this interface, and is implemented by
+     * {@link DefaultFileUploadThread}, as this class is a subclass of
+     * {@link Thread}.
+     * 
      * @param millisec
      * @throws InterruptedException
      * @see java.lang.Thread#join(long)
@@ -63,10 +77,33 @@ public interface FileUploadThread {
     public void join(long millisec) throws InterruptedException;
 
     /**
+     * This method is created in this interface, and is implemented by
+     * {@link DefaultFileUploadThread}, as this class is a subclass of
+     * {@link Thread}.
+     * 
      * @see java.lang.Thread#start()
      */
     public void start();
 
-    /** @see java.lang.Thread#interrupt() */
+    /**
+     * This method is created in this interface, and is implemented by
+     * {@link DefaultFileUploadThread}, as this class is a subclass of
+     * {@link Thread}.
+     * 
+     * @see java.lang.Thread#interrupt()
+     */
     public void interrupt();
+
+    /**
+     * Changes the FileUploadManagerThread. The standard way is to give the
+     * FileUploadManagerThread to the constructor.
+     * 
+     * @param fileUploadManagerThread
+     * @throws JUploadException
+     * @see FileUploadManagerThread
+     */
+    void setFileUploadThreadManager(
+            FileUploadManagerThread fileUploadManagerThread)
+            throws JUploadException;
+
 }

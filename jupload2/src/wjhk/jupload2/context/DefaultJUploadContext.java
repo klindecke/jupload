@@ -86,7 +86,7 @@ public class DefaultJUploadContext implements JUploadContext {
      * The current upload policy. This class is responsible for the call to the
      * UploadPolicyFactory.
      */
-    private UploadPolicy uploadPolicy = null;
+    protected UploadPolicy uploadPolicy = null;
 
     /**
      * The JUploadPanel, which actually contains all the applet components.
@@ -168,11 +168,10 @@ public class DefaultJUploadContext implements JUploadContext {
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
             // TODO Translate this sentence
-            JOptionPane
-                    .showMessageDialog(
-                            null,
-                            "Error during applet initialization!\nHave a look in your Java console.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,
+                    "Error during applet initialization!\nHave a look in your Java console ("
+                            + e.getClass().getName() + ")", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
 
     }
