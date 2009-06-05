@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 import wjhk.jupload2.JUploadDaemon;
 import wjhk.jupload2.context.JUploadContext;
-import wjhk.jupload2.context.JUploadContextTest;
 import wjhk.jupload2.exception.JUploadIOException;
+import wjhk.jupload2.test.JUploadContextTest;
 import junit.framework.TestCase;
 
 /**

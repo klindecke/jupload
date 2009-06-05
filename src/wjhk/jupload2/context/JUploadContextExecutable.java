@@ -69,14 +69,21 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
      * default value, that would be wrong values for the daemon standalone
      * application.
      */
-    Properties defaultProperties = null;
+    protected Properties defaultProperties = null;
 
     /**
      * Content of the /conf/_deamon.properties file. These value are the
      * properties given to parameterize the daemon, according to the specific
      * needs of the project.
      */
-    Properties daemonProperties = null;
+    protected Properties daemonProperties = null;
+
+    /**
+     * This constructor does nothing. It should be used by test case only.
+     */
+    protected JUploadContextExecutable() {
+        // No action
+    }
 
     /**
      * The constructor of the context, which needs the top level container to be
@@ -94,15 +101,15 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
         this.jframe = jframe;
 
         // Load default properties
-        defaultProperties = loadPropertiesFromFile(DEFAULT_PROPERTIES_FILE,
-                null);
+        defaultProperties = loadPropertiesFromFileInJar(
+                DEFAULT_PROPERTIES_FILE, null);
 
         // Load daemon properties: from the given URL or from the file.
         if (propertiesURL == null) {
             // No URL given. We load properties from the 'standard' file, in the
             // jar.
-            daemonProperties = loadPropertiesFromFile(DAEMON_PROPERTIES_FILE,
-                    defaultProperties);
+            daemonProperties = loadPropertiesFromFileInJar(
+                    DAEMON_PROPERTIES_FILE, defaultProperties);
         } else {
             // Let's load the properties from this URL.
             daemonProperties = loadPropertiesFromURL(propertiesURL,
@@ -122,7 +129,7 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
      *            default Properties should be used.
      * @return The loaded properties. It's empty if an error occurs.
      */
-    Properties loadPropertiesFromFile(String filename,
+    Properties loadPropertiesFromFileInJar(String filename,
             Properties defaultProperties) {
         Properties properties = new Properties(defaultProperties);
         try {

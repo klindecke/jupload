@@ -36,7 +36,14 @@ import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.policies.UploadPolicy;
 import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 
-class UploadFileData implements FileData {
+/**
+ * This class implements the FileData interface, and is responsible to do the
+ * actual upload of the files.
+ * 
+ * @author etienne_sf
+ * 
+ */
+public class UploadFileData implements FileData {
 
     /**
      * The {@link FileData} instance that contains all information about the
@@ -72,13 +79,13 @@ class UploadFileData implements FileData {
      */
     private UploadPolicy uploadPolicy = null;
 
-    private final int BUFLEN = 4096;
+    private final static int BUFLEN = 4096;
 
     /**
      * This field is no more static, as we could decide to upload two files
      * simultaneously.
      */
-    private final byte readBuffer[] = new byte[this.BUFLEN];
+    private final byte readBuffer[] = new byte[BUFLEN];
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////
     // //////////////////////////////////// CONSTRUCTOR
@@ -133,7 +140,7 @@ class UploadFileData implements FileData {
     String getMD5() throws JUploadException {
         StringBuffer ret = new StringBuffer();
         MessageDigest digest = null;
-        byte md5Buffer[] = new byte[this.BUFLEN];
+        byte md5Buffer[] = new byte[BUFLEN];
         int nbBytes;
 
         // Calculation of the MD5 sum. Now done before upload, to prepare the
@@ -143,7 +150,7 @@ class UploadFileData implements FileData {
         InputStream md5InputStream = this.fileData.getInputStream();
         try {
             digest = MessageDigest.getInstance("MD5");
-            while ((nbBytes = md5InputStream.read(md5Buffer, 0, this.BUFLEN)) > 0) {
+            while ((nbBytes = md5InputStream.read(md5Buffer, 0, BUFLEN)) > 0) {
                 digest.update(md5Buffer, 0, nbBytes);
             }
             md5InputStream.close();
@@ -188,11 +195,12 @@ class UploadFileData implements FileData {
         while (amount > 0) {
             // Are we interrupted ?
             if (Thread.interrupted()) {
-                throw new JUploadInterrupted(getClass().getName() + ".uploadFile ["
-                        + this.getFileName() + "]", this.uploadPolicy);
+                throw new JUploadInterrupted(getClass().getName()
+                        + ".uploadFile [" + this.getFileName() + "]",
+                        this.uploadPolicy);
             }
 
-            int toread = (amount > this.BUFLEN) ? this.BUFLEN : (int) amount;
+            int toread = (amount > BUFLEN) ? BUFLEN : (int) amount;
             int towrite = 0;
 
             try {

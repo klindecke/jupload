@@ -102,13 +102,16 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * Creates a new instance.
      * 
+     * @param threadName The name of the thread, that will be displayed in the
+     *            debugger and in the logs.
      * @param uploadPolicy The upload policy to be applied.
      * @param fileUploadManagerThread The thread that is managing the upload.
      */
-    public DefaultFileUploadThread(UploadPolicy uploadPolicy,
+    public DefaultFileUploadThread(String threadName,
+            UploadPolicy uploadPolicy,
             FileUploadManagerThread fileUploadManagerThread) {
         // Thread parameters.
-        super("FileUploadThread");
+        super(threadName);
 
         // Specific stuff.
         this.uploadPolicy = uploadPolicy;
@@ -402,7 +405,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
      *             detected.
      */
     final private void doChunkedUpload(final long totalContentLength,
-            final long totalFileLength) throws JUploadException, JUploadInterrupted {
+            final long totalFileLength) throws JUploadException,
+            JUploadInterrupted {
         boolean bLastChunk = false;
         int chunkPart = 0;
 
@@ -529,7 +533,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
      *             detected.
      */
     final private void doNonChunkedUpload(final long totalContentLength,
-            final long totalFileLength) throws JUploadException, JUploadInterrupted {
+            final long totalFileLength) throws JUploadException,
+            JUploadInterrupted {
 
         // First step is to prepare all files.
         startRequest(totalContentLength, false, 0, true);
@@ -623,5 +628,16 @@ public abstract class DefaultFileUploadThread extends Thread implements
      */
     public final String quoteCRLF(String s) {
         return s.replaceAll("\r\n", "\\\\r\\\\n\n");
+    }
+
+    /** {@inheritDoc} */
+    public void setFileUploadThreadManager(
+            FileUploadManagerThread fileUploadManagerThread)
+            throws JUploadException {
+        if (this.fileUploadManagerThread != null) {
+            throw new JUploadException(
+                    "Can not override fileUploadManagerThread (in DefaultFileUpload.setFileUploadThreadManager()");
+        }
+        this.fileUploadManagerThread = fileUploadManagerThread;
     }
 }
