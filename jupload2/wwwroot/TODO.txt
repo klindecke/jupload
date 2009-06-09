@@ -3,12 +3,25 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- When an error occurs, the alert box seems to block the PC.
-(perhaps only due to the particular https error that is corrected in the 4.3.1 release)
+- PictureFileData.tooBigPicture()
+=> Just write the warning in the debugfile. Should open a messageBox, but this generates a deadlock. 
+(because the JDialogBox.Message tries to lock the result of new AWTTreeLock() ??)
+Should generate a functional exception, that would be displayed without locks?
+
+- Try Cobertura
+(docs in /Java)
+
+- Analyse findbugs report.
+(docs on HTTrack)
+
+- Tests: remove the /tests folder, and the Test classes from the packaged jar file.
 
 - STOP button: problems in chunk upload.
 Add a way to advertise the server, that the upload was stopped.
 https://sourceforge.net/forum/forum.php?thread_id=3175188&forum_id=199107
+
+- Manage tiff pictures
+See Feature request on sourceforge.
 
 - The applet should not ask the user to send the error to urlToSendErrorTo, when there is a functional error
 (e.g.: wrong file type, file too big...)
@@ -18,6 +31,7 @@ https://sourceforge.net/forum/forum.php?thread_id=3175188&forum_id=199107
 
 - In picture mode (Coppermine?)
 Uploading an empty text file (niv1.txt) generates an error.
+Bug n°: 2793404.
 
 - Add a HowToOptimize page
 (allowHttpPersistent, nbFilesPerRequest...)
@@ -29,6 +43,10 @@ Probably not possible... :-(
 
 - kb or kB ?
 kB should by kilo bytes. Answer in 'Open Discussions'
+
+- When the file filter contains too many file extensions, the browser window may be larger than the screen!
+=> Add an option to display or not this list ?   Or automatically hide the list of file extensions, when they are too many.
+Answer to Heroes, on Coppermine PM.
 
 - BUG: mimetype works only when the extension is in lower case.
 Response to: https://sourceforge.net/forum/forum.php?thread_id=2925505&forum_id=199107
