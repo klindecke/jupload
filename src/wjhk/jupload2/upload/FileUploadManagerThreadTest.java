@@ -80,8 +80,10 @@ public class FileUploadManagerThreadTest extends TestCase {
         juploadContext.getUploadPanel().getFilePanel().addFiles(filesToUpload,
                 fileroot);
 
-        // Let's start the fake upload threads.
-        if (fileUploadThread == null) {
+        // Let's create the fake upload threads: if it was not created, or if it
+        // has already run.
+        if (fileUploadThread == null
+                || Thread.State.TERMINATED.equals(fileUploadThread.getState())) {
             // If no fileUploadThread has been created, let's create a simple
             // one, which is the default for unit tests
             fileUploadThread = new FileUploadThreadTestSuccess(

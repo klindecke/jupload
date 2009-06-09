@@ -311,13 +311,16 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadPolicy.displayDebug(
                     "Start of the FileUploadManagerThread", 5);
 
+            // Let's let the current upload policy have any preparation work
+            this.uploadPolicy.beforeUpload();
+
             // The upload is started. Let's change the button state.
             this.uploadPanel.updateButtonState();
 
             // Let's prepare the progress bar, to display the current upload
             // stage.
             initProgressBar();
-            
+
             // Create a timer, to update the status bar.
             this.timerProgressBar.start();
             this.timerStatusBar.start();
@@ -327,9 +330,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // for
             // each file packet.
             prepareFiles();
-            
-            //We can now start the upload thread.
-            this.fileUploadThread.start();
 
             // The thread upload may need some information about the current
             // one, like ... knowing that upload is actually finished (no more
@@ -755,6 +755,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 currentFileData = this.uploadFileDataArray[this.nbSentFiles
                         + this.nbFilesBeingUploaded + nbFilesInPacket];
 
+                this.uploadPolicy
+                        .displayDebug(
+                                this.getClass().getName()
+                                        + ".checkIfNextPacketIsReady(): before call(1) to currentFileData.getUploadLength()",
+                                100);
                 if (nbFilesInPacket > 0
                         && packetLength + currentFileData.getUploadLength() > this.maxChunkSize) {
                     // We can't add this file: the file size would be bigger
@@ -763,6 +768,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 } else {
                     // Let's add this file.
                     tempFileData[nbFilesInPacket] = currentFileData;
+                    this.uploadPolicy
+                            .displayDebug(
+                                    this.getClass().getName()
+                                            + ".checkIfNextPacketIsReady(): before call(2) to currentFileData.getUploadLength()",
+                                    100);
                     packetLength += currentFileData.getUploadLength();
 
                     nbFilesInPacket += 1;
@@ -811,7 +821,17 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     private synchronized void anotherFileIsReady(FileData newlyPreparedFileData)
             throws JUploadException {
         this.nbPreparedFiles += 1;
+        this.uploadPolicy
+                .displayDebug(
+                        this.getClass().getName()
+                                + ".anotherFileIsReady(): before call(1) to newlyPreparedFileData.getUploadLength()",
+                        100);
         this.nbBytesReadyForUpload += newlyPreparedFileData.getUploadLength();
+        this.uploadPolicy
+                .displayDebug(
+                        this.getClass().getName()
+                                + ".checkIfNextPacketIsReady(): before call(2) to currentFileData.getUploadLength()",
+                        100);
         this.nbTotalNumberOfPreparedBytes += newlyPreparedFileData
                 .getUploadLength();
     }
@@ -830,6 +850,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.nbSentFiles += 1;
         this.nbFilesBeingUploaded -= 1;
         this.nbBytesUploadedForCurrentFile = 0;
+        this.uploadPolicy
+                .displayDebug(
+                        this.getClass().getName()
+                                + ".anotherFileHasBeenSent(): before call to newlyUploadedFileData.getUploadLength()",
+                        100);
         this.nbBytesReadyForUpload -= newlyUploadedFileData.getUploadLength();
 
         // We are finished with this one. Let's display it.
@@ -931,6 +956,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             percent = 0;
         } else {
             try {
+                this.uploadPolicy
+                        .displayDebug(
+                                this.getClass().getName()
+                                        + ".updateUploadProgressBar(): before call to this.uploadFileDataArray[this.nbSentFiles].getUploadLength()",
+                                100);
                 percent = (int) (this.nbBytesUploadedForCurrentFile * 100 / this.uploadFileDataArray[this.nbSentFiles]
                         .getUploadLength());
             } catch (JUploadException e) {
@@ -1022,6 +1052,15 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 this.preparationProgressBar.repaint();
 
                 // Then, we work
+
+                // Let's check that everything is Ok
+                // More debug output, to understand where the applet freezes.
+                this.uploadPolicy
+                        .displayDebug(
+                                this.getClass().getName()
+                                        + ".prepareFiles(): before call to beforeUpload()",
+                                100);
+
                 this.uploadFileDataArray[i].beforeUpload();
                 this.uploadPolicy.displayDebug(
                         "============== End of file preparation ("
@@ -1070,6 +1109,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 this.uploadPolicy.displayErr(e1);
             }
         }
+
+        // We can now start the upload thread.
+        this.fileUploadThread.start();
     }
 
     /**

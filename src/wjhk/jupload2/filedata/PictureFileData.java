@@ -206,7 +206,7 @@ public class PictureFileData extends DefaultFileData {
     public void freeMemory(String caller) {
         Runtime rt = Runtime.getRuntime();
 
-        // rt.runFinalization();
+        rt.runFinalization();
         rt.gc();
 
         if (this.uploadPolicy.getDebugLevel() >= 50) {
@@ -233,7 +233,10 @@ public class PictureFileData extends DefaultFileData {
 
         if (this.uploadLength < 0) {
             try {
-                freeMemory("beforeUpload");
+                // Picture management is a big work. Let's try to free some
+                // memory.
+                freeMemory("Picture manabeforeUpload(): before initTransformedPictureFile");
+
                 // Get the transformed picture file, if needed.
                 initTransformedPictureFile();
 
@@ -245,6 +248,9 @@ public class PictureFileData extends DefaultFileData {
                 // We don't transform it. We clean the file, if it has been
                 // created.
                 deleteTransformedPictureFile();
+
+                // Let's try to free some memory.
+                freeMemory("beforeUpload(): in OutOfMemoryError");
                 //
                 throw new JUploadException(e.getClass().getName()
                         + " in PictureFileData", e);
