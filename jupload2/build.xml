@@ -48,12 +48,13 @@
 	<property name="path.src" value="${basedir}/src" />
 	<property name="path.temp" value="${basedir}/TEMP" />
 	<property name="path.wwwroot" value="${basedir}/wwwroot" />
-	
-	<!-- Let's load the existing values of the svn.properties -->
-	<property name="path.svnProperties" value="${path.src}/conf/svn.properties"/>
-	<property file="${path.svnProperties}" prefix="currentSvnProperties."/>
 
-	<property name="standard.compile.excludes" value="**/*.class" />
+	<!-- Let's load the existing values of the svn.properties -->
+	<property name="path.svnProperties"
+	          value="${path.src}/conf/svn.properties" />
+	<property file="${path.svnProperties}" prefix="currentSvnProperties." />
+
+	<property name="standard.compile.excludes" value="**/*.class,**/*Test.java" />
 
 	<!-- The applet is currently compiled for the 1.5 JRE -->
 	<property name="javac.target" value="1.5" />
