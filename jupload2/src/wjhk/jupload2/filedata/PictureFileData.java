@@ -251,9 +251,8 @@ public class PictureFileData extends DefaultFileData {
 
                 // Let's try to free some memory.
                 freeMemory("beforeUpload(): in OutOfMemoryError");
-                //
-                throw new JUploadException(e.getClass().getName()
-                        + " in PictureFileData", e);
+
+                tooBigPicture();
             }
 
             // If the transformed picture is correctly created, we'll upload it.
@@ -277,7 +276,7 @@ public class PictureFileData extends DefaultFileData {
      *         original file, or the transformed file!
      */
     @Override
-    public synchronized long getUploadLength() throws JUploadException {
+    public long getUploadLength() throws JUploadException {
         if (this.uploadLength < 0) {
             // Hum, beforeUpload should have been called before. Let's correct
             // that.
@@ -317,15 +316,23 @@ public class PictureFileData extends DefaultFileData {
      * not removed. This allow control of this created file.
      */
     @Override
-    public synchronized void afterUpload() {
-        this.uploadPolicy.displayDebug(this.hashCode()
-                + "|Entering PictureFileData.afterUpload()", 95);
-
+    public void afterUpload() {
         super.afterUpload();
 
-        // Free the temporary files ... if any.
-        deleteTransformedPictureFile();
-        deleteWorkingCopyPictureFile();
+        // Free the temporary file ... if any.
+        if (this.transformedPictureFile != null) {
+            // for debug : if the debugLevel is enough, we keep the temporary
+            // file (for check).
+            if (this.uploadPolicy.getDebugLevel() >= 100) {
+                this.uploadPolicy.displayWarn("Temporary file not deleted");
+            } else {
+                deleteTransformedPictureFile();
+                deleteWorkingCopyPictureFile();
+            }
+            // Picture management is a big work. Let's try to free some
+            // memory.
+            freeMemory("Picture afterUpload()");
+        }
     }
 
     /**
@@ -408,7 +415,7 @@ public class PictureFileData extends DefaultFileData {
      * @param quarter Number of quarters (90 degrees) the picture should rotate.
      *            1 means rotating of 90 degrees clockwise. Can be negative.
      */
-    public synchronized void addRotation(int quarter) {
+    public void addRotation(int quarter) {
         this.quarterRotation += quarter;
 
         // We'll have to recalculate the upload length, as the resulting file is
@@ -484,7 +491,7 @@ public class PictureFileData extends DefaultFileData {
      * Note: any JUploadException thrown by a method called within
      * getTransformedPictureFile() will be thrown within this method.
      */
-    private synchronized void initTransformedPictureFile()
+    private void initTransformedPictureFile()
             throws JUploadException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.initTransformedPictureFile()", 95);
@@ -632,8 +639,9 @@ public class PictureFileData extends DefaultFileData {
     private void tooBigPicture() {
         String msg = String.format(
                 this.uploadPolicy.getString("tooBigPicture"), getFileName());
-        JOptionPane.showMessageDialog(null, msg, "Warning",
-                JOptionPane.WARNING_MESSAGE);
+        // JOptionPane.showMessageDialog(null, msg, "Warning",
+        // JOptionPane.WARNING_MESSAGE);
+        //FIXME test call to this.uploadPolicy.alertStr(msg);
         this.uploadPolicy.displayWarn(msg);
     }
 
@@ -655,7 +663,7 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @throws IOException
      */
-    private synchronized void createTransformedTempFile()
+    private void createTransformedTempFile()
             throws JUploadIOException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.createTransformedTempFile()", 95);
@@ -685,7 +693,7 @@ public class PictureFileData extends DefaultFileData {
      * @see #getOriginalHeight()
      * @see #getOriginalWidth()
      */
-    private synchronized void initWidthAndHeight() throws JUploadIOException {
+    private void initWidthAndHeight() throws JUploadIOException {
         // Is it a picture?
         if (this.isPicture
                 && (this.originalHeight < 0 || this.originalWidth < 0)) {
@@ -721,7 +729,7 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @throws IOException
      */
-    private synchronized void createWorkingCopyTempFile() throws IOException {
+    private void createWorkingCopyTempFile() throws IOException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.createWorkingCopyTempFile()", 95);
         if (this.workingCopyTempFile == null) {
@@ -742,7 +750,7 @@ public class PictureFileData extends DefaultFileData {
      * Therefore the applet provides a callback which is executed during applet
      * termination. This method performs the actual cleanup.
      */
-    public synchronized void deleteWorkingCopyPictureFile() {
+    public void deleteWorkingCopyPictureFile() {
         if (null != this.workingCopyTempFile) {
             // for debug : if the debugLevel is enough, we keep the temporary
             // file (for check).
@@ -766,7 +774,7 @@ public class PictureFileData extends DefaultFileData {
      *         picture transformation
      * @throws JUploadIOException
      */
-    public synchronized File getWorkingSourceFile() throws JUploadIOException {
+    public File getWorkingSourceFile() throws JUploadIOException {
 
         if (this.workingCopyTempFile == null) {
             this.uploadPolicy.displayDebug(
