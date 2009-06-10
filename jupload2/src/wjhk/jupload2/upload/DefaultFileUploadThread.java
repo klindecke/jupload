@@ -50,9 +50,19 @@ import wjhk.jupload2.policies.UploadPolicy;
 public abstract class DefaultFileUploadThread extends Thread implements
         FileUploadThread {
 
-    // ////////////////////////////////////////////////////////////////////////////////////
-    // /////////////////////// VARIABLES ///////////////////////////////////////
-    // ////////////////////////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////
+    // /////////////////////// CONSTANTS //////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Number of milliseconds that this thread will wait between two calls to
+     * {@link FileUploadManagerThread#getNextPacket()}.
+     */
+    public final static long TIME_BEFORE_CHECKING_NEXT_PACKET = 100;
+
+    // ////////////////////////////////////////////////////////////////////////
+    // /////////////////////// VARIABLES //////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////
 
     /**
      * The array that contains the current packet to upload.
@@ -306,7 +316,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
                         // meantime, this thread is notified. The wait duration,
                         // is just to be sure to go and see if there is still
                         // some work from time to time.
-                        sleep(200);
+                        sleep(TIME_BEFORE_CHECKING_NEXT_PACKET);
                     } catch (InterruptedException e) {
                         // Nothing to do. We'll just take a look at the loop
                         // condition.
