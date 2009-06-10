@@ -174,12 +174,12 @@ public class FileUploadManagerThreadTest extends TestCase {
     @Test
     public void testGetUploadStartTime() throws Exception {
         executeUpload();
-        final long errorMargin = 100;
+        final long errorMargin = DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 50;
         long realUploadStartTime = this.fileUploadManagerThread
                 .getUploadStartTime();
         assertTrue("realUploadStartTime=" + realUploadStartTime
                 + ", uploadStartTime=" + uploadStartTime,
-                (this.uploadStartTime <= realUploadStartTime)
+                ((this.uploadStartTime - errorMargin) <= realUploadStartTime)
                         && (realUploadStartTime <= this.uploadStartTime
                                 + errorMargin));
     }
@@ -233,8 +233,8 @@ public class FileUploadManagerThreadTest extends TestCase {
         this.fileUploadThread = new FileUploadThreadStopDuringUpload(up);
         setUp();
         fileUploadManagerThread.start();
-        Thread.yield();
-        Thread.sleep(50);
+        Thread
+                .sleep(DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 50);
 
         // The simulated upload will top after one byte.
         long nbBytesAlreadyUploaded = fileUploadManagerThread.nbUploadedBytes;
@@ -325,8 +325,10 @@ public class FileUploadManagerThreadTest extends TestCase {
         // In this test case, the upload is instantaneous. We can't check the
         // values when the file is being uploaded. So, no test on
         // nbFilesBeingUploaded and nbBytesUploadedForCurrentFile.
-        assertTrue(nbBytesReadyForUpload - filesToUpload[0].length() == fileUploadManagerThread.nbBytesReadyForUpload);
-        assertTrue(fileUploadManagerThread.uploadStatus == FileUploadManagerThread.UPLOAD_STATUS_UPLOADED);
+        assertEquals(nbBytesReadyForUpload - filesToUpload[0].length(),
+                fileUploadManagerThread.nbBytesReadyForUpload);
+        assertEquals(fileUploadManagerThread.uploadStatus,
+                FileUploadManagerThread.UPLOAD_STATUS_UPLOADED);
     }
 
     /**

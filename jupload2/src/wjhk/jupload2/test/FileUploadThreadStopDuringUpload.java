@@ -2,6 +2,7 @@ package wjhk.jupload2.test;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
+import wjhk.jupload2.upload.DefaultFileUploadThread;
 import wjhk.jupload2.upload.FileUploadManagerThread;
 import wjhk.jupload2.upload.FileUploadThread;
 import wjhk.jupload2.upload.UploadFileData;
@@ -61,8 +62,7 @@ public class FileUploadThreadStopDuringUpload extends Thread implements
                         // WAIT ONE SECOND. This let's the JUnit test, to check
                         // values of FileUploadManagerThread, during an upload.
                         try {
-                            yield();
-                            sleep(1000);
+                            sleep(DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -83,7 +83,7 @@ public class FileUploadThreadStopDuringUpload extends Thread implements
                         // meantime, this thread is notified. The wait duration,
                         // is just to be sure to go and see if there is still
                         // some work from time to time.
-                        sleep(200);
+                        sleep(DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET);
                     } catch (InterruptedException e) {
                         // Nothing to do. We'll just take a look at the loop
                         // condition.
