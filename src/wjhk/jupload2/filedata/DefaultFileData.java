@@ -57,6 +57,13 @@ public class DefaultFileData implements FileData {
     UploadPolicy uploadPolicy;
 
     /**
+     * Indicates whether the file is prepared for upload or not.
+     * 
+     * @see FileData#isPreparedForUpload()
+     */
+    boolean preparedForUpload = false;
+
+    /**
      * the mime type list, coming from: http://www.mimetype.org/ Thanks to them!
      */
     static public Properties mimeTypesProperties = null;
@@ -175,7 +182,13 @@ public class DefaultFileData implements FileData {
     }
 
     /** {@inheritDoc} */
-    public void beforeUpload() throws JUploadException {
+    public synchronized void beforeUpload() throws JUploadException {
+        if (preparedForUpload) {
+            throw new IllegalStateException("The file " + getFileName()
+                    + " is already prepared for upload");
+        }
+        preparedForUpload = true;
+
         // Default : we check that the file is smaller than the maximum upload
         // size.
         if (getUploadLength() > this.uploadPolicy.getMaxFileSize()) {
@@ -186,16 +199,28 @@ public class DefaultFileData implements FileData {
 
     /** {@inheritDoc} */
     public long getUploadLength() throws JUploadException {
+        if (!preparedForUpload) {
+            throw new IllegalStateException("The file " + getFileName()
+                    + " is prepared for upload");
+        }
         return this.fileSize;
     }
 
     /** {@inheritDoc} */
-    public void afterUpload() {
-        // Nothing to do here
+    public synchronized void afterUpload() {
+        if (!preparedForUpload) {
+            throw new IllegalStateException("The file " + getFileName()
+                    + " is not prepared for upload");
+        }
+        preparedForUpload = false;
     }
 
     /** {@inheritDoc} */
     public InputStream getInputStream() throws JUploadException {
+        if (!preparedForUpload) {
+            throw new IllegalStateException("The file " + getFileName()
+                    + " is not prepared for upload");
+        }
         // Standard FileData : we read the file.
         try {
             return new FileInputStream(this.file);
@@ -368,5 +393,10 @@ public class DefaultFileData implements FileData {
         }
 
         return root;
+    }
+
+    /** {@inheritDoc} */
+    public boolean isPreparedForUpload() {
+        return this.preparedForUpload;
     }
 }
