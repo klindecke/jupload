@@ -334,6 +334,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // The thread upload may need some information about the current
             // one, like ... knowing that upload is actually finished (no more
             // file to send).
+            // So we wait for it to finish.
             while (this.fileUploadThread != null
                     && this.fileUploadThread.isAlive()
                     && this.nbSuccessfullyUploadedFiles < this.uploadFileDataArray.length
@@ -349,6 +350,14 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                     // trace a warning info.
                     this.uploadPolicy
                             .displayWarn("An InterruptedException occured in FileUploadManagerThread.run()");
+                }
+            }
+
+            // If any error occurs, the prepared state of the file data may be
+            // true. We must free resources.
+            for (int i = 0; i < this.uploadFileDataArray.length; i += 1) {
+                if (this.uploadFileDataArray[i].isPreparedForUpload()) {
+                    this.uploadFileDataArray[i].afterUpload();
                 }
             }
 
