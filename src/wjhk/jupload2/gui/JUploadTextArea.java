@@ -34,6 +34,12 @@ import javax.swing.SwingUtilities;
  */
 public class JUploadTextArea extends JTextArea {
     /**
+     * Duration, in millisecond, that the thread will wait before checking if
+     * new messages are available.
+     */
+    private static int DURATION_BETWEEN_TWO_LOOPS = 100;
+
+    /**
      * This constant defines the upper limit of lines, kept in the log window.
      */
     // public final static int MAX_DEBUG_LINES = 10000;
@@ -44,7 +50,7 @@ public class JUploadTextArea extends JTextArea {
 
     /**
      * The queue, that contains all messages to display. They will be displayed
-     * by the {@link DisplayOneMessageThread} thread.
+     * by the {@link LogMessageThread} thread.
      */
     Queue<String> messages = null;
 
@@ -56,19 +62,27 @@ public class JUploadTextArea extends JTextArea {
      * tread-safe update of the GUI. This thread is responsible to display one
      * String.
      */
-    class DisplayOneMessageThread implements Runnable {
-        Queue<String> messages;
+    class LogMessageThread extends Thread {
 
-        JUploadTextArea textArea;
+        /**
+         * The ConcurrentLinkedQueue that'll contain the messages.
+         */
+        private Queue<String> messages;
+
+        /**
+         * The text area that'll contain the messages.
+         */
+        private JUploadTextArea textArea;
 
         /**
          * @param messages the queue, that will contain the messages to display.
          * @param textArea
          */
-        DisplayOneMessageThread(Queue<String> messages, JUploadTextArea textArea) {
+        LogMessageThread(Queue<String> messages, JUploadTextArea textArea) {
             this.messages = messages;
             this.textArea = textArea;
         }
+
 
         /** The run method of the Runnable Interface */
         public void run() {
@@ -79,32 +93,38 @@ public class JUploadTextArea extends JTextArea {
             String newLogContent = null;
 
             try {
-                // Let's add all available messages... if any. They may have
-                // been all consumed by a previous execution of this thread.
-                while ((nextMessage = this.messages.poll()) != null) {
-                    someTextHasBeenAdded = true;
-                    sbLogContent.append(nextMessage);
-                }
-                // If some text has been added, we may have to truncate the
-                // text, according to the max allowed size for it.
-                if (someTextHasBeenAdded) {
-                    newLogContent = sbLogContent.toString();
-                    int len = newLogContent.length();
-                    if (len > JUploadTextArea.MAX_LOG_WINDOW_LENGTH) {
-                        newLogContent = newLogContent.substring(len
-                                - MAX_LOG_WINDOW_LENGTH);
-                        len = MAX_LOG_WINDOW_LENGTH;
+                while (!isInterrupted()) {
+                    // Let's add all available messages... if any. They may have
+                    // been all consumed by a previous execution of this thread.
+                    while ((nextMessage = this.messages.poll()) != null) {
+                        someTextHasBeenAdded = true;
+                        sbLogContent.append(nextMessage);
+                    }
+                    // If some text has been added, we may have to truncate the
+                    // text, according to the max allowed size for it.
+                    if (someTextHasBeenAdded) {
+                        newLogContent = sbLogContent.toString();
+                        int len = newLogContent.length();
+                        if (len > JUploadTextArea.MAX_LOG_WINDOW_LENGTH) {
+                            newLogContent = newLogContent.substring(len
+                                    - MAX_LOG_WINDOW_LENGTH);
+                            len = MAX_LOG_WINDOW_LENGTH;
+                        }
+
+                        this.textArea.setText(newLogContent);
+
+                        // The end of the text, is the interesting part of it !
+                        if (len > 0) {
+                            this.textArea.setCaretPosition(len - 1);
+                        }
+
+                        // Let's display the changes to the user.
+                        //this.textArea.repaint();
                     }
 
-                    this.textArea.setText(newLogContent);
+                    // Let's wait for a notification for next messages
+                    sleep(DURATION_BETWEEN_TWO_LOOPS);
 
-                    // The end of the text, is the interesting part of it !
-                    if (len > 0) {
-                        this.textArea.setCaretPosition(len - 1);
-                    }
-
-                    // Let's display the changes to the user.
-                    this.textArea.repaint();
                 }
 
             } catch (Exception e) {
@@ -113,6 +133,11 @@ public class JUploadTextArea extends JTextArea {
             }
         }
     }
+
+    /**
+     * The thread, that will put messages in the debug log.
+     */
+    LogMessageThread logMessageThread = null;
 
     /**
      * Constructs a new empty TextArea with the specified number of rows and
@@ -130,6 +155,8 @@ public class JUploadTextArea extends JTextArea {
 
         // The queue, where messages to display will be posted.
         this.messages = new ConcurrentLinkedQueue<String>();
+        this.logMessageThread = new LogMessageThread(this.messages, this);
+        this.logMessageThread.start();
     }
 
     /**
@@ -140,8 +167,14 @@ public class JUploadTextArea extends JTextArea {
      */
     public final void displayMsg(String str) {
         this.messages.add(str);
-        DisplayOneMessageThread displayOneMessageThread = new DisplayOneMessageThread(
-                this.messages, this);
-        SwingUtilities.invokeLater(displayOneMessageThread);
     }
+
+    /**
+     * 
+     * @see Object#finalize()
+     */
+    protected void finalize() {
+        this.logMessageThread.interrupt();
+    }
+
 }
