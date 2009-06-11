@@ -240,6 +240,13 @@ public class PictureFileData extends DefaultFileData {
                 // Get the transformed picture file, if needed.
                 initTransformedPictureFile();
 
+                // More debug output, to understand where the applet freezes.
+                this.uploadPolicy
+                        .displayDebug(
+                                this.getClass().getName()
+                                        + ".beforeUpload(): after call to initTransformedPictureFile()",
+                                100);
+
             } catch (OutOfMemoryError e) {
                 // Oups ! My EOS 20D has too big pictures to handle more than
                 // two pictures in a navigator applet !!!!!
@@ -247,6 +254,9 @@ public class PictureFileData extends DefaultFileData {
                 //
                 // We don't transform it. We clean the file, if it has been
                 // created.
+                // More debug output, to understand where the applet freezes.
+                this.uploadPolicy.displayDebug(this.getClass().getName()
+                        + ".beforeUpload(): OutOfMemoryError", 100);
                 deleteTransformedPictureFile();
 
                 // Let's try to free some memory.
@@ -265,7 +275,16 @@ public class PictureFileData extends DefaultFileData {
         }
 
         // Let's check that everything is Ok
+        // More debug output, to understand where the applet freezes.
+        this.uploadPolicy.displayDebug(this.getClass().getName()
+                + ".beforeUpload(): before call to super.beforeUpload()", 100);
+
         super.beforeUpload();
+
+        // Let's check that everything is Ok
+        // More debug output, to understand where the applet freezes.
+        this.uploadPolicy.displayDebug(this.getClass().getName()
+                + ".beforeUpload(): after call to super.beforeUpload()", 100);
     }
 
     /**
@@ -277,10 +296,9 @@ public class PictureFileData extends DefaultFileData {
      */
     @Override
     public long getUploadLength() throws JUploadException {
-        if (this.uploadLength < 0) {
-            // Hum, beforeUpload should have been called before. Let's correct
-            // that.
-            beforeUpload();
+        if (!preparedForUpload) {
+            throw new IllegalStateException("The file " + getFileName()
+                    + " is not prepared for upload");
         }
         return this.uploadLength;
     }
@@ -298,6 +316,10 @@ public class PictureFileData extends DefaultFileData {
     public InputStream getInputStream() throws JUploadException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.getInputStream()", 95);
+        if (!preparedForUpload) {
+            throw new IllegalStateException("The file " + getFileName()
+                    + " is not prepared for upload");
+        }
         // Do we have to transform the picture ?
         if (this.transformedPictureFile != null) {
             try {
@@ -317,22 +339,12 @@ public class PictureFileData extends DefaultFileData {
      */
     @Override
     public void afterUpload() {
-        super.afterUpload();
-
         // Free the temporary file ... if any.
-        if (this.transformedPictureFile != null) {
-            // for debug : if the debugLevel is enough, we keep the temporary
-            // file (for check).
-            if (this.uploadPolicy.getDebugLevel() >= 100) {
-                this.uploadPolicy.displayWarn("Temporary file not deleted");
-            } else {
-                deleteTransformedPictureFile();
-                deleteWorkingCopyPictureFile();
-            }
-            // Picture management is a big work. Let's try to free some
-            // memory.
-            freeMemory("Picture afterUpload()");
-        }
+        deleteTransformedPictureFile();
+        deleteWorkingCopyPictureFile();
+        uploadLength = -1;
+
+        super.afterUpload();
     }
 
     /**
@@ -469,9 +481,7 @@ public class PictureFileData extends DefaultFileData {
                 + "|Entering PictureFileData.deleteTransformedPictureFile()",
                 95);
         // Free the temporary file ... if any.
-        if (this.transformedPictureFile != null) {
-            // for debug : if the debugLevel is enough, we keep the temporary
-            // file (for check).
+        if (null != this.transformedPictureFile) {
             if (this.uploadPolicy.getDebugLevel() >= 100) {
                 this.uploadPolicy.displayWarn("Temporary file not deleted");
             } else {
@@ -491,8 +501,7 @@ public class PictureFileData extends DefaultFileData {
      * Note: any JUploadException thrown by a method called within
      * getTransformedPictureFile() will be thrown within this method.
      */
-    private void initTransformedPictureFile()
-            throws JUploadException {
+    private void initTransformedPictureFile() throws JUploadException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.initTransformedPictureFile()", 95);
         int targetMaxWidth;
@@ -534,10 +543,7 @@ public class PictureFileData extends DefaultFileData {
             } catch (JUploadException e) {
                 // Hum, too bad.
                 // if any file was created, we remove it.
-                if (this.transformedPictureFile != null) {
-                    this.transformedPictureFile.delete();
-                    this.transformedPictureFile = null;
-                }
+                deleteTransformedPictureFile();
                 throw e;
             }
         }
@@ -641,7 +647,7 @@ public class PictureFileData extends DefaultFileData {
                 this.uploadPolicy.getString("tooBigPicture"), getFileName());
         // JOptionPane.showMessageDialog(null, msg, "Warning",
         // JOptionPane.WARNING_MESSAGE);
-        //FIXME test call to this.uploadPolicy.alertStr(msg);
+        // FIXME test call to this.uploadPolicy.alertStr(msg);
         this.uploadPolicy.displayWarn(msg);
     }
 
@@ -663,7 +669,7 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @throws IOException
      */
-    private void createTransformedTempFile()
+    private synchronized void createTransformedTempFile()
             throws JUploadIOException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.createTransformedTempFile()", 95);
@@ -755,8 +761,7 @@ public class PictureFileData extends DefaultFileData {
             // for debug : if the debugLevel is enough, we keep the temporary
             // file (for check).
             if (this.uploadPolicy.getDebugLevel() >= 100) {
-                this.uploadPolicy.displayWarn("Working copy file not deleted ("
-                        + this.workingCopyTempFile.getAbsolutePath() + ")");
+                this.uploadPolicy.displayWarn("Temporary file not deleted");
             } else {
                 this.workingCopyTempFile.delete();
                 this.workingCopyTempFile = null;

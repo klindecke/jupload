@@ -69,6 +69,13 @@ public class UploadFileData implements FileData {
     private InputStream inputStream = null;
 
     /**
+     * The upload lenght of the current file. It is stored to: <DIR> <LI>Avoid
+     * multiple calls to the underlying FileData.getUploadLength() method <LI>
+     * Keep the upload length, after the call to {@link #afterUpload()} </DIR>
+     */
+    private long uploadLength = -1;
+
+    /**
      * The number of bytes to upload, for this file (without the head and tail
      * defined for the HTTP multipart body).
      */
@@ -214,6 +221,14 @@ public class UploadFileData implements FileData {
                     this.fileUploadManagerThread.nbBytesUploaded(towrite);
                     amount -= towrite;
                     this.uploadRemainingLength -= towrite;
+
+                    // For debug reason, I may need to simulate upload, that are
+                    // on a real network. We then slow down the upload. This can
+                    // occurs only when given a 'high' debugLevel (higher than
+                    // what can be set with the applet GUI.
+                    if (this.uploadPolicy.getDebugLevel() > 100) {
+                        Thread.sleep(20);
+                    }
                 } catch (IOException ioe) {
                     throw new JUploadIOException(this.getClass().getName()
                             + ".uploadFile()", ioe);
@@ -362,10 +377,18 @@ public class UploadFileData implements FileData {
         return this.uploadPolicy.getUploadName(this.fileData, index);
     }
 
-    /** @see FileData#getUploadLength() */
+    /**
+     * This methods stores locally the upload length. So, on the contrary of the
+     * {@link FileData} interface, this method may be called after
+     * {@link #afterUpload()}, at one condition: that it has been called once
+     * before {@link #afterUpload()} is called.
+     * 
+     * @see FileData#getUploadLength()
+     */
     public long getUploadLength() throws JUploadException {
-        long uploadLength = this.fileData.getUploadLength();
-
+        if (uploadLength < 0) {
+            uploadLength = this.fileData.getUploadLength();
+        }
         // We check the filesize only now: the file to upload may be different
         // from the original file. For instance,
         // a selected picture on the local hard drive may be bigger than
@@ -380,4 +403,8 @@ public class UploadFileData implements FileData {
         return uploadLength;
     }
 
+    /** {@inheritDoc} */
+    public boolean isPreparedForUpload() {
+        return this.fileData.isPreparedForUpload();
+    }
 }

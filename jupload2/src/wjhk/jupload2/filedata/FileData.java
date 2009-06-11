@@ -40,16 +40,16 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link DefaultFileData}. This default implementation contains all necessary
  * methods to allow upload. You can override it to add new file behaviour. For
  * instance, you could add a XMLFileData, that would check that XML is valid
- * before upload. See the <a href="package-summary.html">package summary</a>
- * for more details about that. <BR>
+ * before upload. See the <a href="package-summary.html">package summary</a> for
+ * more details about that. <BR>
  * This class is the interface that all FileData must implement. The
  * {@link DefaultFileData} class contains the default implementation for this
- * interface. The {@link  PictureFileData} contains another implementation of
+ * interface. The {@link PictureFileData} contains another implementation of
  * this interface, adapted to manage pictures (rotation, resizing...). <BR>
  * The instance of FileData is created by the
  * {@link UploadPolicy#createFileData(File, File)} method. This method can be
  * overrided in a new upoad policy, to create an instance of another FileData.
- * See {@link  PictureFileData} for an example about FileData customization.
+ * See {@link PictureFileData} for an example about FileData customization.
  * 
  * @author etienne_sf
  */
@@ -82,7 +82,9 @@ public interface FileData {
     public void beforeUpload() throws JUploadException;
 
     /**
-     * Get size of upload, which may be different from th actual file length.
+     * Get size of upload, which may be different from the actual file length.
+     * This call is valid only after a call to {@link #beforeUpload()} and
+     * before the call to {@link #afterUpload()}.
      * 
      * @return The length of upload. In this class, this is the size of the
      *         file, as it isn't transformed for upload. This size may change if
@@ -96,7 +98,7 @@ public interface FileData {
 
     /**
      * This function is called after upload, whether it is successful or not. It
-     * allows fileData to free any resssource created for the upload. For
+     * allows fileData to free any resource created for the upload. For
      * instance, {@link PictureFileData#afterUpload()} removes the temporary
      * file, if any was created.
      */
@@ -105,10 +107,15 @@ public interface FileData {
     /**
      * This function creates an InputStream from this file. The
      * {@link FileUploadThread} class then reads bytes from it and transfers
-     * them to the webserver. The caller is responsible for closing this stream.
+     * them to the webserver. The caller is responsible for closing this stream.<BR>
+     * This method may only be called when {@link #isPreparedForUpload()}
+     * returns true.
      * 
      * @throws JUploadException Encapsulation of the Exception, if any would
      *             occurs.
+     * @throws IllegalStateException When the upload is not prepared (before a
+     *             call to {@link #beforeUpload()} or after a call to
+     *             {@link #afterUpload()}
      * @return An InputStream, representing this instance.
      */
     public InputStream getInputStream() throws JUploadException;
@@ -172,4 +179,16 @@ public interface FileData {
      *         created using a root parameter.
      */
     public String getRelativeDir();
+
+    /**
+     * Indicates whether the file can be uploaded or not. This boolean should be
+     * set to true in the call to {@link #beforeUpload()}, and the to false in
+     * the call to {@link #afterUpload()}.
+     * 
+     * @return True if the file is ready for upload.
+     * @throws IllegalStateException When the upload is not prepared (before a
+     *             call to {@link #beforeUpload()} or after a call to
+     *             {@link #afterUpload()}
+     */
+    public boolean isPreparedForUpload();
 }

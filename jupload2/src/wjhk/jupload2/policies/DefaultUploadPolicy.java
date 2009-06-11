@@ -2048,7 +2048,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg
      */
-    protected void addMsgToDebugLog(String msg) {
+    protected synchronized void addMsgToDebugLog(String msg) {
         // If uploading lots of chunks, the buffer gets too large, resulting in
         // a OutOfMemoryError on the heap so we now use a temporary file for the
         // debug log.
@@ -2096,11 +2096,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param msg The message to display.
      */
-    private synchronized void displayMsg(String tag, String msg) {
-        // We add the thread name, and the message number to the tag
-        tag = Thread.currentThread().getName() + "\t"
-                + (String.format("%05d", messageId++)) + "\t" + tag;
-        // Then, we add this completed tag to all lines to display
+    private void displayMsg(String tag, String msg) {
         msg = timestamp(tag, msg);
 
         if (this.juploadContext.getLogWindow() == null) {
