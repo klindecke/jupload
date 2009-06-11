@@ -1369,7 +1369,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_FILE_CHOOSER_ICON_SIZE + ": "
                 + getFileChooserIconSize(), 30);
         displayDebug(PROP_FILENAME_ENCODING + ": " + getFilenameEncoding(), 30);
-        displayDebug(PROP_FORMDATA + ": " + getFormdata(), 30);        
+        displayDebug(PROP_FORMDATA + ": " + getFormdata(), 30);
         displayDebug(PROP_FTP_CREATE_DIRECTORY_STRUCTURE + ": "
                 + getFtpCreateDirectoryStructure(), 30);
         displayDebug(
@@ -2083,7 +2083,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private final String timestamp(String tag, String s) {
         final String stamp = new SimpleDateFormat("HH:mm:ss.SSS ")
                 .format(new Date())
-                + "\t" + tag;
+                + "\t" + tag + "\t";
         final boolean endsLF = s.endsWith("\n");
         if (endsLF)
             s = s.substring(0, s.length() - 1);
