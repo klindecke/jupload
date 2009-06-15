@@ -156,7 +156,10 @@
 	
   	out.println("[parseRequest.jsp] " + "Let's write a status, to finish the server response :");
     //out.println("WARNING: just a warning message.\\nOn two lines!");
-  	
+    
+    //Let's wait a little, to simulate the server time to manage the file.
+    Thread.sleep(500);
+    
     //Do you want to test a successful upload, or the way the applet reacts to an error ?
     if (generateError) { 
     	out.println("ERROR: this is a test error (forced in /wwwroot/pages/parseRequest.jsp).\\nHere is a second line!");
