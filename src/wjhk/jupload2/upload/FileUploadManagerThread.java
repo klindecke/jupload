@@ -403,6 +403,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 }
             }
 
+            this.timerProgressBar.stop();
+            this.timerStatusBar.stop();
+
             // If the upload was successful, we wait for 5 seconds, before
             // clearing the progress bar.
             if (!isUploadStopped() && getUploadException() != null) {
@@ -434,8 +437,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadPanel.updateButtonState();
         }
 
-        this.timerProgressBar.stop();
-        this.timerStatusBar.stop();
 
         // And we die of our beautiful death ... until next upload.
     }// run
