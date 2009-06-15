@@ -231,6 +231,11 @@ public class PictureFileData extends DefaultFileData {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.beforeUpload()", 95);
 
+        if (preparedForUpload) {
+            throw new IllegalStateException("The file " + getFileName()
+                    + " is already prepared for upload");
+        }
+
         if (this.uploadLength < 0) {
             try {
                 // Picture management is a big work. Let's try to free some
@@ -256,8 +261,9 @@ public class PictureFileData extends DefaultFileData {
                 // created.
                 // More debug output, to understand where the applet freezes.
                 this.uploadPolicy.displayDebug(this.getClass().getName()
-                        + ".beforeUpload(): OutOfMemoryError", 100);
+                        + ".beforeUpload(): OutOfMemoryError", 30);
                 deleteTransformedPictureFile();
+                deleteWorkingCopyPictureFile();
 
                 // Let's try to free some memory.
                 freeMemory("beforeUpload(): in OutOfMemoryError");
@@ -481,13 +487,11 @@ public class PictureFileData extends DefaultFileData {
                 + "|Entering PictureFileData.deleteTransformedPictureFile()",
                 95);
         // Free the temporary file ... if any.
-        if (null != this.transformedPictureFile) {
-            if (this.uploadPolicy.getDebugLevel() >= 100) {
-                this.uploadPolicy.displayWarn("Temporary file not deleted");
-            } else {
-                this.transformedPictureFile.delete();
-                this.transformedPictureFile = null;
-            }
+        if (null != this.transformedPictureFile
+                && this.uploadPolicy.getDebugLevel() <= 100) {
+            this.transformedPictureFile.delete();
+            this.transformedPictureFile = null;
+
         }
     }
 
@@ -559,7 +563,7 @@ public class PictureFileData extends DefaultFileData {
      * @param imageHelper The {@link ImageHelper} that was initialized with
      *            current parameters.
      */
-    void createTranformedPictureFile(ImageHelper imageHelper)
+    synchronized void createTranformedPictureFile(ImageHelper imageHelper)
             throws JUploadException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.createTransformedPictureFile()",
@@ -595,7 +599,21 @@ public class PictureFileData extends DefaultFileData {
         // through pictures, until we get an IndexOutOfBoundsException.
         try {
             for (int i = 0; i < nbPictures; i += 1) {
-                originalImage = imageWriterHelper.readImage(i);
+                // TODO Remove these tests (about picture resizing)
+                if (true) {
+                    originalImage = imageWriterHelper.readImage(i);
+                } else {
+                    try {
+                        // setUseCache: no effect in memory consumption for
+                        // JUpload. Apparently good for small pictures, so it's
+                        // out of topic here.
+                        // ImageIO.setUseCache(true);
+                        // boolean b = ImageIO.getUseCache();
+                        originalImage = ImageIO.read(getFile());
+                    } catch (IOException e) {
+                        throw new JUploadIOException("Loading orginalImage", e);
+                    }
+                }
 
                 transformedImage = imageHelper.getBufferedImage(true,
                         originalImage);
@@ -645,10 +663,9 @@ public class PictureFileData extends DefaultFileData {
     private void tooBigPicture() {
         String msg = String.format(
                 this.uploadPolicy.getString("tooBigPicture"), getFileName());
-        // JOptionPane.showMessageDialog(null, msg, "Warning",
-        // JOptionPane.WARNING_MESSAGE);
-        // FIXME test call to this.uploadPolicy.alertStr(msg);
         this.uploadPolicy.displayWarn(msg);
+        JOptionPane.showMessageDialog(null, msg, "Warning",
+                JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -735,7 +752,7 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @throws IOException
      */
-    private void createWorkingCopyTempFile() throws IOException {
+    private synchronized void createWorkingCopyTempFile() throws IOException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.createWorkingCopyTempFile()", 95);
         if (this.workingCopyTempFile == null) {
@@ -756,16 +773,14 @@ public class PictureFileData extends DefaultFileData {
      * Therefore the applet provides a callback which is executed during applet
      * termination. This method performs the actual cleanup.
      */
-    public void deleteWorkingCopyPictureFile() {
-        if (null != this.workingCopyTempFile) {
-            // for debug : if the debugLevel is enough, we keep the temporary
-            // file (for check).
-            if (this.uploadPolicy.getDebugLevel() >= 100) {
-                this.uploadPolicy.displayWarn("Temporary file not deleted");
-            } else {
-                this.workingCopyTempFile.delete();
-                this.workingCopyTempFile = null;
-            }
+    public synchronized void deleteWorkingCopyPictureFile() {
+        // for debug : if the debugLevel is enough, we keep the temporary
+        // file (for check).
+        if (null != this.workingCopyTempFile
+                && this.uploadPolicy.getDebugLevel() <= 100) {
+            this.workingCopyTempFile.delete();
+            this.workingCopyTempFile = null;
+
         }
     }
 
@@ -779,7 +794,7 @@ public class PictureFileData extends DefaultFileData {
      *         picture transformation
      * @throws JUploadIOException
      */
-    public File getWorkingSourceFile() throws JUploadIOException {
+    public synchronized File getWorkingSourceFile() throws JUploadIOException {
 
         if (this.workingCopyTempFile == null) {
             this.uploadPolicy.displayDebug(
