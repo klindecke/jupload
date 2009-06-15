@@ -6,8 +6,6 @@ import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.context.JUploadContextExecutable;
 import wjhk.jupload2.policies.UploadPolicy;
 
-// FIXME Complete this class (when daemon process is defined)
-
 /**
  * 
  * This class allows to use JUpload as a stand alone application. It can then be
