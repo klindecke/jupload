@@ -182,7 +182,8 @@ public class ImageHelper implements ImageObserver {
         int nonScaledRotatedWidth = this.pictureFileData.getOriginalWidth();
         int nonScaledRotatedHeight = this.pictureFileData.getOriginalHeight();
         if (this.quarterRotation % 2 != 0) {
-            // 90 degrees or 270 degrees rotation: width and height are switched.
+            // 90 degrees or 270 degrees rotation: width and height are
+            // switched.
             nonScaledRotatedWidth = this.pictureFileData.getOriginalHeight();
             nonScaledRotatedHeight = this.pictureFileData.getOriginalWidth();
         }
@@ -462,6 +463,8 @@ public class ImageHelper implements ImageObserver {
                     sourceBufferedImage = tempBufferedImage;
                     tempBufferedImage = null;
                 } else {
+                    // 'low' quality
+                    //
                     // The scale method adds scaling before current
                     // transformation.
                     this.uploadPolicy
