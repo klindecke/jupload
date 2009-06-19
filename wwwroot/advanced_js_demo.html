@@ -126,6 +126,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	maxPicWidth = "";
 	nbFilesPerRequest = "";
 	pictureTransmitMetadata = "";
+	readCookieFromNavigator = "";
 	realMaxPicHeight = "";
 	realMaxPicWidth = "";
 	serverProtocol = "HTTP/1.1";
@@ -254,6 +255,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeParam("maxFileSize", maxFileSize);
 	writeParam("maxPicHeight", maxPicHeight);
 	writeParam("pictureTransmitMetadata", pictureTransmitMetadata);
+	writeParam("readCookieFromNavigator", readCookieFromNavigator);	
 	writeParam("realMaxPicHeight", realMaxPicHeight);
 	writeParam("realMaxPicWidth", realMaxPicWidth);
 	writeParam("showLogWindow", showLogWindow);
@@ -313,8 +315,9 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeBooleanInputSelect("allowHttpPersistent", allowHttpPersistent, "");
 	writeInputText("browsingDirectory", browsingDirectory, "");
 	writeInputText("filenameEncoding", filenameEncoding, "");
-	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
 	writeInputText("formdata", formdata, "");
+	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
+	writeBooleanInputSelect("readCookieFromNavigator", readCookieFromNavigator, "");	
 	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
 	writeInputText("stringUploadError", stringUploadError, "");
 	writeInputText("stringUploadSuccess", stringUploadSuccess, "");
