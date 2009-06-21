@@ -45,6 +45,7 @@
 
 	<property name="path.build" value="${basedir}/build" />
 	<property name="path.doc" value="${basedir}/doc" />
+	<property name="path.lib" value="${basedir}/lib" />
 	<property name="path.src" value="${basedir}/src" />
 	<property name="path.temp" value="${basedir}/TEMP" />
 	<property name="path.wwwroot" value="${basedir}/wwwroot" />
@@ -253,7 +254,7 @@
 	        description="Generate javadoc">
 		<javadoc access="package"
 		         author="true"
-		         classpath="${path.wwwroot}/plugin.jar;${path.wwwroot}/jakarta-commons-net.jar"
+		         classpath="${path.wwwroot}/plugin.jar;${path.wwwroot}/jakarta-commons-net.jar;${path.lib}/junit-4.5.jar"
 		         destdir="${path.doc}"
 		         doctitle="JUpload - Multiple file upload applet"
 		         nodeprecated="false"
