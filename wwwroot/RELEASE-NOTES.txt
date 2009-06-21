@@ -1,7 +1,10 @@
 
+
+v4.4.0
+
 Fix:
-- [Major] The applet would still block, when an error message is snet by the server
-- [Minor] formData would not work on IE7
+- [Major] Prevents the applet to freeze, when a message is displayed to the user during upload.
+- [Major] formData would not work on IE7
 
 Changes: 
 - [Minor] The UploadPolicy.isUploadReady() and UploadPolicy.beforeUpload() has been merged, in the beforeUpload() method.
