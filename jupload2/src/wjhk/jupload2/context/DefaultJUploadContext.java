@@ -149,6 +149,12 @@ public class DefaultJUploadContext implements JUploadContext {
      */
     public void init(RootPaneContainer rootPaneContainer) {
         try {
+            // The standard thread name is: thread
+            // applet-wjhk.jupload2.JUploadApplet.class
+            // Too long ! :-)
+            Thread.currentThread().setName(
+                    rootPaneContainer.getClass().getName());
+
             // Creation of the Panel, containing all GUI objects for upload.
             this.logWindow = new JUploadTextArea(20, 20);
             this.uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
