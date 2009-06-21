@@ -3,6 +3,17 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+
+- Error in Java with picture (local on my computer): Comprendre/floral (erreur in Java).jpg
+Answer to:
+http://forum.coppermine-gallery.net/index.php/topic,60184.msg297777.html#new
+
+- Check applet behavior against HTTP1/0
+Answer to:
+http://forum.coppermine-gallery.net/index.php/topic,59311.new.html#new
+
+- Remove debug about before getUploadLength.
+
 - PictureFileData.tooBigPicture()
 => Just write the warning in the debugfile. Should open a messageBox, but this generates a deadlock. 
 (because the JDialogBox.Message tries to lock the result of new AWTTreeLock() ??)
