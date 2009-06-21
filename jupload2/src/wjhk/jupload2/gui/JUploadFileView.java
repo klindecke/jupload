@@ -51,14 +51,13 @@ import wjhk.jupload2.policies.UploadPolicy;
  * loading. <BR>
  * Instances of this class can have the following status, in this order: <DIR>
  * <LI>STATUS_NOT_LOADED: This icon is not loaded, and its loading is not
- * requested. This status is the default one, on creation.
- * <LI>STATUS_TO_BE_LOADED: This icon is on the list of icon to load. This
- * status is written by the JUploadFileView#execute(IconWorker) method.
- * <LI>STATUS_LOADING: Indicates the IconWorker#loadIcon() has been called, but
- * is not finished.
- * <LI>STATUS_LOADED: The icon is loaded, and ready to be displayed.
- * <LI>STATUS_ERROR_WHILE_LOADING: Too bad, the applet could not load the icon.
- * It won't be tried again. </DIR>
+ * requested. This status is the default one, on creation. <LI>
+ * STATUS_TO_BE_LOADED: This icon is on the list of icon to load. This status is
+ * written by the JUploadFileView#execute(IconWorker) method. <LI>
+ * STATUS_LOADING: Indicates the IconWorker#loadIcon() has been called, but is
+ * not finished. <LI>STATUS_LOADED: The icon is loaded, and ready to be
+ * displayed. <LI>STATUS_ERROR_WHILE_LOADING: Too bad, the applet could not load
+ * the icon. It won't be tried again. </DIR>
  */
 class IconWorker implements Runnable {
 
@@ -216,7 +215,7 @@ public class JUploadFileView extends FileView implements
 
     /**
      * This executor will crate icons from files, one at a time. It is used to
-     * create these icon asynchroneously.
+     * create these icon asynchronously.
      * 
      * @see #execute(IconWorker)
      */
@@ -238,7 +237,7 @@ public class JUploadFileView extends FileView implements
         this.fileChooser = fileChooser;
         this.fileChooser.addPropertyChangeListener(this);
 
-        // The real interest of the threa group, here, is to lower the priority
+        // The real interest of the thread group, here, is to lower the priority
         // of the icon workers threads:
         this.iconWorkerThreadGroup.setMaxPriority(Thread.MIN_PRIORITY);
 
