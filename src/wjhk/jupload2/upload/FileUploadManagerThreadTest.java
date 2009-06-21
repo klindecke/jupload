@@ -174,7 +174,7 @@ public class FileUploadManagerThreadTest extends TestCase {
     @Test
     public void testGetUploadStartTime() throws Exception {
         executeUpload();
-        final long errorMargin = DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 50;
+        final long errorMargin = DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 150;
         long realUploadStartTime = this.fileUploadManagerThread
                 .getUploadStartTime();
         assertTrue("realUploadStartTime=" + realUploadStartTime
@@ -234,7 +234,7 @@ public class FileUploadManagerThreadTest extends TestCase {
         setUp();
         fileUploadManagerThread.start();
         Thread
-                .sleep(DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 50);
+                .sleep(DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 150);
 
         // The simulated upload will top after one byte.
         long nbBytesAlreadyUploaded = fileUploadManagerThread.nbUploadedBytes;
@@ -293,13 +293,16 @@ public class FileUploadManagerThreadTest extends TestCase {
         setUp();
         fileUploadManagerThread.start();
         fileUploadManagerThread.uploadPanel.getStatusLabel().setText(dummyText);
+        assertEquals(dummyText, fileUploadManagerThread.uploadPanel
+                .getStatusLabel().getText());
         ae = new ActionEvent(fileUploadManagerThread.timerStatusBar, 1,
                 "dummy event");
         // fileUploadManagerThread.nbUploadedBytes must be more than 0
         fileUploadManagerThread.nbUploadedBytes = 1;
         fileUploadManagerThread.actionPerformed(ae);
-        assertFalse(dummyText.equals(fileUploadManagerThread.uploadPanel
-                .getStatusLabel().getText()));
+        String currentStatusText = fileUploadManagerThread.uploadPanel
+                .getStatusLabel().getText();
+        assertFalse(dummyText.equals(currentStatusText));
     }
 
     /**
@@ -312,8 +315,10 @@ public class FileUploadManagerThreadTest extends TestCase {
     @Test
     public void testAnotherFileHasBeenSent() throws Exception {
         int nbSentFiles = fileUploadManagerThread.nbSentFiles;
-        int nbFilesBeingUploaded = fileUploadManagerThread.nbFilesBeingUploaded;
-        long nbBytesUploadedForCurrentFile = fileUploadManagerThread.nbBytesUploadedForCurrentFile;
+        // int nbFilesBeingUploaded =
+        // fileUploadManagerThread.nbFilesBeingUploaded;
+        // long nbBytesUploadedForCurrentFile =
+        // fileUploadManagerThread.nbBytesUploadedForCurrentFile;
         long nbBytesReadyForUpload = fileUploadManagerThread.nbBytesReadyForUpload;
         fileUploadManagerThread.uploadStatus = FileUploadManagerThread.UPLOAD_STATUS_UPLOADING;
 
@@ -325,8 +330,7 @@ public class FileUploadManagerThreadTest extends TestCase {
         // In this test case, the upload is instantaneous. We can't check the
         // values when the file is being uploaded. So, no test on
         // nbFilesBeingUploaded and nbBytesUploadedForCurrentFile.
-        assertEquals(nbBytesReadyForUpload - filesToUpload[0].length(),
-                fileUploadManagerThread.nbBytesReadyForUpload);
+        assertEquals(0, fileUploadManagerThread.nbBytesReadyForUpload);
         assertEquals(fileUploadManagerThread.uploadStatus,
                 FileUploadManagerThread.UPLOAD_STATUS_UPLOADED);
     }
@@ -368,7 +372,7 @@ public class FileUploadManagerThreadTest extends TestCase {
         // Let's wait for the file to be prepared.
         Thread.sleep(100);
         fileDataTmp = this.fileUploadManagerThread.getNextPacket();
-        assertNull(fileDataTmp);
+        assertNotNull(fileDataTmp);
     }
 
 }
