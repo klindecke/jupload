@@ -274,7 +274,7 @@ public class HTTPInputStreamReader {
         int b;
         boolean lineRead = false;
 
-        while (!lineRead) {
+        while (!lineRead && !Thread.interrupted()) {
             b = inputStream.read();
             switch (b) {
                 case EOS:
