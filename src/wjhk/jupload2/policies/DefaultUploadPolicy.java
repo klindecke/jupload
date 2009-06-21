@@ -40,6 +40,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -932,7 +933,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
 
         // Add the message to the log window
-        displayMsg("[ERROR] ", exceptionClassName + logMsg);
+        displayMsg("[ERROR]", exceptionClassName + logMsg);
         // Let's display the stack trace, if relevant.
         displayStackTrace(exception);
 
@@ -961,21 +962,21 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @see UploadPolicy#displayInfo(String)
      */
     public void displayInfo(String info) {
-        displayMsg("[INFO] ", info);
+        displayMsg("[INFO]", info);
     }
 
     /**
      * @see UploadPolicy#displayWarn(String)
      */
     public void displayWarn(String warn) {
-        displayMsg("[WARN] ", warn);
+        displayMsg("[WARN]", warn);
     }
 
     /**
      * @see UploadPolicy#displayDebug(String, int)
      */
     public void displayDebug(String debug, int minDebugLevel) {
-        final String tag = "[DEBUG] ";
+        final String tag = "[DEBUG]";
         if (this.debugLevel >= minDebugLevel) {
             // displayMsg will add the message to the debugStrignBuffer.
             displayMsg(tag, debug);
@@ -2080,14 +2081,27 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
-    private final String timestamp(String tag, String s) {
-        final String stamp = new SimpleDateFormat("HH:mm:ss.SSS ")
-                .format(new Date())
-                + "\t" + tag + "\t";
-        final boolean endsLF = s.endsWith("\n");
-        if (endsLF)
-            s = s.substring(0, s.length() - 1);
-        return (stamp + s.replaceAll("\n", "\n" + stamp) + (endsLF ? "\n" : ""));
+    /**
+     * Format the message, with the given tag. This method also add the time and
+     * the Thread name.<BR>
+     * e.g.:<BR>
+     * messageId[tab]14:04:30.718[tab]FileUploadManagerThread[tab][DEBUG][tab]
+     * Found one reader for jpg extension
+     * 
+     * @param tag The tag ([WARN], [ERROR]...)
+     * @param msg The message to format.
+     * @return The formatted message.
+     */
+    private final String formatMessageOutput(String tag, String msg) {
+        final String stamp = String.format("%1$05d", messageId++) + " \t"
+                + new SimpleDateFormat("HH:mm:ss.SSS ").format(new Date())
+                + "\t" + Thread.currentThread().getName() + "\t" + tag + " \t";
+        final boolean endsLF = msg.endsWith("\n");
+        if (endsLF) {
+            msg = msg.substring(0, msg.length() - 1);
+        }
+        return (stamp + msg.replaceAll("\n", "\n" + stamp) + (endsLF ? "\n"
+                : ""));
     }
 
     /**
@@ -2097,7 +2111,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @param msg The message to display.
      */
     private void displayMsg(String tag, String msg) {
-        msg = timestamp(tag, msg);
+        msg = formatMessageOutput(tag, msg);
 
         if (this.juploadContext.getLogWindow() == null) {
             System.out.println(msg);
