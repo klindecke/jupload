@@ -64,8 +64,8 @@ public class ColumnComparator implements Comparator<FileData> {
                 oTwo = (two).getFileName();
                 break;
             case FilePanelDataModel2.COLINDEX_SIZE:
-                oOne = new Long((one).getFileLength());
-                oTwo = new Long((two).getFileLength());
+                oOne = Long.valueOf((one).getFileLength());
+                oTwo = Long.valueOf((two).getFileLength());
                 break;
             case FilePanelDataModel2.COLINDEX_DIRECTORY:
                 oOne = (one).getDirectory();

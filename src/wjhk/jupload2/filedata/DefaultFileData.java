@@ -138,23 +138,27 @@ public class DefaultFileData implements FileData {
         }
 
         // Let's load the mime types list.
-        if (mimeTypesProperties == null) {
-            mimeTypesProperties = new Properties();
-            final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
-            try {
-                /*
-                 * mimeTypesProperties.load(getClass().getResourceAsStream(
-                 * mimetypePropertiesFilename));
-                 */
-                mimeTypesProperties.load(Class.forName(
-                        "wjhk.jupload2.JUploadApplet").getResourceAsStream(
-                        mimetypePropertiesFilename));
-                uploadPolicy.displayDebug("Mime types list loaded Ok ("
-                        + mimetypePropertiesFilename + ")", 50);
-            } catch (Exception e) {
-                uploadPolicy.displayWarn("Unable to load the mime types list ("
-                        + mimetypePropertiesFilename + "): "
-                        + e.getClass().getName() + " (" + e.getMessage() + ")");
+        synchronized (mimeTypesProperties) {
+            if (mimeTypesProperties == null) {
+                mimeTypesProperties = new Properties();
+                final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
+                try {
+                    /*
+                     * mimeTypesProperties.load(getClass().getResourceAsStream(
+                     * mimetypePropertiesFilename));
+                     */
+                    mimeTypesProperties.load(Class.forName(
+                            "wjhk.jupload2.JUploadApplet").getResourceAsStream(
+                            mimetypePropertiesFilename));
+                    uploadPolicy.displayDebug("Mime types list loaded Ok ("
+                            + mimetypePropertiesFilename + ")", 50);
+                } catch (Exception e) {
+                    uploadPolicy
+                            .displayWarn("Unable to load the mime types list ("
+                                    + mimetypePropertiesFilename + "): "
+                                    + e.getClass().getName() + " ("
+                                    + e.getMessage() + ")");
+                }
             }
         }
 

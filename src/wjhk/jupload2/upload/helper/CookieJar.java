@@ -54,7 +54,7 @@ public class CookieJar {
 
     private String domain = null;
 
-    private class Cookie implements Cloneable {
+    private static class Cookie implements Cloneable {
 
         String domain = null;
 
