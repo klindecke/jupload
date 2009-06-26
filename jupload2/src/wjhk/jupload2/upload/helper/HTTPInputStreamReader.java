@@ -163,7 +163,7 @@ public class HTTPInputStreamReader {
             // If the user requested abort, we are not going to send
             // anymore, so shutdown the outgoing half of the socket.
             // This helps the server to speed up with it's response.
-            if (! (this.httpConnectionHelper.getSocket() instanceof SSLSocket)) {
+            if (!(this.httpConnectionHelper.getSocket() instanceof SSLSocket)) {
                 this.httpConnectionHelper.getSocket().shutdownOutput();
             }
 
@@ -358,8 +358,18 @@ public class HTTPInputStreamReader {
         String tmp;
         while (!Thread.interrupted()) {
             tmp = readLine(httpDataIn, "US-ASCII", false);
-            if (null == tmp)
+            if (null == tmp) {
+                this.uploadPolicy
+                        .displayDebug(
+                                "--------- unexpected EOF (Response Headers Start) ---------",
+                                80);
+                this.uploadPolicy.displayDebug(sbHeaders.toString(), 80);
+                this.uploadPolicy
+                        .displayDebug(
+                                "--------- unexpected EOF (Response Headers End) ---------",
+                                80);
                 throw new JUploadException("unexpected EOF (in header)");
+            }
             if (this.httpStatusCode == 0) {
                 // We must be reading the first line of the HTTP header.
                 this.uploadPolicy.displayDebug(

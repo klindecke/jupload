@@ -300,6 +300,8 @@ public class FileUploadManagerThreadTest extends TestCase {
         // fileUploadManagerThread.nbUploadedBytes must be more than 0
         fileUploadManagerThread.nbUploadedBytes = 1;
         fileUploadManagerThread.actionPerformed(ae);
+        //We have to wait that the text modification is taken into account by the event thread.
+        Thread.sleep(1000);
         String currentStatusText = fileUploadManagerThread.uploadPanel
                 .getStatusLabel().getText();
         assertFalse(dummyText.equals(currentStatusText));
@@ -319,7 +321,7 @@ public class FileUploadManagerThreadTest extends TestCase {
         // fileUploadManagerThread.nbFilesBeingUploaded;
         // long nbBytesUploadedForCurrentFile =
         // fileUploadManagerThread.nbBytesUploadedForCurrentFile;
-        long nbBytesReadyForUpload = fileUploadManagerThread.nbBytesReadyForUpload;
+        //long nbBytesReadyForUpload = fileUploadManagerThread.nbBytesReadyForUpload;
         fileUploadManagerThread.uploadStatus = FileUploadManagerThread.UPLOAD_STATUS_UPLOADING;
 
         // TODO Use FileUploadThreadStopDuringUpload
