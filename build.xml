@@ -55,7 +55,8 @@
 	          value="${path.src}/conf/svn.properties" />
 	<property file="${path.svnProperties}" prefix="currentSvnProperties." />
 
-	<property name="standard.compile.excludes" value="**/*.class,**/*Test.java" />
+	<property name="standard.compile.excludes"
+	          value="**/*.class,**/*Test.java" />
 
 	<!-- The applet is currently compiled for the 1.5 JRE -->
 	<property name="javac.target" value="1.5" />
@@ -376,16 +377,16 @@ lastSrcDirModificationDate = ${svn.date}
 	</target>
 
 	<target name="customhowto"
-	        depends="javadoc"
 	        description="Creates the howto-customization.html">
 		<copy file="${path.doc}/wjhk/jupload2/policies/UploadPolicy.html"
 		      tofile="${path.build}/tmpdoc.html" />
 		<echo message="Extracting parameter section from javadoc of JUloadPolicy class"
 		      level="info" />
 		<replaceregexp file="${path.build}/tmpdoc.html"
-		               match=".*!-- ANT_COPYDOC_START -->(.*?).!-- ANT_COPYDOC_END -->.*"
+		               match=".*!-- ANT_COPYDOC_START -->(.*)!-- ANT_COPYDOC_END -->.*"
 		               replace="\1"
 		               flags="s" />
+		<echo message="Updating href tags" level="info" />
 		<replaceregexp file="${path.build}/tmpdoc.html"
 		               match="a href=(.)\.\./\.\./\.\./"
 		               replace="a href=\1doc/"
@@ -396,16 +397,18 @@ lastSrcDirModificationDate = ${svn.date}
 		<echo message="Inserting parameter section into howto-customization.html"
 		      level="info" />
 		<replaceregexp file="${path.wwwroot}/howto-customization.html"
-		               match="(.*!-- ANT_INSERTDOC_START -->.)(.*?)(.!-- ANT_INSERTDOC_END -->.*)"
+		               match="(.*!-- ANT_COPYDOC_START -->)(.*)(!-- ANT_COPYDOC_END -->.*)"
 		               replace="\1${doc.param.section}\3"
 		               flags="s" />
+		<echo message="Parameter section inserted into howto-customization.html"
+		      level="info" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: srcjar                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="srcjar"
-	        depends="clean,prepare,customhowto,deploy"
+	        depends="clean,prepare,javadoc,customhowto,deploy"
 	        description="Create source zip in build/">
 		<jar jarfile="${path.build}/jupload-V${version}-src.zip">
 			<fileset dir="${basedir}">
