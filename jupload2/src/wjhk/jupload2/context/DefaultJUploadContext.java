@@ -76,6 +76,11 @@ public class DefaultJUploadContext implements JUploadContext {
     private JavascriptHandler jsHandler = null;
 
     /**
+     * the mime type list, coming from: http://www.mimetype.org/ Thanks to them!
+     */
+    static private Properties mimeTypesProperties = null;
+
+    /**
      * The version of this applet. The version itself is to be updated in the
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
@@ -180,6 +185,24 @@ public class DefaultJUploadContext implements JUploadContext {
                     JOptionPane.ERROR_MESSAGE);
         }
 
+        mimeTypesProperties = new Properties();
+        final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
+        try {
+            /*
+             * mimeTypesProperties.load(getClass().getResourceAsStream(
+             * mimetypePropertiesFilename));
+             */
+            mimeTypesProperties.load(Class.forName(
+                    "wjhk.jupload2.JUploadApplet").getResourceAsStream(
+                    mimetypePropertiesFilename));
+            uploadPolicy.displayDebug("Mime types list loaded Ok ("
+                    + mimetypePropertiesFilename + ")", 50);
+        } catch (Exception e) {
+            uploadPolicy.displayWarn("Unable to load the mime types list ("
+                    + mimetypePropertiesFilename + "): "
+                    + e.getClass().getName() + " (" + e.getMessage() + ")");
+        }
+
     }
 
     /** {@inheritDoc} */
@@ -243,6 +266,13 @@ public class DefaultJUploadContext implements JUploadContext {
     /** {@inheritDoc} */
     public JUploadTextArea getLogWindow() {
         return this.logWindow;
+    }
+
+    /** {@inheritDoc} */
+    public String getMimeType(String fileExtension) {
+        String mimeType = mimeTypesProperties.getProperty(fileExtension
+                .toLowerCase());
+        return (mimeType == null) ? "application/octet-stream" : mimeType;
     }
 
     /** {@inheritDoc} */

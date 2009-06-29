@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
@@ -62,11 +61,6 @@ public class DefaultFileData implements FileData {
      * @see FileData#isPreparedForUpload()
      */
     boolean preparedForUpload = false;
-
-    /**
-     * the mime type list, coming from: http://www.mimetype.org/ Thanks to them!
-     */
-    static public Properties mimeTypesProperties = null;
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////////// Protected attributes
@@ -137,37 +131,9 @@ public class DefaultFileData implements FileData {
                     + file.getAbsolutePath() + "(root: null)", 10);
         }
 
-        // Let's load the mime types list.
-        synchronized (mimeTypesProperties) {
-            if (mimeTypesProperties == null) {
-                mimeTypesProperties = new Properties();
-                final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
-                try {
-                    /*
-                     * mimeTypesProperties.load(getClass().getResourceAsStream(
-                     * mimetypePropertiesFilename));
-                     */
-                    mimeTypesProperties.load(Class.forName(
-                            "wjhk.jupload2.JUploadApplet").getResourceAsStream(
-                            mimetypePropertiesFilename));
-                    uploadPolicy.displayDebug("Mime types list loaded Ok ("
-                            + mimetypePropertiesFilename + ")", 50);
-                } catch (Exception e) {
-                    uploadPolicy
-                            .displayWarn("Unable to load the mime types list ("
-                                    + mimetypePropertiesFilename + "): "
-                                    + e.getClass().getName() + " ("
-                                    + e.getMessage() + ")");
-                }
-            }
-        }
-
         // Let
-        this.mimeType = mimeTypesProperties.getProperty(getFileExtension()
-                .toLowerCase());
-        if (this.mimeType == null) {
-            this.mimeType = "application/octet-stream";
-        }
+        this.mimeType = this.uploadPolicy.getContext().getMimeType(
+                getFileExtension());
     }
 
     /** {@inheritDoc} */
@@ -277,10 +243,10 @@ public class DefaultFileData implements FileData {
             try {
                 InputStream is = new FileInputStream(this.file);
                 is.close();
-                this.canRead = new Boolean(true);
+                this.canRead = Boolean.valueOf(true);
             } catch (IOException e) {
                 // Can't read the file!
-                this.canRead = new Boolean(false);
+                this.canRead = Boolean.valueOf(false);
             }
         }
 
