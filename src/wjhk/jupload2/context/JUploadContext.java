@@ -107,6 +107,17 @@ public interface JUploadContext {
     public JUploadTextArea getLogWindow();
 
     /**
+     * Returns the mime type associated with the given file extension. As the
+     * applet may run on windows, the fileExtension is always changed to minor
+     * case, before looking for the corresponding mime type.
+     * 
+     * @param fileExtension The file extension, in any case.
+     * @return Returns the current mime type, for this extension.
+     */
+
+    public String getMimeType(String fileExtension);
+
+    /**
      * Retrieves the current upload panel.
      * 
      * @return the current upload panel of this instance.
