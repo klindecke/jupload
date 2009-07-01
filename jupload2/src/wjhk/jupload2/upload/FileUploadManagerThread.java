@@ -269,7 +269,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @param fileUploadThreadParam
      * @throws JUploadException
      */
-    private void constructor(UploadPolicy uploadPolicy,
+    private synchronized void constructor(UploadPolicy uploadPolicy,
             FileUploadThread fileUploadThreadParam) throws JUploadException {
 
         // General shortcuts on the current applet.
@@ -437,7 +437,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadPanel.updateButtonState();
         }
 
-
         // And we die of our beautiful death ... until next upload.
     }// run
 
@@ -446,7 +445,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @return Total number of uploaded files.
      */
-    public int getNbUploadedFiles() {
+    public synchronized int getNbUploadedFiles() {
         return this.nbSentFiles;
     }
 
@@ -467,7 +466,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @param uploadException
      */
-    public void setUploadException(JUploadException uploadException) {
+    public synchronized void setUploadException(JUploadException uploadException) {
         // We don't override an existing exception
         if (this.uploadException != null) {
             this.uploadPolicy
@@ -614,7 +613,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     /**
      * Displays the current upload speed on the status bar.
      */
-    private void updateUploadStatusBar() {
+    private synchronized void updateUploadStatusBar() {
         // We'll update the status bar, only if it exists and if the upload
         // actually started.
         if (null != this.uploadPanel.getStatusLabel()
@@ -672,14 +671,15 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
             // Calculation of the 'pure' upload speed.
             try {
-                uploadSpeed = this.nbUploadedBytes / actualUploadDuration;
+                uploadSpeed = ((double) this.nbUploadedBytes)
+                        / actualUploadDuration;
             } catch (ArithmeticException e1) {
                 uploadSpeed = this.nbUploadedBytes;
             }
 
             // Calculation of the 'global' upload speed.
             try {
-                globalCPS = this.nbUploadedBytes
+                globalCPS = ((double) this.nbUploadedBytes)
                         / (System.currentTimeMillis() - this.globalStartTime)
                         * 1000;
             } catch (ArithmeticException e1) {
@@ -691,23 +691,26 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                 remaining = (long) ((totalFileBytesToSend - this.nbUploadedBytes) / globalCPS);
                 if (remaining > 3600) {
                     eta = String.format(this.uploadPolicy
-                            .getString("timefmt_hms"), new Long(
-                            remaining / 3600), new Long((remaining / 60) % 60),
-                            new Long(remaining % 60));
+                            .getString("timefmt_hms"), Long
+                            .valueOf(remaining / 3600), Long
+                            .valueOf((remaining / 60) % 60), Long
+                            .valueOf(remaining % 60));
                 } else if (remaining > 60) {
                     eta = String.format(this.uploadPolicy
-                            .getString("timefmt_ms"), new Long(remaining / 60),
-                            new Long(remaining % 60));
+                            .getString("timefmt_ms"), Long
+                            .valueOf(remaining / 60), Long
+                            .valueOf(remaining % 60));
                 } else
                     eta = String.format(this.uploadPolicy
-                            .getString("timefmt_s"), new Long(remaining));
+                            .getString("timefmt_s"), Long.valueOf(remaining));
             } catch (ArithmeticException e1) {
                 eta = this.uploadPolicy.getString("timefmt_unknown");
             }
             String format = this.uploadPolicy.getString("status_msg");
-            String status = String.format(format, new Integer((int) percent),
-                    SizeRenderer.formatFileUploadSpeed(uploadSpeed,
-                            this.uploadPolicy), eta);
+            String status = String
+                    .format(format, Integer.valueOf((int) percent),
+                            SizeRenderer.formatFileUploadSpeed(uploadSpeed,
+                                    this.uploadPolicy), eta);
             this.uploadPanel.getStatusLabel().setText(status);
             // this.uploadPanel.getStatusLabel().repaint();
             this.uploadPolicy.getContext().showStatus(status);
@@ -1056,9 +1059,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
                 // Let's indicate to the user what's running on.
                 this.preparationProgressBar.setString(String.format(
-                        this.uploadPolicy.getString("preparingFile"),
-                        new Integer(i + 1), new Integer(
-                                this.uploadFileDataArray.length)));
+                        this.uploadPolicy.getString("preparingFile"), Integer
+                                .valueOf(i + 1), Integer
+                                .valueOf(this.uploadFileDataArray.length)));
                 this.preparationProgressBar.repaint();
 
                 // Then, we work
@@ -1080,11 +1083,12 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
                 // The file preparation is finished. Let's update the progress
                 // bar.
-                this.preparationProgressBar
-                        .setValue(this.nbPreparedFiles * 100);
+                synchronized (this) {
+                    this.preparationProgressBar
+                            .setValue(this.nbPreparedFiles * 100);
+                }
                 this.preparationProgressBar.repaint();
             }
-
         } catch (JUploadException e) {
             setUploadException(e);
             stopUpload();

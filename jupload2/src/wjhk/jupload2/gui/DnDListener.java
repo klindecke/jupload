@@ -93,7 +93,7 @@ public class DnDListener implements DropTargetListener {
                 List<File> fileList = (List<File>) e.getTransferable()
                         .getTransferData(DataFlavor.javaFileListFlavor);
 
-                File[] fileArray = (File[]) fileList.toArray();
+                File[] fileArray = (File[]) (fileList.toArray());
                 this.uploadPanel.getFilePanel().addFiles(fileArray,
                         DefaultFileData.getRoot(fileArray));
 

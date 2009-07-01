@@ -36,6 +36,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileView;
 
+import wjhk.jupload2.filedata.PictureFileData;
 import wjhk.jupload2.policies.DefaultUploadPolicy;
 import wjhk.jupload2.policies.PictureUploadPolicy;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -133,9 +134,9 @@ class IconWorker implements Runnable {
                 // changes of directory, then went back to it.
                 // We ask again to calculate its icon.
                 this.fileView.execute(this);
-                return this.fileView.emptyIcon;
+                return JUploadFileView.emptyIcon;
             default:
-                return this.fileView.emptyIcon;
+                return JUploadFileView.emptyIcon;
         }// switch
     }// getIcon
 
@@ -166,7 +167,7 @@ class IconWorker implements Runnable {
                 this.fileChooser.repaint();
 
                 // A try to minimize memory footprint
-                Runtime.getRuntime().gc();
+                PictureFileData.freeMemory(this.getClass().getName()+".loadIcon()", this.uploadPolicy);
             }
         } catch (OutOfMemoryError e) {
             this.uploadPolicy
@@ -224,7 +225,7 @@ public class JUploadFileView extends FileView implements
     /**
      * An empty icon, having the good file size.
      */
-    public ImageIcon emptyIcon = null;
+    public static ImageIcon emptyIcon = null;
 
     /**
      * Creates a new instance.
@@ -243,15 +244,15 @@ public class JUploadFileView extends FileView implements
 
         // emptyIcon needs an upload policy, to be set, but we'll create it
         // only once.
-        if (this.emptyIcon == null
-                || this.emptyIcon.getIconHeight() != uploadPolicy
+        if (emptyIcon == null
+                || emptyIcon.getIconHeight() != uploadPolicy
                         .getFileChooserIconSize()) {
             // The empty icon has not been calculated yet, or its size changed
             // since the icon creation. This can happen when the applet is
             // reloaded, and the applet parameter changed: the static attribute
             // are not recalculated.
             // Let's construct the resized picture.
-            this.emptyIcon = new ImageIcon(new BufferedImage(uploadPolicy
+            emptyIcon = new ImageIcon(new BufferedImage(uploadPolicy
                     .getFileChooserIconSize(), uploadPolicy
                     .getFileChooserIconSize(), BufferedImage.TYPE_INT_ARGB_PRE));
         }
@@ -354,7 +355,7 @@ public class JUploadFileView extends FileView implements
             // later.
             execute(iconWorker);
             // We currently have no icon to display.
-            return this.emptyIcon;
+            return emptyIcon;
         }
         // Ok, let's take the icon.
         return iconWorker.getIcon();

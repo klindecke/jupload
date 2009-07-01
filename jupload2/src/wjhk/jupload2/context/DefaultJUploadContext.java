@@ -21,6 +21,7 @@
 package wjhk.jupload2.context;
 
 import java.awt.Cursor;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -78,7 +79,7 @@ public class DefaultJUploadContext implements JUploadContext {
     /**
      * the mime type list, coming from: http://www.mimetype.org/ Thanks to them!
      */
-    static private Properties mimeTypesProperties = null;
+    private Properties mimeTypesProperties = null;
 
     /**
      * The version of this applet. The version itself is to be updated in the
@@ -110,7 +111,7 @@ public class DefaultJUploadContext implements JUploadContext {
      * or the application closes, by calling the
      * {@link JUploadContext#runUnload()} method.
      */
-    private class Callback {
+    private static class Callback {
         private String m;
 
         private Object o;
@@ -175,9 +176,10 @@ public class DefaultJUploadContext implements JUploadContext {
             // upload command to the applet.
             this.jsHandler = new JavascriptHandler(this.uploadPolicy,
                     this.jUploadPanel);
+            this.jsHandler.start();
         } catch (final Exception e) {
             System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             // TODO Translate this sentence
             JOptionPane.showMessageDialog(null,
                     "Error during applet initialization!\nHave a look in your Java console ("
@@ -188,13 +190,11 @@ public class DefaultJUploadContext implements JUploadContext {
         mimeTypesProperties = new Properties();
         final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
         try {
-            /*
-             * mimeTypesProperties.load(getClass().getResourceAsStream(
-             * mimetypePropertiesFilename));
-             */
-            mimeTypesProperties.load(Class.forName(
+            InputStream isProperties = Class.forName(
                     "wjhk.jupload2.JUploadApplet").getResourceAsStream(
-                    mimetypePropertiesFilename));
+                    mimetypePropertiesFilename);
+            mimeTypesProperties.load(isProperties);
+            isProperties.close();
             uploadPolicy.displayDebug("Mime types list loaded Ok ("
                     + mimetypePropertiesFilename + ")", 50);
         } catch (Exception e) {
@@ -394,8 +394,11 @@ public class DefaultJUploadContext implements JUploadContext {
         // The upload policy is not created yet: we can not use its display
         // methods to trace what is happening here.
         try {
-            properties.load(Class.forName("wjhk.jupload2.JUploadApplet")
-                    .getResourceAsStream(svnPropertiesFilename));
+            InputStream isProperties = Class.forName(
+                    "wjhk.jupload2.JUploadApplet").getResourceAsStream(
+                    svnPropertiesFilename);
+            properties.load(isProperties);
+            isProperties.close();
             bPropertiesLoaded = true;
         } catch (Exception e) {
             // An error occurred when reading the file. The applet was

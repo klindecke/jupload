@@ -17,6 +17,9 @@ import wjhk.jupload2.context.JUploadContextExecutable;
  */
 public class JUploadContextTest extends JUploadContextExecutable {
 
+    /** Unused SerialVerisonUID */
+    private static final long serialVersionUID = 1L;
+
     /**
      * Root folder for policies configuration files, that are used in JUnit
      * tests. The current user dir is the root of the eclipse project.
@@ -80,7 +83,9 @@ public class JUploadContextTest extends JUploadContextExecutable {
         Properties properties = new Properties(defaultProperties);
         try {
             // TODO use this.getClass() ?
-            properties.load(new FileReader(filename));
+            FileReader isProperties = new FileReader(filename);
+            properties.load(isProperties);
+            isProperties.close();
         } catch (IOException e1) {
             System.out.println("Error while loading " + filename + " ("
                     + e1.getClass().getName() + ")");

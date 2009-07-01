@@ -29,8 +29,6 @@ package wjhk.jupload2.upload.helper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PushbackInputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -49,7 +47,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -96,7 +93,7 @@ public class HttpConnect {
                 proxysock.getInputStream()));
         // We expect exactly one line: the proxy response
         String line = proxyIn.readLine();
-        if (!line.matches("^HTTP/\\d\\.\\d\\s200\\s.*"))
+        if (line == null || !line.matches("^HTTP/\\d\\.\\d\\s200\\s.*"))
             throw new ConnectException("Proxy response: " + line);
         this.uploadPolicy.displayDebug("Proxy response: " + line, 80);
         proxyIn.readLine(); // eat the header delimiter
@@ -122,7 +119,7 @@ public class HttpConnect {
      * @throws UnrecoverableKeyException
      * @throws IllegalArgumentException
      */
-    public Socket Connect(URL url, Proxy proxy)
+    public Socket connect(URL url, Proxy proxy)
             throws NoSuchAlgorithmException, KeyManagementException,
             ConnectException, UnknownHostException, IOException,
             KeyStoreException, CertificateException, IllegalArgumentException,
@@ -218,13 +215,13 @@ public class HttpConnect {
      * @throws UnrecoverableKeyException
      * @throws IllegalArgumentException
      */
-    public Socket Connect(URL url) throws NoSuchAlgorithmException,
+    public Socket connect(URL url) throws NoSuchAlgorithmException,
             KeyManagementException, ConnectException, UnknownHostException,
             IOException, URISyntaxException, KeyStoreException,
             CertificateException, IllegalArgumentException,
             UnrecoverableKeyException {
         Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
-        return Connect(url, proxy);
+        return connect(url, proxy);
     }
 
     /**
@@ -339,144 +336,6 @@ public class HttpConnect {
                 changePostURL(mLocation.group(1));
             }
         }
-
-        return protocol;
-    } // getProtocol()
-
-    /**
-     * Retrieve the protocol to be used for the postURL of the current policy.
-     * This method issues a HEAD request to the postURL and then examines the
-     * protocol version returned in the response.
-     * 
-     * @return The string, describing the protocol (e.g. "HTTP/1.1")
-     * @throws URISyntaxException
-     * @throws IOException
-     * @throws UnrecoverableKeyException
-     * @throws IllegalArgumentException
-     * @throws CertificateException
-     * @throws KeyStoreException
-     * @throws UnknownHostException
-     * @throws NoSuchAlgorithmException
-     * @throws KeyManagementException
-     * @throws JUploadException
-     */
-    public String getProtocolOld() throws URISyntaxException,
-            KeyManagementException, NoSuchAlgorithmException,
-            UnknownHostException, KeyStoreException, CertificateException,
-            IllegalArgumentException, UnrecoverableKeyException, IOException,
-            JUploadException {
-
-        String protocol = HTTPCONNECT_DEFAULT_PROTOCOL;
-        String returnCode = null;
-        // bRedirect indicates a return code of 301, 302 or 303.
-        boolean bRedirect = false;
-        URL url = new URL(this.uploadPolicy.getPostURL());
-        this.uploadPolicy
-                .displayDebug("Checking protocol with URL: " + url, 30);
-        Proxy proxy = ProxySelector.getDefault().select(url.toURI()).get(0);
-        boolean useProxy = ((proxy != null) && (proxy.type() != Proxy.Type.DIRECT));
-        boolean useSSL = url.getProtocol().equals("https");
-        Socket s = Connect(url, proxy);
-        // BufferedReader in = new BufferedReader(new
-        // InputStreamReader(s.getInputStream()));
-        PushbackInputStream in = new PushbackInputStream(s.getInputStream());
-        StringBuffer req = new StringBuffer();
-
-        req.append("HEAD ");
-        if (useProxy && (!useSSL)) {
-            // with a proxy we need the absolute URL, but only if not
-            // using SSL. (with SSL, we first use the proxy CONNECT method,
-            // and then a plain request.)
-            req.append(url.getProtocol()).append("://").append(url.getHost());
-        }
-        req.append(url.getPath());
-
-        // We must transmit the postURL as is. There may be some redirection
-        // when parameters are missing (eg: Coppermine)
-        if (null != url.getQuery() && !"".equals(url.getQuery()))
-            req.append("?").append(url.getQuery());
-
-        req.append(" ").append(HTTPCONNECT_DEFAULT_PROTOCOL).append("\r\n");
-        req.append("Host: ").append(url.getHost()).append("\r\n");
-        req.append("Connection: close\r\n\r\n");
-        OutputStream os = s.getOutputStream();
-        os.write(req.toString().getBytes());
-        os.flush();
-
-        // Let's read the first line, and try to guess the HTTP protocol, and
-        // look for 301, 302 or 303 HTTP Return code.
-        String firstLine = HTTPInputStreamReader
-                .readLine(in, "US-ASCII", false);
-        if (null == firstLine) {
-            // Using default value. Already initialized.
-            // This can occur, for instance, when Kaspersky antivirus is on !
-            this.uploadPolicy.displayWarn("EMPTY HEAD response");
-        } else {
-            Matcher m = Pattern.compile("^(HTTP/\\d\\.\\d)\\s(.*)\\s.*")
-                    .matcher(firstLine);
-            if (!m.matches()) {
-                // Using default value. Already initialized.
-                this.uploadPolicy.displayErr("Unexpected HEAD response: '"
-                        + firstLine + "'");
-            }
-            this.uploadPolicy.displayDebug("HEAD response: " + firstLine, 80);
-
-            // We will return the found protocol.
-            protocol = m.group(1);
-
-            // Do we have some URL to change ?
-            returnCode = m.group(2);
-            if (returnCode.equals("301") || returnCode.equals("302")
-                    || returnCode.equals("303")) {
-                bRedirect = true;
-                this.uploadPolicy.displayInfo("Received " + returnCode
-                        + " (current postURL: "
-                        + this.uploadPolicy.getPostURL() + ")");
-            }
-        }
-
-        // Let's check if we're facing an IIS server. The applet is compatible
-        // with IIS, only if allowHttpPersistent is false.
-        String nextLine = HTTPInputStreamReader.readLine(in, "US-ASCII", false);
-        Pattern pLocation = Pattern.compile("^Location: (.*)$");
-        Matcher mLocation;
-        while ((nextLine = HTTPInputStreamReader
-                .readLine(in, "US-ASCII", false)).length() > 0) {
-            if (nextLine.matches("^Server: .*IIS")) {
-                try {
-                    this.uploadPolicy.setProperty(
-                            UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT, "false");
-                    this.uploadPolicy
-                            .displayWarn(UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
-                                    + "' forced to false, for IIS compatibility (in HttpConnect.getProtocol())");
-                } catch (JUploadException e) {
-                    this.uploadPolicy.displayWarn("Can't set property '"
-                            + UploadPolicy.PROP_ALLOW_HTTP_PERSISTENT
-                            + "' to false, in HttpConnect.getProtocol()");
-                }
-                break;
-            } else if (bRedirect) {
-                mLocation = pLocation.matcher(nextLine);
-                if (mLocation.matches()) {
-                    // We found the location where we should go instead of the
-                    // original postURL
-                    this.uploadPolicy.displayDebug("Location read: "
-                            + mLocation.group(1), 50);
-                    changePostURL(mLocation.group(1));
-                }
-            }
-        }
-
-        // output is now done at the end of the method, as a remark of Brian
-        // Moran
-        // This corrects a bug when hitting an NGINX proxy server.
-        if (!(s instanceof SSLSocket)) {
-            s.shutdownOutput();
-        }
-
-        // Let's look for the web server kind: the applet works IIS only if
-        // allowHttpPersistent is false
-        s.close();
 
         return protocol;
     } // getProtocol()

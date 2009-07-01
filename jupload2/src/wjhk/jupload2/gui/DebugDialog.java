@@ -169,7 +169,11 @@ public class DebugDialog extends JDialog implements ActionListener {
     public void deleteLog() {
         try {
             if (null != this.lastReponseBodyFile) {
-                this.lastReponseBodyFile.delete();
+                if (!this.lastReponseBodyFile.delete()) {
+                    this.uploadPolicy
+                            .displayWarn("Unable to delete this.lastReponseBodyFile ("
+                                    + this.lastReponseBodyFile.getName() + ")");
+                }
                 this.lastReponseBodyFile = null;
             }
         } catch (Exception e) {

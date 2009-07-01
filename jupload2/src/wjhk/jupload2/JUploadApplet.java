@@ -51,7 +51,7 @@ public class JUploadApplet extends JApplet {
     /**
      * The current execution context.
      */
-    JUploadContext juploadContext = null;
+    transient JUploadContext juploadContext = null;
 
     /**
      * Called each time the applet is shown on the web page.

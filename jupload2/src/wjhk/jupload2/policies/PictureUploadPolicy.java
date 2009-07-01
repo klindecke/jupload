@@ -237,8 +237,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 DEFAULT_REAL_MAX_HEIGHT));
         setRealMaxWidth(juploadContext.getParameter(PROP_REAL_MAX_WIDTH,
                 DEFAULT_REAL_MAX_WIDTH));
-        setStoreBufferedImage(juploadContext.getParameter(
-                PROP_STORE_BUFFERED_IMAGE, DEFAULT_STORE_BUFFERED_IMAGE));
         setTargetPictureFormat(juploadContext.getParameter(
                 PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT));
 
@@ -579,16 +577,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         this.realMaxWidth = realMaxWidth;
     }
 
-    /** @return Returns the createBufferedImage. */
-    public boolean hasToStoreBufferedImage() {
-        return this.storeBufferedImage;
-    }
-
-    /** @param storeBufferedImage the storeBufferedImage to set */
-    void setStoreBufferedImage(boolean storeBufferedImage) {
-        this.storeBufferedImage = storeBufferedImage;
-    }
-
     /** @return Returns the targetPictureFormat. */
     public String getTargetPictureFormat() {
         return this.targetPictureFormat;
@@ -615,9 +603,6 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         if (prop.equals(PROP_FILE_CHOOSER_IMAGE_PREVIEW)) {
             setFileChooserImagePreview(getContext().parseBoolean(value,
                     getFileChooserImagePreview()));
-        } else if (prop.equals(PROP_STORE_BUFFERED_IMAGE)) {
-            setStoreBufferedImage(getContext().parseBoolean(value,
-                    this.storeBufferedImage));
         } else if (prop.equals(PROP_HIGH_QUALITY_PREVIEW)) {
             setHighQualityPreview(getContext().parseBoolean(value,
                     this.highQualityPreview));

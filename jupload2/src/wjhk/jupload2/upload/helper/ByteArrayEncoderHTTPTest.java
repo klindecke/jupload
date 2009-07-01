@@ -21,7 +21,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
 
     ByteArrayEncoderHTTP byteArrayEncoderHTTP = null;
 
-    final String testCase = "A string, with accents: שאיט\u00f8\u00e5\u00d8\u00e6";
+    final static String testCase = "A string, with accents: שאיט\u00f8\u00e5\u00d8\u00e6";
 
     String boundary = "A boundary";
 
@@ -121,7 +121,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
     public void testAppendByteArrayEncoder() throws Exception {
         ByteArrayEncoderHTTP bae = new ByteArrayEncoderHTTP(this.juploadContext
                 .getUploadPolicy());
-        bae.append(this.testCase);
+        bae.append(ByteArrayEncoderHTTPTest.testCase);
         bae.close();
         // append should throw an exception, if executed on a non-closed
         this.byteArrayEncoderHTTP.append(bae);
