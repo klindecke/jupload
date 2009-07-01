@@ -129,6 +129,9 @@ public class JUploadContextApplet extends DefaultJUploadContext {
         String cookie = null;
         String userAgent = null;
 
+        this.uploadPolicy
+                .displayInfo("Reading cookie and user-agent from navigator");
+
         try {
             // Patch given by Stani: corrects the use of the juploadContext for
             // Firefox on Mac.

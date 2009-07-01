@@ -22,6 +22,7 @@ package wjhk.jupload2.context;
 
 import java.awt.Cursor;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -134,8 +135,11 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
         Properties properties = new Properties(defaultProperties);
         try {
             // TODO use this.getClass() ?
-            properties.load(Class.forName("wjhk.jupload2.JUploadApplet")
-                    .getResourceAsStream(filename));
+            InputStream isProperties = Class.forName(
+                    "wjhk.jupload2.JUploadApplet")
+                    .getResourceAsStream(filename);
+            properties.load(isProperties);
+            isProperties.close();
         } catch (IOException e1) {
             System.out.println("Error while loading " + filename + " ("
                     + e1.getClass().getName() + ")");

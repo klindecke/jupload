@@ -38,7 +38,7 @@ public interface FilePanel {
     /**
      * Add multiple files to this panel.
      * 
-     * @param filesToUpload An array of files to add.
+     * @param f An array of files to add.
      * @param root The top level of a directory hierarchy to add
      */
     public void addFiles(File[] f, File root);

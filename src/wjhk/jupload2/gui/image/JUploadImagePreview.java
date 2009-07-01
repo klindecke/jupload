@@ -82,7 +82,8 @@ class LoadImageThread extends Thread {
                         .getHeight());
 
         // A try to minimize memory footprint
-        Runtime.getRuntime().gc();
+        PictureFileData.freeMemory("JUploadImagePreview.run()",
+                this.jUploadImagePreview.uploadPolicy);
 
         if (thumbnail != null) {
             this.jUploadImagePreview.setThumbnail(thumbnail);

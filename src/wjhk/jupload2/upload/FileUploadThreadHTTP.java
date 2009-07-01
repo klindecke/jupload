@@ -26,6 +26,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
@@ -434,8 +437,14 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             }
 
             // Now add one multipart segment for each
-            for (String key : requestParameters.keySet())
-                bae.appendTextProperty(key, requestParameters.get(key));
+            Set<Map.Entry<String, String>> entrySet = requestParameters
+                    .entrySet();
+            Map.Entry<String, String> entry;
+            Iterator<Map.Entry<String, String>> i = entrySet.iterator();
+            while (i.hasNext()) {
+                entry = i.next();
+                bae.appendTextProperty(entry.getKey(), entry.getValue());
+            }
         }
         // Return the body content
         bae.close();

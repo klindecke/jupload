@@ -300,7 +300,8 @@ public class FileUploadManagerThreadTest extends TestCase {
         // fileUploadManagerThread.nbUploadedBytes must be more than 0
         fileUploadManagerThread.nbUploadedBytes = 1;
         fileUploadManagerThread.actionPerformed(ae);
-        //We have to wait that the text modification is taken into account by the event thread.
+        // We have to wait that the text modification is taken into account by
+        // the event thread.
         Thread.sleep(1000);
         String currentStatusText = fileUploadManagerThread.uploadPanel
                 .getStatusLabel().getText();
@@ -321,8 +322,11 @@ public class FileUploadManagerThreadTest extends TestCase {
         // fileUploadManagerThread.nbFilesBeingUploaded;
         // long nbBytesUploadedForCurrentFile =
         // fileUploadManagerThread.nbBytesUploadedForCurrentFile;
-        //long nbBytesReadyForUpload = fileUploadManagerThread.nbBytesReadyForUpload;
-        fileUploadManagerThread.uploadStatus = FileUploadManagerThread.UPLOAD_STATUS_UPLOADING;
+        // long nbBytesReadyForUpload =
+        // fileUploadManagerThread.nbBytesReadyForUpload;
+        synchronized (fileUploadManagerThread) {
+            fileUploadManagerThread.uploadStatus = FileUploadManagerThread.UPLOAD_STATUS_UPLOADING;
+        }
 
         // TODO Use FileUploadThreadStopDuringUpload
 
@@ -332,7 +336,9 @@ public class FileUploadManagerThreadTest extends TestCase {
         // In this test case, the upload is instantaneous. We can't check the
         // values when the file is being uploaded. So, no test on
         // nbFilesBeingUploaded and nbBytesUploadedForCurrentFile.
-        assertEquals(0, fileUploadManagerThread.nbBytesReadyForUpload);
+        synchronized (fileUploadManagerThread) {
+            assertEquals(0, fileUploadManagerThread.nbBytesReadyForUpload);
+        }
         assertEquals(fileUploadManagerThread.uploadStatus,
                 FileUploadManagerThread.UPLOAD_STATUS_UPLOADED);
     }

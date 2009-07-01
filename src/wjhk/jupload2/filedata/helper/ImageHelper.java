@@ -455,8 +455,9 @@ public class ImageHelper implements ImageObserver {
 
                     img.flush();
                     img = null;
-                    this.pictureFileData
-                            .freeMemory("ImageHelper.getBufferedImage()");
+                    PictureFileData
+                            .freeMemory("ImageHelper.getBufferedImage()",
+                                    this.uploadPolicy);
 
                     // tempBufferedImage contains the rescaled picture. It's
                     // the source image for the next step (rotation).
@@ -523,7 +524,8 @@ public class ImageHelper implements ImageObserver {
         this.uploadPolicy.displayDebug("getBufferedImage: was "
                 + (System.currentTimeMillis() - msGetBufferedImage)
                 + " ms long", 50);
-        this.pictureFileData.freeMemory("ImageHelper.getBufferedImage()");
+        PictureFileData.freeMemory("ImageHelper.getBufferedImage()",
+                this.uploadPolicy);
         return returnedBufferedImage;
     }
 

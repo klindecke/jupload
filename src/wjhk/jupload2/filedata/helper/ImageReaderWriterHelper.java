@@ -405,6 +405,8 @@ public class ImageReaderWriterHelper {
                     // mode, or ... (etc). May trigger several different
                     // errors. We just ignore them: this par of code is only
                     // to write some debug info.
+                    this.uploadPolicy.displayWarn(e2.getClass().getName()
+                            + " in ImageReaderWriterHelper.java");
                 }
             }
         }

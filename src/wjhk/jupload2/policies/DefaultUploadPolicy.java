@@ -40,7 +40,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -1026,11 +1025,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throws JUploadIOException {
         Iterator<String> it = this.headers.iterator();
         String header;
+        displayDebug("[onAppendHeader] Start", 80);
         while (it.hasNext()) {
             header = it.next();
-            displayDebug(header, 70);
             bae.append(header).append("\r\n");
+            displayDebug("[onAppendHeader] Header appended; " + header, 80);
         }
+        displayDebug("[onAppendHeader] End", 80);
         return bae;
     }// appendHeader
 
@@ -1146,20 +1147,24 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             // to false temporarily. -> Everything goes to
                             // stdout.
                             action = "flush (debugGenerateFile=true)";
-                            this.debugOut.flush();
-                            this.debugOk = false;
-                            // First, calculate the size of the strings we will
-                            // send.
-                            action = "read debug file (debugGenerateFile=true)";
-                            BufferedReader debugIn = new BufferedReader(
-                                    new FileReader(this.debugFile));
-                            while ((line = debugIn.readLine()) != null) {
-                                baeDebug.append(line).append("\r\n");
-                            }
-                            debugIn.close();
+                            synchronized (this) {
+                                this.debugOut.flush();
+                                this.debugOk = false;
+                                // First, calculate the size of the strings we
+                                // will
+                                // send.
+                                action = "read debug file (debugGenerateFile=true)";
+                                BufferedReader debugIn = new BufferedReader(
+                                        new FileReader(this.debugFile));
+                                while ((line = debugIn.readLine()) != null) {
+                                    baeDebug.append(line).append("\r\n");
+                                }
+                                debugIn.close();
 
-                            // We are done with the debug log, so re-enable it.
-                            this.debugOk = localDebugOk;
+                                // We are done with the debug log, so re-enable
+                                // it.
+                                this.debugOk = localDebugOk;
+                            }// synchronized(this)
                         }// if (this.debugGenerateFile)
                         else {
                             action = "read debug file (debugGenerateFile=false)";
@@ -1193,17 +1198,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         // Blank line (end of header)
                         connectionHelper.append("\r\n");
                         connectionHelper.append(baeContent);
-
-                        // .. then the debug information
-                        /*
-                         * debugIn = new BufferedReader(new FileReader(
-                         * this.debugFile)); while ((line = debugIn.readLine())
-                         * != null) { baeDebug = new ByteArrayEncoderHTTP(this,
-                         * baeBound, baeEncoding);
-                         * baeDebug.append(line).append("\r\n");
-                         * baeDebug.close(); connectionHelper.append(baeDebug);
-                         * } debugIn.close();
-                         */
 
                         action = "connectionHelper.readHttpResponse()";
                         int status = connectionHelper.readHttpResponse();
@@ -1615,19 +1609,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
         /*
          * Patch given by Patrick
          * 
-         * Use of a specific classloader. The standard ResourceBundle checks
+         * Use of a specific class loader. The standard ResourceBundle checks
          * first for a class that has the name of the resource bundle. Since
          * there is no such class in the jar file, the AppletClassLoader makes a
          * http request to the server, which will end with a 404 since there is
-         * no such class either. To avoid this unneccessary lookup we use a
-         * clasloader that throws directly a ClassNotFoundException. After
-         * looking for a class (which is unsuccessful) ResourceBundle looks
-         * finally for a properties file. Herefore we delegate that lookup to
-         * the original classloader since this is in the jar file.
+         * no such class either. To avoid this unnecessary lookup we use a class
+         * loader that throws directly a ClassNotFoundException. After looking
+         * for a class (which is unsuccessful) ResourceBundle looks finally for
+         * a properties file. Therefore we delegate that lookup to the original
+         * class loader since this is in the jar file.
          */
         this.resourceBundle = ResourceBundle.getBundle(
                 "wjhk.jupload2.lang.lang", locale,
-                // Special classloader, see description above
+                // Special class loader, see description above
                 new ClassLoader(this.getClass().getClassLoader()) {
                     /** {@inheritDoc} */
                     @Override
@@ -1816,6 +1810,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 value = "ftp";
             } else {
                 try {
+                    displayDebug("Getting serverProtocol from HEAD request", 30);
                     value = new HttpConnect(this).getProtocol();
                 } catch (Exception e) {
                     // If we throw an error here, we prevent the juploadContext
@@ -1828,16 +1823,18 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 }
             }
         } else if (value.startsWith("HTTP")) {
-            // In HTTP mode, we always give a try to HTTPConnect, to check if
-            // the page has moved, and other stuff.
-            // But we keep the given parameter.
             try {
+                // In HTTP mode, we always give a try to HTTPConnect, to check
+                // if the page has moved, and other stuff.
+                // But we keep the parameter given when calling this method.
+                displayDebug("Checking any redirect, from HEAD request", 30);
                 new HttpConnect(this).getProtocol();
             } catch (Exception e) {
                 // If we throw an error here, we prevent the juploadContext to
                 // start. So we just log it, and try the default protocol
-                displayErr("Unable to access to the postURL: '" + getPostURL()
-                        + "'", e);
+                displayErr("Unknown to get protocol in the given postURL ("
+                        + getPostURL() + "), due to error: " + e.getMessage(),
+                        e);
             }
         }
         this.serverProtocol = value;
@@ -2023,7 +2020,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * Delete the current log. (called upon juploadContext termination)
      */
-    public void deleteLog() {
+    public synchronized void deleteLog() {
         if (this.debugGenerateFile) {
             try {
                 if (null != this.debugOut) {
@@ -2031,11 +2028,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     this.debugOut = null;
                 }
                 if (null != this.debugFile) {
-                    this.debugFile.delete();
+                    if (!this.debugFile.delete()) {
+                        displayWarn(this.debugFile.getName()
+                                + " was not correctly removed!");
+                    }
                     this.debugFile = null;
                 }
             } catch (Exception e) {
-                // nothing to do
+                // nothing to do: we mask the exception.
+                displayWarn(e.getClass().getName()
+                        + " occured in deleteLog(). Exception ignored.");
             }
         }
     }

@@ -341,13 +341,13 @@ class FilePanelDataModel2 extends AbstractTableModel {
             if (colName.equals(this.COL_NAME)) {
                 return fileData.getFileName();
             } else if (colName.equals(this.COL_SIZE)) {
-                return new Long(fileData.getFileLength());
+                return Long.valueOf(fileData.getFileLength());
             } else if (colName.equals(this.COL_DIRECTORY)) {
                 return fileData.getDirectory();
             } else if (colName.equals(this.COL_MODIFIED)) {
                 return fileData.getLastModified();
             } else if (colName.equals(this.COL_READABLE)) {
-                return new Boolean(fileData.canRead());
+                return Boolean.valueOf(fileData.canRead());
             } else {
                 this.uploadPolicy.displayErr("Unknown column in "
                         + this.getClass().getName() + ": " + colName);

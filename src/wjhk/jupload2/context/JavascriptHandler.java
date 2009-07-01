@@ -77,9 +77,6 @@ public class JavascriptHandler extends Thread {
             JUploadPanel theJUploadPanel) {
         this.uploadPolicy = uploadPolicy;
         this.jUploadPanel = theJUploadPanel;
-
-        // Let's start our thread.
-        this.start();
     }
 
     /**

@@ -70,6 +70,8 @@ import wjhk.jupload2.policies.UploadPolicy;
  * 
  */
 public class HTTPConnectionHelper extends OutputStream {
+    
+    //FIXME Does HTTPConnectionHelper really need to be an OutputStream? (Find Bug generate not closed exception)
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// PRIVATE CONSTANTS
@@ -329,7 +331,7 @@ public class HTTPConnectionHelper extends OutputStream {
             // on Marc Reidy's patch)
             if (this.socket == null
                     || !this.uploadPolicy.getAllowHttpPersistent()) {
-                this.socket = new HttpConnect(this.uploadPolicy).Connect(
+                this.socket = new HttpConnect(this.uploadPolicy).connect(
                         this.url, this.proxy);
                 this.outputStream = new DataOutputStream(
                         new BufferedOutputStream(this.socket.getOutputStream()));
@@ -691,6 +693,8 @@ public class HTTPConnectionHelper extends OutputStream {
 
         // We got the response
         this.connectionStatus = STATUS_CONNECTION_CLOSED;
+        
+        //FIXME Should close the connection, from time to time...
 
         //
         return this.httpInputStreamReader.gethttpStatusCode();
@@ -881,7 +885,7 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     @Override
     public void close() throws IOException {
-        throw new IOException("Forbidden action. Please use the "
+        throw new IOException("Forbidden action (HTTPConnectionHelper.close()). Please use the "
                 + getClass().getName() + ".sendRequest() method");
     }
 

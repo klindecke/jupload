@@ -61,7 +61,7 @@ class JUploadTransferHandler extends TransferHandler {
             try {
                 List<File> fileList = (List<File>) t
                         .getTransferData(this.fileListFlavor);
-                File[] fileArray = (File[]) fileList.toArray();
+                File[] fileArray = (File[]) (fileList.toArray());
                 this.uploadPanel.getFilePanel().addFiles(fileArray,
                         DefaultFileData.getRoot(fileArray));
                 return true;

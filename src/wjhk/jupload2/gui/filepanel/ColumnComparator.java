@@ -22,6 +22,7 @@
 
 package wjhk.jupload2.gui.filepanel;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import wjhk.jupload2.filedata.FileData;
@@ -30,7 +31,11 @@ import wjhk.jupload2.filedata.FileData;
  * Technical class, used to sort rows in the
  * wjhk.jupload2.gui.FilePanelDataModel2 class.
  */
-public class ColumnComparator implements Comparator<FileData> {
+public class ColumnComparator implements Comparator<FileData>, Serializable {
+
+    /** Unused SerialVerisonUID */
+    private static final long serialVersionUID = 1L;
+
     protected int index;
 
     protected boolean ascending;

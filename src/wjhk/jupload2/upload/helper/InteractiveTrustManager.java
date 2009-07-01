@@ -395,8 +395,8 @@ public class InteractiveTrustManager implements X509TrustManager,
         // but
         // does not set SystemColor.controlText. So we create a dummy button and
         // retrieve its text color.
-        Integer ii = new Integer(
-                new JButton(".").getForeground().getRGB() & 0x00ffffff);
+        Integer ii = Integer
+                .valueOf(new JButton(".").getForeground().getRGB() & 0x00ffffff);
         msg.append("color: ").append(String.format("#%06x", ii)).append(" }\n");
         msg.append("th { text-align: left; }\n");
         msg.append("td { margin-left: 20; }\n");

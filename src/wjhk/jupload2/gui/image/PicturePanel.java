@@ -264,12 +264,8 @@ public class PicturePanel extends Canvas implements MouseListener,
         // super.finalize();
         this.uploadPolicy.displayDebug("Within PicturePanel.finalize()", 10);
 
-        this.pictureFileData = null;
-        this.uploadPolicy = null;
-
         if (this.offscreenImage != null) {
             this.offscreenImage.flush();
-            this.offscreenImage = null;
         }
     }
 

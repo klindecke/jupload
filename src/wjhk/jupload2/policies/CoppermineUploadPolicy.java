@@ -88,8 +88,8 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     private int nbPictureInUpload = 0;
 
     /**
-     * @param juploadContext Identifier for the current applet. It's necessary, to
-     *            read information from the navigator.
+     * @param juploadContext Identifier for the current applet. It's necessary,
+     *            to read information from the navigator.
      * @throws JUploadException
      */
     public CoppermineUploadPolicy(JUploadContext juploadContext)
@@ -109,9 +109,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      */
     @Override
     public void onFileSelected(FileData fileData) {
-        if (fileData == null) {
-            super.onFileSelected(fileData);
-        } else if (fileData instanceof PictureFileData) {
+        if (fileData != null && fileData instanceof PictureFileData) {
             // The selected file is a picture, we let PictureUploadPolicy manage
             // it.
             super.onFileSelected(fileData);

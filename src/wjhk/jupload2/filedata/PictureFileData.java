@@ -79,30 +79,6 @@ public class PictureFileData extends DefaultFileData {
     private boolean isPicture = false;
 
     /**
-     * If set to true, the PictureFileData will keep the BufferedImage in
-     * memory. That is: it won't load it again from the hard drive, and resize
-     * and/or rotate it (if necessary) when the user select this picture. When
-     * picture are big this is nice. <BR>
-     * <BR>
-     * <B>Caution:</B> this parameter is currently unused, as the navigator
-     * applet runs quickly out of memory (after three or four picture for my
-     * Canon EOS 20D, 8,5 Mega pixels).
-     * 
-     * @see UploadPolicy
-     */
-    boolean storeBufferedImage = UploadPolicy.DEFAULT_STORE_BUFFERED_IMAGE;
-
-    // Will be erased in the constructor.
-
-    /*
-     * bufferedImage contains a preloaded picture. This buffer is used according
-     * to PictureFileDataPolicy.storeBufferedImage.
-     * 
-     * @see PictureUploadPolicy#storeBufferedImage
-     */
-    // private BufferedImage bufferedImage = null;
-    // Currently commented, as it leads to memory leaks.
-    /**
      * This picture is precalculated, and stored to avoid to calculate it each
      * time the user select this picture again, or each time the use switch from
      * an application to another.
@@ -176,9 +152,6 @@ public class PictureFileData extends DefaultFileData {
     public PictureFileData(File file, File root,
             PictureUploadPolicy uploadPolicy) throws JUploadIOException {
         super(file, root, uploadPolicy);
-        // EGR Should be useless
-        // this.uploadPolicy = (PictureUploadPolicy) super.uploadPolicy;
-        this.storeBufferedImage = uploadPolicy.hasToStoreBufferedImage();
 
         String fileExtension = getFileExtension();
 
@@ -202,18 +175,19 @@ public class PictureFileData extends DefaultFileData {
      * 
      * @param caller Indicate the method or treatment from which this method is
      *            called.
+     * @param uploadPolicy The current upload policy is not available, to this
+     *            static method...
      */
-    public void freeMemory(String caller) {
+    public static void freeMemory(String caller, UploadPolicy uploadPolicy) {
         Runtime rt = Runtime.getRuntime();
 
         rt.runFinalization();
         rt.gc();
 
-        if (this.uploadPolicy.getDebugLevel() >= 50) {
-            this.uploadPolicy.displayDebug("freeMemory (after " + caller
-                    + ") : " + rt.freeMemory() + " (maxMemory: "
-                    + rt.maxMemory() + ", totalMemory: " + rt.totalMemory()
-                    + ")", 50);
+        if (uploadPolicy.getDebugLevel() >= 50) {
+            uploadPolicy.displayDebug("freeMemory (after " + caller + ") : "
+                    + rt.freeMemory() + " (maxMemory: " + rt.maxMemory()
+                    + ", totalMemory: " + rt.totalMemory() + ")", 50);
         }
     }
 
@@ -240,7 +214,9 @@ public class PictureFileData extends DefaultFileData {
             try {
                 // Picture management is a big work. Let's try to free some
                 // memory.
-                freeMemory("Picture manabeforeUpload(): before initTransformedPictureFile");
+                freeMemory(
+                        "Picture manabeforeUpload(): before initTransformedPictureFile",
+                        this.uploadPolicy);
 
                 // Get the transformed picture file, if needed.
                 initTransformedPictureFile();
@@ -266,7 +242,8 @@ public class PictureFileData extends DefaultFileData {
                 deleteWorkingCopyPictureFile();
 
                 // Let's try to free some memory.
-                freeMemory("beforeUpload(): in OutOfMemoryError");
+                freeMemory("beforeUpload(): in OutOfMemoryError",
+                        this.uploadPolicy);
 
                 tooBigPicture();
             }
@@ -319,7 +296,7 @@ public class PictureFileData extends DefaultFileData {
      * @return An inputStream
      */
     @Override
-    public InputStream getInputStream() throws JUploadException {
+    public synchronized InputStream getInputStream() throws JUploadException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.getInputStream()", 95);
         if (!preparedForUpload) {
@@ -417,7 +394,8 @@ public class PictureFileData extends DefaultFileData {
             this.offscreenImage = localImage;
         }
 
-        freeMemory("end of " + this.getClass().getName() + ".getImage()");
+        freeMemory("end of " + this.getClass().getName() + ".getImage()",
+                this.uploadPolicy);
 
         // The picture is now loaded. We clear the progressBar
         this.uploadPolicy.getContext().getUploadPanel()
@@ -489,7 +467,10 @@ public class PictureFileData extends DefaultFileData {
         // Free the temporary file ... if any.
         if (null != this.transformedPictureFile
                 && this.uploadPolicy.getDebugLevel() <= 100) {
-            this.transformedPictureFile.delete();
+            if (!this.transformedPictureFile.delete()) {
+                this.uploadPolicy.displayWarn("Unable to delete "
+                        + this.transformedPictureFile.getName());
+            }
             this.transformedPictureFile = null;
 
         }
@@ -778,7 +759,10 @@ public class PictureFileData extends DefaultFileData {
         // file (for check).
         if (null != this.workingCopyTempFile
                 && this.uploadPolicy.getDebugLevel() <= 100) {
-            this.workingCopyTempFile.delete();
+            if (!this.workingCopyTempFile.delete()) {
+                this.uploadPolicy.displayWarn("Unable to delete "
+                        + this.workingCopyTempFile.getName());
+            }
             this.workingCopyTempFile = null;
 
         }

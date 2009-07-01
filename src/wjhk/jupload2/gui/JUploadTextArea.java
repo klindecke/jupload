@@ -27,7 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
+
 
 /**
  * This class represents the text area for debug output.
@@ -62,7 +62,7 @@ public class JUploadTextArea extends JTextArea {
      * tread-safe update of the GUI. This thread is responsible to display one
      * String.
      */
-    class LogMessageThread extends Thread {
+    static class LogMessageThread extends Thread {
 
         /**
          * The ConcurrentLinkedQueue that'll contain the messages.

@@ -40,7 +40,7 @@ public class JUploadDaemon extends JFrame {
     /**
      * The current execution context.
      */
-    JUploadContext juploadContext = null;
+    transient JUploadContext juploadContext = null;
 
     /**
      * Default constructor.
