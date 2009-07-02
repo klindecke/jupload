@@ -651,7 +651,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * this parameter, these parameter should be separated by the "&#92;n" string
  * (not the LineFeed character, but the antislash character followed by the n
  * character, like msg="&#92;&#92;n";). No "&#92;n" at the end: it will be added
- * by the applet. In PHP, put '&#92;n', and not "&#92;n" (See PHP doc, on strings)<BR>
+ * by the applet. In PHP, put '&#92;n', and not "&#92;n" (See PHP doc, on
+ * strings)<BR>
  * This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  * a header like this one:<BR>
  * Authorization: Basic Base64EncodedString Where Base64EncodedString is the
@@ -717,9 +718,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <td>This parameter indicates that the preview image on the applet is kept in
  * memory. It works really nice under eclise. But, once in the navigator, the
  * applet runs very quickly out of memory. So I add a lot of calls to
- * {@link wjhk.jupload2.filedata.PictureFileData#freeMemory(String)}, but it
- * doesn't change anything. Be careful to this parameter, and let it to the
- * default value, unless you've well tested it under all your target client
+ * {@link wjhk.jupload2.filedata.PictureFileData#freeMemory(String, UploadPolicy)}
+ * , but it doesn't change anything. Be careful to this parameter, and let it to
+ * the default value, unless you've well tested it under all your target client
  * configurations. <BR>
  * <I>This parameter will probably never be correctly implemented.</I></td>
  * </tr>
