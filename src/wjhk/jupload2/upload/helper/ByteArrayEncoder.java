@@ -24,9 +24,9 @@ public interface ByteArrayEncoder {
     /**
      * Closes the encoding writer, and prepares the encoded length and byte
      * array. This method must be called before call to
-     * {@link #getEncodedLength()} and {@link #getEncodedByteArray()}. <B>Note:</B>
-     * After a call to this method, you can not append any new data to the
-     * encoder.
+     * {@link #getEncodedLength()} and {@link #getEncodedByteArray()}.
+     * <B>Note:</B> After a call to this method, you can not append any new data
+     * to the encoder.
      * 
      * @throws JUploadIOException Encapsulates any IO Exception
      */

@@ -28,8 +28,8 @@ import wjhk.jupload2.policies.UploadPolicy;
  * This class contains all data for files to upload an audio file. It adds the
  * following elements to the {@link wjhk.jupload2.filedata.FileData} class :<BR>
  * <UL>
- * <LI> Pre-earing of audio files
- * <LI> To be completed
+ * <LI>Pre-earing of audio files
+ * <LI>To be completed
  * </UL>
  * <BR>
  * <BR>

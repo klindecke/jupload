@@ -70,8 +70,9 @@ import wjhk.jupload2.policies.UploadPolicy;
  * 
  */
 public class HTTPConnectionHelper extends OutputStream {
-    
-    //FIXME Does HTTPConnectionHelper really need to be an OutputStream? (Find Bug generate not closed exception)
+
+    // FIXME Does HTTPConnectionHelper really need to be an OutputStream? (Find
+    // Bug generate not closed exception)
 
     // ////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// PRIVATE CONSTANTS
@@ -693,8 +694,8 @@ public class HTTPConnectionHelper extends OutputStream {
 
         // We got the response
         this.connectionStatus = STATUS_CONNECTION_CLOSED;
-        
-        //FIXME Should close the connection, from time to time...
+
+        // FIXME Should close the connection, from time to time...
 
         //
         return this.httpInputStreamReader.gethttpStatusCode();
@@ -885,8 +886,9 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     @Override
     public void close() throws IOException {
-        throw new IOException("Forbidden action (HTTPConnectionHelper.close()). Please use the "
-                + getClass().getName() + ".sendRequest() method");
+        throw new IOException(
+                "Forbidden action (HTTPConnectionHelper.close()). Please use the "
+                        + getClass().getName() + ".sendRequest() method");
     }
 
     /**

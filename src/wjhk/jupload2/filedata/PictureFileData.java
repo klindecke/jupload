@@ -205,7 +205,7 @@ public class PictureFileData extends DefaultFileData {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.beforeUpload()", 95);
 
-        if (preparedForUpload) {
+        if (this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is already prepared for upload");
         }
@@ -281,7 +281,7 @@ public class PictureFileData extends DefaultFileData {
      */
     @Override
     public long getUploadLength() throws JUploadException {
-        if (!preparedForUpload) {
+        if (!this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is not prepared for upload");
         }
@@ -301,7 +301,7 @@ public class PictureFileData extends DefaultFileData {
     public synchronized InputStream getInputStream() throws JUploadException {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.getInputStream()", 95);
-        if (!preparedForUpload) {
+        if (!this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is not prepared for upload");
         }
@@ -327,7 +327,7 @@ public class PictureFileData extends DefaultFileData {
         // Free the temporary file ... if any.
         deleteTransformedPictureFile();
         deleteWorkingCopyPictureFile();
-        uploadLength = -1;
+        this.uploadLength = -1;
 
         super.afterUpload();
     }

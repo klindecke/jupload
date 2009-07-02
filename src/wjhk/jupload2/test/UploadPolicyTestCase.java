@@ -27,6 +27,7 @@ public class UploadPolicyTestCase extends DefaultUploadPolicy {
      * 
      * @see UploadPolicy#alertStr(String)
      */
+    @Override
     public void alertStr(String str) {
         // No action.
     }

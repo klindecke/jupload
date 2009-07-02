@@ -188,7 +188,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 this.ftp.sendNoOp();
             } catch (FTPConnectionClosedException eClosed) {
                 // Let's forget this connection.
-                bConnected = false;
+                this.bConnected = false;
             } catch (IOException e) {
                 throw new JUploadIOException(e.getClass().getName()
                         + " while checking FTP connection to the server", e);
@@ -271,7 +271,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         try {
             // if configured to, we go to the relative sub-folder of the current
             // file, or on the root of the postURL.
-            if (uploadPolicy.getFtpCreateDirectoryStructure()) {
+            if (this.uploadPolicy.getFtpCreateDirectoryStructure()) {
                 // We create the FTP directory structure
                 // TODO: call it once for all files, not once for each file.
                 createDirectoryStructure();

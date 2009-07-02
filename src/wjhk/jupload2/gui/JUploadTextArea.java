@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JTextArea;
 
-
 /**
  * This class represents the text area for debug output.
  */
@@ -83,8 +82,8 @@ public class JUploadTextArea extends JTextArea {
             this.textArea = textArea;
         }
 
-
         /** The run method of the Runnable Interface */
+        @Override
         public void run() {
             boolean someTextHasBeenAdded = false;
             String nextMessage = null;
@@ -119,7 +118,7 @@ public class JUploadTextArea extends JTextArea {
                         }
 
                         // Let's display the changes to the user.
-                        //this.textArea.repaint();
+                        // this.textArea.repaint();
                     }
 
                     // Let's wait for a notification for next messages
@@ -173,6 +172,7 @@ public class JUploadTextArea extends JTextArea {
      * 
      * @see Object#finalize()
      */
+    @Override
     protected void finalize() {
         this.logMessageThread.interrupt();
     }

@@ -118,7 +118,7 @@ public class UploadPolicyFactory {
                 Constructor<?> constructor = uploadPolicyClass
                         .getConstructor(constructorParameters);
                 Object[] params = {
-                    (JUploadContext) theAppletContext
+                    theAppletContext
                 };
                 action = "newInstance";
                 uploadPolicy = (UploadPolicy) constructor.newInstance(params);

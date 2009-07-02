@@ -113,8 +113,8 @@ public class FilePanelJTable extends JTable implements MouseListener {
      */
     public void mouseReleased(MouseEvent event) {
         // Displays the contextual menu ?
-        this.uploadPolicy.getContext().getUploadPanel()
-                .maybeOpenPopupMenu(event);
+        this.uploadPolicy.getContext().getUploadPanel().maybeOpenPopupMenu(
+                event);
     }
 
     /**
@@ -122,8 +122,8 @@ public class FilePanelJTable extends JTable implements MouseListener {
      */
     public void mousePressed(MouseEvent event) {
         // Displays the contextual menu ?
-        this.uploadPolicy.getContext().getUploadPanel()
-                .maybeOpenPopupMenu(event);
+        this.uploadPolicy.getContext().getUploadPanel().maybeOpenPopupMenu(
+                event);
     }
 
     /**

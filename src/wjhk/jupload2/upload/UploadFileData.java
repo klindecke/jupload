@@ -386,8 +386,8 @@ public class UploadFileData implements FileData {
      * @see FileData#getUploadLength()
      */
     public long getUploadLength() throws JUploadException {
-        if (uploadLength < 0) {
-            uploadLength = this.fileData.getUploadLength();
+        if (this.uploadLength < 0) {
+            this.uploadLength = this.fileData.getUploadLength();
         }
         // We check the filesize only now: the file to upload may be different
         // from the original file. For instance,
@@ -395,12 +395,12 @@ public class UploadFileData implements FileData {
         // maxFileSize, but, as the picture can be
         // resized before upload, the picture to upload may be still be smaller
         // than maxFileSize.
-        if (uploadLength > this.uploadPolicy.getMaxFileSize()) {
+        if (this.uploadLength > this.uploadPolicy.getMaxFileSize()) {
             throw new JUploadExceptionTooBigFile(this.fileData.getFileName(),
                     this.fileData.getUploadLength(), this.uploadPolicy);
         }
 
-        return uploadLength;
+        return this.uploadLength;
     }
 
     /** {@inheritDoc} */

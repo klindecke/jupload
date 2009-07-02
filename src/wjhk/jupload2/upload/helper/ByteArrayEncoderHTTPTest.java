@@ -2,11 +2,11 @@ package wjhk.jupload2.upload.helper;
 
 import java.util.Arrays;
 
+import junit.framework.TestCase;
 import wjhk.jupload2.JUploadDaemon;
 import wjhk.jupload2.context.JUploadContext;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.test.JUploadContextTest;
-import junit.framework.TestCase;
 
 /**
  * The JUnit test for the ByteArrayEncoderHTTP. Allows automation of tests, to
@@ -29,18 +29,20 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
 
     byte[] target = null;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
-        juploadDaemon = new JUploadDaemon();
-        juploadContext = new JUploadContextTest(juploadDaemon,
+        this.juploadDaemon = new JUploadDaemon();
+        this.juploadContext = new JUploadContextTest(this.juploadDaemon,
                 "basicUploadPolicy.properties");
-        byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(juploadContext
-                .getUploadPolicy(), boundary,
+        this.byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(
+                this.juploadContext.getUploadPolicy(), this.boundary,
                 ByteArrayEncoderHTTP.DEFAULT_ENCODING);
-        encoding = this.byteArrayEncoderHTTP.getEncoding();
-        target = testCase.getBytes(encoding);
+        this.encoding = this.byteArrayEncoderHTTP.getEncoding();
+        this.target = testCase.getBytes(this.encoding);
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -49,9 +51,9 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testByteArrayEncoderHTTPUploadPolicy() throws Exception {
-        byteArrayEncoderHTTP.close();
-        byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(juploadContext
-                .getUploadPolicy());
+        this.byteArrayEncoderHTTP.close();
+        this.byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(
+                this.juploadContext.getUploadPolicy());
         // Nothing else to do, we just check the instance creation.
     }
 
@@ -59,12 +61,12 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testByteArrayEncoderHTTPUploadPolicyString() throws Exception {
-        byteArrayEncoderHTTP.close();
-        byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(juploadContext
-                .getUploadPolicy(), null);
-        byteArrayEncoderHTTP.close();
-        byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(juploadContext
-                .getUploadPolicy(), "A boundary");
+        this.byteArrayEncoderHTTP.close();
+        this.byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(
+                this.juploadContext.getUploadPolicy(), null);
+        this.byteArrayEncoderHTTP.close();
+        this.byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(
+                this.juploadContext.getUploadPolicy(), "A boundary");
         // Nothing else to do, we just check the instance creation.
     }
 
@@ -73,9 +75,9 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
      */
     public void testByteArrayEncoderHTTPUploadPolicyStringString()
             throws Exception {
-        byteArrayEncoderHTTP.close();
-        byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(juploadContext
-                .getUploadPolicy(), "A boundary",
+        this.byteArrayEncoderHTTP.close();
+        this.byteArrayEncoderHTTP = new ByteArrayEncoderHTTP(
+                this.juploadContext.getUploadPolicy(), "A boundary",
                 ByteArrayEncoderHTTP.DEFAULT_ENCODING);
         // Nothing else to do, we just check the instance creation.
     }
@@ -83,7 +85,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
     private void finishTestAppend() throws Exception {
         this.byteArrayEncoderHTTP.close();
         byte[] result = this.byteArrayEncoderHTTP.getEncodedByteArray();
-        assertTrue(Arrays.equals(result, target));
+        assertTrue(Arrays.equals(result, this.target));
     }
 
     /**
@@ -98,7 +100,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testAppendInt() throws Exception {
-        this.byteArrayEncoderHTTP.append((int) 65);
+        this.byteArrayEncoderHTTP.append(65);
         this.byteArrayEncoderHTTP.close();
         byte[] result = this.byteArrayEncoderHTTP.getEncodedByteArray();
         byte[] targetInt = {
@@ -111,7 +113,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testAppendByteArray() throws Exception {
-        this.byteArrayEncoderHTTP.append(target);
+        this.byteArrayEncoderHTTP.append(this.target);
         finishTestAppend();
     }
 
@@ -141,10 +143,11 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
         sb.append("Content-Disposition: form-data; name=\"").append(name)
                 .append("\"\r\n");
         sb.append("Content-Transfer-Encoding: 8bit\r\n");
-        sb.append("Content-Type: text/plain; ").append(encoding).append("\r\n");
+        sb.append("Content-Type: text/plain; ").append(this.encoding).append(
+                "\r\n");
         sb.append("\r\n");
         sb.append(value).append("\r\n");
-        this.target = sb.toString().getBytes(encoding);
+        this.target = sb.toString().getBytes(this.encoding);
 
         // Then, do the test.
         this.byteArrayEncoderHTTP.appendTextProperty(name, value);
@@ -158,7 +161,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
         // First: calculate the result.
         StringBuffer sb = new StringBuffer();
         sb.append(this.byteArrayEncoderHTTP.getBoundary()).append("--\r\n");
-        this.target = sb.toString().getBytes(encoding);
+        this.target = sb.toString().getBytes(this.encoding);
 
         // Then, do the test.
         this.byteArrayEncoderHTTP.appendEndPropertyList();
@@ -177,8 +180,8 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
      * @throws Exception The test is wrong, if this exception is fired
      */
     public void testGetBoundary() throws Exception {
-        assertTrue("Boundary should be the one given on creation", boundary
-                .equals(this.byteArrayEncoderHTTP.getBoundary()));
+        assertTrue("Boundary should be the one given on creation",
+                this.boundary.equals(this.byteArrayEncoderHTTP.getBoundary()));
     }
 
     /**

@@ -57,12 +57,13 @@ public class JUploadContextTest extends JUploadContextExecutable {
     public JUploadContextTest(JFrame jframe, String propertyFilename) {
 
         // Load default properties
-        defaultProperties = loadPropertiesFromTestFile(
+        this.defaultProperties = loadPropertiesFromTestFile(
                 TEST_DEFAULT_PROPERTIES_FILE, null);
 
         // Load uploadpolicy properties, from the given file
-        daemonProperties = loadPropertiesFromTestFile(TEST_PROPERTIES_FOLDER
-                + propertyFilename, defaultProperties);
+        this.daemonProperties = loadPropertiesFromTestFile(
+                TEST_PROPERTIES_FOLDER + propertyFilename,
+                this.defaultProperties);
 
         // Now, we're ready. Let's initialize the DefaultJUploadContext.
         this.uploadPolicy = null;

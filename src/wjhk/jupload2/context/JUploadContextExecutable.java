@@ -96,19 +96,19 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
         this.jframe = jframe;
 
         // Load default properties
-        defaultProperties = loadPropertiesFromFileInJar(
+        this.defaultProperties = loadPropertiesFromFileInJar(
                 DEFAULT_PROPERTIES_FILE, null);
 
         // Load daemon properties: from the given URL or from the file.
         if (propertiesURL == null) {
             // No URL given. We load properties from the 'standard' file, in the
             // jar.
-            daemonProperties = loadPropertiesFromFileInJar(
-                    DAEMON_PROPERTIES_FILE, defaultProperties);
+            this.daemonProperties = loadPropertiesFromFileInJar(
+                    DAEMON_PROPERTIES_FILE, this.defaultProperties);
         } else {
             // Let's load the properties from this URL.
-            daemonProperties = loadPropertiesFromURL(propertiesURL,
-                    defaultProperties);
+            this.daemonProperties = loadPropertiesFromURL(propertiesURL,
+                    this.defaultProperties);
         }
 
         // Now, we're ready. Let's initialize the DefaultJUploadContext.
@@ -187,8 +187,9 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
      *         parameter was not specified or no such system property exists,
      *         returns the given default value.
      */
+    @Override
     public String getParameter(String key, String def) {
-        String paramStr = (daemonProperties.getProperty(key) != null ? daemonProperties
+        String paramStr = (this.daemonProperties.getProperty(key) != null ? this.daemonProperties
                 .getProperty(key)
                 : def);
         displayDebugParameterValue(key, paramStr);
@@ -197,9 +198,10 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
 
     /** {@inheritDoc} */
 
+    @Override
     public int getParameter(String key, int def) {
         String paramDef = Integer.toString(def);
-        String paramStr = daemonProperties.getProperty(key) != null ? daemonProperties
+        String paramStr = this.daemonProperties.getProperty(key) != null ? this.daemonProperties
                 .getProperty(key)
                 : paramDef;
         displayDebugParameterValue(key, paramStr);
@@ -207,9 +209,10 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
     }
 
     /** {@inheritDoc} */
+    @Override
     public float getParameter(String key, float def) {
         String paramDef = Float.toString(def);
-        String paramStr = daemonProperties.getProperty(key) != null ? daemonProperties
+        String paramStr = this.daemonProperties.getProperty(key) != null ? this.daemonProperties
                 .getProperty(key)
                 : paramDef;
         displayDebugParameterValue(key, paramStr);
@@ -217,9 +220,10 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
     }
 
     /** {@inheritDoc} */
+    @Override
     public long getParameter(String key, long def) {
         String paramDef = Long.toString(def);
-        String paramStr = daemonProperties.getProperty(key) != null ? daemonProperties
+        String paramStr = this.daemonProperties.getProperty(key) != null ? this.daemonProperties
                 .getProperty(key)
                 : paramDef;
         displayDebugParameterValue(key, paramStr);
@@ -227,9 +231,10 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
     }
 
     /** {@inheritDoc} */
+    @Override
     public boolean getParameter(String key, boolean def) {
         String paramDef = (def ? "true" : "false");
-        String paramStr = daemonProperties.getProperty(key) != null ? daemonProperties
+        String paramStr = this.daemonProperties.getProperty(key) != null ? this.daemonProperties
                 .getProperty(key)
                 : paramDef;
         displayDebugParameterValue(key, paramStr);
@@ -237,18 +242,21 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
     }// getParameter(boolean)
 
     /** {@inheritDoc} */
+    @Override
     public void displayURL(String url, boolean success) {
         throw new UnsupportedOperationException(
                 "JUploadContextExecution.displayURL(): Not implemented yet!");
     }
 
     /** {@inheritDoc} */
+    @Override
     public JApplet getApplet() {
         throw new UnsupportedOperationException(
                 "Can't use getApplet(), when using the JUploadDaemon!");
     }
 
     /** {@inheritDoc} */
+    @Override
     public Cursor getCursor() {
         return this.jframe.getCursor();
     }
@@ -257,17 +265,20 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
      * This class doesn't control the URL. It expects it to be already
      * normalized. No work here. {@inheritDoc}
      * */
+    @Override
     public String normalizeURL(String url) throws JUploadException {
         return url;
     }
 
     /** {@inheritDoc} */
+    @Override
     public void readCookieAndUserAgentFromNavigator(Vector<String> headers) {
         throw new UnsupportedOperationException(
                 "Can't use readCookieAndUserAgentFromNavigator(), when using the JUploadDaemon!");
     }
 
     /** {@inheritDoc} */
+    @Override
     public Cursor setCursor(Cursor cursor) {
         Cursor previousCursor = this.jframe.getCursor();
         this.jframe.setCursor(cursor);
@@ -275,6 +286,7 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void showStatus(String status) {
         // TODO Auto-generated method stub
 
