@@ -519,19 +519,21 @@ public class PictureFileData extends DefaultFileData {
 
         // Should transform the file, and do we already created the transformed
         // file ?
-        if (imageHelper.hasToTransformPicture()
-                && this.transformedPictureFile == null) {
+        synchronized (this) {
+            if (imageHelper.hasToTransformPicture()
+                    && this.transformedPictureFile == null) {
 
-            // We have to create a resized or rotated picture file, and all
-            // needed information.
-            // ...let's do it
-            try {
-                createTranformedPictureFile(imageHelper);
-            } catch (JUploadException e) {
-                // Hum, too bad.
-                // if any file was created, we remove it.
-                deleteTransformedPictureFile();
-                throw e;
+                // We have to create a resized or rotated picture file, and all
+                // needed information.
+                // ...let's do it
+                try {
+                    createTranformedPictureFile(imageHelper);
+                } catch (JUploadException e) {
+                    // Hum, too bad.
+                    // if any file was created, we remove it.
+                    deleteTransformedPictureFile();
+                    throw e;
+                }
             }
         }
     }// end of initTransformedPictureFile

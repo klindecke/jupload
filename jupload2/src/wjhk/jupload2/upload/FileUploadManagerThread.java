@@ -1100,7 +1100,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @throws JUploadException
      */
-    private void createUploadThread(FileUploadThread fileUploadThreadParam)
+    private synchronized void createUploadThread(FileUploadThread fileUploadThreadParam)
             throws JUploadException {
         if (fileUploadThreadParam != null) {
             // The FileUploadThread has already been created.
