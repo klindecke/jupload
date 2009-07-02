@@ -21,7 +21,6 @@
 
 package wjhk.jupload2.gui;
 
-
 import java.awt.Frame;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
@@ -55,8 +54,7 @@ import wjhk.jupload2.upload.FileUploadManagerThread;
  * methods to allow easy personalization. <BR>
  * This class remain in the current project structure, even if it's not really
  * used any more. The original reason for this class was that the code would
- * work from within a navigator (an applet) or from a standard java application.
- * <BR>
+ * work from within a navigator (an applet) or from a standard java application. <BR>
  * This compatibility is no more maintained, as a lot of code suppose access to
  * navigator parameters. Hope it will be restored...
  * 
@@ -276,9 +274,8 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * This methods show or hides the logWindow, depending on the following
      * applet parameters. The following conditions must be met, to hide the log
-     * window: <DIR>
-     * <LI>showLogWindow (must be False)
-     * <LI>debugLevel (must be 0 or less) </DIR>
+     * window: <DIR> <LI>showLogWindow (must be False) <LI>debugLevel (must be 0
+     * or less) </DIR>
      */
     public void showOrHideLogWindow() {
         if ((this.uploadPolicy.getShowLogWindow()

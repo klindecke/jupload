@@ -187,20 +187,22 @@ public class DefaultJUploadContext implements JUploadContext {
                     JOptionPane.ERROR_MESSAGE);
         }
 
-        mimeTypesProperties = new Properties();
+        this.mimeTypesProperties = new Properties();
         final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
         try {
             InputStream isProperties = Class.forName(
                     "wjhk.jupload2.JUploadApplet").getResourceAsStream(
                     mimetypePropertiesFilename);
-            mimeTypesProperties.load(isProperties);
+            this.mimeTypesProperties.load(isProperties);
             isProperties.close();
-            uploadPolicy.displayDebug("Mime types list loaded Ok ("
+            this.uploadPolicy.displayDebug("Mime types list loaded Ok ("
                     + mimetypePropertiesFilename + ")", 50);
         } catch (Exception e) {
-            uploadPolicy.displayWarn("Unable to load the mime types list ("
-                    + mimetypePropertiesFilename + "): "
-                    + e.getClass().getName() + " (" + e.getMessage() + ")");
+            this.uploadPolicy
+                    .displayWarn("Unable to load the mime types list ("
+                            + mimetypePropertiesFilename + "): "
+                            + e.getClass().getName() + " (" + e.getMessage()
+                            + ")");
         }
 
     }
@@ -270,7 +272,7 @@ public class DefaultJUploadContext implements JUploadContext {
 
     /** {@inheritDoc} */
     public String getMimeType(String fileExtension) {
-        String mimeType = mimeTypesProperties.getProperty(fileExtension
+        String mimeType = this.mimeTypesProperties.getProperty(fileExtension
                 .toLowerCase());
         return (mimeType == null) ? "application/octet-stream" : mimeType;
     }
@@ -456,9 +458,10 @@ public class DefaultJUploadContext implements JUploadContext {
      * Displays the debug information for the current parameter.
      */
     void displayDebugParameterValue(String key, String value) {
-        if (uploadPolicy != null && uploadPolicy.getDebugLevel() >= 80) {
-            uploadPolicy.displayDebug("Parameter '" + key + "' loaded. Value: "
-                    + value, 80);
+        if (this.uploadPolicy != null
+                && this.uploadPolicy.getDebugLevel() >= 80) {
+            this.uploadPolicy.displayDebug("Parameter '" + key
+                    + "' loaded. Value: " + value, 80);
         }
     }
 
@@ -470,8 +473,8 @@ public class DefaultJUploadContext implements JUploadContext {
             ret = Integer.parseInt(value);
         } catch (NumberFormatException e) {
             ret = def;
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid int value: " + value
+            if (this.uploadPolicy != null) {
+                this.uploadPolicy.displayWarn("Invalid int value: " + value
                         + ", using default value: " + def);
             }
         }
@@ -487,8 +490,8 @@ public class DefaultJUploadContext implements JUploadContext {
             ret = Float.parseFloat(value);
         } catch (NumberFormatException e) {
             ret = def;
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid float value: " + value
+            if (this.uploadPolicy != null) {
+                this.uploadPolicy.displayWarn("Invalid float value: " + value
                         + ", using default value: " + def);
             }
         }
@@ -504,8 +507,8 @@ public class DefaultJUploadContext implements JUploadContext {
             ret = Long.parseLong(value);
         } catch (NumberFormatException e) {
             ret = def;
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid long value: " + value
+            if (this.uploadPolicy != null) {
+                this.uploadPolicy.displayWarn("Invalid long value: " + value
                         + ", using default value: " + def);
             }
         }
@@ -521,8 +524,8 @@ public class DefaultJUploadContext implements JUploadContext {
         } else if (value.toUpperCase().equals("TRUE")) {
             return true;
         } else {
-            if (uploadPolicy != null) {
-                uploadPolicy.displayWarn("Invalid boolean value: " + value
+            if (this.uploadPolicy != null) {
+                this.uploadPolicy.displayWarn("Invalid boolean value: " + value
                         + ", using default value: " + def);
             }
             return def;

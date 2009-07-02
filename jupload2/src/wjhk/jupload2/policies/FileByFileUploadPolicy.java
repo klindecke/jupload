@@ -25,19 +25,19 @@ import wjhk.jupload2.exception.JUploadException;
 
 /**
  * Specialization of
- * {@link wjhk.jupload2.policies.CustomizedNbFilesPerRequestUploadPolicy},
- * where each upload HTTP request contains only one file. <BR>
+ * {@link wjhk.jupload2.policies.CustomizedNbFilesPerRequestUploadPolicy}, where
+ * each upload HTTP request contains only one file. <BR>
  * <BR>
  * This policy :
  * <UL>
- * <LI> Upload files without transformation
- * <LI> File by file (uploading 5 files needs 5 HTTP request toward the server)
+ * <LI>Upload files without transformation
+ * <LI>File by file (uploading 5 files needs 5 HTTP request toward the server)
  * <UL>
  * <BR>
  * <BR>
  * The same behavior can be obtained by specifying no UploadPolicy (or
- * {@link FileByFileUploadPolicy}), and give the nbFilesPerRequest (with a
- * value set to 1) parameter.
+ * {@link FileByFileUploadPolicy}), and give the nbFilesPerRequest (with a value
+ * set to 1) parameter.
  * 
  * @author etienne_sf
  * @version $Revision$

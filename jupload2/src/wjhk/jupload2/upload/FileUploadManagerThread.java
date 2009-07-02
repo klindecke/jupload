@@ -536,23 +536,23 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      */
     public synchronized void setUploadStatus(int numOfFileInCurrentRequest,
             int uploadStatus) throws JUploadException {
-        if (globalStartTime == 0) {
+        if (this.globalStartTime == 0) {
             // Ok, the upload just starts. We keep the date, to later calculate
             // the ETA.
-            globalStartTime = System.currentTimeMillis();
+            this.globalStartTime = System.currentTimeMillis();
         }
         switch (uploadStatus) {
             case UPLOAD_STATUS_CHUNK_UPLOADED_WAITING_FOR_RESPONSE:
             case UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE:
                 // We're waiting for the server: let's add it to the sending
                 // duration.
-                uploadDuration += System.currentTimeMillis()
-                        - currentRequestStartTime;
-                currentRequestStartTime = 0;
+                this.uploadDuration += System.currentTimeMillis()
+                        - this.currentRequestStartTime;
+                this.currentRequestStartTime = 0;
                 break;
             case UPLOAD_STATUS_UPLOADING:
-                if (currentRequestStartTime == 0) {
-                    currentRequestStartTime = System.currentTimeMillis();
+                if (this.currentRequestStartTime == 0) {
+                    this.currentRequestStartTime = System.currentTimeMillis();
                 }
                 break;
             case UPLOAD_STATUS_UPLOADED:
@@ -582,8 +582,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         this.uploadFinished = true;
 
         // We notify the upload thread.
-        if (fileUploadThread != null) {
-            fileUploadThread.interrupt();
+        if (this.fileUploadThread != null) {
+            this.fileUploadThread.interrupt();
         }
     }
 
@@ -600,10 +600,10 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             if (isUploadFinished()) {
                 this.timerProgressBar.stop();
             }
-            if (e.getSource() == timerProgressBar) {
+            if (e.getSource() == this.timerProgressBar) {
                 updateUploadProgressBar();
             }
-            if (e.getSource() == timerStatusBar) {
+            if (e.getSource() == this.timerStatusBar) {
                 updateUploadStatusBar();
             }
         }
@@ -634,14 +634,15 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
             // Let's calculate the actual upload duration. That is: the time
             // during which we're really sending data to the server.
-            if (currentRequestStartTime == 0) {
+            if (this.currentRequestStartTime == 0) {
                 // We're currently sending nothing to the server.
-                actualUploadDuration = uploadDuration;
+                actualUploadDuration = this.uploadDuration;
             } else {
                 // We're currently sending data to the server. We add the time
                 // of the current request to the stored upload duration.
-                actualUploadDuration = uploadDuration
-                        + System.currentTimeMillis() - currentRequestStartTime;
+                actualUploadDuration = this.uploadDuration
+                        + System.currentTimeMillis()
+                        - this.currentRequestStartTime;
             }
             // For next steps, we expect a duration in seconds:
             actualUploadDuration /= 1000;
@@ -1100,8 +1101,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @throws JUploadException
      */
-    private synchronized void createUploadThread(FileUploadThread fileUploadThreadParam)
-            throws JUploadException {
+    private synchronized void createUploadThread(
+            FileUploadThread fileUploadThreadParam) throws JUploadException {
         if (fileUploadThreadParam != null) {
             // The FileUploadThread has already been created.
             // We set the FileUploadThreadManager.

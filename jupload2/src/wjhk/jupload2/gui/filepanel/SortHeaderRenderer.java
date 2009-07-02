@@ -31,7 +31,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 /**
- * Technical class, to display the column headers, for column that may be sorted.
+ * Technical class, to display the column headers, for column that may be
+ * sorted.
  */
 public class SortHeaderRenderer extends DefaultTableCellRenderer {
 

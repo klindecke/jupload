@@ -44,7 +44,7 @@ public interface FileUploadThread {
      * Closes the connection to the server and releases resources.
      */
     public void close();
-    
+
     /**
      * @return The Thread state
      * @see Thread.State

@@ -56,6 +56,7 @@ public class JUploadApplet extends JApplet {
     /**
      * Called each time the applet is shown on the web page.
      */
+    @Override
     public void start() {
         this.juploadContext = new JUploadContextApplet(this);
         // Let's refresh the display, and have the caret well placed.

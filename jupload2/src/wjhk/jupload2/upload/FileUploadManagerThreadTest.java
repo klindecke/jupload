@@ -67,29 +67,31 @@ public class FileUploadManagerThreadTest extends TestCase {
     /**
      * @throws java.lang.Exception
      */
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        juploadDaemon = new JUploadDaemon();
-        juploadContext = new JUploadContextTest(juploadDaemon,
+        this.juploadDaemon = new JUploadDaemon();
+        this.juploadContext = new JUploadContextTest(this.juploadDaemon,
                 "basicUploadPolicy.properties");
 
         // Default setup is to upload a unique file.
-        fileroot = new File(JUploadContextTest.TEST_FILES_FOLDER);
+        this.fileroot = new File(JUploadContextTest.TEST_FILES_FOLDER);
         setupFileArray(1);
-        juploadContext.getUploadPanel().getFilePanel().addFiles(filesToUpload,
-                fileroot);
+        this.juploadContext.getUploadPanel().getFilePanel().addFiles(
+                this.filesToUpload, this.fileroot);
 
         // Let's create the fake upload threads: if it was not created, or if it
         // has already run.
-        if (fileUploadThread == null
-                || Thread.State.TERMINATED.equals(fileUploadThread.getState())) {
+        if (this.fileUploadThread == null
+                || Thread.State.TERMINATED.equals(this.fileUploadThread
+                        .getState())) {
             // If no fileUploadThread has been created, let's create a simple
             // one, which is the default for unit tests
-            fileUploadThread = new FileUploadThreadTestSuccess(
+            this.fileUploadThread = new FileUploadThreadTestSuccess(
                     this.juploadContext.getUploadPolicy());
         }
-        fileUploadManagerThread = new FileUploadManagerThread(
+        this.fileUploadManagerThread = new FileUploadManagerThread(
                 this.juploadContext.getUploadPolicy(), this.fileUploadThread);
 
         // Let's note the current system time. It should be almost the upload
@@ -102,28 +104,28 @@ public class FileUploadManagerThreadTest extends TestCase {
      * finish.
      */
     private void executeUpload() throws Exception {
-        fileUploadManagerThread.start();
+        this.fileUploadManagerThread.start();
         Thread.yield();
         Thread.sleep(50);
-        fileUploadManagerThread.join();
+        this.fileUploadManagerThread.join();
     }
 
     /**
      * 
      */
     private void setupFileArray(int nbFiles) {
-        filesToUpload = new File[nbFiles];
+        this.filesToUpload = new File[nbFiles];
         String filename;
         for (int i = 0; i < nbFiles; i += 1) {
             filename = JUploadContextTest.TEST_FILES_FOLDER + "fichier_"
                     + (i + 1) + ".txt";
-            filesToUpload[i] = new File(filename);
+            this.filesToUpload[i] = new File(filename);
             // We must be able to load the file. Otherwise, it's useless to
             // start.
             // And there seems to be problem with user dir, depending on the
             // java tool used.
 
-            assertTrue(filename + " must be readable !", filesToUpload[i]
+            assertTrue(filename + " must be readable !", this.filesToUpload[i]
                     .canRead());
         }
     }
@@ -131,6 +133,7 @@ public class FileUploadManagerThreadTest extends TestCase {
     /**
      * @throws java.lang.Exception
      */
+    @Override
     @After
     public void tearDown() throws Exception {
     }
@@ -178,7 +181,7 @@ public class FileUploadManagerThreadTest extends TestCase {
         long realUploadStartTime = this.fileUploadManagerThread
                 .getUploadStartTime();
         assertTrue("realUploadStartTime=" + realUploadStartTime
-                + ", uploadStartTime=" + uploadStartTime,
+                + ", uploadStartTime=" + this.uploadStartTime,
                 ((this.uploadStartTime - errorMargin) <= realUploadStartTime)
                         && (realUploadStartTime <= this.uploadStartTime
                                 + errorMargin));
@@ -193,7 +196,7 @@ public class FileUploadManagerThreadTest extends TestCase {
     public void testSetUploadException() {
         JUploadException jue = new JUploadException(
                 "A test exception, to test FileUploadManagerThread.setUploadException()");
-        fileUploadManagerThread.setUploadException(jue);
+        this.fileUploadManagerThread.setUploadException(jue);
         assertTrue(jue == this.fileUploadManagerThread.getUploadException());
     }
 
@@ -232,17 +235,17 @@ public class FileUploadManagerThreadTest extends TestCase {
         UploadPolicy up = this.juploadContext.getUploadPolicy();
         this.fileUploadThread = new FileUploadThreadStopDuringUpload(up);
         setUp();
-        fileUploadManagerThread.start();
+        this.fileUploadManagerThread.start();
         Thread
                 .sleep(DefaultFileUploadThread.TIME_BEFORE_CHECKING_NEXT_PACKET + 150);
 
         // The simulated upload will top after one byte.
-        long nbBytesAlreadyUploaded = fileUploadManagerThread.nbUploadedBytes;
+        long nbBytesAlreadyUploaded = this.fileUploadManagerThread.nbUploadedBytes;
         assertEquals(1, nbBytesAlreadyUploaded);
 
         // Then, the rest of the file is sent.
         this.fileUploadThread.join();// Wait for the simulated upload to finish.
-        nbBytesAlreadyUploaded = fileUploadManagerThread.nbUploadedBytes;
+        nbBytesAlreadyUploaded = this.fileUploadManagerThread.nbUploadedBytes;
         assertEquals(this.filesToUpload[0].length(), nbBytesAlreadyUploaded);
     }
 
@@ -258,10 +261,10 @@ public class FileUploadManagerThreadTest extends TestCase {
         this.fileUploadThread = new FileUploadThreadStopDuringUpload(
                 this.juploadContext.getUploadPolicy());
         setUp();
-        fileUploadManagerThread.start();
-        fileUploadManagerThread.stopUpload();
-        fileUploadManagerThread.join();
-        assertFalse(this.filesToUpload[0].length() == fileUploadManagerThread.nbUploadedBytes);
+        this.fileUploadManagerThread.start();
+        this.fileUploadManagerThread.stopUpload();
+        this.fileUploadManagerThread.join();
+        assertFalse(this.filesToUpload[0].length() == this.fileUploadManagerThread.nbUploadedBytes);
     }
 
     /**
@@ -277,33 +280,35 @@ public class FileUploadManagerThreadTest extends TestCase {
         final int dummyValue = 99;
 
         // Test update of the progress bar
-        fileUploadManagerThread.uploadProgressBar.setString(dummyText);
-        fileUploadManagerThread.uploadProgressBar.setValue(dummyValue);
+        this.fileUploadManagerThread.uploadProgressBar.setString(dummyText);
+        this.fileUploadManagerThread.uploadProgressBar.setValue(dummyValue);
         ActionEvent ae = new ActionEvent(
-                fileUploadManagerThread.timerProgressBar, 1, "dummy event");
-        fileUploadManagerThread.actionPerformed(ae);
-        assertFalse(dummyText.equals(fileUploadManagerThread.uploadProgressBar
-                .getString()));
-        assertFalse(dummyValue == fileUploadManagerThread.uploadProgressBar
+                this.fileUploadManagerThread.timerProgressBar, 1, "dummy event");
+        this.fileUploadManagerThread.actionPerformed(ae);
+        assertFalse(dummyText
+                .equals(this.fileUploadManagerThread.uploadProgressBar
+                        .getString()));
+        assertFalse(dummyValue == this.fileUploadManagerThread.uploadProgressBar
                 .getValue());
 
         // Test update of the status bar
         this.fileUploadThread = new FileUploadThreadStopDuringUpload(
                 this.juploadContext.getUploadPolicy());
         setUp();
-        fileUploadManagerThread.start();
-        fileUploadManagerThread.uploadPanel.getStatusLabel().setText(dummyText);
-        assertEquals(dummyText, fileUploadManagerThread.uploadPanel
+        this.fileUploadManagerThread.start();
+        this.fileUploadManagerThread.uploadPanel.getStatusLabel().setText(
+                dummyText);
+        assertEquals(dummyText, this.fileUploadManagerThread.uploadPanel
                 .getStatusLabel().getText());
-        ae = new ActionEvent(fileUploadManagerThread.timerStatusBar, 1,
+        ae = new ActionEvent(this.fileUploadManagerThread.timerStatusBar, 1,
                 "dummy event");
         // fileUploadManagerThread.nbUploadedBytes must be more than 0
-        fileUploadManagerThread.nbUploadedBytes = 1;
-        fileUploadManagerThread.actionPerformed(ae);
+        this.fileUploadManagerThread.nbUploadedBytes = 1;
+        this.fileUploadManagerThread.actionPerformed(ae);
         // We have to wait that the text modification is taken into account by
         // the event thread.
         Thread.sleep(1000);
-        String currentStatusText = fileUploadManagerThread.uploadPanel
+        String currentStatusText = this.fileUploadManagerThread.uploadPanel
                 .getStatusLabel().getText();
         assertFalse(dummyText.equals(currentStatusText));
     }
@@ -318,29 +323,29 @@ public class FileUploadManagerThreadTest extends TestCase {
     @Test
     public void testAnotherFileHasBeenSent() throws Exception {
         int nbSentFiles;
-        synchronized (fileUploadManagerThread) {
-            nbSentFiles = fileUploadManagerThread.nbSentFiles;
+        synchronized (this.fileUploadManagerThread) {
+            nbSentFiles = this.fileUploadManagerThread.nbSentFiles;
             // int nbFilesBeingUploaded =
             // fileUploadManagerThread.nbFilesBeingUploaded;
             // long nbBytesUploadedForCurrentFile =
             // fileUploadManagerThread.nbBytesUploadedForCurrentFile;
             // long nbBytesReadyForUpload =
             // fileUploadManagerThread.nbBytesReadyForUpload;
-            fileUploadManagerThread.uploadStatus = FileUploadManagerThread.UPLOAD_STATUS_UPLOADING;
+            this.fileUploadManagerThread.uploadStatus = FileUploadManagerThread.UPLOAD_STATUS_UPLOADING;
         }
 
         // TODO Use FileUploadThreadStopDuringUpload
 
         // We are finished with this one. Let's display it.
         executeUpload();
-        assertTrue(nbSentFiles + 1 == fileUploadManagerThread.nbSentFiles);
+        assertTrue(nbSentFiles + 1 == this.fileUploadManagerThread.nbSentFiles);
         // In this test case, the upload is instantaneous. We can't check the
         // values when the file is being uploaded. So, no test on
         // nbFilesBeingUploaded and nbBytesUploadedForCurrentFile.
-        synchronized (fileUploadManagerThread) {
-            assertEquals(0, fileUploadManagerThread.nbBytesReadyForUpload);
+        synchronized (this.fileUploadManagerThread) {
+            assertEquals(0, this.fileUploadManagerThread.nbBytesReadyForUpload);
         }
-        assertEquals(fileUploadManagerThread.uploadStatus,
+        assertEquals(this.fileUploadManagerThread.uploadStatus,
                 FileUploadManagerThread.UPLOAD_STATUS_UPLOADED);
     }
 

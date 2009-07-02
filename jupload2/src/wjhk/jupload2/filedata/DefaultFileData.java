@@ -153,11 +153,11 @@ public class DefaultFileData implements FileData {
 
     /** {@inheritDoc} */
     public synchronized void beforeUpload() throws JUploadException {
-        if (preparedForUpload) {
+        if (this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is already prepared for upload");
         }
-        preparedForUpload = true;
+        this.preparedForUpload = true;
 
         // Default : we check that the file is smaller than the maximum upload
         // size.
@@ -169,7 +169,7 @@ public class DefaultFileData implements FileData {
 
     /** {@inheritDoc} */
     public long getUploadLength() throws JUploadException {
-        if (!preparedForUpload) {
+        if (!this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is prepared for upload");
         }
@@ -178,16 +178,16 @@ public class DefaultFileData implements FileData {
 
     /** {@inheritDoc} */
     public synchronized void afterUpload() {
-        if (!preparedForUpload) {
+        if (!this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is not prepared for upload");
         }
-        preparedForUpload = false;
+        this.preparedForUpload = false;
     }
 
     /** {@inheritDoc} */
     public synchronized InputStream getInputStream() throws JUploadException {
-        if (!preparedForUpload) {
+        if (!this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is not prepared for upload");
         }

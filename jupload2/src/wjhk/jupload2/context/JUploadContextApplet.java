@@ -29,10 +29,9 @@ import java.util.regex.Matcher;
 
 import javax.swing.JApplet;
 
-import wjhk.jupload2.exception.JUploadException;
-
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
+import wjhk.jupload2.exception.JUploadException;
 
 /**
  * Implementation of the Jupload Context, for an applet. One such context is
@@ -68,50 +67,61 @@ public class JUploadContextApplet extends DefaultJUploadContext {
     }
 
     /** {@inheritDoc} */
+    @Override
     public JApplet getApplet() {
-        return theApplet;
+        return this.theApplet;
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getParameter(String key, String def) {
-        String paramStr = (theApplet.getParameter(key) != null ? theApplet
-                .getParameter(key) : def);
+        String paramStr = (this.theApplet.getParameter(key) != null ? this.theApplet
+                .getParameter(key)
+                : def);
         displayDebugParameterValue(key, paramStr);
         return paramStr;
     }
 
     /** {@inheritDoc} */
+    @Override
     public int getParameter(String key, int def) {
         String paramDef = Integer.toString(def);
-        String paramStr = theApplet.getParameter(key) != null ? theApplet
-                .getParameter(key) : paramDef;
+        String paramStr = this.theApplet.getParameter(key) != null ? this.theApplet
+                .getParameter(key)
+                : paramDef;
         displayDebugParameterValue(key, paramStr);
         return parseInt(paramStr, def);
     }
 
     /** {@inheritDoc} */
+    @Override
     public float getParameter(String key, float def) {
         String paramDef = Float.toString(def);
-        String paramStr = theApplet.getParameter(key) != null ? theApplet
-                .getParameter(key) : paramDef;
+        String paramStr = this.theApplet.getParameter(key) != null ? this.theApplet
+                .getParameter(key)
+                : paramDef;
         displayDebugParameterValue(key, paramStr);
         return parseFloat(paramStr, def);
     }
 
     /** {@inheritDoc} */
+    @Override
     public long getParameter(String key, long def) {
         String paramDef = Long.toString(def);
-        String paramStr = theApplet.getParameter(key) != null ? theApplet
-                .getParameter(key) : paramDef;
+        String paramStr = this.theApplet.getParameter(key) != null ? this.theApplet
+                .getParameter(key)
+                : paramDef;
         displayDebugParameterValue(key, paramStr);
         return parseLong(paramStr, def);
     }// getParameter(int)
 
     /** {@inheritDoc} */
+    @Override
     public boolean getParameter(String key, boolean def) {
         String paramDef = (def ? "true" : "false");
-        String paramStr = theApplet.getParameter(key) != null ? theApplet
-                .getParameter(key) : paramDef;
+        String paramStr = this.theApplet.getParameter(key) != null ? this.theApplet
+                .getParameter(key)
+                : paramDef;
         displayDebugParameterValue(key, paramStr);
         return parseBoolean(paramStr, def);
     }// getParameter(boolean)
@@ -120,6 +130,7 @@ public class JUploadContextApplet extends DefaultJUploadContext {
      * Loads cookie and userAgent, and add them to the specific headers for
      * upload requests. {@inheritDoc}
      */
+    @Override
     public void readCookieAndUserAgentFromNavigator(Vector<String> headers) {
         // /////////////////////////////////////////////////////////////////////////////
         // Load session data read from the navigator:
@@ -186,11 +197,13 @@ public class JUploadContextApplet extends DefaultJUploadContext {
      * @return The current cursor
      * @see JUploadContext#setCursor(Cursor)
      */
+    @Override
     public Cursor getCursor() {
         return this.theApplet.getCursor();
     }
 
     /** @see JUploadContext#setCursor(Cursor) */
+    @Override
     public Cursor setCursor(Cursor cursor) {
         Cursor previousCursor = this.theApplet.getCursor();
         this.theApplet.setCursor(cursor);
@@ -198,6 +211,7 @@ public class JUploadContextApplet extends DefaultJUploadContext {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void showStatus(String status) {
         this.getUploadPanel().getStatusLabel().setText(status);
     }
@@ -205,6 +219,7 @@ public class JUploadContextApplet extends DefaultJUploadContext {
     /**
      * @see JUploadContext#displayURL(String, boolean)
      */
+    @Override
     public void displayURL(String url, boolean success) {
         try {
             if (url.toLowerCase().startsWith("javascript:")) {
@@ -229,7 +244,7 @@ public class JUploadContextApplet extends DefaultJUploadContext {
                         .quoteReplacement((success) ? "true" : "false"));
 
                 displayDebug("Calling javascript expression: " + expr, 80);
-                JSObject.getWindow(theApplet).eval(expr);
+                JSObject.getWindow(this.theApplet).eval(expr);
             } else if (success) {
                 // This is not a javascript URL: we change the current page
                 // only if no error occurred.
@@ -262,6 +277,7 @@ public class JUploadContextApplet extends DefaultJUploadContext {
      * @return The normalized URL
      * @throws JUploadException
      */
+    @Override
     public String normalizeURL(String url) throws JUploadException {
         if (null == url || url.length() == 0)
             return this.theApplet.getDocumentBase().toString();

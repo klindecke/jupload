@@ -167,7 +167,8 @@ class IconWorker implements Runnable {
                 this.fileChooser.repaint();
 
                 // A try to minimize memory footprint
-                PictureFileData.freeMemory(this.getClass().getName()+".loadIcon()", this.uploadPolicy);
+                PictureFileData.freeMemory(this.getClass().getName()
+                        + ".loadIcon()", this.uploadPolicy);
             }
         } catch (OutOfMemoryError e) {
             this.uploadPolicy

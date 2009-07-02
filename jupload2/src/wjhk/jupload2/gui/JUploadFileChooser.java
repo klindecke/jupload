@@ -103,6 +103,7 @@ public class JUploadFileChooser extends JFileChooser {
      * This method is called when the file chooser is closed. We just shutdown
      * any running job.
      */
+    @Override
     public void approveSelection() {
         shutdownNow();
         super.approveSelection();

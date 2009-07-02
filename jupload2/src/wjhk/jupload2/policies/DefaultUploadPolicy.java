@@ -506,7 +506,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // The current context may add any specific headers.
         if (getReadCookieFromNavigator()) {
-            this.juploadContext.readCookieAndUserAgentFromNavigator(headers);
+            this.juploadContext
+                    .readCookieAndUserAgentFromNavigator(this.headers);
         }
 
         // Let's touch the server, to test that everything is Ok. Take care,
@@ -949,9 +950,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // Then we copy the debug output to the clipboard, and say it to the
         // current user.
-        if (juploadContext.getUploadPanel() != null && getDebugLevel() >= 99) {
+        if (this.juploadContext.getUploadPanel() != null
+                && getDebugLevel() >= 99) {
             // Ok, the juploadContext has been fully built.
-            juploadContext.getUploadPanel().copyLogWindow();
+            this.juploadContext.getUploadPanel().copyLogWindow();
             alert("messageLogWindowCopiedToClipboard");
         }
 
@@ -1521,7 +1523,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @param displayAppletParameterList Flag. If set to true, the
      *            juploadContext's parameters are shown.
      */
-    public synchronized void setDebugLevel(int debugLevel, boolean displayAppletParameterList) {
+    public synchronized void setDebugLevel(int debugLevel,
+            boolean displayAppletParameterList) {
         // If the debugLevel was previously set, we inform the user of this
         // change.
         if (this.debugLevel >= 0) {
@@ -2097,7 +2100,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @return The formatted message.
      */
     private final String formatMessageOutput(String tag, String msg) {
-        final String stamp = String.format("%1$05d", messageId++) + " \t"
+        final String stamp = String.format("%1$05d", this.messageId++) + " \t"
                 + new SimpleDateFormat("HH:mm:ss.SSS ").format(new Date())
                 + "\t" + Thread.currentThread().getName() + "\t" + tag + " \t";
         final boolean endsLF = msg.endsWith("\n");
