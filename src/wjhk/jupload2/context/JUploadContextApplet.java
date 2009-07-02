@@ -63,7 +63,7 @@ public class JUploadContextApplet extends DefaultJUploadContext {
         this.theApplet = theApplet;
 
         // Let's initialize the DefaultJUploadContext.
-        init(this.theApplet);
+        init(theApplet);
     }
 
     /** {@inheritDoc} */
@@ -139,9 +139,6 @@ public class JUploadContextApplet extends DefaultJUploadContext {
         // coming from the same navigator.
         String cookie = null;
         String userAgent = null;
-
-        this.uploadPolicy
-                .displayInfo("Reading cookie and user-agent from navigator");
 
         try {
             // Patch given by Stani: corrects the use of the juploadContext for
