@@ -317,14 +317,15 @@ public class FileUploadManagerThreadTest extends TestCase {
      */
     @Test
     public void testAnotherFileHasBeenSent() throws Exception {
-        int nbSentFiles = fileUploadManagerThread.nbSentFiles;
-        // int nbFilesBeingUploaded =
-        // fileUploadManagerThread.nbFilesBeingUploaded;
-        // long nbBytesUploadedForCurrentFile =
-        // fileUploadManagerThread.nbBytesUploadedForCurrentFile;
-        // long nbBytesReadyForUpload =
-        // fileUploadManagerThread.nbBytesReadyForUpload;
+        int nbSentFiles;
         synchronized (fileUploadManagerThread) {
+            nbSentFiles = fileUploadManagerThread.nbSentFiles;
+            // int nbFilesBeingUploaded =
+            // fileUploadManagerThread.nbFilesBeingUploaded;
+            // long nbBytesUploadedForCurrentFile =
+            // fileUploadManagerThread.nbBytesUploadedForCurrentFile;
+            // long nbBytesReadyForUpload =
+            // fileUploadManagerThread.nbBytesReadyForUpload;
             fileUploadManagerThread.uploadStatus = FileUploadManagerThread.UPLOAD_STATUS_UPLOADING;
         }
 

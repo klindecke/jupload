@@ -1355,9 +1355,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_BROWSING_DIRECTORY + " (current value): "
                 + getCurrentBrowsingDirectory(), 30);
         displayDebug(PROP_DEBUG_LEVEL + ": " + this.debugLevel, 1);
-        if (this.debugGenerateFile) {
-            displayDebug("  (debugfile: " + this.debugFile.getAbsolutePath()
-                    + ")", 1);
+        synchronized (this) {
+            if (this.debugGenerateFile) {
+                displayDebug("  (debugfile: "
+                        + this.debugFile.getAbsolutePath() + ")", 1);
+            }
         }
         displayDebug(PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT + ": "
                 + getFileChooserIconFromFileContent(), 30);
