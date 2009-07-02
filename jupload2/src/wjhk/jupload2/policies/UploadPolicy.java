@@ -151,8 +151,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * picture gallery</a>. This parameter contains the identifier of the album,
  * where pictures should be used. See CoppermineUploadPolicy for an example. <br>
  * Before upload, CoppermineUploadPolicy.
- * {@link wjhk.jupload2.policies.CoppermineUploadPolicy#beforeUpload()} checks that
- * the albumId is correct, that is: >=1.</td>
+ * {@link wjhk.jupload2.policies.CoppermineUploadPolicy#beforeUpload()} checks
+ * that the albumId is correct, that is: >=1.</td>
  * </tr>
  * <tr>
  * <td>allowedFileExtensions</td>
@@ -648,9 +648,10 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>Allows the caller to add any header(s) to the applet. These headers will
  * be sent with each HTTP request to the server. If you put several lines in
- * this parameter, these parameter should be separated by the "\n" string (not
- * the \n character, but the \ character followed by the n character, like
- * msg="\\n";). No "\\n" at the end: it will be added by the applet. <BR>
+ * this parameter, these parameter should be separated by the "&#92;n" string
+ * (not the LineFeed character, but the antislash character followed by the n
+ * character, like msg="&#92;&#92;n";). No "&#92;n" at the end: it will be added
+ * by the applet. In PHP, put '&#92;n', and not "&#92;n" (See PHP doc, on strings)<BR>
  * This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  * a header like this one:<BR>
  * Authorization: Basic Base64EncodedString Where Base64EncodedString is the

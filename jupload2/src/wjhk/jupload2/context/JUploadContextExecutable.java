@@ -61,11 +61,6 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
     private JFrame jframe = null;
 
     /**
-     * The content pane of this window.
-     */
-    JPanel contentPane = null;
-
-    /**
      * Content of the /conf/default_deamon.properties file. These value override
      * default value, that would be wrong values for the daemon standalone
      * application.

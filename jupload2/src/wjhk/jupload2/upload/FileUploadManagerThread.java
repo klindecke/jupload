@@ -335,8 +335,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // one, like ... knowing that upload is actually finished (no more
             // file to send).
             // So we wait for it to finish.
-            while (this.fileUploadThread != null
-                    && this.fileUploadThread.isAlive()
+            while (this.fileUploadThread.isAlive()
                     && this.nbSuccessfullyUploadedFiles < this.uploadFileDataArray.length
                     && !isUploadStopped() // Stopped by the user
                     && this.getUploadException() == null // An error occurs
@@ -486,7 +485,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @return The last upload exception, or null if no exception occurs.
      */
-    public JUploadException getUploadException() {
+    public synchronized JUploadException getUploadException() {
         return this.uploadException;
     }
 

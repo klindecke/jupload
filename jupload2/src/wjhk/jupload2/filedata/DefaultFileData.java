@@ -186,7 +186,7 @@ public class DefaultFileData implements FileData {
     }
 
     /** {@inheritDoc} */
-    public InputStream getInputStream() throws JUploadException {
+    public synchronized InputStream getInputStream() throws JUploadException {
         if (!preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is not prepared for upload");
@@ -319,7 +319,8 @@ public class DefaultFileData implements FileData {
                 // file.
                 pathCurrentFileParent = fileArray[i];
                 // Let's find the higher root level.
-                while (pathCurrentFileParent != null) {
+                while (pathCurrentFileParent != null
+                        && !pathCurrentFileParent.isDirectory()) {
                     // We have a file. Let's take it's folder.
                     pathCurrentFileParent = pathCurrentFileParent
                             .getParentFile();

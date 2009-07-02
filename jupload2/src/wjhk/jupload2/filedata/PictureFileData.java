@@ -250,10 +250,12 @@ public class PictureFileData extends DefaultFileData {
 
             // If the transformed picture is correctly created, we'll upload it.
             // Else we upload the original file.
-            if (this.transformedPictureFile != null) {
-                this.uploadLength = this.transformedPictureFile.length();
-            } else {
-                this.uploadLength = getFile().length();
+            synchronized (this) {
+                if (this.transformedPictureFile != null) {
+                    this.uploadLength = this.transformedPictureFile.length();
+                } else {
+                    this.uploadLength = getFile().length();
+                }
             }
         }
 
