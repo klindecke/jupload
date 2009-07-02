@@ -1521,7 +1521,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @param displayAppletParameterList Flag. If set to true, the
      *            juploadContext's parameters are shown.
      */
-    public void setDebugLevel(int debugLevel, boolean displayAppletParameterList) {
+    public synchronized void setDebugLevel(int debugLevel, boolean displayAppletParameterList) {
         // If the debugLevel was previously set, we inform the user of this
         // change.
         if (this.debugLevel >= 0) {
