@@ -1,4 +1,6 @@
 
+Next release
+- [Minor] In some case, the file root was not correctly calculated (drop of several files)
 
 v4.4.0
 

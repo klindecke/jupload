@@ -3,10 +3,14 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- Check doc of specificHeaders (display of \n in the javadoc)
 
 - Error in Java with picture (local on my computer): Comprendre/floral (erreur in Java).jpg
 Answer to:
 http://forum.coppermine-gallery.net/index.php/topic,60184.msg297777.html#new
+
+- build.xml: should take into account the ANT_COPYDOC_START and ANT_COPYDOC_END tags,
+in UploadPolicy.java.
 
 - Check applet behavior against HTTP1/0
 Answer to:
