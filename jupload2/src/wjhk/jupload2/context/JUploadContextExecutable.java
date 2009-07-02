@@ -31,7 +31,6 @@ import java.util.Vector;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import wjhk.jupload2.JUploadDaemon;
 import wjhk.jupload2.exception.JUploadException;
