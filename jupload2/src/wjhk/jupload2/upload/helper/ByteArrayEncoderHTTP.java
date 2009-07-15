@@ -284,16 +284,23 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                 if (on instanceof Boolean) {
                                     // Skip unchecked checkboxes and
                                     // radiobuttons
-                                    if (!((Boolean) on).booleanValue())
+                                    if (!((Boolean) on).booleanValue()) {
+                                        this.uploadPolicy
+                                                .displayDebug(
+                                                        "  [ByteArrayEncoder.appendFormVariables] Skipping unchecked checkboxes and radiobuttons",
+                                                        80);
+                                        // TODO Do not use getApplet() anymore,
+                                        // here.
                                         continue;
+                                    }
                                 }
-
                             }
                         }
-                        if (name instanceof String) {
+                        if (name instanceof String
+                                && ((String) name).length() > 0) {
                             if (value instanceof String) {
                                 this.uploadPolicy.displayDebug(
-                                        "  Trying to add formdata element num "
+                                        "  [ByteArrayEncoder.appendFormVariables] Trying to add formdata element num "
                                                 + i + " (name: " + name
                                                 + ", value: " + value
                                                 + ", type: " + elementType
@@ -303,7 +310,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                         (String) value);
                             } else {
                                 this.uploadPolicy
-                                        .displayWarn("[ByteArrayEncoder.appendFormVariables] value must be an instance of String (name: "
+                                        .displayWarn("  [ByteArrayEncoder.appendFormVariables] Value must be an instance of String (name: "
                                                 + name
                                                 + ", value: )"
                                                 + value
@@ -311,7 +318,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                             }
                         } else {
                             this.uploadPolicy
-                                    .displayWarn("[ByteArrayEncoder.appendFormVariables] name must be an instance of String (name: "
+                                    .displayWarn("  [ByteArrayEncoder.appendFormVariables] Name must be an instance of String (name: "
                                             + name + ", value: )" + value + ")");
                         }
                     } catch (netscape.javascript.JSException e1) {
@@ -325,13 +332,20 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                     }
                 }
             } else {
-                this.uploadPolicy.displayWarn("The specified form \""
-                        + formname + "\" could not be found.");
+                this.uploadPolicy
+                        .displayWarn("  [ByteArrayEncoder.appendFormVariables] The specified form \""
+                                + formname
+                                + "\" could not be found (or has no element).");
             }
         } catch (netscape.javascript.JSException e) {
             this.uploadPolicy.displayDebug(e.getStackTrace()[1]
                     + ": No JavaScript available (action: " + action + ")", 10);
         }
+
+        this.uploadPolicy
+                .displayDebug(
+                        "  [ByteArrayEncoder.appendFormVariables] End of ByteArrayEncoderHTTP.appendFormVariables()",
+                        80);
         return this;
     }
 
