@@ -444,7 +444,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @return Total number of uploaded files.
      */
-    public synchronized int getNbUploadedFiles() {
+    public int getNbUploadedFiles() {
         return this.nbSentFiles;
     }
 
@@ -485,7 +485,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @return The last upload exception, or null if no exception occurs.
      */
-    public synchronized JUploadException getUploadException() {
+    public JUploadException getUploadException() {
         return this.uploadException;
     }
 
@@ -612,7 +612,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     /**
      * Displays the current upload speed on the status bar.
      */
-    private synchronized void updateUploadStatusBar() {
+    private void updateUploadStatusBar() {
         // We'll update the status bar, only if it exists and if the upload
         // actually started.
         if (null != this.uploadPanel.getStatusLabel()
@@ -954,7 +954,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @throws JUploadException
      */
-    private synchronized void updateUploadProgressBar() {
+    private void updateUploadProgressBar() {
         final String msgInfoUploaded = this.uploadPolicy
                 .getString("infoUploaded");
         final String msgInfoUploading = this.uploadPolicy
@@ -1136,7 +1136,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * 
      * @see #updateUploadProgressBar()
      */
-    private synchronized void initProgressBar() throws JUploadException {
+    private void initProgressBar() throws JUploadException {
         // To follow the state of file preparation
         this.preparationProgressBar
                 .setMaximum(100 * this.uploadFileDataArray.length);
