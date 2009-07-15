@@ -276,7 +276,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 
 
 	//First the form, with default values given by the query parameters.
-	document.writeln('<FORM>');
+	document.writeln('<FORM NAME="main-form">');
 
 	//Main parameters	
 	document.writeln('<HR>');
@@ -315,7 +315,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeBooleanInputSelect("allowHttpPersistent", allowHttpPersistent, "");
 	writeInputText("browsingDirectory", browsingDirectory, "");
 	writeInputText("filenameEncoding", filenameEncoding, "");
-	writeInputText("formdata", formdata, "");
+	writeInputText("formdata", formdata, "seems to not work, when the applet tag is generated in javascript, like in this page");
 	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
 	writeBooleanInputSelect("readCookieFromNavigator", readCookieFromNavigator, "");	
 	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');
@@ -347,7 +347,9 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	document.writeln('<BR><input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)"><BR><BR>');
 	document.writeln('</FORM>');
 
-</script> <script language="javascript" type=""> footer(); </script><script
+</script>
+
+<script language="javascript" type=""> footer(); </script><script
     language="javascript" src="timestamp.js" type="text/javascript"></script>
 </div>
 </body>
