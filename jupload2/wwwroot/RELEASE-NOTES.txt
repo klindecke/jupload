@@ -1,6 +1,8 @@
 
 Next release
 - [Minor] In some case, the file root was not correctly calculated (drop of several files)
+- [Minor] Bug 2819872: Better behavior of the applet, when using form-data with an INPUT tag that has no name 
+(the item is just ignored, a WARN is logged)
 
 v4.4.0
 
