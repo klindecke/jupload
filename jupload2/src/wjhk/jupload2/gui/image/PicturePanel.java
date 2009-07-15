@@ -154,12 +154,6 @@ public class PicturePanel extends Canvas implements MouseListener,
 
             // Now, we display this picture.
             calculateOffscreenImage();
-            if (this.offscreenImage == null) {
-                this.uploadPolicy
-                        .displayDebug(
-                                "PicturePanel.setPictureFile(): offscreenImage is null",
-                                30);
-            }
             repaint();
         }
 
