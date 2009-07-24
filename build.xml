@@ -409,8 +409,10 @@ lastSrcDirModificationDate = ${svn.date}
          - - - - - - - - - - - - - - - - - -->
 	<target name="srcjar"
 	        depends="clean,prepare,javadoc,customhowto,deploy"
-	        description="Create source zip in build/">
-		<jar jarfile="${path.build}/jupload-V${version}-src.zip">
+	        description="Create source zip in build, and generate its MD5 sum/">
+		<property name="target.src.file"
+		          value="${path.build}/jupload-V${version}-src.zip" />
+		<jar jarfile="${target.src.file}">
 			<fileset dir="${basedir}">
 				<include name="src/**/*" />
 				<include name="wwwroot/**/*" />
@@ -428,6 +430,12 @@ lastSrcDirModificationDate = ${svn.date}
 				<include name="*.jardesc" />
 			</fileset>
 		</jar>
+		<checksum file="${target.src.file}"
+		          todir="${path.build}"
+		          algorithm="MD5"
+		          format="MD5SUM"
+		          property="target.src.md5sum" />
+		<echo level="info" message="MD5Sum generated [${target.src.md5sum}]" />
 	</target>
 
 	<target name="-keystore.check">
