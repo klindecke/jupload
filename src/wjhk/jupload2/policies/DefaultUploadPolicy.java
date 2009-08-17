@@ -1030,8 +1030,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug("[onAppendHeader] Start", 80);
         while (it.hasNext()) {
             header = it.next();
-            bae.append(header).append("\r\n");
-            displayDebug("[onAppendHeader] Header appended; " + header, 80);
+            if (header == null || header.equals("")) {
+                displayWarn("[onAppendHeader] Found one empty header. Ignoring it.");
+            } else {
+                bae.append(header).append("\r\n");
+                displayDebug("[onAppendHeader] Header appended; " + header, 80);
+            }
         }
         displayDebug("[onAppendHeader] End", 80);
         return bae;
