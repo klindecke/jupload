@@ -32,11 +32,16 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * This class is a utility, which provide easy encoding for HTTP queries. The
- * way to use this class is: <OL TYPE=1> <LI>Instantiate a new object <LI>Append
- * data to it, using the append methods. Available for: String, byte[], other
- * ByteArrayEncode... <LI>Close the stream. This will prevent any new data to be
- * appended to it. The encoded length can now be calculated. <LI>Get the encoded
- * length. <LI>Get the encoded byte array </OL>
+ * way to use this class is:
+ * <OL TYPE=1>
+ * <LI>Instantiate a new object
+ * <LI>Append data to it, using the append methods. Available for: String,
+ * byte[], other ByteArrayEncode...
+ * <LI>Close the stream. This will prevent any new data to be appended to it.
+ * The encoded length can now be calculated.
+ * <LI>Get the encoded length.
+ * <LI>Get the encoded byte array
+ * </OL>
  * 
  * @author etienne_sf
  * 
@@ -235,18 +240,18 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     /** {@inheritDoc} */
     public ByteArrayEncoder appendFormVariables(String formname)
             throws JUploadIOException {
-        String action = "Entering ByteArrayEncoderHTTP.appendFormVariables()";
+        String action = "Entering ByteArrayEncoderHTTP.appendFormVariables() [html form: "
+                + formname + "]";
         try {
-            this.uploadPolicy.displayDebug(
-                    "Entering ByteArrayEncoderHTTP.appendFormVariables() [html form: "
-                            + formname + "]", 80);
+            this.uploadPolicy.displayDebug(action, 80);
             // TODO Do not use getApplet() anymore, here.
             action = "win = netscape.javascript.JSObject.getWindow";
             netscape.javascript.JSObject win = netscape.javascript.JSObject
                     .getWindow(this.uploadPolicy.getContext().getApplet());
 
             action = "o = win.eval";
-            Object o = win.eval("document." + formname + ".elements.length");
+            Object o = win.eval("document.forms[\"" + formname
+                    + "\"].elements.length");
             if (o instanceof Number) {
                 int len = ((Number) o).intValue();
                 if (len <= 0) {
@@ -257,14 +262,14 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                 for (i = 0; i < len; i++) {
                     try {
                         action = "name = win.eval";
-                        Object name = win.eval("document." + formname + "[" + i
-                                + "].name");
+                        Object name = win.eval("document.forms[\"" + formname
+                                + "\"][" + i + "].name");
                         action = "value = win.eval";
-                        Object value = win.eval("document." + formname + "["
-                                + i + "].value");
+                        Object value = win.eval("document.forms[\"" + formname
+                                + "\"][" + i + "].value");
                         action = "elementType = win.eval";
-                        Object elementType = win.eval("document." + formname
-                                + "[" + i + "].type");
+                        Object elementType = win.eval("document.forms[\"" + formname
+                                + "\"][" + i + "].type");
                         action = "elementClass = win.eval";
                         // elementClass seems to be not supported by IE7
                         // The next line prevents formData to be sent to the
@@ -273,14 +278,14 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                         // Object elementClass = win.eval("document." + formname
                         // + "[" + i + "].class");
                         action = "etype = win.eval";
-                        Object etype = win.eval("document." + formname + "["
-                                + i + "].type");
+                        Object etype = win.eval("document.forms[\"" + formname
+                                + "\"][" + i + "].type");
                         if (etype instanceof String) {
                             String t = (String) etype;
                             if (t.equals("checkbox") || t.equals("radio")) {
                                 action = "on = win.eval";
-                                Object on = win.eval("document." + formname
-                                        + "[" + i + "].checked");
+                                Object on = win.eval("document.forms[\"" + formname
+                                        + "\"][" + i + "].checked");
                                 if (on instanceof Boolean) {
                                     // Skip unchecked checkboxes and
                                     // radiobuttons
@@ -300,7 +305,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                 && ((String) name).length() > 0) {
                             if (value instanceof String) {
                                 this.uploadPolicy.displayDebug(
-                                        "  [ByteArrayEncoder.appendFormVariables] Trying to add formdata element num "
+                                        "  [ByteArrayEncoder.appendFormVariables] Adding formdata element num "
                                                 + i + " (name: " + name
                                                 + ", value: " + value
                                                 + ", type: " + elementType
