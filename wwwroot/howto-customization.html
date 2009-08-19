@@ -295,8 +295,8 @@ new data about files in the upload to the server..</P>
  picture gallery</a>. This parameter contains the identifier of the album,
  where pictures should be used. See CoppermineUploadPolicy for an example. <br>
  Before upload, CoppermineUploadPolicy.
- <a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html#beforeUpload()"><CODE>CoppermineUploadPolicy.beforeUpload()</CODE></A> checks that
- the albumId is correct, that is: >=1.</td>
+ <a href="doc/wjhk/jupload2/policies/CoppermineUploadPolicy.html#beforeUpload()"><CODE>CoppermineUploadPolicy.beforeUpload()</CODE></A> checks
+ that the albumId is correct, that is: >=1.</td>
  </tr>
  <tr>
  <td>allowedFileExtensions</td>
@@ -792,9 +792,11 @@ new data about files in the upload to the server..</P>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
  <td>Allows the caller to add any header(s) to the applet. These headers will
  be sent with each HTTP request to the server. If you put several lines in
- this parameter, these parameter should be separated by the "n" string (not
- the n character, but the  character followed by the n character, like
- msg="n";). No "n" at the end: it will be added by the applet. <BR>
+ this parameter, these parameter should be separated by the "&#92;n" string
+ (not the LineFeed character, but the antislash character followed by the n
+ character, like msg="&#92;&#92;n";). No "&#92;n" at the end: it will be added
+ by the applet. In PHP, put '&#92;n', and not "&#92;n" (See PHP doc, on
+ strings)<BR>
  This allows an easy management of <B>Basic HTTP authentication</B>. Just add
  a header like this one:<BR>
  Authorization: Basic Base64EncodedString Where Base64EncodedString is the
@@ -860,9 +862,9 @@ new data about files in the upload to the server..</P>
  <td>This parameter indicates that the preview image on the applet is kept in
  memory. It works really nice under eclise. But, once in the navigator, the
  applet runs very quickly out of memory. So I add a lot of calls to
- <a href="doc/wjhk/jupload2/filedata/PictureFileData.html#freeMemory(java.lang.String)"><CODE>PictureFileData.freeMemory(String)</CODE></A>, but it
- doesn't change anything. Be careful to this parameter, and let it to the
- default value, unless you've well tested it under all your target client
+ <a href="doc/wjhk/jupload2/filedata/PictureFileData.html#freeMemory(java.lang.String, wjhk.jupload2.policies.UploadPolicy)"><CODE>PictureFileData.freeMemory(String, UploadPolicy)</CODE></A>
+ , but it doesn't change anything. Be careful to this parameter, and let it to
+ the default value, unless you've well tested it under all your target client
  configurations. <BR>
  <I>This parameter will probably never be correctly implemented.</I></td>
  </tr>
