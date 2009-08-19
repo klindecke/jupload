@@ -1,11 +1,13 @@
 
 Next release
-- [Minor] The formData parameter now accepts form names that contain a minus (-) sign in the name.
 - [Minor] In some case, the file root was not correctly calculated (drop of several files)
 - [Minor] Bug 2819872: Better behavior of the applet, when using form-data with an INPUT tag that has no name 
 (the item is just ignored, a WARN is logged)
 - [Minor] Empty headers are now ignored, when writing the HTTP query (prevent upload errors, caused by malformed HTTP 
 query, containing an empty line in the headers)
+- [Minor] The formData parameter now accepts form names that contain a minus (-) sign in the name.
+- [Minor] If the formData contains a form name which is present two times on the HTML page, the applet no more ignore it. It takes
+the first form of this name.
 
 v4.4.0
 

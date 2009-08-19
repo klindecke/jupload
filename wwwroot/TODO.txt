@@ -3,6 +3,22 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- Two minor bugs, reported here: https://sourceforge.net/forum/forum.php?thread_id=3344990&forum_id=199107
+* when 2 html-forms with the same name (that is used as formdata) exist, the applet will silently ignore the 
+formdata at all: it would be nice to get an errorbox: since this is clearly an error of the programmer that 
+includes the applet 
+
+- Response to [Help] pngs: alpha-transparency lost
+example: after uploading this pic 
+http://picbite.com/image/66099ydqkk/ 
+the alpha-transparency will be lost and the former transparent background appears black: http://picbite.com/image/66100jiujf/ 
+I don't know what code is used internally to resize the picture and to detect alpha-transparency, but I had the same problem for our HTML upload, so here is what we do - maybe it helps: 
+http://www.easy-share.com/1907277312/imageScaling.java 
+this is based on the examples here: http://www.exampledepot.com/egs/java.awt.image/HasAlpha.html 
+
+- 'Paste' String is not localized.
+Answer to https://sourceforge.net/forum/forum.php?thread_id=3346125&forum_id=199107
+
 - Check doc of specificHeaders (display of \n in the javadoc)
 
 - Error in Java with picture (local on my computer): Comprendre/floral (erreur in Java).jpg
