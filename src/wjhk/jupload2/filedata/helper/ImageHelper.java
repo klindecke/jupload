@@ -221,9 +221,13 @@ public class ImageHelper implements ImageObserver {
         if (this.scale < 1) {
             this.scaledRotatedWidth *= this.scale;
             this.scaledRotatedHeight *= this.scale;
+            this.uploadPolicy.displayDebug("Resizing factor (scale): "
+                    + this.scale, 30);
+        } else {
+            this.uploadPolicy.displayDebug(
+                    "Resizing factor (scale): no resizing (calculated scale was "
+                            + this.scale + ")", 30);
         }
-        this.uploadPolicy.displayDebug(
-                "Resizing factor (scale): " + this.scale, 30);
         // Due to rounded numbers, the resulting targetWidth or
         // targetHeight
         // may be one pixel too big. Let's check that.
@@ -284,6 +288,11 @@ public class ImageHelper implements ImageObserver {
             if (this.hasToTransformPicture == null
                     && !(this.uploadPolicy).getPictureTransmitMetadata()) {
                 this.hasToTransformPicture = Boolean.TRUE;
+                this.uploadPolicy
+                        .displayDebug(
+                                this.pictureFileData.getFileName()
+                                        + " : hasToTransformPicture=true (pictureTransmitMetadata is false)",
+                                80);
             }
             // Second : another easy test. A rotation is needed ?
             if (this.hasToTransformPicture == null && this.quarterRotation != 0) {
@@ -337,6 +346,9 @@ public class ImageHelper implements ImageObserver {
                         .getFileName()
                         + " : hasToTransformPicture = false", 10);
                 this.hasToTransformPicture = Boolean.FALSE;
+                this.uploadPolicy.displayDebug(this.pictureFileData
+                        .getFileName()
+                        + " : hasToTransformPicture = false", 10);
             }
         }
 
