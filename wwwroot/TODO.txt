@@ -3,10 +3,6 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- Two minor bugs, reported here: https://sourceforge.net/forum/forum.php?thread_id=3344990&forum_id=199107
-* when 2 html-forms with the same name (that is used as formdata) exist, the applet will silently ignore the 
-formdata at all: it would be nice to get an errorbox: since this is clearly an error of the programmer that 
-includes the applet 
 
 - Response to [Help] pngs: alpha-transparency lost
 example: after uploading this pic 
