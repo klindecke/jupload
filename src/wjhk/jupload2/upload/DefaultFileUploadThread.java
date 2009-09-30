@@ -526,9 +526,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
         } finally {
             // Let's free any locked resource, if we're not 'stopped' by the
             // user.
-            if (!interrupted()) {
-                this.filesToUpload[0].afterUpload();
-            }
+            this.filesToUpload[0].afterUpload();
         }
 
     }// doChunkedUpload
@@ -566,9 +564,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
                         this.filesToUpload[i].getUploadLength());
             } finally {
                 // Let's free any locked resource
-                if (!interrupted()) {
-                    this.filesToUpload[i].afterUpload();
-                }
+                this.filesToUpload[i].afterUpload();
             }
 
             // Let's add any file-specific header.

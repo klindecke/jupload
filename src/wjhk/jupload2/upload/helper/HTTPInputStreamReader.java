@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLSocket;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
 
 /**
@@ -180,6 +181,8 @@ public class HTTPInputStreamReader {
             } else {
                 readBody(httpDataIn);
             }
+        } catch (JUploadException e) {
+            throw e;
         } catch (Exception e) {
             throw new JUploadException(e);
         }
@@ -233,9 +236,11 @@ public class HTTPInputStreamReader {
      *            in the returned byte array.
      * @return The line, encoded from the input stream with the given charset
      * @throws IOException
+     * @throws JUploadException 
      */
     public static String readLine(PushbackInputStream inputStream,
-            String charset, boolean includeCR) throws IOException {
+            String charset, boolean includeCR) throws IOException,
+            JUploadException {
         byte[] line = readLine(inputStream, includeCR);
         return (null == line) ? null : new String(line, charset);
     }
@@ -261,9 +266,10 @@ public class HTTPInputStreamReader {
      * @return The byte array from the input stream, with or without a trailing
      *         CRLF
      * @throws IOException
+     * @throws JUploadException 
      */
     public static byte[] readLine(PushbackInputStream inputStream,
-            boolean includeCR) throws IOException {
+            boolean includeCR) throws IOException, JUploadException {
         final byte EOS = -1;
         final byte CR = 13;
         final byte LF = 10;
@@ -274,8 +280,18 @@ public class HTTPInputStreamReader {
         int b;
         boolean lineRead = false;
 
-        while (!lineRead && !Thread.interrupted()) {
-            b = inputStream.read();
+        while (!lineRead) {
+            try {
+                b = inputStream.read();
+            } catch (IOException ioe) {
+                throw new JUploadIOException(ioe.getClass().getName() + ": "
+                        + ioe.getMessage()
+                        + " (while reading server response )", ioe);
+            } catch (Exception e) {
+                throw new JUploadException(e.getClass().getName() + ": "
+                        + e.getMessage() + " (while reading server response )",
+                        e);
+            }
             switch (b) {
                 case EOS:
                     // We've finished reading the stream, and so the line is
@@ -356,24 +372,16 @@ public class HTTPInputStreamReader {
         StringBuffer sbHeaders = new StringBuffer();
         // Headers are US-ASCII (See RFC 2616, Section 2.2)
         String tmp;
-        while (!Thread.interrupted()) {
+        // We must be reading the first line of the HTTP header.
+        this.uploadPolicy.displayDebug(
+                "-------- Response Headers Start --------", 80);
+
+        do {
             tmp = readLine(httpDataIn, "US-ASCII", false);
             if (null == tmp) {
-                this.uploadPolicy
-                        .displayDebug(
-                                "--------- unexpected EOF (Response Headers Start) ---------",
-                                80);
-                this.uploadPolicy.displayDebug(sbHeaders.toString(), 80);
-                this.uploadPolicy
-                        .displayDebug(
-                                "--------- unexpected EOF (Response Headers End) ---------",
-                                80);
                 throw new JUploadException("unexpected EOF (in header)");
             }
             if (this.httpStatusCode == 0) {
-                // We must be reading the first line of the HTTP header.
-                this.uploadPolicy.displayDebug(
-                        "-------- Response Headers Start --------", 80);
                 Matcher m = pHttpStatus.matcher(tmp);
                 if (m.matches()) {
                     this.httpStatusCode = Integer.parseInt(m.group(2));
@@ -425,13 +433,10 @@ public class HTTPInputStreamReader {
                 this.cookies.parseCookieHeader(m.group(1));
                 this.uploadPolicy.displayDebug("Cookie header parsed.", 80);
             }
-            if (this.line.length() == 0) {
-                // We've finished reading the headers
-                break;
-            }
-        }
-        // RFC 2616, Section 6. Body is separated by the
-        // header with an empty line.
+            // RFC 2616, Section 6. Body is separated by the header with an
+            // empty line: so end of headers is an empty line.
+        } while (this.line.length() > 0);
+
         this.responseHeaders = sbHeaders.toString();
         this.uploadPolicy.displayDebug(
                 "--------- Response Headers End ---------", 80);
@@ -448,8 +453,7 @@ public class HTTPInputStreamReader {
     private void readBody(PushbackInputStream httpDataIn) throws IOException,
             JUploadException {
         // && is evaluated from left to right so !stop must come first!
-        while (!Thread.interrupted()
-                && ((!this.gotContentLength) || (this.clen > 0))) {
+        while ((!this.gotContentLength) || (this.clen > 0)) {
             if (this.gotChunked) {
                 // Read the chunk header.
                 // This is US-ASCII! (See RFC 2616, Section 2.2)
