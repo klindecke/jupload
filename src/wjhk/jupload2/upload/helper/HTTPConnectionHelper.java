@@ -251,7 +251,7 @@ public class HTTPConnectionHelper extends OutputStream {
      *            if non chunked request or if it is not relevant.
      * @throws JUploadIOException
      */
-    public void initRequest(URL url, String method, boolean bChunkEnabled,
+    public synchronized void initRequest(URL url, String method, boolean bChunkEnabled,
             boolean bLastChunk) throws JUploadIOException {
         // This method expects that the connection has not been initialized yet,
         // or that the previous request is finished.
@@ -308,7 +308,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * 
      * @throws JUploadIOException
      */
-    public void sendRequest() throws JUploadIOException {
+    public synchronized void sendRequest() throws JUploadIOException {
         // This method expects that the connection is writing data to the
         // server.
         if (this.connectionStatus != STATUS_BEFORE_SERVER_CONNECTION) {
@@ -371,7 +371,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * 
      * @throws JUploadIOException
      */
-    public void dispose() throws JUploadIOException {
+    public synchronized void dispose() throws JUploadIOException {
 
         try {
             // Throws java.io.IOException
@@ -476,7 +476,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * 
      * @return A text describing briefly the current connection status.
      */
-    public String getStatusLabel() {
+    public synchronized String getStatusLabel() {
         switch (this.connectionStatus) {
             case STATUS_NOT_INITIALIZED:
                 return "Not initialized";
@@ -511,7 +511,7 @@ public class HTTPConnectionHelper extends OutputStream {
      *         StringBuffers: a.append(b).append(c);
      * @throws JUploadIOException
      */
-    public HTTPConnectionHelper append(int b) throws JUploadIOException {
+    public synchronized HTTPConnectionHelper append(int b) throws JUploadIOException {
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(b);
         } else if (this.connectionStatus == STATUS_WRITING_REQUEST) {
@@ -539,7 +539,7 @@ public class HTTPConnectionHelper extends OutputStream {
      *         StringBuffers: a.append(b).append(c);
      * @throws JUploadIOException
      */
-    public HTTPConnectionHelper append(byte[] bytes) throws JUploadIOException {
+    public synchronized HTTPConnectionHelper append(byte[] bytes) throws JUploadIOException {
 
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(bytes);
@@ -581,7 +581,7 @@ public class HTTPConnectionHelper extends OutputStream {
      *         StringBuffers: a.append(b).append(c);
      * @throws JUploadIOException
      */
-    public HTTPConnectionHelper append(byte[] bytes, int off, int len)
+    public synchronized HTTPConnectionHelper append(byte[] bytes, int off, int len)
             throws JUploadIOException {
 
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
@@ -621,7 +621,7 @@ public class HTTPConnectionHelper extends OutputStream {
      *             operation.
      * @see #append(byte[])
      */
-    public HTTPConnectionHelper append(String str) throws JUploadIOException {
+    public synchronized HTTPConnectionHelper append(String str) throws JUploadIOException {
         this.uploadPolicy.displayDebug("[HTTPConnectionHelper append] " + str,
                 70);
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
@@ -648,7 +648,7 @@ public class HTTPConnectionHelper extends OutputStream {
      *             operation.
      * @see #append(byte[])
      */
-    public HTTPConnectionHelper append(ByteArrayEncoder bae)
+    public synchronized HTTPConnectionHelper append(ByteArrayEncoder bae)
             throws JUploadIOException {
         this.uploadPolicy.displayDebug("[HTTPConnectionHelper append] "
                 + bae.getString(), 70);
@@ -662,7 +662,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * @return The HTTP status. Should be 200, when everything is right.
      * @throws JUploadException
      */
-    public int readHttpResponse() throws JUploadException {
+    public synchronized int readHttpResponse() throws JUploadException {
         // This method expects that the connection is writing data to the
         // server.
         if (this.connectionStatus != STATUS_WRITING_REQUEST) {
@@ -712,7 +712,7 @@ public class HTTPConnectionHelper extends OutputStream {
      * 
      * @throws JUploadIOException
      */
-    private void initByteArrayEncoder() throws JUploadIOException {
+    private synchronized void initByteArrayEncoder() throws JUploadIOException {
         if (this.byteArrayEncoder != null && !this.byteArrayEncoder.isClosed()) {
             this.byteArrayEncoder.close();
             this.byteArrayEncoder = null;
@@ -792,7 +792,7 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     private boolean isKeepAlive() {
         if (this.socket == null) {
-            return true;
+            return false;
         } else if (!this.uploadPolicy.getAllowHttpPersistent()) {
             return false;
         } else {
