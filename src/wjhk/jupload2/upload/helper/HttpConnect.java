@@ -336,6 +336,9 @@ public class HttpConnect {
                 changePostURL(mLocation.group(1));
             }
         }
+        
+        //Let's free any used resource.
+        connectionHelper.dispose();
 
         return protocol;
     } // getProtocol()
