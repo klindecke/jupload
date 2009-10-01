@@ -43,6 +43,7 @@ import wjhk.jupload2.exception.JUploadExceptionStopAddingFiles;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.FileData;
 import wjhk.jupload2.filedata.PictureFileData;
+import wjhk.jupload2.filedata.helper.ImageFileConversionInfo;
 import wjhk.jupload2.gui.JUploadFileChooser;
 import wjhk.jupload2.gui.JUploadPanel;
 import wjhk.jupload2.gui.image.JUploadImagePreview;
@@ -78,8 +79,7 @@ import wjhk.jupload2.gui.image.PicturePanel;
  * <UL>
  * <LI>maxPicWidth: Maximum width for the uploaded picture.
  * <LI>maxPicHeight: Maximum height for the uploaded picture.
- * <LI><I>(To be implemented)</I> targetPictureFormat : Define the target
- * picture format. Eg: jpeg, png, gif...
+ * <LI>targetPictureFormat : Define picture format conversions.
  * </UL>
  * <A NAME="example"> <H4>HTML call example</H4> </A> You'll find below an
  * example of how to put the applet into a PHP page: <BR>
@@ -127,6 +127,11 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_TARGET_PICTURE_FORMAT
      */
     private String targetPictureFormat;
+
+    /**
+     * the parsed {@link #targetPictureFormat} list
+     */
+    private ImageFileConversionInfo imageFileConversionInfo = new ImageFileConversionInfo("");
 
     /**
      * Stored value for the fileChooserIconFromFileContent applet property.
@@ -582,9 +587,20 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         return this.targetPictureFormat;
     }
 
-    /** @param targetPictureFormat the targetPictureFormat to set */
-    void setTargetPictureFormat(String targetPictureFormat) {
+    public ImageFileConversionInfo getImageFileConversionInfo() {
+        return imageFileConversionInfo;
+    }
+
+    /**
+     * we expect e.g. "png,bmp:jpg;gif:png;"
+     * 
+     * @param targetPictureFormat the targetPictureFormat to set
+     * @throws JUploadException if the conversionList is erroneous
+     */
+    void setTargetPictureFormat(String targetPictureFormat)
+            throws JUploadException {
         this.targetPictureFormat = targetPictureFormat;
+        imageFileConversionInfo = new ImageFileConversionInfo(targetPictureFormat);
     }
 
     /**
@@ -650,6 +666,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 + this.storeBufferedImage, 30);
         displayDebug(PROP_TARGET_PICTURE_FORMAT + " : "
                 + this.targetPictureFormat, 30);
+        displayDebug("Format conversions : " + getImageFileConversionInfo(), 40);
         displayDebug("", 30);
     }
 

@@ -140,6 +140,12 @@ public class PictureFileData extends DefaultFileData {
     private File workingCopyTempFile = null;
 
     /**
+     * will be set if in {@link #createTranformedPictureFile(ImageHelper)},
+     * if an image-transformation has occured
+     */
+    private String targetPictureFormat;
+
+    /**
      * Standard constructor: needs a PictureFileDataPolicy.
      * 
      * @param file The files which data are to be handled by this instance.
@@ -253,6 +259,7 @@ public class PictureFileData extends DefaultFileData {
             synchronized (this) {
                 if (this.transformedPictureFile != null) {
                     this.uploadLength = this.transformedPictureFile.length();
+                    setMimeTypeByExtension(targetPictureFormat);
                 } else {
                     this.uploadLength = getFile().length();
                 }
@@ -565,6 +572,7 @@ public class PictureFileData extends DefaultFileData {
 
         // Creation of the transformed picture file.
         createTransformedTempFile();
+        targetPictureFormat = imageWriterHelper.getTargetPictureFormat();
         imageWriterHelper.setOutput(this.transformedPictureFile);
 
         // How many picture should we read from the input file.

@@ -812,15 +812,57 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * </tr>
  * <tr>
  * <td>targetPictureFormat</td>
- * <td><i>Empty String</i> <br>
- * <br>
- * (<b>to be</b> implemented in
- * {@link wjhk.jupload2.policies.PictureUploadPolicy})</td>
- * <td>This parameter can contain any picture writer known by the JVM. For
- * instance: jpeg, png, gif. All standard formats should be available. More
- * information can be found on the <a
- * href="http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html"
- * >java.sun.com</a> web site.</td>
+ * <td><i>Empty String</i><br />
+ * {@link wjhk.jupload2.policies.PictureUploadPolicy}</td>
+ * <td>This parameter can contain a list to convert imageformats
+ * <p>
+ * Example 1:{@code "png,bmp:jpg;gif:png;"}
+ * <ul>
+ *   <li>both png and bmp files will be converted to jpg,</li>
+ *   <li>gif files will be converted to png</li>
+ * </ul>
+ * Example 2:{@code "jpeg,jpg:png;"}
+ * <ul>
+ *   <li>both jpeg and jpg files will be converted to png,</li>
+ * </ul>
+ * </p>
+ * the value is expected to be a semi-colon separated list of relations
+ * from source-format(s) to a target format.<br />
+ * format: <code>{SOURCEFORMAT{,SOURCEFORMAT*}:TARGETFORMAT;}*</code>
+ * <ul>
+ *   <li>formats can contain any picture writer known by the JVM. For
+ *   instance: jpeg, png, gif. All standard formats should be available. More
+ *   information can be found on the 
+ *   <a href="http://java.sun.com/j2se/1.4.2/docs/guide/imageio/spec/title.fm.html">java.sun.com</a> web site.
+ *   <li>SOURCEFORMAT: the source format that should be converted to 
+ *   the TARGETFORMAT<br />
+ *   e.g. png, jpg, jpeg, ..</li>
+ *   <li>TARGETFORMAT: the target format that all given SOURCEFORMAT
+ *   should be converted to <br />
+ *   e.g. png, jpg, jpeg, ..</li>
+ *  <li>all format strings are case insensitive, so all following strings
+ *  are the same:
+ *  <ul>
+ *    <li><code>"jpeg,jpg:png;"</code></li>
+ *    <li><code>"JPEG,JPG:PNG;"</code></li>
+ *    <li><code>"jPeG,JpG:pNg;"</code></li>
+ *  </ul>
+ *  </li>
+ * </ul>
+ * notes:
+ * <ul>
+ *   <li>animated gifs will not be converted</li>
+ *   <li>jpg and jpeg are distinct types.</li>
+ *   <li>gifs can only be converted if the user has installee JRE >= 1.6</li>
+ *   <li>the trailing semi-colon is optional</li>
+ *   <li>when the format is changed, the file-name will NOT change, but the content-type will:<br />
+ *       example: <code>targetPictureFormat="bmp:png;"</code><br />
+ *       When you upload: <code>C:\myBitmap.bmp</code>, the filename will not be changed
+ *       and transferred to the server, but the content-type will be changed to "image/png"
+ *   </li>
+ * </ul>
+ * see {@link wjhk.jupload2.filedata.helper.ImageFileConversionInfo}
+ * </td>
  * </tr>
  * <tr>
  * <td><b>uploadPolicy</b></td>
@@ -1108,7 +1150,7 @@ public interface UploadPolicy {
     public final static String PROP_STRING_UPLOAD_WARNING = "stringUploadWarning";
 
     /**
-     * Parameter/Property name for specifying the target picture format.
+     * Parameter/Property name for specifying the target picture format conversions
      */
     public final static String PROP_TARGET_PICTURE_FORMAT = "targetPictureFormat";
 

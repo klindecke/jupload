@@ -304,34 +304,18 @@ public class ImageHelper implements ImageObserver {
                 this.hasToTransformPicture = Boolean.TRUE;
             }
 
-            // Second : the picture format is the same ?
-            if (this.hasToTransformPicture == null
-                    && (this.uploadPolicy).getTargetPictureFormat() != null) {
-                // A target format is positioned: is it the same as the current
-                // file format ?
-                String target = (this.uploadPolicy).getTargetPictureFormat()
-                        .toLowerCase();
-                String ext = this.pictureFileData.getFileExtension()
-                        .toLowerCase();
-
-                if (target.equals("jpg"))
-                    target = "jpeg";
-                if (ext.equals("jpg"))
-                    ext = "jpeg";
-
-                if (!target.equals(ext)) {
-                    this.uploadPolicy
+            // Third : the picture format is the same ?
+            String targetFormat = uploadPolicy.getImageFileConversionInfo().getTargetFormatOrNull(pictureFileData.getFileExtension());
+            if (hasToTransformPicture == null && targetFormat != null) {
+                    uploadPolicy
                             .displayDebug(
                                     this.pictureFileData.getFileName()
                                             + " : hasToTransformPicture = true (targetPictureFormat)",
                                     10);
-                    // Correction given by David Gnedt: the following line was
-                    // lacking!
-                    this.hasToTransformPicture = Boolean.TRUE;
-                }
+                    hasToTransformPicture = Boolean.TRUE;
             }
 
-            // Third : should we resize the picture ?
+            // Fourth : should we resize the picture ?
             if (this.hasToTransformPicture == null && this.scale < 1) {
                 this.uploadPolicy.displayDebug(this.pictureFileData
                         .getFileName()
