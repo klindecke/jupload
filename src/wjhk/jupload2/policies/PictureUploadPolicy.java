@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -80,6 +81,8 @@ import wjhk.jupload2.gui.image.PicturePanel;
  * <LI>maxPicWidth: Maximum width for the uploaded picture.
  * <LI>maxPicHeight: Maximum height for the uploaded picture.
  * <LI>targetPictureFormat : Define picture format conversions.
+ * <LI>keepOriginalFileExtensionForConvertedImages : handling of file extensions
+ * for image conversions.
  * </UL>
  * <A NAME="example"> <H4>HTML call example</H4> </A> You'll find below an
  * example of how to put the applet into a PHP page: <BR>
@@ -118,15 +121,19 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     private boolean storeBufferedImage;
 
     /**
-     * Iimage type that should be uploaded (JPG, GIF...). It should be a
-     * standard type, as the JVM will create this file. If null, the same format
-     * as the original file is used. <BR>
-     * Currently <B>this flag is ignored when createBufferedImage is false</B> . <BR>
-     * Default: null.
+     * This parameter can contain a list to convert image formats. <br />
+     * see class description of {@link UploadPolicy} for details
      * 
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_TARGET_PICTURE_FORMAT
      */
     private String targetPictureFormat;
+
+    /**
+     * see class description of {@link UploadPolicy} for details
+     * 
+     * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_KEEP_ORIG_EXTENSION
+     */
+    private boolean keepOrigExtension;
 
     /**
      * the parsed {@link #targetPictureFormat} list
@@ -244,6 +251,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 DEFAULT_REAL_MAX_WIDTH));
         setTargetPictureFormat(juploadContext.getParameter(
                 PROP_TARGET_PICTURE_FORMAT, DEFAULT_TARGET_PICTURE_FORMAT));
+
+        setKeepOrigExtension(juploadContext.getParameter(
+                PROP_KEEP_ORIG_EXTENSION, DEFAULT_KEEP_ORIG_EXTENSION));
 
         displayDebug("[PictureUploadPolicy] end of constructor", 30);
     }
@@ -604,6 +614,29 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }
 
     /**
+     * @return <ul>
+     *         <li><code>true</code>, if the the original file extension should
+     *         be kept</li>
+     *         <li><code>false</code>, if the the original file extension should
+     *         be changed to the target picture format, that the file has been
+     *         converted to</li>
+     *         </ul>
+     */
+    public boolean getKeepOrigExtension() {
+        return this.keepOrigExtension;
+    }
+
+    /**
+     * @param keepOrigExtension if the original file extension should be kept '
+     *            <code>true</code>', or changed '<code>false</code>' (if the
+     *            image was converted)
+     */
+    void setKeepOrigExtension(boolean keepOrigExtension)
+            throws JUploadException {
+        this.keepOrigExtension = keepOrigExtension;
+    }
+
+    /**
      * This method manages the applet parameters that are specific to this
      * class. The super.setProperty method is called for other properties.
      * 
@@ -638,6 +671,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
             setRealMaxWidth(getContext().parseInt(value, this.realMaxWidth));
         } else if (prop.equals(PROP_TARGET_PICTURE_FORMAT)) {
             setTargetPictureFormat(value);
+        } else if (prop.equals(PROP_KEEP_ORIG_EXTENSION)) {
+            setKeepOrigExtension(getContext().parseBoolean(value,
+                    this.keepOrigExtension));
         } else {
             // Otherwise, transmission to the mother class.
             super.setProperty(prop, value);
@@ -727,6 +763,26 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public Icon fileViewGetIcon(File file) {
         return PictureFileData.getImageIcon(file, getFileChooserIconSize(),
                 getFileChooserIconSize());
+    }
+
+    @Override
+    public String getUploadFilename(FileData fileData, int index)
+            throws JUploadException {
+        String fileName = fileData.getFileName();
+        if (!keepOrigExtension) {
+            String targetFormatOrNull = imageFileConversionInfo
+                    .getTargetFormatOrNull(fileData.getFileExtension());
+            if (targetFormatOrNull != null) {
+
+                int endIndex = fileName.length() - targetFormatOrNull.length();
+                StringBuilder newFilename = new StringBuilder(fileName
+                        .substring(0, endIndex));
+                newFilename.append(targetFormatOrNull);
+                fileName = newFilename.toString();
+            }
+        }
+
+        return getEncodedFilename(fileName);
     }
 
     /**

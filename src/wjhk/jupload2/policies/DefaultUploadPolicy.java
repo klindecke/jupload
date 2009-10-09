@@ -999,11 +999,23 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     public String getUploadFilename(FileData fileData, int index)
             throws JUploadException {
-        if (this.filenameEncoding == null || this.filenameEncoding.equals(""))
-            return fileData.getFileName();
+        return getEncodedFilename(fileData.getFileName());
+    }
+
+    /**
+     * returns the filename and encodes it, if necessary
+     * 
+     * @param filename the original filename
+     * @return filename (encoded, if necessary)
+     * @throws JUploadException
+     */
+    protected final String getEncodedFilename(String filename)
+            throws JUploadException {
+        if (this.filenameEncoding == null || this.filenameEncoding.equals("")) {
+            return filename;
+        }
         try {
-            return URLEncoder.encode(fileData.getFileName(),
-                    this.filenameEncoding);
+            return URLEncoder.encode(filename, this.filenameEncoding);
         } catch (UnsupportedEncodingException e) {
             throw new JUploadException(e);
         }
