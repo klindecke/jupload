@@ -62,16 +62,19 @@ public class ImageFileConversionInfo {
     /**
      * returns the target format for the given sourceFormat.
      * <ul>
-     *   <li>the case of the sourceFormat does not matter</li>
-     *   <li>the returned format will always be lower-case</li>
-     *   <li>if a conversion is necessary the target format will be returned:
-     *       e.g. if "bmp" should be converted to a "png": "png" will be returned</li>
-     *   <li>if no conversion is necessary, the sourceFormat (in lower-case) will be returned</li>
-     *   <li>if sourceFormat is {@code null}, {@code null} will be returned</li>
-     * </ul>If no or {@code null}
-     * if no conversion is necessary.
-     * @param sourceFormat format of the source file (case does not matter): e.g. jpg, JpeG, png, ..
-     * @return the target format for the given sourceFormat (see details in the method description)
+     * <li>the case of the sourceFormat does not matter</li>
+     * <li>the returned format will always be lower-case</li>
+     * <li>if a conversion is necessary the target format will be returned: e.g.
+     * if "bmp" should be converted to a "png": "png" will be returned</li>
+     * <li>if no conversion is necessary, the sourceFormat (in lower-case) will
+     * be returned</li>
+     * <li>if sourceFormat is {@code null}, {@code null} will be returned</li>
+     * </ul>
+     * 
+     * @param sourceFormat format of the source file (case does not matter):
+     *            e.g. jpg, JpeG, png, ..
+     * @return the target format for the given sourceFormat (see details in the
+     *         method description)
      */
     public String getTargetFormat(String sourceFormat) {
         if (sourceFormat == null) {
