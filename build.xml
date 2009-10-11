@@ -483,6 +483,9 @@ lastSrcDirModificationDate = ${svn.date}
 	<target name="dist"
 	        depends="clean,deploy,srcjar,prepare_ftp"
 	        description="Make a distribution (buld and pack everything)">
+		<checksum file="${target.src.file}"
+		          dir="${path.build}"
+		          algorithm="SHA" />
 		<echo message="Distribution is ready (the jupload web site has been exported in ${path.temp})"
 		      level="info" />
 	</target>
