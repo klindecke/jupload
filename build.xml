@@ -430,12 +430,11 @@ lastSrcDirModificationDate = ${svn.date}
 				<include name="*.jardesc" />
 			</fileset>
 		</jar>
+		<echo level="info"
+		      message="Generating SHA checksum in ${target.src.file}.sha" />
 		<checksum file="${target.src.file}"
 		          todir="${path.build}"
-		          algorithm="MD5"
-		          format="MD5SUM"
-		          property="target.src.md5sum" />
-		<echo level="info" message="MD5Sum generated [${target.src.md5sum}]" />
+		          algorithm="sha" />
 	</target>
 
 	<target name="-keystore.check">
@@ -483,11 +482,6 @@ lastSrcDirModificationDate = ${svn.date}
 	<target name="dist"
 	        depends="clean,deploy,srcjar,prepare_ftp"
 	        description="Make a distribution (buld and pack everything)">
-		<echo level="information"
-		      message="Generating SHA checksum (ignore standard ant output below, about MD5)" />
-		<checksum file="${target.src.file}"
-		          todir="${path.build}"
-		          algorithm="SHA" />
 		<echo message="Distribution is ready (the jupload web site has been exported in ${path.temp})"
 		      level="info" />
 	</target>
