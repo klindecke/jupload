@@ -857,12 +857,29 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <li>jpg and jpeg are distinct types.</li>
  * <li>gifs can only be converted if the user has installed JRE >= 1.6</li>
  * <li>the trailing semi-colon is optional</li>
- * <li>when the format is changed, the file-name will NOT change, but the
- * content-type will:<br />
- * example: <code>targetPictureFormat="bmp:png;"</code><br />
- * When you upload: <code>C:\myBitmap.bmp</code>, the filename will not be
+ * <li>when a file needs to be transformed, the content type will reflect the
+ * new picture format. the file extension will be changed dependant on the
+ * parameter <code>keepOriginalFileExtensionForConvertedImages</code>
+ * <ul>
+ * <li>example1:
+ * <ul>
+ * <li><code>targetPictureFormat="bmp:png;"</code></li>
+ * <li><code>keepOriginalFileExtensionForConvertedImages=false</code> (default)</li>
+ * </ul>
+ * When you upload: <code>C:\myBitmap.bmp</code>, the filename will be changed
+ * to <code>C:\myBitmap.png</code> and transferred to the server, and the
+ * content-type will be changed to "image/png"</li>
+ * <li>
+ * <li>example2:
+ * <ul>
+ * <li><code>targetPictureFormat="bmp:png;"</code></li>
+ * <li><code>keepOriginalFileExtensionForConvertedImages=true</code></li>
+ * </ul>
+ * When you upload: <code>C:\myBitmap.bmp</code>, the filename will NOT be
  * changed and transferred to the server, but the content-type will be changed
  * to "image/png"</li>
+ * </ul>
+ * </li>
  * </ul>
  * see {@link wjhk.jupload2.filedata.helper.ImageFileConversionInfo}<br />
  * see keepOriginalFileExtensionForConvertedImages</td>
