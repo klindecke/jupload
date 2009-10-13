@@ -123,9 +123,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private JUploadContext juploadContext = null;
 
     /**
-     * Contains the applet parameter of the same name. If a valid URL is
-     * given here, the navigator will get redirected to this page, after a
-     * successful upload.
+     * Contains the applet parameter of the same name. If a valid URL is given
+     * here, the navigator will get redirected to this page, after a successful
+     * upload.
      */
     private String afterUploadURL = UploadPolicy.DEFAULT_AFTER_UPLOAD_URL;
 
@@ -156,9 +156,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private File currentBrowsingDirectory = null;
 
     /**
-     * This parameter controls whether the applet generates a debug file
-     * or not. If true, this file contains the full debug output, whatever the
-     * current debugLevel is.
+     * This parameter controls whether the applet generates a debug file or not.
+     * If true, this file contains the full debug output, whatever the current
+     * debugLevel is.
      */
     private boolean debugGenerateFile = true;
 
@@ -169,8 +169,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private int debugLevel = UploadPolicy.DEFAULT_DEBUG_LEVEL;
 
     /**
-     * Stored value for the fileChooserIconFromFileContent applet
-     * property.
+     * Stored value for the fileChooserIconFromFileContent applet property.
      * 
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
@@ -191,20 +190,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String filenameEncoding = UploadPolicy.DEFAULT_FILENAME_ENCODING;
 
     /**
-     * Default value for the ftpCreateDirectoryStructure applet
-     * parameter
+     * Default value for the ftpCreateDirectoryStructure applet parameter
      */
     private boolean ftpCreateDirectoryStructure = UploadPolicy.DEFAULT_FTP_CREATE_DIRECTORY_STRUCTURE;
 
     /**
-     * Default value for the ftpCreateDirectoryStructure applet
-     * parameter
+     * Default value for the ftpCreateDirectoryStructure applet parameter
      */
     private boolean ftpTransfertBinary = UploadPolicy.DEFAULT_FTP_TRANSFERT_BINARY;
 
     /**
-     * Default value for the ftpCreateDirectoryStructure applet
-     * parameter
+     * Default value for the ftpCreateDirectoryStructure applet parameter
      */
     private boolean ftpTransfertPassive = UploadPolicy.DEFAULT_FTP_TRANSFERT_PASSIVE;
 
@@ -242,22 +238,20 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private int messageId = 1;
 
     /**
-     * The applet will do as may HTTP requests to upload all files, with
-     * the number as a maximum number of files for each HTTP request. <BR>
+     * The applet will do as may HTTP requests to upload all files, with the
+     * number as a maximum number of files for each HTTP request. <BR>
      * Default : -1
      */
     private int nbFilesPerRequest = UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST;
 
     /**
-     * Current value (or default value) of the maxChunkSize applet
-     * parameter. <BR>
+     * Current value (or default value) of the maxChunkSize applet parameter. <BR>
      * Default : Long.MAX_VALUE
      */
     private long maxChunkSize = UploadPolicy.DEFAULT_MAX_CHUNK_SIZE;
 
     /**
-     * Current value (or default value) of the maxFileSize applet
-     * parameter. <BR>
+     * Current value (or default value) of the maxFileSize applet parameter. <BR>
      * Default : Long.MAX_VALUE
      */
     private long maxFileSize = UploadPolicy.DEFAULT_MAX_FILE_SIZE;
@@ -301,8 +295,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String urlToSendErrorTo = UploadPolicy.DEFAULT_URL_TO_SEND_ERROR_TO;
 
     /**
-     * Optional name of a form (in the same document like the applet)
-     * which is used to populate POST parameters.
+     * Optional name of a form (in the same document like the applet) which is
+     * used to populate POST parameters.
      */
     private String formData = UploadPolicy.DEFAULT_FORMDATA;
 
@@ -554,10 +548,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * The default behavior (see {@link DefaultUploadPolicy}) is to check that
-     * the stringUploadSuccess applet parameter is present in the
-     * response from the server. The return is tested, in the order below: <DIR>
-     * <LI>False, if the stringUploadError is found. An error message is then
-     * displayed. <LI>
+     * the stringUploadSuccess applet parameter is present in the response from
+     * the server. The return is tested, in the order below: <DIR> <LI>False, if
+     * the stringUploadError is found. An error message is then displayed. <LI>
      * True, if the stringUploadSuccess is null or empty (no test at all). <LI>
      * True, if the stringUploadSuccess string is present in the
      * serverOutputBody. <LI>True, If previous condition is not filled, but the
@@ -1034,10 +1027,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
-    /**
-     * @throws JUploadException
-     * @see UploadPolicy#getUploadName(FileData, int)
-     */
+    /** @see UploadPolicy#getUploadName(FileData, int) */
     public String getUploadName(FileData fileData, int index)
             throws JUploadException {
         // This is the original way of working of JUpload.
@@ -1054,6 +1044,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throw new JUploadException("httpUploadParameterType '"
                     + this.httpUploadParameterType + "' is not implemented.");
         }
+    }
+
+    /** @see UploadPolicy#getHttpUploadParameterName() */
+    public String getHttpUploadParameterName() {
+        return this.httpUploadParameterName;
     }
 
     /**
@@ -1078,6 +1073,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // Ok, we're happy with the given value. Let's store it.
         this.httpUploadParameterName = httpUploadParameterName;
+    }
+
+    /** @see UploadPolicy#getHttpUploadParameterType() */
+    public String getHttpUploadParameterType() {
+        return this.httpUploadParameterType;
     }
 
     /**
@@ -1358,9 +1358,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }// sendDebugInformation
 
     /**
-     * This method manages all applet parameters. It allows javascript
-     * to update their value, for instance after the user chooses a value in a
-     * list ...
+     * This method manages all applet parameters. It allows javascript to update
+     * their value, for instance after the user chooses a value in a list ...
      * 
      * @throws JUploadException
      * @see wjhk.jupload2.policies.UploadPolicy#setProperty(java.lang.String,
@@ -1417,10 +1416,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * This method displays the applet parameter list, according to the
-     * current debugLevel. It is called by the {@link #setDebugLevel(int)}
-     * method. It should be override by any subclasses, that should display its
-     * own parameters, then call <I>super.displayParameterStatus()</I>.
+     * This method displays the applet parameter list, according to the current
+     * debugLevel. It is called by the {@link #setDebugLevel(int)} method. It
+     * should be override by any subclasses, that should display its own
+     * parameters, then call <I>super.displayParameterStatus()</I>.
      * 
      * @see UploadPolicy#displayParameterStatus()
      */
@@ -1615,8 +1614,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Set the debug level.
      * 
      * @param debugLevel The new debuglevel.
-     * @param displayAppletParameterList Flag. If set to true, the
-     *            applet's parameters are shown.
+     * @param displayAppletParameterList Flag. If set to true, the applet's
+     *            parameters are shown.
      */
     public synchronized void setDebugLevel(int debugLevel,
             boolean displayAppletParameterList) {
@@ -1968,11 +1967,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Set all specific headers defined in the specificHeaders applet
-     * parameter. This string is splitted, so that each header is added to the
-     * headers Vector. These headers are added to the headers list during
-     * applet initialization. There is currently no automatic way to
-     * remove the headers coming from specificHeaders, after initialization.
+     * Set all specific headers defined in the specificHeaders applet parameter.
+     * This string is splitted, so that each header is added to the headers
+     * Vector. These headers are added to the headers list during applet
+     * initialization. There is currently no automatic way to remove the headers
+     * coming from specificHeaders, after initialization.
      * 
      * @param specificHeaders
      */
@@ -2143,10 +2142,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * This methods allows the applet to store all messages (debug,
-     * warning, info, errors...) into a StringBuffer. If any problem occurs, the
-     * whole output (displayed or not by the displayDebug, for instance) can be
-     * stored in a file, or sent to the webmaster. This can help to identify and
+     * This methods allows the applet to store all messages (debug, warning,
+     * info, errors...) into a StringBuffer. If any problem occurs, the whole
+     * output (displayed or not by the displayDebug, for instance) can be stored
+     * in a file, or sent to the webmaster. This can help to identify and
      * correct problems that can occurs on the various computer configurations.
      * 
      * @param msg

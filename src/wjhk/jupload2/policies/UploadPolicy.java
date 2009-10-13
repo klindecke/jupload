@@ -1965,6 +1965,20 @@ public interface UploadPolicy {
      */
     public String getFormdata();
 
+    /**
+     * Retrieve the applet's "httpUploadParameterName" parameter.
+     * 
+     * @return The applet's httpUploadParameterName parameter.
+     */
+    public String getHttpUploadParameterName();
+
+    /**
+     * Retrieve the applet's "httpUploadParameterType" parameter.
+     * 
+     * @return The applet's httpUploadParameterType parameter.
+     */
+    public String getHttpUploadParameterType();
+    
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// miscellaneous methods
     // //////////////////////////////////////////////////////////////////////////////////////////////
