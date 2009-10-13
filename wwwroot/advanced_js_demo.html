@@ -118,6 +118,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	filenameEncoding = "";
 	formdata = "";
 	highQualityPreview = "";
+	keepOriginalFileExtensionForConvertedImages = "";
 	lang = "";
 	lookAndFeel = "";
 	maxChunkSize = "500000";
@@ -136,6 +137,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	sslVerifyCert = "";
 	stringUploadError = "";
 	stringUploadSuccess = "";
+	targetPictureFormat = "";
 
 	//Some parameters can only be choosen from an existing list:
 	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy", "FilesTogetherUploadPolicy"];
@@ -248,6 +250,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeParam("fileChooserImagePreview", fileChooserImagePreview);
 	writeParam("filenameEncoding", filenameEncoding);
 	writeParam("formdata", formdata);
+	writeParam("keepOriginalFileExtensionForConvertedImages", keepOriginalFileExtensionForConvertedImages);
 	writeParam("lang", lang);
 	writeParam("lookAndFeel", lookAndFeel);
 	writeParam("nbFilesPerRequest", nbFilesPerRequest);
@@ -264,6 +267,7 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeParam("sslVerifyCert", sslVerifyCert);
 	writeParam("stringUploadError", stringUploadError);
 	writeParam("stringUploadSuccess", stringUploadSuccess);
+	writeParam("targetPictureFormat", targetPictureFormat);
 	writeParam("urlToSendErrorTo", urlToSendErrorTo);
 	document.writeln('Java 1.5 or higher plugin required.');
 	document.writeln('</APPLET>');
@@ -351,6 +355,8 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeInputText("maxPicWidth", maxPicWidth, "");
 	writeInputText("realMaxPicHeight", realMaxPicHeight, '');
 	writeInputText("realMaxPicWidth", realMaxPicWidth, '');
+	writeInputText("targetPictureFormat", targetPictureFormat, '');
+	writeInputText("keepOriginalFileExtensionForConvertedImages", keepOriginalFileExtensionForConvertedImages, '');
 	document.writeln('</TABLE></TD></TR></TABLE>');
 	document.writeln('<HR>');
 	document.writeln('<BR><input type="submit" value="Test with these parameters (don\'t forget to click on this button after parameters changes)"><BR><BR>');
