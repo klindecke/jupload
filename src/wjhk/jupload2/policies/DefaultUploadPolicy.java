@@ -130,12 +130,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String afterUploadURL = UploadPolicy.DEFAULT_AFTER_UPLOAD_URL;
 
     /**
-     * Contains the allowedFileExtensions juploadContext parameter.
+     * Contains the allowedFileExtensions applet parameter.
      */
     private boolean allowHttpPersistent = UploadPolicy.DEFAULT_ALLOW_HTTP_PERSISTENT;
 
     /**
-     * Contains the allowedFileExtensions juploadContext parameter.
+     * Contains the allowedFileExtensions applet parameter.
      */
     private String allowedFileExtensions = UploadPolicy.DEFAULT_ALLOWED_FILE_EXTENSIONS;
 
@@ -207,6 +207,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * parameter
      */
     private boolean ftpTransfertPassive = UploadPolicy.DEFAULT_FTP_TRANSFERT_PASSIVE;
+
+    /** Default value for the httpUploadParameterName applet parameter */
+    private String httpUploadParameterName = UploadPolicy.DEFAULT_HTTP_UPLOAD_PARAMETER_NAME;
+
+    /** Default value for the httpUploadParameterType applet parameter */
+    private String httpUploadParameterType = UploadPolicy.DEFAULT_HTTP_UPLOAD_PARAMETER_TYPE;
 
     /**
      * The lang parameter, given to the juploadContext.
@@ -465,6 +471,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // DEPRECATED.
         setFilenameEncoding(juploadContext.getParameter(PROP_FILENAME_ENCODING,
                 DEFAULT_FILENAME_ENCODING));
+
+        setHttpUploadParameterName(juploadContext.getParameter(
+                PROP_HTTP_UPLOAD_PARAMETER_NAME,
+                DEFAULT_HTTP_UPLOAD_PARAMETER_NAME));
+        setHttpUploadParameterType(juploadContext.getParameter(
+                PROP_HTTP_UPLOAD_PARAMETER_TYPE,
+                DEFAULT_HTTP_UPLOAD_PARAMETER_TYPE));
 
         // get the maximum number of files to upload in one HTTP request.
         setNbFilesPerRequest(juploadContext.getParameter(
@@ -1021,11 +1034,77 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
-    /** @see UploadPolicy#getUploadName(FileData, int) */
-    public String getUploadName(FileData fileData, int index) {
+    /**
+     * @throws JUploadException
+     * @see UploadPolicy#getUploadName(FileData, int)
+     */
+    public String getUploadName(FileData fileData, int index)
+            throws JUploadException {
         // This is the original way of working of JUpload.
         // It can easily be modified, by using another UploadPolicy.
-        return "File" + index;
+        // See also the getHttpParameterType
+        if (this.httpUploadParameterType
+                .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ITERATION)) {
+            return this.httpUploadParameterName + index;
+        }
+        if (this.httpUploadParameterType
+                .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ARRAY)) {
+            return this.httpUploadParameterName + "[]";
+        } else {
+            throw new JUploadException("httpUploadParameterType '"
+                    + this.httpUploadParameterType + "' is not implemented.");
+        }
+    }
+
+    /**
+     * Setter for the {@link #httpUploadParameterName}. This value is used by
+     * the {@link #getUploadName(FileData, int)} method, to generate the name of
+     * the upload parameter that will contain the uploaded file.
+     * 
+     * @throws JUploadException
+     */
+    private void setHttpUploadParameterName(String httpUploadParameterName)
+            throws JUploadException {
+        // Some useful checks.
+        if (httpUploadParameterName == null) {
+            throw new JUploadException(
+                    "httpUploadParameterName may not be null");
+        }
+        // Control the parameter name content.
+        if (!httpUploadParameterName.matches("^[a-zA-Z0-9]+$")) {
+            throw new JUploadException(
+                    "httpUploadParameterName may only contain letters (lowercase or uppercase) and numbers.");
+        }
+
+        // Ok, we're happy with the given value. Let's store it.
+        this.httpUploadParameterName = httpUploadParameterName;
+    }
+
+    /**
+     * Setter for the {@link #httpUploadParameterType}. This value is used by
+     * the {@link #getUploadName(FileData, int)} method, to generate the name of
+     * the upload parameter that will contain the uploaded file. Depending on
+     * this value, the parameter will be an iteration or an array.
+     * 
+     * @throws JUploadException
+     */
+    private void setHttpUploadParameterType(String httpUploadParameterType)
+            throws JUploadException {
+        // Some useful checks.
+        if (httpUploadParameterType == null) {
+            throw new JUploadException(
+                    "httpUploadParameterType may not be null");
+        }
+        // List of allowed values
+        if (httpUploadParameterType
+                .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ARRAY)
+                || httpUploadParameterType
+                        .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ITERATION)) {
+            this.httpUploadParameterType = httpUploadParameterType;
+        } else {
+            throw new JUploadException("'" + this.httpUploadParameterType
+                    + "' is not an allowed value for httpUploadParameterType.");
+        }
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#beforeUpload() */

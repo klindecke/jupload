@@ -326,6 +326,33 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * picture is of the best available quality.</td>
  * </tr>
  * <tr>
+ * <td>httpParameterName</td>
+ * <td>File<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<BR>
+ * since 4.5.0</td>
+ * <td>Contains the parameter name, that will be used to send the file in the
+ * HTTP upload request. The default value (File), associated with the default
+ * value for httpParameterType (see below), makes all file be uploaded with name
+ * from File0 to FileN (when there are N+1 file to upload).<BR>
+ * Put another value, of your server part script need a particular parameter
+ * name to work properly.</td>
+ * </tr>
+ * <tr>
+ * <td>httpParameterType</td>
+ * <td>Iteration<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<BR>
+ * since 4.5.0</td>
+ * <td>Allowed values are: <DIR>
+ * <LI>Iteration: Used to have the attribute property that actually contains the
+ * file be named File0 to FileN (if you have N+1 uploaded files). This is the
+ * default behavior. In this case, your server script should look for POST
+ * properties, named 'File0' to 'FileN'</LI>
+ * <LI>Array: Used if your server script want to receive one array, that will
+ * contain all uploaded files.</LI></DIR></td>
+ * </tr>
+ * <tr>
  * <td>lang</td>
  * <td>Navigator language <br>
  * <br>
@@ -1063,6 +1090,16 @@ public interface UploadPolicy {
     public final static String PROP_HIGH_QUALITY_PREVIEW = "highQualityPreview";
 
     /**
+     * Parameter/Property name for specifying high quality previews.
+     */
+    public final static String PROP_HTTP_UPLOAD_PARAMETER_NAME = "httpUploadParameterName";
+
+    /**
+     * Parameter/Property name for specifying high quality previews.
+     */
+    public final static String PROP_HTTP_UPLOAD_PARAMETER_TYPE = "httpUploadParameterType";
+
+    /**
      * Parameter/Property name for specifying the UI language
      */
     public final static String PROP_LANG = "lang";
@@ -1211,6 +1248,34 @@ public interface UploadPolicy {
 
     /***************************************************************************
      * ************************************************************************
+     * ************************* LIST OF ALLOWED VALUES *********************
+     * ************************************************************************
+     **************************************************************************/
+
+    /**
+     * Indicates that, in the HTTP upload request, the parameter that containts the uploaded files is an Iteration. For instance: from File0 to FileN (for N+1 files). 
+     */
+    public final String HTTPUPLOADPARAMETERTYPE_ITERATION = "Iteration";
+
+    /**
+     * Indicates that, in the HTTP upload request, the parameter that containts the uploaded files is an Iteration. For instance: from File0 to FileN (for N+1 files). 
+     */
+    public final String HTTPUPLOADPARAMETERTYPE_ARRAY = "Array";
+    
+    /** Indicates that the log window is always visible. */
+    public final String SHOWLOGWINDOW_TRUE = "true";
+
+    /** Indicates that the log window is always hidden. */
+    public final String SHOWLOGWINDOW_FALSE = "false";
+
+    /**
+     * Indicates that the log window is hidden, and will become visible only
+     * when an error occurs.
+     */
+    public final String SHOWLOGWINDOW_ONERROR = "onError";
+    
+    /***************************************************************************
+     * ************************************************************************
      * ************************* LIST OF DEFAULT VALUES **********************
      * ************************************************************************
      **************************************************************************/
@@ -1306,6 +1371,12 @@ public interface UploadPolicy {
 
     /** Default value for parameter "highQualityPreview". */
     public final static boolean DEFAULT_HIGH_QUALITY_PREVIEW = false;
+
+    /** Default value for parameter "httpParameterName". */
+    public final static String DEFAULT_HTTP_UPLOAD_PARAMETER_NAME = "File";
+
+    /** Default value for parameter "httpParameterName". */
+    public final static String DEFAULT_HTTP_UPLOAD_PARAMETER_TYPE = HTTPUPLOADPARAMETERTYPE_ITERATION;
 
     /** Default value for parameter "lookAndFeel". */
     public final static String DEFAULT_LOOK_AND_FEEL = "";
@@ -1408,8 +1479,7 @@ public interface UploadPolicy {
      * Default value for parameter "targetPictureFormat".
      */
     public final static String DEFAULT_TARGET_PICTURE_FORMAT = null;
-    
-    
+
     /**
      * default value for parameter "keepOriginalFileExtensionForConvertedImages"
      */
@@ -1431,24 +1501,6 @@ public interface UploadPolicy {
      * @since 2.9.2rc4
      */
     public final static String DEFAULT_FORMDATA = null;
-
-    /***************************************************************************
-     * ************************************************************************
-     * ************************* LIST OF ALLOWED VALUES *********************
-     * ************************************************************************
-     **************************************************************************/
-
-    /** Indicates that the log window is always visible. */
-    public final String SHOWLOGWINDOW_TRUE = "true";
-
-    /** Indicates that the log window is always hidden. */
-    public final String SHOWLOGWINDOW_FALSE = "false";
-
-    /**
-     * Indicates that the log window is hidden, and will become visible only
-     * when an error occurs.
-     */
-    public final String SHOWLOGWINDOW_ONERROR = "onError";
 
     /***************************************************************************
      * *************************************************************************
@@ -1836,15 +1888,18 @@ public interface UploadPolicy {
      * Get an upload filename, that is to be send in the HTTP upload request.
      * This is the name part of the Content-Disposition header. That is: this is
      * the name under which you can manage the file (for instance in the
-     * _FILES[$name] in PHP) and not the filename of the original file.
+     * _FILES[$name] in PHP) and not the filename of the original file. <BR>If you're using one of the
+     * core JUpload {@link UploadPolicy}, the value for this parameter is controled by the applet
+     * parameters: targetPictureFormat and keepOriginalFileExtensionForConvertedImages. 
      * 
      * @param fileData The file data whose upload name must be calculated.
      * @param index index of the file in the current request to the server (from
      *            0 to n)
      * @return The name part of the Content-Disposition header.
+     * @throws JUploadException 
      * @see #getUploadFilename(FileData, int)
      */
-    public String getUploadName(FileData fileData, int index);
+    public String getUploadName(FileData fileData, int index) throws JUploadException;
 
     /**
      * Returns the current URL where error log must be posted. See <a

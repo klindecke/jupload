@@ -159,14 +159,6 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
     }
 
     /**
-     * @see UploadPolicy#getUploadName(FileData, int)
-     */
-    @Override
-    public String getUploadName(FileData fileData, int index) {
-        return "userpicture";
-    }
-
-    /**
      * This method checks that an album id has been given, and then stores the
      * number of files that are to be uploaded, before upload, then call its
      * superclass. This number is then used to display to the user the list of
