@@ -3,6 +3,9 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- [Minor] Replace juploadContext by applet in the DefaultUploadPolicy.java comments.
+
+- Generalize the use of httpUploadParameterName and httpUploadParameterType applet parameter to all upload data (md5, path...)
 
 - Response to [Help] pngs: alpha-transparency lost
 example: after uploading this pic 

@@ -118,6 +118,8 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	filenameEncoding = "";
 	formdata = "";
 	highQualityPreview = "";
+	httpUploadParameterName = "";
+	httpUploadParameterType = "";
 	keepOriginalFileExtensionForConvertedImages = "";
 	lang = "";
 	lookAndFeel = "";
@@ -141,6 +143,8 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 
 	//Some parameters can only be choosen from an existing list:
 	uploadPolicyList = ["", "DefaultUploadPolicy", "FileByFileUploadPolicy", "PictureUploadPolicy", "CoppermineUploadPolicy", "FilesTogetherUploadPolicy"];
+	
+	httpUploadParameterTypeList = ["", "Iteration", "Array"];
 	//eo: esperanto
 	//hr: croatian
 	//il: hebrew
@@ -250,6 +254,8 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeParam("fileChooserImagePreview", fileChooserImagePreview);
 	writeParam("filenameEncoding", filenameEncoding);
 	writeParam("formdata", formdata);
+	writeParam("httpUploadParameterName", httpUploadParameterName);
+	writeParam("httpUploadParameterType", httpUploadParameterType);
 	writeParam("keepOriginalFileExtensionForConvertedImages", keepOriginalFileExtensionForConvertedImages);
 	writeParam("lang", lang);
 	writeParam("lookAndFeel", lookAndFeel);
@@ -328,7 +334,9 @@ sourceforge.jupload.net. <BR>That also can be a Tomcat server, where the wwwroot
 	writeBooleanInputSelect("allowHttpPersistent", allowHttpPersistent, "");
 	writeInputText("browsingDirectory", browsingDirectory, "");
 	writeInputText("filenameEncoding", filenameEncoding, "");
-	writeInputText("formdata", formdata, "seems to not work, when the applet tag is generated in javascript, like in this page");
+	writeInputText("formdata", formdata, "");
+	writeInputText("httpUploadParameterName", httpUploadParameterName, "");
+	writeInputSelect("httpUploadParameterType", httpUploadParameterType, httpUploadParameterTypeList, '');
 	document.writeln('</TABLE></TD><TD><TABLE BORDER=0>');
 	writeBooleanInputSelect("readCookieFromNavigator", readCookieFromNavigator, "");	
 	writeInputSelect("serverProtocol", serverProtocol, serverProtocolList, '');

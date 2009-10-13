@@ -1,5 +1,5 @@
 
-Next release
+v4.5.0
 - [Medium, Picture mode]
   * parameter targetPictureFormat is now supported and can take a list of conversion formats
   * new parameter keepOriginalFileExtensionForConvertedImages to let the user decide if she 
@@ -12,6 +12,8 @@ query, containing an empty line in the headers)
 - [Minor] The formData parameter now accepts form names that contain a minus (-) sign in the name.
 - [Minor] If the formData contains a form name which is present two times on the HTML page, the applet no more ignore it. It takes
 the first form of this name.
+- [Minor] Add of the httpUploadParameterName and httpUploadParameterType applet parameter: allow to better control the parameter name 
+and format (array or iteration) in the HTTP upload request. To be generalized to all upload data (md5, path...) in next version.
 
 v4.4.0
 
