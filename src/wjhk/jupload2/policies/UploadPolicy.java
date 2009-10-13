@@ -353,6 +353,22 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * contain all uploaded files.</LI></DIR></td>
  * </tr>
  * <tr>
+ * <td>keepOriginalFileExtensionForConvertedImages</td>
+ * <td><i>false</i></td>
+ * <td>is only relevant, if targetPictureFormat is specified.<br />
+ * <ul>
+ * <li>false (default): <br />
+ * If you upload the file 'test.png' and it is converted to 'jpg', the
+ * fileextension will be changed, so that the server will receive this filename:
+ * 'test.jpg'</li>
+ * <li>true: <br />
+ * If you upload the file 'test.png' and it is converted to 'jpg', the
+ * fileextension will NOT be changed, so that the server will receive the
+ * original filename: 'test.png'</li>
+ * </ul>
+ * </td>
+ * </tr>
+ * <tr>
  * <td>lang</td>
  * <td>Navigator language <br>
  * <br>
@@ -911,24 +927,6 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * see {@link wjhk.jupload2.filedata.helper.ImageFileConversionInfo}<br />
  * see keepOriginalFileExtensionForConvertedImages</td>
  * </tr>
- * 
- * <tr>
- * <td>keepOriginalFileExtensionForConvertedImages</td>
- * <td><i>false</i></td>
- * <td>is only relevant, if targetPictureFormat is specified.<br />
- * <ul>
- * <li>false (default): <br />
- * If you upload the file 'test.png' and it is converted to 'jpg', the
- * fileextension will be changed, so that the server will receive this filename:
- * 'test.jpg'</li>
- * <li>true: <br />
- * If you upload the file 'test.png' and it is converted to 'jpg', the
- * fileextension will NOT be changed, so that the server will receive the
- * original filename: 'test.png'</li>
- * </ul>
- * </td>
- * </tr>
- * 
  * <tr>
  * <td><b>uploadPolicy</b></td>
  * <td>DefaultUploadPolicy <br>
