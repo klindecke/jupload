@@ -123,7 +123,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private JUploadContext juploadContext = null;
 
     /**
-     * Contains the juploadContext parameter of the same name. If a valid URL is
+     * Contains the applet parameter of the same name. If a valid URL is
      * given here, the navigator will get redirected to this page, after a
      * successful upload.
      */
@@ -156,7 +156,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private File currentBrowsingDirectory = null;
 
     /**
-     * This parameter controls whether the juploadContext generates a debug file
+     * This parameter controls whether the applet generates a debug file
      * or not. If true, this file contains the full debug output, whatever the
      * current debugLevel is.
      */
@@ -164,12 +164,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * The current debug level. This control the details of information that is
-     * written in the log part of the juploadContext.
+     * written in the log part of the applet.
      */
     private int debugLevel = UploadPolicy.DEFAULT_DEBUG_LEVEL;
 
     /**
-     * Stored value for the fileChooserIconFromFileContent juploadContext
+     * Stored value for the fileChooserIconFromFileContent applet
      * property.
      * 
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
@@ -177,7 +177,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private int fileChooserIconFromFileContent = UploadPolicy.DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT;
 
     /**
-     * Stored value for the fileChooserIconSize juploadContext property.
+     * Stored value for the fileChooserIconSize applet property.
      * 
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
      */
@@ -185,25 +185,25 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * This String contains the filenameEncoding parameter. All details about
-     * the available juploadContext parameters are displayed in the <a
+     * the available applet parameters are displayed in the <a
      * href="UploadPolicy.html@parameters">Upload Policy javadoc page</a>.
      */
     private String filenameEncoding = UploadPolicy.DEFAULT_FILENAME_ENCODING;
 
     /**
-     * Default value for the ftpCreateDirectoryStructure juploadContext
+     * Default value for the ftpCreateDirectoryStructure applet
      * parameter
      */
     private boolean ftpCreateDirectoryStructure = UploadPolicy.DEFAULT_FTP_CREATE_DIRECTORY_STRUCTURE;
 
     /**
-     * Default value for the ftpCreateDirectoryStructure juploadContext
+     * Default value for the ftpCreateDirectoryStructure applet
      * parameter
      */
     private boolean ftpTransfertBinary = UploadPolicy.DEFAULT_FTP_TRANSFERT_BINARY;
 
     /**
-     * Default value for the ftpCreateDirectoryStructure juploadContext
+     * Default value for the ftpCreateDirectoryStructure applet
      * parameter
      */
     private boolean ftpTransfertPassive = UploadPolicy.DEFAULT_FTP_TRANSFERT_PASSIVE;
@@ -215,12 +215,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String httpUploadParameterType = UploadPolicy.DEFAULT_HTTP_UPLOAD_PARAMETER_TYPE;
 
     /**
-     * The lang parameter, given to the juploadContext.
+     * The lang parameter, given to the applet.
      */
     private String lang = UploadPolicy.DEFAULT_LANG;
 
     /**
-     * Contains the last exception that occurs in the juploadContext.
+     * Contains the last exception that occurs in the applet.
      * 
      * @see #displayErr(String, Exception)
      */
@@ -242,21 +242,21 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private int messageId = 1;
 
     /**
-     * The juploadContext will do as may HTTP requests to upload all files, with
+     * The applet will do as may HTTP requests to upload all files, with
      * the number as a maximum number of files for each HTTP request. <BR>
      * Default : -1
      */
     private int nbFilesPerRequest = UploadPolicy.DEFAULT_NB_FILES_PER_REQUEST;
 
     /**
-     * Current value (or default value) of the maxChunkSize juploadContext
+     * Current value (or default value) of the maxChunkSize applet
      * parameter. <BR>
      * Default : Long.MAX_VALUE
      */
     private long maxChunkSize = UploadPolicy.DEFAULT_MAX_CHUNK_SIZE;
 
     /**
-     * Current value (or default value) of the maxFileSize juploadContext
+     * Current value (or default value) of the maxFileSize applet
      * parameter. <BR>
      * Default : Long.MAX_VALUE
      */
@@ -291,7 +291,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * If an error occurs during upload, and this attribute is not null, the
-     * juploadContext asks the user if wants to send the debug ouput to the
+     * applet asks the user if wants to send the debug ouput to the
      * administrator. If yes, the full debug information is POSTed to this URL.
      * It's a little development on the server side to send a mail to the
      * webmaster, or just log this error into a log file.
@@ -301,7 +301,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     private String urlToSendErrorTo = UploadPolicy.DEFAULT_URL_TO_SEND_ERROR_TO;
 
     /**
-     * Optional name of a form (in the same document like the juploadContext)
+     * Optional name of a form (in the same document like the applet)
      * which is used to populate POST parameters.
      */
     private String formData = UploadPolicy.DEFAULT_FORMDATA;
@@ -397,8 +397,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * @param juploadContext The current juploadContext. As the reference to the
      *            current upload policy exists almost everywhere, this parameter
      *            allows any access to anyone on the juploadContext... including
-     *            reading the juploadContext parameters.
-     * @throws JUploadException If an juploadContext parameter is invalid
+     *            reading the applet parameters.
+     * @throws JUploadException If an applet parameter is invalid
      */
     public DefaultUploadPolicy(JUploadContext juploadContext)
             throws JUploadException {
@@ -554,7 +554,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * The default behavior (see {@link DefaultUploadPolicy}) is to check that
-     * the stringUploadSuccess juploadContext parameter is present in the
+     * the stringUploadSuccess applet parameter is present in the
      * response from the server. The return is tested, in the order below: <DIR>
      * <LI>False, if the stringUploadError is found. An error message is then
      * displayed. <LI>
@@ -629,7 +629,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     && !getStringUploadError().equals("")) {
                 matcherError = this.patternError.matcher(line);
                 if (matcherError.matches()) {
-                    String errmsg = "An error occurs during upload (but the juploadContext couldn't find the error message)";
+                    String errmsg = "An error occurs during upload (but the applet couldn't find the error message)";
                     if (matcherError.groupCount() > 0) {
                         if (!matcherError.group(1).equals("")) {
                             // Let's do a (very simple) formatting: one line to
@@ -662,7 +662,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     && !getStringUploadWarning().equals("")) {
                 matcherWarning = this.patternWarning.matcher(line);
                 if (matcherWarning.matches()) {
-                    String warnmsg = "A warning occurs during upload (but the juploadContext couldn't find the warning message)";
+                    String warnmsg = "A warning occurs during upload (but the applet couldn't find the warning message)";
                     if (matcherWarning.groupCount() > 0) {
                         if (!matcherWarning.group(1).equals("")) {
                             warnmsg = matcherWarning.group(1);
@@ -817,7 +817,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * This methods allow the upload policy to override the default disposition
-     * of the components on the juploadContext.
+     * of the components on the applet.
      * 
      * @see UploadPolicy#addComponentsToJUploadPanel(JUploadPanel)
      */
@@ -825,7 +825,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // Set the global layout of the panel.
         jUploadPanel.setLayout(new BoxLayout(jUploadPanel, BoxLayout.Y_AXIS));
 
-        // The top panel is the upper part of the juploadContext: above the file
+        // The top panel is the upper part of the applet: above the file
         // list.
         // JPanel topPanel = new JPanel();
         JPanel topPanel = createTopPanel(jUploadPanel.getBrowseButton(),
@@ -952,7 +952,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // Display the message to the user.
         if (getDebugLevel() >= 100) {
-            // Debug has been put on (by the user or by juploadContext
+            // Debug has been put on (by the user or by applet
             // configuration).
             alertStr(exceptionClassName + logMsg);
         } else {
@@ -965,7 +965,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // current user.
         if (this.juploadContext.getUploadPanel() != null
                 && getDebugLevel() >= 99) {
-            // Ok, the juploadContext has been fully built.
+            // Ok, the applet has been fully built.
             this.juploadContext.getUploadPanel().copyLogWindow();
             alert("messageLogWindowCopiedToClipboard");
         }
@@ -1358,7 +1358,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }// sendDebugInformation
 
     /**
-     * This method manages all juploadContext parameters. It allows javascript
+     * This method manages all applet parameters. It allows javascript
      * to update their value, for instance after the user chooses a value in a
      * list ...
      * 
@@ -1411,13 +1411,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
         } else if (prop.equals(PROP_URL_TO_SEND_ERROR_TO)) {
             setUrlToSendErrorTo(value);
         } else {
-            displayWarn("Unknown juploadContext parameter: " + prop
+            displayWarn("Unknown applet parameter: " + prop
                     + " (in DefaultUploadPolicy.setProperty)");
         }
     }
 
     /**
-     * This method displays the juploadContext parameter list, according to the
+     * This method displays the applet parameter list, according to the
      * current debugLevel. It is called by the {@link #setDebugLevel(int)}
      * method. It should be override by any subclasses, that should display its
      * own parameters, then call <I>super.displayParameterStatus()</I>.
@@ -1432,13 +1432,13 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // /////////////////////////////////////////////////////////////////////////////
         // Let's display some information to the user, about the received
         // parameters.
-        displayInfo("JUpload juploadContext, version "
+        displayInfo("JUpload applet, version "
                 + this.juploadContext.getVersion() + " (compiled: "
                 + this.juploadContext.getBuildDate()
                 + "), available at http://jupload.sourceforge.net/");
         displayDebug("Java version: " + System.getProperty("java.version"), 30);
 
-        displayDebug("List of all juploadContext parameters:", 30);
+        displayDebug("List of all applet parameters:", 30);
         displayDebug("  language: "
                 + this.resourceBundle.getLocale().getLanguage(), 30);
         displayDebug("  country: "
@@ -1616,7 +1616,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * 
      * @param debugLevel The new debuglevel.
      * @param displayAppletParameterList Flag. If set to true, the
-     *            juploadContext's parameters are shown.
+     *            applet's parameters are shown.
      */
     public synchronized void setDebugLevel(int debugLevel,
             boolean displayAppletParameterList) {
@@ -1631,7 +1631,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
         this.debugLevel = debugLevel;
 
-        // Let's display the current juploadContext parameters.
+        // Let's display the current applet parameters.
         if (displayAppletParameterList) {
             displayParameterStatus();
         }
@@ -1752,7 +1752,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 && !lookAndFeel.equals("java")) {
             // We try to call the UIManager.setLookAndFeel() method. We catch
             // all possible exceptions, to prevent
-            // that the juploadContext is blocked.
+            // that the applet is blocked.
             try {
                 if (!lookAndFeel.equals("system")) {
                     // Correction given by Fritz. Thanks to him.
@@ -1869,7 +1869,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     public void setPostURL(String postURL) throws JUploadException {
         // Be more forgiving about postURL:
         // - If none is specified, use the original DocumentBase of the
-        // juploadContext.
+        // applet.
         // - If a non-absolute URI (an URI without protocol and server) is
         // specified,
         // prefix it with "http://servername"
@@ -1913,7 +1913,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     displayDebug("Getting serverProtocol from HEAD request", 30);
                     value = new HttpConnect(this).getProtocol();
                 } catch (Exception e) {
-                    // If we throw an error here, we prevent the juploadContext
+                    // If we throw an error here, we prevent the applet
                     // to
                     // start. So we just log it, and try the default protocol
                     displayErr("Unable to access to the postURL: '"
@@ -1930,7 +1930,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 displayDebug("Checking any redirect, from HEAD request", 30);
                 new HttpConnect(this).getProtocol();
             } catch (Exception e) {
-                // If we throw an error here, we prevent the juploadContext to
+                // If we throw an error here, we prevent the applet to
                 // start. So we just log it, and try the default protocol
                 displayErr("Unknown to get protocol in the given postURL ("
                         + getPostURL() + "), due to error: " + e.getMessage(),
@@ -1968,10 +1968,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * Set all specific headers defined in the specificHeaders juploadContext
+     * Set all specific headers defined in the specificHeaders applet
      * parameter. This string is splitted, so that each header is added to the
      * headers Vector. These headers are added to the headers list during
-     * juploadContext initialization. There is currently no automatic way to
+     * applet initialization. There is currently no automatic way to
      * remove the headers coming from specificHeaders, after initialization.
      * 
      * @param specificHeaders
@@ -2118,7 +2118,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     // //////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Delete the current log. (called upon juploadContext termination)
+     * Delete the current log. (called upon applet termination)
      */
     public synchronized void deleteLog() {
         if (this.debugGenerateFile) {
@@ -2143,7 +2143,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * This methods allows the juploadContext to store all messages (debug,
+     * This methods allows the applet to store all messages (debug,
      * warning, info, errors...) into a StringBuffer. If any problem occurs, the
      * whole output (displayed or not by the displayDebug, for instance) can be
      * stored in a file, or sent to the webmaster. This can help to identify and
@@ -2250,7 +2250,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * This method returns the response for the
      * {@link JUploadFileFilter#accept(File)} which just calls this method. This
      * method checks that the file extension corresponds to the
-     * allowedFileExtensions juploadContext parameter.
+     * allowedFileExtensions applet parameter.
      * 
      * @see UploadPolicy#fileFilterAccept(File)
      */
@@ -2302,7 +2302,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * Set the last exception.
      * 
-     * @param exception The last exception that occurs into the juploadContext.
+     * @param exception The last exception that occurs into the applet.
      */
     public void setLastException(JUploadException exception) {
         this.lastException = exception;
