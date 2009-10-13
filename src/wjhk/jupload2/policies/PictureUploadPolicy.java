@@ -774,7 +774,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                     .getTargetFormatOrNull(fileData.getFileExtension());
             if (targetFormatOrNull != null) {
 
-                int endIndex = fileName.length() - targetFormatOrNull.length();
+                int endIndex = fileName.length()
+                        - fileData.getFileExtension().length();
                 StringBuilder newFilename = new StringBuilder(fileName
                         .substring(0, endIndex));
                 newFilename.append(targetFormatOrNull);
