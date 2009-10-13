@@ -41,8 +41,8 @@
  * document.writeln('<embed ' + 'type="application/x-java-applet;version=1.5" \
  * CODE = "wjhk.jupload2.EmptyApplet" \ ARCHIVE =
  * "plugins/jupload/wjhk.jupload.jar" \ NAME = "EmptyApplet" \ WIDTH = "0" \
- * HEIGHT = "0" ' + 'scriptable=false ' +'pluginspage="http://java.sun.com/products/plugin/index.html#download"><noembed><xmp>')
- * ; //--></script> <applet CODE = "wjhk.jupload2.EmptyApplet" ARCHIVE =
+ * HEIGHT = "0" ' + 'scriptable=false ' +'pluginspage="http://java.sun.com/products/plugin/index.html#download"><noembed><xmp>'
+ * ) ; //--></script> <applet CODE = "wjhk.jupload2.EmptyApplet" ARCHIVE =
  * "plugins/jupload/wjhk.jupload.jar" WIDTH = "0" HEIGHT = "0" NAME =
  * "EmptyApplet"></xmp> <PARAM NAME = CODE VALUE = "wjhk.jupload2.EmptyApplet" >
  * <PARAM NAME = ARCHIVE VALUE = "plugins/jupload/wjhk.jupload.jar" > <PARAM

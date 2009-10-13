@@ -1223,7 +1223,8 @@ public interface UploadPolicy {
     public final static String PROP_STRING_UPLOAD_WARNING = "stringUploadWarning";
 
     /**
-     * Parameter/Property name for specifying the target picture format conversions
+     * Parameter/Property name for specifying the target picture format
+     * conversions
      */
     public final static String PROP_TARGET_PICTURE_FORMAT = "targetPictureFormat";
 
@@ -1251,15 +1252,19 @@ public interface UploadPolicy {
      **************************************************************************/
 
     /**
-     * Indicates that, in the HTTP upload request, the parameter that containts the uploaded files is an Iteration. For instance: from File0 to FileN (for N+1 files). 
+     * Indicates that, in the HTTP upload request, the parameter that containts
+     * the uploaded files is an Iteration. For instance: from File0 to FileN
+     * (for N+1 files).
      */
     public final String HTTPUPLOADPARAMETERTYPE_ITERATION = "Iteration";
 
     /**
-     * Indicates that, in the HTTP upload request, the parameter that containts the uploaded files is an Iteration. For instance: from File0 to FileN (for N+1 files). 
+     * Indicates that, in the HTTP upload request, the parameter that containts
+     * the uploaded files is an Iteration. For instance: from File0 to FileN
+     * (for N+1 files).
      */
     public final String HTTPUPLOADPARAMETERTYPE_ARRAY = "Array";
-    
+
     /** Indicates that the log window is always visible. */
     public final String SHOWLOGWINDOW_TRUE = "true";
 
@@ -1271,7 +1276,7 @@ public interface UploadPolicy {
      * when an error occurs.
      */
     public final String SHOWLOGWINDOW_ONERROR = "onError";
-    
+
     /***************************************************************************
      * ************************************************************************
      * ************************* LIST OF DEFAULT VALUES **********************
@@ -1886,18 +1891,20 @@ public interface UploadPolicy {
      * Get an upload filename, that is to be send in the HTTP upload request.
      * This is the name part of the Content-Disposition header. That is: this is
      * the name under which you can manage the file (for instance in the
-     * _FILES[$name] in PHP) and not the filename of the original file. <BR>If you're using one of the
-     * core JUpload {@link UploadPolicy}, the value for this parameter is controled by the applet
-     * parameters: targetPictureFormat and keepOriginalFileExtensionForConvertedImages. 
+     * _FILES[$name] in PHP) and not the filename of the original file. <BR>
+     * If you're using one of the core JUpload {@link UploadPolicy}, the value
+     * for this parameter is controled by the applet parameters:
+     * targetPictureFormat and keepOriginalFileExtensionForConvertedImages.
      * 
      * @param fileData The file data whose upload name must be calculated.
      * @param index index of the file in the current request to the server (from
      *            0 to n)
      * @return The name part of the Content-Disposition header.
-     * @throws JUploadException 
+     * @throws JUploadException
      * @see #getUploadFilename(FileData, int)
      */
-    public String getUploadName(FileData fileData, int index) throws JUploadException;
+    public String getUploadName(FileData fileData, int index)
+            throws JUploadException;
 
     /**
      * Returns the current URL where error log must be posted. See <a
@@ -1976,7 +1983,7 @@ public interface UploadPolicy {
      * @return The applet's httpUploadParameterType parameter.
      */
     public String getHttpUploadParameterType();
-    
+
     // //////////////////////////////////////////////////////////////////////////////////////////////
     // /////////////////// miscellaneous methods
     // //////////////////////////////////////////////////////////////////////////////////////////////

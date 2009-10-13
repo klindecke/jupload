@@ -268,8 +268,8 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                         Object value = win.eval("document.forms[\"" + formname
                                 + "\"][" + i + "].value");
                         action = "elementType = win.eval";
-                        Object elementType = win.eval("document.forms[\"" + formname
-                                + "\"][" + i + "].type");
+                        Object elementType = win.eval("document.forms[\""
+                                + formname + "\"][" + i + "].type");
                         action = "elementClass = win.eval";
                         // elementClass seems to be not supported by IE7
                         // The next line prevents formData to be sent to the
@@ -284,8 +284,8 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                             String t = (String) etype;
                             if (t.equals("checkbox") || t.equals("radio")) {
                                 action = "on = win.eval";
-                                Object on = win.eval("document.forms[\"" + formname
-                                        + "\"][" + i + "].checked");
+                                Object on = win.eval("document.forms[\""
+                                        + formname + "\"][" + i + "].checked");
                                 if (on instanceof Boolean) {
                                     // Skip unchecked checkboxes and
                                     // radiobuttons

@@ -236,7 +236,7 @@ public class HTTPInputStreamReader {
      *            in the returned byte array.
      * @return The line, encoded from the input stream with the given charset
      * @throws IOException
-     * @throws JUploadException 
+     * @throws JUploadException
      */
     public static String readLine(PushbackInputStream inputStream,
             String charset, boolean includeCR) throws IOException,
@@ -266,7 +266,7 @@ public class HTTPInputStreamReader {
      * @return The byte array from the input stream, with or without a trailing
      *         CRLF
      * @throws IOException
-     * @throws JUploadException 
+     * @throws JUploadException
      */
     public static byte[] readLine(PushbackInputStream inputStream,
             boolean includeCR) throws IOException, JUploadException {

@@ -29,7 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.ImageObserver;
 import java.io.File;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -138,7 +137,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * the parsed {@link #targetPictureFormat} list
      */
-    private ImageFileConversionInfo imageFileConversionInfo = new ImageFileConversionInfo("");
+    private ImageFileConversionInfo imageFileConversionInfo = new ImageFileConversionInfo(
+            "");
 
     /**
      * Stored value for the fileChooserIconFromFileContent applet property.
@@ -598,7 +598,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     }
 
     public ImageFileConversionInfo getImageFileConversionInfo() {
-        return imageFileConversionInfo;
+        return this.imageFileConversionInfo;
     }
 
     /**
@@ -610,7 +610,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     void setTargetPictureFormat(String targetPictureFormat)
             throws JUploadException {
         this.targetPictureFormat = targetPictureFormat;
-        imageFileConversionInfo = new ImageFileConversionInfo(targetPictureFormat);
+        this.imageFileConversionInfo = new ImageFileConversionInfo(
+                targetPictureFormat);
     }
 
     /**
@@ -769,8 +770,8 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     public String getUploadFilename(FileData fileData, int index)
             throws JUploadException {
         String fileName = fileData.getFileName();
-        if (!keepOrigExtension) {
-            String targetFormatOrNull = imageFileConversionInfo
+        if (!this.keepOrigExtension) {
+            String targetFormatOrNull = this.imageFileConversionInfo
                     .getTargetFormatOrNull(fileData.getFileExtension());
             if (targetFormatOrNull != null) {
 

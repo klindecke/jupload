@@ -251,8 +251,9 @@ public class HTTPConnectionHelper extends OutputStream {
      *            if non chunked request or if it is not relevant.
      * @throws JUploadIOException
      */
-    public synchronized void initRequest(URL url, String method, boolean bChunkEnabled,
-            boolean bLastChunk) throws JUploadIOException {
+    public synchronized void initRequest(URL url, String method,
+            boolean bChunkEnabled, boolean bLastChunk)
+            throws JUploadIOException {
         // This method expects that the connection has not been initialized yet,
         // or that the previous request is finished.
         if (this.connectionStatus != STATUS_NOT_INITIALIZED
@@ -511,7 +512,8 @@ public class HTTPConnectionHelper extends OutputStream {
      *         StringBuffers: a.append(b).append(c);
      * @throws JUploadIOException
      */
-    public synchronized HTTPConnectionHelper append(int b) throws JUploadIOException {
+    public synchronized HTTPConnectionHelper append(int b)
+            throws JUploadIOException {
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(b);
         } else if (this.connectionStatus == STATUS_WRITING_REQUEST) {
@@ -539,7 +541,8 @@ public class HTTPConnectionHelper extends OutputStream {
      *         StringBuffers: a.append(b).append(c);
      * @throws JUploadIOException
      */
-    public synchronized HTTPConnectionHelper append(byte[] bytes) throws JUploadIOException {
+    public synchronized HTTPConnectionHelper append(byte[] bytes)
+            throws JUploadIOException {
 
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(bytes);
@@ -581,8 +584,8 @@ public class HTTPConnectionHelper extends OutputStream {
      *         StringBuffers: a.append(b).append(c);
      * @throws JUploadIOException
      */
-    public synchronized HTTPConnectionHelper append(byte[] bytes, int off, int len)
-            throws JUploadIOException {
+    public synchronized HTTPConnectionHelper append(byte[] bytes, int off,
+            int len) throws JUploadIOException {
 
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
             this.byteArrayEncoder.append(bytes);
@@ -621,7 +624,8 @@ public class HTTPConnectionHelper extends OutputStream {
      *             operation.
      * @see #append(byte[])
      */
-    public synchronized HTTPConnectionHelper append(String str) throws JUploadIOException {
+    public synchronized HTTPConnectionHelper append(String str)
+            throws JUploadIOException {
         this.uploadPolicy.displayDebug("[HTTPConnectionHelper append] " + str,
                 70);
         if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {

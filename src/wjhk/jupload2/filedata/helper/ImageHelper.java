@@ -305,14 +305,16 @@ public class ImageHelper implements ImageObserver {
             }
 
             // Third : the picture format is the same ?
-            String targetFormat = uploadPolicy.getImageFileConversionInfo().getTargetFormatOrNull(pictureFileData.getFileExtension());
-            if (hasToTransformPicture == null && targetFormat != null) {
-                    uploadPolicy
-                            .displayDebug(
-                                    this.pictureFileData.getFileName()
-                                            + " : hasToTransformPicture = true (targetPictureFormat)",
-                                    10);
-                    hasToTransformPicture = Boolean.TRUE;
+            String targetFormat = this.uploadPolicy
+                    .getImageFileConversionInfo().getTargetFormatOrNull(
+                            this.pictureFileData.getFileExtension());
+            if (this.hasToTransformPicture == null && targetFormat != null) {
+                this.uploadPolicy
+                        .displayDebug(
+                                this.pictureFileData.getFileName()
+                                        + " : hasToTransformPicture = true (targetPictureFormat)",
+                                10);
+                this.hasToTransformPicture = Boolean.TRUE;
             }
 
             // Fourth : should we resize the picture ?

@@ -370,7 +370,7 @@ public class UploadFileData implements FileData {
      * 
      * @param index The index of this file in the current request to the server.
      * @return The technical upload file name. Not used in FTP upload.
-     * @throws JUploadException 
+     * @throws JUploadException
      * 
      * @see UploadPolicy#getUploadName(FileData, int)
      */

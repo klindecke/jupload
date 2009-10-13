@@ -86,8 +86,8 @@ public class ImageReaderWriterHelper {
     ImageWriteParam imageWriterParam = null;
 
     /**
-     * Contains the target picture format (in lowercase): gif, jpg... It is used to find an
-     * ImageWriter, and to define the target filename.
+     * Contains the target picture format (in lowercase): gif, jpg... It is used
+     * to find an ImageWriter, and to define the target filename.
      */
     String targetPictureFormat;
 
@@ -111,7 +111,8 @@ public class ImageReaderWriterHelper {
         this.uploadPolicy = uploadPolicy;
         this.pictureFileData = pictureFileData;
 
-        targetPictureFormat = uploadPolicy.getImageFileConversionInfo().getTargetFormat(pictureFileData.getFileExtension());
+        this.targetPictureFormat = uploadPolicy.getImageFileConversionInfo()
+                .getTargetFormat(pictureFileData.getFileExtension());
     }
 
     // ////////////////////////////////////////////////////////////////////
@@ -119,13 +120,16 @@ public class ImageReaderWriterHelper {
     // ////////////////////////////////////////////////////////////////////
 
     /**
-     * returns the target picture format (lowercase, may be the same as the file extension)
-     * @return the target picture format (lowercase, may be the same as the file extension)
+     * returns the target picture format (lowercase, may be the same as the file
+     * extension)
+     * 
+     * @return the target picture format (lowercase, may be the same as the file
+     *         extension)
      */
     public String getTargetPictureFormat() {
-        return targetPictureFormat;
+        return this.targetPictureFormat;
     }
-    
+
     /**
      * Creates a FileImageOutputStream, and assign it as the output to the
      * imageWriter.
@@ -358,13 +362,13 @@ public class ImageReaderWriterHelper {
             // In the windows world, file extension may be in uppercase, which
             // is not compatible with the core Java API.
             Iterator<ImageWriter> iter = ImageIO
-                    .getImageWritersByFormatName(targetPictureFormat);
+                    .getImageWritersByFormatName(this.targetPictureFormat);
             if (!iter.hasNext()) {
                 // Too bad: no writer for the selected picture format
 
                 // A particular case: no gif support in JRE 1.5. A JRE upgrade
                 // must be done.
-                if (targetPictureFormat.equals("gif")
+                if (this.targetPictureFormat.equals("gif")
                         && System.getProperty("java.version").startsWith("1.5")) {
                     throw new JUploadIOException(
                             "gif pictures are not supported in Java 1.5. Please switch to JRE 1.6.");
@@ -384,7 +388,8 @@ public class ImageReaderWriterHelper {
                     // Let's select a good compromise between picture size
                     // and quality.
                     this.imageWriterParam
-                            .setCompressionQuality(uploadPolicy.getPictureCompressionQuality());
+                            .setCompressionQuality(this.uploadPolicy
+                                    .getPictureCompressionQuality());
                     // In some case, we need to force the Huffman tables:
                     ((JPEGImageWriteParam) this.imageWriterParam)
                             .setOptimizeHuffmanTables(true);

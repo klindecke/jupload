@@ -163,8 +163,8 @@ public class DefaultJUploadContext implements JUploadContext {
 
             // Creation of the Panel, containing all GUI objects for upload.
             this.logWindow = new JUploadTextArea(20, 20);
-            
-            //Now we can create the upload policy: the logWindow exists.
+
+            // Now we can create the upload policy: the logWindow exists.
             this.uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
 
             // getMainPanel().setLayout(new BorderLayout());
