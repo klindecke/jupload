@@ -267,9 +267,9 @@ public class UploadFileData implements FileData {
     }
 
     /** {@inheritDoc} */
-    public void appendFileProperties(ByteArrayEncoder bae)
+    public void appendFileProperties(ByteArrayEncoder bae, int index)
             throws JUploadIOException {
-        this.fileData.appendFileProperties(bae);
+        this.fileData.appendFileProperties(bae, index);
     }
 
     /** {@inheritDoc} */

@@ -1,4 +1,8 @@
 
+Next release
+- [Minor] httpUploadParameterName and httpUploadParameterType are now fully implemented, and changed a little. Check their definition, in the
+'howto customize' documentation. Also added the httpUploadParameterType oneFile Type.
+
 v4.5.0
 - [Medium, Picture mode]
   * parameter targetPictureFormat is now supported and can take a list of conversion formats

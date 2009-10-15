@@ -326,31 +326,36 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * picture is of the best available quality.</td>
  * </tr>
  * <tr>
- * <td>httpParameterName</td>
+ * <td>httpUploadParameterName</td>
  * <td>File<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<BR>
  * since 4.5.0</td>
  * <td>Contains the parameter name, that will be used to send the file in the
  * HTTP upload request. The default value (File), associated with the default
- * value for httpParameterType (see below), makes all file be uploaded with name
- * from File0 to FileN (when there are N+1 file to upload).<BR>
+ * value for httpUploadParameterType (see below), makes all file be uploaded
+ * with name from File0 to FileN (when there are N+1 file to upload).<BR>
  * Put another value, of your server part script need a particular parameter
  * name to work properly.</td>
  * </tr>
  * <tr>
- * <td>httpParameterType</td>
- * <td>Iteration<br>
+ * <td>httpUploadParameterType</td>
+ * <td>iteration<br>
  * <br>
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<BR>
  * since 4.5.0</td>
  * <td>Allowed values are: <DIR>
- * <LI>Iteration: Used to have the attribute property that actually contains the
- * file be named File0 to FileN (if you have N+1 uploaded files). This is the
- * default behavior. In this case, your server script should look for POST
- * properties, named 'File0' to 'FileN'</LI>
- * <LI>Array: Used if your server script want to receive one array, that will
- * contain all uploaded files.</LI></DIR></td>
+ * <LI><B>iteration</B>: Used to have the attribute property that actually
+ * contains the file be named File0 to FileN (if you have N+1 uploaded files).
+ * This is the default behavior. In this case, your server script should look
+ * for POST properties, named 'File0' to 'FileN'</LI>
+ * <LI><B>array</B>: Used if your server script want to receive one array, that
+ * will contain all uploaded files.</LI>
+ * <LI><B>oneFile</B>: Indicates that, in the HTTP upload request, there will be
+ * only one file. This value is only valid when nbFilesPerRequest is 1. The
+ * parameters in the HTTP upload request are let untransformed. For instance, if
+ * httpUploadParameterName is the default value (File), the file content will be
+ * loaded under the HTTP parameter 'File' (not File0 or File[]).</LI></DIR></td>
  * </tr>
  * <tr>
  * <td>keepOriginalFileExtensionForConvertedImages</td>
@@ -1256,14 +1261,23 @@ public interface UploadPolicy {
      * the uploaded files is an Iteration. For instance: from File0 to FileN
      * (for N+1 files).
      */
-    public final String HTTPUPLOADPARAMETERTYPE_ITERATION = "Iteration";
+    public final String HTTPUPLOADPARAMETERTYPE_ARRAY = "array";
 
     /**
      * Indicates that, in the HTTP upload request, the parameter that containts
      * the uploaded files is an Iteration. For instance: from File0 to FileN
      * (for N+1 files).
      */
-    public final String HTTPUPLOADPARAMETERTYPE_ARRAY = "Array";
+    public final String HTTPUPLOADPARAMETERTYPE_ITERATION = "iteration";
+
+    /**
+     * Indicates that, in the HTTP upload request, there will be only one file.
+     * This value is only valid when nbFilesPerRequest is 1. The parameters in
+     * the HTTP upload request are let untransformed. For instance, if
+     * httpUploadParameterName is the default value (File), the file content
+     * will be loaded under the HTTP parameter 'File'.
+     */
+    public final String HTTPUPLOADPARAMETERTYPE_ONE_FILE = "oneFile";
 
     /** Indicates that the log window is always visible. */
     public final String SHOWLOGWINDOW_TRUE = "true";
@@ -1375,10 +1389,10 @@ public interface UploadPolicy {
     /** Default value for parameter "highQualityPreview". */
     public final static boolean DEFAULT_HIGH_QUALITY_PREVIEW = false;
 
-    /** Default value for parameter "httpParameterName". */
+    /** Default value for parameter "httpUploadParameterName". */
     public final static String DEFAULT_HTTP_UPLOAD_PARAMETER_NAME = "File";
 
-    /** Default value for parameter "httpParameterName". */
+    /** Default value for parameter "httpUploadParameterName". */
     public final static String DEFAULT_HTTP_UPLOAD_PARAMETER_TYPE = HTTPUPLOADPARAMETERTYPE_ITERATION;
 
     /** Default value for parameter "lookAndFeel". */

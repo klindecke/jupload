@@ -74,13 +74,15 @@ public interface ByteArrayEncoder {
      * @param name Name of the property to be added
      * @param value Value of this property for the current file. It's up to the
      *            caller to call this method at the right time.
+     * @param index Index of the file concerned by this value. -1 if this is a
+     *            global parameter.
      * @return Return the current ByteArrayEncoder, to allow chained call (see
      *         explanation, here above).
      * @throws JUploadIOException
      * @see #appendEndPropertyList()
      */
-    public ByteArrayEncoder appendTextProperty(String name, String value)
-            throws JUploadIOException;
+    public ByteArrayEncoder appendTextProperty(String name, String value,
+            int index) throws JUploadIOException;
 
     /**
      * Finish a property list. In HTTP mode, the last boundary for the
@@ -102,11 +104,13 @@ public interface ByteArrayEncoder {
      * @param formname The HTML form name. This method will get the data from
      *            this form, by using the {@link JUploadContext#getApplet()}
      *            method.
+     * @param index Index of the file concerned by this value. -1 if this is a
+     *            global parameter.
      * @return Return the current ByteArrayEncoder, to allow chained call (see
      *         explanation, here above).
      * @throws JUploadIOException
      */
-    public ByteArrayEncoder appendFormVariables(String formname)
+    public ByteArrayEncoder appendFormVariables(String formname, int index)
             throws JUploadIOException;
 
     /**

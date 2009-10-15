@@ -59,15 +59,17 @@ public interface FileData {
     /**
      * Called during the upload, by the {@link FileUploadThread}. The FileData
      * instance should then call the
-     * {@link ByteArrayEncoder#appendTextProperty(String, String)} method to add
+     * {@link ByteArrayEncoder#appendTextProperty(String, String, int)} method to add
      * each file property to the current upload.
      * 
      * @param bae The byte encoder, where the properties must be added
+     * @param index Index of the file concerned by this value. -1 if this is a
+     *            global parameter.
      * @throws JUploadIOException Encapsulation of the IOException, if any would
      *             occurs.
-     * @see ByteArrayEncoder#appendTextProperty(String, String)
+     * @see ByteArrayEncoder#appendTextProperty(String, String, int)
      */
-    public void appendFileProperties(ByteArrayEncoder bae)
+    public void appendFileProperties(ByteArrayEncoder bae, int index)
             throws JUploadIOException;
 
     /**

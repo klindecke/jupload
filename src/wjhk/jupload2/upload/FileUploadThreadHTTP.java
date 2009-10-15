@@ -313,10 +313,10 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // We'll encode the output stream into UTF-8.
         String form = this.uploadPolicy.getFormdata();
         if (null != form) {
-            bae.appendFormVariables(form);
+            bae.appendFormVariables(form, index);
         }
         // We ask the current FileData to add itself its properties.
-        this.filesToUpload[index].appendFileProperties(bae);
+        this.filesToUpload[index].appendFileProperties(bae, index);
 
         // boundary.
         bae.append(bound).append("\r\n");
@@ -381,7 +381,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
                     bound);
 
             bae.append("\r\n");
-            bae.appendTextProperty("md5sum[]", this.filesToUpload[i].getMD5());
+            bae.appendTextProperty("md5sum", this.filesToUpload[i].getMD5(), i);
 
             // The last tail gets an additional "--" in order to tell the
             // server we have finished.
@@ -443,7 +443,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             Iterator<Map.Entry<String, String>> i = entrySet.iterator();
             while (i.hasNext()) {
                 entry = i.next();
-                bae.appendTextProperty(entry.getKey(), entry.getValue());
+                bae.appendTextProperty(entry.getKey(), entry.getValue(), -1);
             }
         }
         // Return the body content

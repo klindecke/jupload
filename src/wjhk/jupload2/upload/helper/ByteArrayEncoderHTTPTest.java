@@ -150,7 +150,7 @@ public class ByteArrayEncoderHTTPTest extends TestCase {
         this.target = sb.toString().getBytes(this.encoding);
 
         // Then, do the test.
-        this.byteArrayEncoderHTTP.appendTextProperty(name, value);
+        this.byteArrayEncoderHTTP.appendTextProperty(name, value, -1);
         finishTestAppend();
     }
 

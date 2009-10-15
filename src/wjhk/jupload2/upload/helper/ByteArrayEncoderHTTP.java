@@ -215,11 +215,23 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     }
 
     /** {@inheritDoc} */
-    public ByteArrayEncoder appendTextProperty(String name, String value)
-            throws JUploadIOException {
+    public ByteArrayEncoder appendTextProperty(String name, String value,
+            int index) throws JUploadIOException {
+        String propertySuffix = "";
+        // if an index is given, we may have to suffix the name of the upload
+        // parameter, depending on the value of httpUploadParameterType
+        if (index >= 0) {
+            if (this.uploadPolicy.getHttpUploadParameterType().equals(
+                    UploadPolicy.HTTPUPLOADPARAMETERTYPE_ARRAY)) {
+                propertySuffix = "[]";
+            } else if (this.uploadPolicy.getHttpUploadParameterType().equals(
+                    UploadPolicy.HTTPUPLOADPARAMETERTYPE_ITERATION)) {
+                propertySuffix = Integer.toString(index);
+            }
+        }
         this.append(this.bound).append("\r\n");
         this.append("Content-Disposition: form-data; name=\"").append(name)
-                .append("\"\r\n");
+                .append(propertySuffix).append("\"\r\n");
         this.append("Content-Transfer-Encoding: 8bit\r\n");
         this.append("Content-Type: text/plain; ").append(this.getEncoding())
                 .append("\r\n");
@@ -238,7 +250,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     }
 
     /** {@inheritDoc} */
-    public ByteArrayEncoder appendFormVariables(String formname)
+    public ByteArrayEncoder appendFormVariables(String formname, int index)
             throws JUploadIOException {
         String action = "Entering ByteArrayEncoderHTTP.appendFormVariables() [html form: "
                 + formname + "]";
@@ -312,7 +324,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                                 /* + ", class: " + elementClass */
                                                 + ")", 80);
                                 this.appendTextProperty((String) name,
-                                        (String) value);
+                                        (String) value, index);
                             } else {
                                 this.uploadPolicy
                                         .displayWarn("  [ByteArrayEncoder.appendFormVariables] Value must be an instance of String (name: "

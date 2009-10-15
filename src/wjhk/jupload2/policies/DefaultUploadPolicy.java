@@ -466,22 +466,19 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setFilenameEncoding(juploadContext.getParameter(PROP_FILENAME_ENCODING,
                 DEFAULT_FILENAME_ENCODING));
 
+        // Read parameters about the HTTP upload request.
+        setNbFilesPerRequest(juploadContext.getParameter(
+                PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST));
         setHttpUploadParameterName(juploadContext.getParameter(
                 PROP_HTTP_UPLOAD_PARAMETER_NAME,
                 DEFAULT_HTTP_UPLOAD_PARAMETER_NAME));
         setHttpUploadParameterType(juploadContext.getParameter(
                 PROP_HTTP_UPLOAD_PARAMETER_TYPE,
                 DEFAULT_HTTP_UPLOAD_PARAMETER_TYPE));
-
-        // get the maximum number of files to upload in one HTTP request.
-        setNbFilesPerRequest(juploadContext.getParameter(
-                PROP_NB_FILES_PER_REQUEST, DEFAULT_NB_FILES_PER_REQUEST));
-
         // get the maximum size of a file on one HTTP request (indicates if the
         // file must be splitted before upload, see UploadPolicy comment).
         setMaxChunkSize(juploadContext.getParameter(PROP_MAX_CHUNK_SIZE,
                 DEFAULT_MAX_CHUNK_SIZE));
-
         // get the maximum size of an uploaded file.
         setMaxFileSize(juploadContext.getParameter(PROP_MAX_FILE_SIZE,
                 DEFAULT_MAX_FILE_SIZE));
@@ -1030,19 +1027,30 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#getUploadName(FileData, int) */
     public String getUploadName(FileData fileData, int index)
             throws JUploadException {
-        // This is the original way of working of JUpload.
-        // It can easily be modified, by using another UploadPolicy.
-        // See also the getHttpParameterType
-        if (this.httpUploadParameterType
-                .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ITERATION)) {
-            return this.httpUploadParameterName + index;
-        }
         if (this.httpUploadParameterType
                 .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ARRAY)) {
             return this.httpUploadParameterName + "[]";
+        } else if (this.httpUploadParameterType
+                .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ITERATION)) {
+            return this.httpUploadParameterName + index;
+        } else if (this.httpUploadParameterType
+                .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ONE_FILE)) {
+            // Only valid if nbFilesPerRequest is 1. Let's check it.
+            if (getNbFilesPerRequest() == 1) {
+                return this.httpUploadParameterName;
+            } else {
+                throw new JUploadException(
+                        UploadPolicy.PROP_HTTP_UPLOAD_PARAMETER_TYPE
+                                + " value '" + this.httpUploadParameterType
+                                + "' is only valid when '"
+                                + UploadPolicy.PROP_NB_FILES_PER_REQUEST
+                                + " is 1.");
+            }
         } else {
-            throw new JUploadException("httpUploadParameterType '"
-                    + this.httpUploadParameterType + "' is not implemented.");
+            throw new JUploadException(
+                    UploadPolicy.PROP_HTTP_UPLOAD_PARAMETER_TYPE + " '"
+                            + this.httpUploadParameterType
+                            + "' is not implemented.");
         }
     }
 
@@ -1095,16 +1103,29 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throw new JUploadException(
                     "httpUploadParameterType may not be null");
         }
-        // List of allowed values
-        if (httpUploadParameterType
+
+        // Check against the list of allowed values
+        if (!httpUploadParameterType
                 .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ARRAY)
-                || httpUploadParameterType
-                        .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ITERATION)) {
-            this.httpUploadParameterType = httpUploadParameterType;
-        } else {
-            throw new JUploadException("'" + this.httpUploadParameterType
+                && !httpUploadParameterType
+                        .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ITERATION)
+                && !httpUploadParameterType
+                        .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ONE_FILE)) {
+            throw new JUploadException("'" + httpUploadParameterType
                     + "' is not an allowed value for httpUploadParameterType.");
         }
+
+        // OneFile is only valid ... when we upload file per file !
+        if (httpUploadParameterType
+                .equals(UploadPolicy.HTTPUPLOADPARAMETERTYPE_ONE_FILE)) {
+            if (getNbFilesPerRequest() != 1) {
+                throw new JUploadException("'" + httpUploadParameterType
+                        + "' is only valid when nbFilesPerRequest is 1.");
+            }
+        }
+
+        // Ok, we're happy. Let's store the value !
+        this.httpUploadParameterType = httpUploadParameterType;
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#beforeUpload() */
@@ -1192,7 +1213,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         // the webmaster speaks the same language as the current
                         // user.
                         baeContent.appendTextProperty("description",
-                                "An error occured during upload, in JUpload.");
+                                "An error occured during upload, in JUpload.",
+                                -1);
                         String exceptionClass = null;
                         String exceptionCause = null;
                         String exceptionStackTrace = null;
@@ -1226,11 +1248,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
                             exceptionStackTrace = baeStackTrace.getString();
                         }
                         baeContent.appendTextProperty("exceptionClass",
-                                exceptionClass);
+                                exceptionClass, -1);
                         baeContent.appendTextProperty("exceptionCause",
-                                exceptionCause);
+                                exceptionCause, -1);
                         baeContent.appendTextProperty("exceptionStackTrace",
-                                exceptionStackTrace);
+                                exceptionStackTrace, -1);
 
                         String baeBound = connectionHelper
                                 .getByteArrayEncoder().getBoundary();
@@ -1272,7 +1294,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                         baeDebug.close();
 
                         baeContent.appendTextProperty("debugOutput", baeDebug
-                                .getString());
+                                .getString(), -1);
                         baeContent.appendEndPropertyList();
                         // The content has been built.
                         baeContent.close();
@@ -1469,6 +1491,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 PROP_FTP_TRANSFERT_BINARY + ": " + getFtpTransfertBinary(), 30);
         displayDebug(PROP_FTP_TRANSFERT_PASSIVE + ": "
                 + getFtpTransfertPassive(), 30);
+        displayDebug(PROP_HTTP_UPLOAD_PARAMETER_NAME + ": "
+                + getHttpUploadParameterName(), 30);
+        displayDebug(PROP_HTTP_UPLOAD_PARAMETER_TYPE + ": "
+                + getHttpUploadParameterType(), 30);
         displayDebug("lang: " + this.lang, 30);
         displayDebug(PROP_MAX_CHUNK_SIZE + ": " + getMaxChunkSize(), 30);
         if (this.maxFileSize == Long.MAX_VALUE) {
@@ -1803,15 +1829,28 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.nbFilesPerRequest;
     }
 
-    /** @param nbFilesPerRequest the nbFilesPerRequest to set */
-    protected void setNbFilesPerRequest(int nbFilesPerRequest) {
-        if (nbFilesPerRequest < 0) {
-            displayDebug(
-                    "nbFilesPerRequest<0 which is invalid. Switched to the default value (Integer.MAX_VALUE)",
-                    1);
-            nbFilesPerRequest = Integer.MAX_VALUE;
+    /**
+     * @param nbFilesPerRequest the nbFilesPerRequest to set
+     * @throws JUploadException
+     */
+    protected void setNbFilesPerRequest(int nbFilesPerRequest)
+            throws JUploadException {
+        // If httpUploadParameterType is oneFile,
+        if (getHttpUploadParameterType().equals(
+                UploadPolicy.HTTPUPLOADPARAMETERTYPE_ONE_FILE)
+                && nbFilesPerRequest == 1) {
+            throw new JUploadException(
+                    "nbFilesPerRequest must be 1, when httpUploadParameterType is oneFile");
         }
-        this.nbFilesPerRequest = nbFilesPerRequest;
+
+        if (nbFilesPerRequest <= 0) {
+            displayDebug(
+                    "nbFilesPerRequest<=0 which is invalid. Switched to the default value (Integer.MAX_VALUE)",
+                    1);
+            this.nbFilesPerRequest = Integer.MAX_VALUE;
+        } else {
+            this.nbFilesPerRequest = nbFilesPerRequest;
+        }
     }
 
     /** @see UploadPolicy#getFilenameEncoding() */
