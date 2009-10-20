@@ -336,7 +336,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * value for httpUploadParameterType (see below), makes all file be uploaded
  * with name from File0 to FileN (when there are N+1 file to upload).<BR>
  * Put another value, of your server part script need a particular parameter
- * name to work properly.</td>
+ * name to work properly.<BR>
+ * Note: valid characters for this parameter are: first letter (letter or
+ * number), next letters (letter, number or underscore)</td>
  * </tr>
  * <tr>
  * <td>httpUploadParameterType</td>

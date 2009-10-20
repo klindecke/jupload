@@ -1074,7 +1074,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                     "httpUploadParameterName may not be null");
         }
         // Control the parameter name content.
-        if (!httpUploadParameterName.matches("^[a-zA-Z0-9]+$")) {
+        if (!httpUploadParameterName.matches("^[a-zA-Z0-9][a-zA-Z0-9_]*$")) {
             throw new JUploadException(
                     "httpUploadParameterName may only contain letters (lowercase or uppercase) and numbers.");
         }
