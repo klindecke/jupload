@@ -313,7 +313,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
         // We'll encode the output stream into UTF-8.
         String form = this.uploadPolicy.getFormdata();
         if (null != form) {
-            bae.appendFormVariables(form, index);
+            bae.appendFormVariables(form);
         }
         // We ask the current FileData to add itself its properties.
         this.filesToUpload[index].appendFileProperties(bae, index);

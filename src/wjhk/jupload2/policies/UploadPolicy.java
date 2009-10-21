@@ -276,7 +276,12 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <i>Since 2.9.2rc4</i></td>
  * <td>With this parameter, the name of a HTML form can be specified. If the
  * specified form exists in the same document like the applet, all all
- * form-variables are added as POST parameters to the applet's POST request.</td>
+ * form-variables are added as POST parameters to the applet's POST request.<BR>
+ * <B>Note:</B> Whatever value is in the <U>httpUploadParameterType</U> applet
+ * parameter, these parameters with the name of the given input in the form.
+ * That is: if you have an input text named 'myText', there will be one myText
+ * parameter in the HTTP upload request, with the text/plain mime type, and
+ * whose value is the content of this field, in the form.</td>
  * </tr>
  * <tr>
  * <td>ftpCreateDirectoryStructure</td>
@@ -357,7 +362,12 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * only one file. This value is only valid when nbFilesPerRequest is 1. The
  * parameters in the HTTP upload request are let untransformed. For instance, if
  * httpUploadParameterName is the default value (File), the file content will be
- * loaded under the HTTP parameter 'File' (not File0 or File[]).</LI></DIR></td>
+ * loaded under the HTTP parameter 'File' (not File0 or File[]).</LI></DIR><BR>
+ * <B>Note:</B> All parameters common to all pictures are sent directly. For
+ * instance, if toto is given on the URL, the toto parameter is sent as is (no
+ * toto0 for iteration or toto[] for array). Also, if you use the
+ * <U>formdata</U> applet parameter, these parameters are sent as is (no 0 or []
+ * added to the parameter name).</td>
  * </tr>
  * <tr>
  * <td>keepOriginalFileExtensionForConvertedImages</td>

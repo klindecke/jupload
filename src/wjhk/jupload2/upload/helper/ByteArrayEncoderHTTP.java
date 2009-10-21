@@ -250,7 +250,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
     }
 
     /** {@inheritDoc} */
-    public ByteArrayEncoder appendFormVariables(String formname, int index)
+    public ByteArrayEncoder appendFormVariables(String formname)
             throws JUploadIOException {
         String action = "Entering ByteArrayEncoderHTTP.appendFormVariables() [html form: "
                 + formname + "]";
@@ -324,7 +324,7 @@ public class ByteArrayEncoderHTTP implements ByteArrayEncoder {
                                                 /* + ", class: " + elementClass */
                                                 + ")", 80);
                                 this.appendTextProperty((String) name,
-                                        (String) value, index);
+                                        (String) value, -1);
                             } else {
                                 this.uploadPolicy
                                         .displayWarn("  [ByteArrayEncoder.appendFormVariables] Value must be an instance of String (name: "

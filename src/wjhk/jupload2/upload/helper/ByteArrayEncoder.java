@@ -99,18 +99,18 @@ public interface ByteArrayEncoder {
 
     /**
      * Add to the current encoder all properties contained in the given HTML
-     * form.
+     * form. There is no index for the current file: all the form parameters are
+     * global parameters (index will be set to -1 when calling
+     * {@link #appendTextProperty(String, String, int)}.
      * 
      * @param formname The HTML form name. This method will get the data from
      *            this form, by using the {@link JUploadContext#getApplet()}
      *            method.
-     * @param index Index of the file concerned by this value. -1 if this is a
-     *            global parameter.
      * @return Return the current ByteArrayEncoder, to allow chained call (see
      *         explanation, here above).
      * @throws JUploadIOException
      */
-    public ByteArrayEncoder appendFormVariables(String formname, int index)
+    public ByteArrayEncoder appendFormVariables(String formname)
             throws JUploadIOException;
 
     /**
