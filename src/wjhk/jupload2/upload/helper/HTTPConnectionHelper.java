@@ -745,6 +745,9 @@ public class HTTPConnectionHelper extends OutputStream {
             // and then a plain request.)
             this.byteArrayEncoder.append(this.url.getProtocol()).append("://")
                     .append(this.url.getHost());
+            // TODO port in proxy mode: to be tested !
+            this.byteArrayEncoder.append(this.url.getProtocol()).append(":")
+                    .append(this.url.getPort());
         }
         this.byteArrayEncoder.append(this.url.getPath());
 

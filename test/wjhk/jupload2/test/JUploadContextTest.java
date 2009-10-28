@@ -24,7 +24,7 @@ public class JUploadContextTest extends JUploadContextExecutable {
      * Root folder for policies configuration files, that are used in JUnit
      * tests. The current user dir is the root of the eclipse project.
      */
-    public final static String TEST_ROOT_FOLDER = "src/tests/";
+    public final static String TEST_ROOT_FOLDER = "test/tests/";
 
     /**
      * Root folder for policies configuration files, that are used in JUnit

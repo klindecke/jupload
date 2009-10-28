@@ -3,6 +3,11 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- Bug n°2884603
+My WAS is working on a different port than 80. If I set a relative postURL,
+the build URL lost the port number. You have to set an absolute URL.
+Added: I find the correction to make: in class HTTPConnectionHelper  on line about 746.
+
 - [Minor] Replace juploadContext by applet in the DefaultUploadPolicy.java comments.
 
 - Generalize the use of httpUploadParameterName and httpUploadParameterType applet parameter to all upload data (md5, path...)
