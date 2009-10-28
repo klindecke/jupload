@@ -592,22 +592,7 @@ public class PictureFileData extends DefaultFileData {
         // through pictures, until we get an IndexOutOfBoundsException.
         try {
             for (int i = 0; i < nbPictures; i += 1) {
-                // TODO Remove these tests (about picture resizing)
-                if (true) {
-                    originalImage = imageWriterHelper.readImage(i);
-                } else {
-                    try {
-                        // setUseCache: no effect in memory consumption for
-                        // JUpload. Apparently good for small pictures, so it's
-                        // out of topic here.
-                        // ImageIO.setUseCache(true);
-                        // boolean b = ImageIO.getUseCache();
-                        originalImage = ImageIO.read(getFile());
-                    } catch (IOException e) {
-                        throw new JUploadIOException("Loading orginalImage", e);
-                    }
-                }
-
+                originalImage = imageWriterHelper.readImage(i);
                 transformedImage = imageHelper.getBufferedImage(true,
                         originalImage);
 

@@ -597,6 +597,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         return this.targetPictureFormat;
     }
 
+    /**
+     * @return The current ImageFileConversionInfo
+     */
     public ImageFileConversionInfo getImageFileConversionInfo() {
         return this.imageFileConversionInfo;
     }
@@ -766,6 +769,9 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
                 getFileChooserIconSize());
     }
 
+    /**
+     * @see wjhk.jupload2.policies.DefaultUploadPolicy#getUploadFilename(wjhk.jupload2.filedata.FileData, int)
+     */
     @Override
     public String getUploadFilename(FileData fileData, int index)
             throws JUploadException {
