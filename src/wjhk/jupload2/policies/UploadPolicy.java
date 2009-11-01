@@ -592,15 +592,20 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <u>Note 1:</u> in HTTP, the upload is done in the same user session, as the
  * applet uses the cookies from the navigator. This allows right management
  * during upload, on the server side.<br>
- * <u>Note 2:</u> FTP URL should looks like:
+ * <u>Note 2:</u> in FTP, you can't use path that contain spaces. Filename may
+ * contain spaces. <u>Note 5:</u> in HTTP, the applet use the current Java
+ * parameter to connect to the host. By default, this configuration is to use
+ * the navigator configuration. So, if a proxy is configured in the navigator
+ * network configuration, the applet should use it automatically.<br>
+ * <u>Note 3:</u> FTP URL should looks like:
  * ftp://username:password@myhost.com:21/directory<br>
- * <u>Note 3:</u> in FTP, you'll have to add the jakarta-commons-oro.jar and
+ * <u>Note 4:</u> in FTP, you'll have to add the jakarta-commons-oro.jar and
  * jakarta-commons-net.jar jar files in the applet ARCHIVE tag attribute. See
  * the 'advanced_js_demo.html page for a sample. You'll have to put the two
  * files coming from the JUpload distribution in the same directory as the
  * wjhk.jupload.jar. <br>
- * <u>Note 4:</u> in FTP, you can't use path that contain spaces. Filename may
- * contain spaces.</td>
+ * <u>Note 5:</u> in FTP, you can use the user default folder by putting no
+ * folder. The URL can be: ftp://user:mdp@host</td>
  * </tr>
  * <tr>
  * <td>readCookieFromNavigator</td>

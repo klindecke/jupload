@@ -147,8 +147,8 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             throws JUploadException {
         super("FileUploadThreadFTP thread", uploadPolicy,
                 fileUploadManagerThread);
-        this.uploadPolicy.displayDebug("  Using " + this.getClass().getName(),
-                30);
+        this.uploadPolicy.displayDebug("[FileUploadThreadFTP]  Using "
+                + this.getClass().getName(), 30);
 
         // Some coherence checks, for parameter given to the applet.
 
@@ -210,10 +210,10 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             this.host = this.uriMatch.group(4); // no default server
             this.port = this.uriMatch.group(5) == null ? "21" : this.uriMatch
                     .group(5);
-            this.ftpRootFolder = (this.uriMatch.group(7) == null) ? "/" : "/"
+            this.ftpRootFolder = (this.uriMatch.group(7) == null) ? null : "/"
                     + this.uriMatch.group(7);
             // The last character must be a slash
-            if (!this.ftpRootFolder.endsWith("/")) {
+            if (this.ftpRootFolder != null && !this.ftpRootFolder.endsWith("/")) {
                 this.ftpRootFolder += "/";
             }
 
@@ -221,7 +221,8 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             try {
                 this.ftp.setDefaultPort(Integer.parseInt(this.port));
                 this.ftp.connect(this.host);
-                this.uploadPolicy.displayDebug("Connected to " + this.host, 10);
+                this.uploadPolicy.displayDebug(
+                        "[FileUploadThreadFTP] Connected to " + this.host, 10);
                 this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
 
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
@@ -229,10 +230,12 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
 
                 // given the login information, do the login
                 this.ftp.login(this.user, this.pass);
-                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
+                this.uploadPolicy.displayDebug("[FileUploadThreadFTP] "
+                        + this.ftp.getReplyString(), 80);
 
                 if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode()))
-                    throw new JUploadException("Invalid username / password");
+                    throw new JUploadException(
+                            "Invalid ftp username / password");
 
                 this.bConnected = true;
             } catch (JUploadException jue) {
@@ -240,12 +243,12 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 throw jue;
             } catch (IOException ioe) {
                 throw new JUploadIOException(ioe.getClass().getName()
-                        + "Could not connect to server (" + ioe.getMessage()
-                        + ")", ioe);
+                        + "[FTP] Could not connect to server ("
+                        + ioe.getMessage() + ")", ioe);
             } catch (Exception e) {
                 throw new JUploadException(e.getClass().getName()
-                        + "Could not connect to server (" + e.getMessage()
-                        + ")", e);
+                        + "[FTP] Could not connect to server ("
+                        + e.getMessage() + ")", e);
             }
 
             // now do the same for the passive/active parameter
@@ -282,19 +285,26 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 // FTP errors.
                 workingDir = workingDir.replace("\\", "/");
 
-                this.uploadPolicy.displayDebug(
-                        "Changing working directory to: " + workingDir, 80);
-                this.ftp.changeWorkingDirectory(workingDir);
-                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
+                this.uploadPolicy
+                        .displayDebug(
+                                "[FileUploadThreadFTP] ftpCreateDirectoryStructure: Changing working directory to: "
+                                        + workingDir, 80);
             } else {
                 workingDir = this.ftpRootFolder;
-                this.ftp.changeWorkingDirectory(workingDir);
-                this.uploadPolicy.displayDebug(this.ftp.getReplyString(), 80);
             }
+
+            if (workingDir != null && !workingDir.equals("")
+                    && !workingDir.equals(".")) {
+                this.ftp.changeWorkingDirectory(workingDir);
+                this.uploadPolicy.displayDebug("[FileUploadThreadFTP] "
+                        + this.ftp.getReplyString(), 80);
+            }
+
             if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode())) {
                 throw new JUploadException(
-                        "Error while changing directory to: " + workingDir
-                                + " (" + this.ftp.getReplyString() + ")");
+                        "[FTP] Error while changing directory to: "
+                                + workingDir + " (" + this.ftp.getReplyString()
+                                + ")");
             }
 
             setTransferType(index);
@@ -307,12 +317,17 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
             // Let's open the stream for this file.
             this.ftpOutputStream = this.ftp
                     .storeFileStream(this.filesToUpload[index].getFileName());
+            if (this.ftpOutputStream == null) {
+                throw new JUploadIOException(
+                        "Stream connection to the server error. Check that your path on the URL is valid. postURL used is: "
+                                + this.uploadPolicy.getPostURL());
+            }
             // The upload is done through a BufferedOutputStream. This speed up
             // the upload in an unbelievable way ...
             this.bufferedOutputStream = new BufferedOutputStream(
                     this.ftpOutputStream);
         } catch (IOException e) {
-            throw new JUploadException(e);
+            throw new JUploadIOException(e);
         }
     }
 
@@ -322,11 +337,13 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
         try {
             if (this.ftp.isConnected()) {
                 this.ftp.disconnect();
-                this.uploadPolicy.displayDebug("disconnected", 50);
+                this.uploadPolicy.displayDebug(
+                        "[FileUploadThreadFTP] disconnected", 50);
             }
         } catch (IOException e) {
             // then we arent connected
-            this.uploadPolicy.displayDebug("Not connected", 50);
+            this.uploadPolicy.displayDebug(
+                    "[FileUploadThreadFTP] Not connected", 50);
         } finally {
             this.ftpOutputStream = null;
             this.bufferedOutputStream = null;
@@ -462,15 +479,17 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
                 // We first check if the folder already exist.
                 this.ftp.changeWorkingDirectory(folder);
                 if (FTPReply.isPositiveCompletion(this.ftp.getReplyCode())) {
-                    this.uploadPolicy.displayDebug("Folder " + folder
-                            + " already exist", 80);
+                    this.uploadPolicy.displayDebug(
+                            "[FileUploadThreadFTP] Folder " + folder
+                                    + " already exist", 80);
                 } else {
                     // We can not guess if it's because the folder
                     // doesn't exist, or if it's a 'real' error.
                     // Let's try to create the folder.
                     this.ftp.mkd(folder);
-                    this.uploadPolicy.displayDebug("Folder " + folder
-                            + " created", 80);
+                    this.uploadPolicy.displayDebug(
+                            "[FileUploadThreadFTP] Folder " + folder
+                                    + " created", 80);
                     if (!FTPReply.isPositiveCompletion(this.ftp.getReplyCode())) {
                         throw new JUploadIOException(
                                 "Error while creating folder '"
