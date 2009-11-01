@@ -739,6 +739,10 @@ public class HTTPConnectionHelper extends OutputStream {
         // Let's clear it. Useful only for chunked uploads.
         this.byteArrayEncoder.append(this.method);
         this.byteArrayEncoder.append(" ");
+        this.uploadPolicy.displayDebug("[initByteArrayEncoder] proxy=" + proxy
+                + ", proxy.type=" + this.proxy.type() + ", useProxy="
+                + useProxy + ", url.host=" + this.url.getHost() + ", url.port="
+                + this.url.getPort(), 80);
         if (this.useProxy && (!this.useSSL)) {
             // with a proxy we need the absolute URL, but only if not
             // using SSL. (with SSL, we first use the proxy CONNECT method,
@@ -746,8 +750,10 @@ public class HTTPConnectionHelper extends OutputStream {
             this.byteArrayEncoder.append(this.url.getProtocol()).append("://")
                     .append(this.url.getHost());
             // TODO port in proxy mode: to be tested !
-            this.byteArrayEncoder.append(this.url.getProtocol()).append(":")
-                    .append(this.url.getPort());
+            if (this.url.getPort() > 0) {
+                this.byteArrayEncoder.append(":").append(
+                        Integer.toString(this.url.getPort()));
+            }
         }
         this.byteArrayEncoder.append(this.url.getPath());
 

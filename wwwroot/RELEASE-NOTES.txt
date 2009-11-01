@@ -1,5 +1,7 @@
 
-Next release
+v4.5.1 (not released)
+
+- [Major] bug n°2884603. When using a proxy, the port number of the postURL was ignored.
 - [Minor] httpUploadParameterName and httpUploadParameterType are now fully implemented, and changed a little. Check their definition, in the
 'howto customize' documentation. Also added the httpUploadParameterType oneFile Type.
 
