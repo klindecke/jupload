@@ -1,7 +1,9 @@
 package wjhk.jupload2.test;
 
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import javax.swing.JFrame;
@@ -84,7 +86,7 @@ public class JUploadContextTest extends JUploadContextExecutable {
         Properties properties = new Properties(defaultProperties);
         try {
             // TODO use this.getClass() ?
-            FileReader isProperties = new FileReader(filename);
+            InputStream isProperties = new FileInputStream(filename);
             properties.load(isProperties);
             isProperties.close();
         } catch (IOException e1) {

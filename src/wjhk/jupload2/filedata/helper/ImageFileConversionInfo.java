@@ -104,7 +104,7 @@ public class ImageFileConversionInfo {
      */
     private void parseConversionList(String conversionList)
             throws JUploadException {
-        if (conversionList == null || conversionList.isEmpty()) {
+        if (conversionList == null || conversionList.equals("")) {
             return;
         }
 

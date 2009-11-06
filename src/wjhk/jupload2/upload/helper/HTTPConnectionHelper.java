@@ -853,12 +853,13 @@ public class HTTPConnectionHelper extends OutputStream {
             // IOException. Not optimized.
             if (e.getCause() == null) {
                 // This should not happen
-                throw new IOException(e);
+                throw new IOException();
             } else if (e.getCause() instanceof IOException) {
                 throw (IOException) e.getCause();
             } else {
                 // Hum, can something like an OutOfMemory. We must throw it.
-                throw new IOException(e.getCause());
+                throw new IOException(e.getCause().getClass().getName() + ": "
+                        + e.getCause().getMessage());
             }
         }
     }
@@ -874,12 +875,13 @@ public class HTTPConnectionHelper extends OutputStream {
             // IOException. Not optimized.
             if (e.getCause() == null) {
                 // This should not happen
-                throw new IOException(e);
+                throw new IOException();
             } else if (e.getCause() instanceof IOException) {
                 throw (IOException) e.getCause();
             } else {
                 // Hum, can something like an OutOfMemory. We must throw it.
-                throw new IOException(e.getCause());
+                throw new IOException(e.getCause().getClass().getName() + ": "
+                        + e.getCause().getMessage());
             }
         }
     }

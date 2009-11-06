@@ -48,7 +48,7 @@ public class JUploadExceptionUploadFailed extends JUploadException {
      * 
      * @param cause The cause for this instance.
      */
-    public JUploadExceptionUploadFailed(Throwable cause) {
+    public JUploadExceptionUploadFailed(Exception cause) {
         super(cause);
     }
 

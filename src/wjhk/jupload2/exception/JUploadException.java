@@ -55,7 +55,7 @@ public class JUploadException extends Exception {
      * 
      * @param ex The exception that was originally thrown.
      */
-    public JUploadException(Throwable ex) {
+    public JUploadException(Exception ex) {
         super(ex);
         StackTraceElement[] trace = ex.getStackTrace();
         if (trace.length > 0) {

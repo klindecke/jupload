@@ -48,7 +48,7 @@ public class JUploadIOException extends JUploadException {
      * 
      * @param cause The cause for this instance.
      */
-    public JUploadIOException(Throwable cause) {
+    public JUploadIOException(Exception cause) {
         super(cause);
     }
 
@@ -58,7 +58,7 @@ public class JUploadIOException extends JUploadException {
      * @param msg The message for this instance.
      * @param cause The cause for this instance.
      */
-    public JUploadIOException(String msg, Throwable cause) {
+    public JUploadIOException(String msg, Exception cause) {
         super(msg, cause);
     }
 
