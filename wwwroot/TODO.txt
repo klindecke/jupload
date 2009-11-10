@@ -3,10 +3,8 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- Bug n°2884603
-My WAS is working on a different port than 80. If I set a relative postURL,
-the build URL lost the port number. You have to set an absolute URL.
-Added: I find the correction to make: in class HTTPConnectionHelper  on line about 746.
+- [Minor] Response to bug 2891909 (Picture 1px too small)
+Need rewriting of the picture resizing code
 
 - [Minor] Replace juploadContext by applet in the DefaultUploadPolicy.java comments.
 
