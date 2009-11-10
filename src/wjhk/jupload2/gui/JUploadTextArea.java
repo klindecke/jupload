@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JTextArea;
 
+import wjhk.jupload2.policies.UploadPolicy;
+
 /**
  * This class represents the text area for debug output.
  */
@@ -46,6 +48,11 @@ public class JUploadTextArea extends JTextArea {
      * Maximum number of characters in the logWindow.
      */
     public final static int MAX_LOG_WINDOW_LENGTH = 800000;
+
+    /**
+     * The current upload policy
+     */
+    UploadPolicy uploadPolicy;
 
     /**
      * The queue, that contains all messages to display. They will be displayed
@@ -125,7 +132,9 @@ public class JUploadTextArea extends JTextArea {
                     sleep(DURATION_BETWEEN_TWO_LOOPS);
 
                 }
-
+            } catch (InterruptedException ie) {
+                this.textArea.uploadPolicy.displayDebug("sleep interrupted",
+                        101);
             } catch (Exception e) {
                 // This should not happen !
                 e.printStackTrace();
@@ -144,9 +153,11 @@ public class JUploadTextArea extends JTextArea {
      * 
      * @param rows The desired number of text rows (lines).
      * @param columns The desired number of columns.
+     * @param uploadPolicy The current uploadPolicy
      */
-    public JUploadTextArea(int rows, int columns) {
+    public JUploadTextArea(int rows, int columns, UploadPolicy uploadPolicy) {
         super(rows, columns);
+        this.uploadPolicy = uploadPolicy;
         setBackground(new Color(255, 255, 203));
         setEditable(false);
         setLineWrap(true);
