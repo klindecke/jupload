@@ -164,8 +164,12 @@ public class HTTPInputStreamReader {
             // If the user requested abort, we are not going to send
             // anymore, so shutdown the outgoing half of the socket.
             // This helps the server to speed up with it's response.
-            if (!(this.httpConnectionHelper.getSocket() instanceof SSLSocket)) {
-                this.httpConnectionHelper.getSocket().shutdownOutput();
+            // FIXME remove this test
+            if (false) {
+                // A try for the EOF error. 
+                if (!(this.httpConnectionHelper.getSocket() instanceof SSLSocket)) {
+                    this.httpConnectionHelper.getSocket().shutdownOutput();
+                }
             }
 
             // We first read the headers,
