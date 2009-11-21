@@ -86,7 +86,7 @@ public class DefaultJUploadContext implements JUploadContext {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    private static final String RELEASE_VERSION = "4.6.0";
+    private static final String RELEASE_VERSION = "4.6.1rc1";
 
     /**
      * The current upload policy. This class is responsible for the call to the
