@@ -1620,9 +1620,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 // is actually ... ~!
                 // Let's manager this.
                 if (currentBrowsingDirectoryParam.startsWith("~")) {
-                    // Let's keep the part of this path that is after the ~/ or
-                    // ~\
-                    displayWarn("The '~' folder is not properly manager");
+                    // Let's keep the part of this path that is after the ~
+                    currentBrowsingDirectoryParam = System
+                            .getProperty("user.home")
+                            + currentBrowsingDirectoryParam.substring(1);
                 }
 
                 this.currentBrowsingDirectory = new File(

@@ -1,4 +1,9 @@
 
+v4.6.1 (not released)
+
+- [Minor] browseDirectory applet parameter: The applet now manages path beginning by ~ (current user's home)
+
+
 v4.6.0
 
 - [Major] Compatibility with Java 1.5 is now restored. Make it work on Mac computers. 
