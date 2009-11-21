@@ -23,8 +23,8 @@
 package wjhk.jupload2.gui;
 
 import java.awt.Color;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.JTextArea;
 
@@ -33,21 +33,19 @@ import wjhk.jupload2.policies.UploadPolicy;
 /**
  * This class represents the text area for debug output.
  */
+@SuppressWarnings("serial")
 public class JUploadTextArea extends JTextArea {
-    /**
-     * Duration, in millisecond, that the thread will wait before checking if
-     * new messages are available.
-     */
-    private static int DURATION_BETWEEN_TWO_LOOPS = 100;
 
-    /**
-     * This constant defines the upper limit of lines, kept in the log window.
-     */
-    // public final static int MAX_DEBUG_LINES = 10000;
     /**
      * Maximum number of characters in the logWindow.
      */
     public final static int MAX_LOG_WINDOW_LENGTH = 800000;
+
+    /**
+     * The size we truncate the output to, when the maximum size of debug output
+     * is reach. We remove 20%.
+     */
+    public final static int SIZE_TO_TRUNCATE_TO = (int) (MAX_LOG_WINDOW_LENGTH * 0.8);
 
     /**
      * The current upload policy
@@ -55,13 +53,9 @@ public class JUploadTextArea extends JTextArea {
     UploadPolicy uploadPolicy;
 
     /**
-     * The queue, that contains all messages to display. They will be displayed
-     * by the {@link LogMessageThread} thread.
+     * The ConcurrentLinkedQueue that'll contain the messages.
      */
-    Queue<String> messages = null;
-
-    /** A generated serialVersionUID, to avoid warning during compilation */
-    private static final long serialVersionUID = -6037767344615468632L;
+    private BlockingQueue<String> messages;
 
     /**
      * A thread, that will be called in the EventDispatcherThread, to have a
@@ -71,74 +65,74 @@ public class JUploadTextArea extends JTextArea {
     static class LogMessageThread extends Thread {
 
         /**
-         * The ConcurrentLinkedQueue that'll contain the messages.
-         */
-        private Queue<String> messages;
-
-        /**
          * The text area that'll contain the messages.
          */
         private JUploadTextArea textArea;
 
         /**
+         * Indicates whether the {@link #LogMessageThread} should go on. Cleared
+         * by the {@link #unload()} method.
+         */
+        boolean isRunning = true;
+
+        /**
          * @param messages the queue, that will contain the messages to display.
          * @param textArea
          */
-        LogMessageThread(Queue<String> messages, JUploadTextArea textArea) {
-            this.messages = messages;
+        LogMessageThread(JUploadTextArea textArea) {
             this.textArea = textArea;
+            setDaemon(true);
         }
+
+        /**
+         * The length of the current content of the JUploadTextArea.
+         */
+        int textLength = 0;
 
         /** The run method of the Runnable Interface */
         @Override
         public void run() {
-            boolean someTextHasBeenAdded = false;
             String nextMessage = null;
-            StringBuffer sbLogContent = new StringBuffer(this.textArea
-                    .getText());
-            String newLogContent = null;
 
-            try {
-                while (!isInterrupted()) {
-                    // Let's add all available messages... if any. They may have
-                    // been all consumed by a previous execution of this thread.
-                    while ((nextMessage = this.messages.poll()) != null) {
-                        someTextHasBeenAdded = true;
-                        sbLogContent.append(nextMessage);
+            while (true) {
+                try {
+                    nextMessage = this.textArea.messages.take();
+
+                    // Ah, a new message has been delivered...
+
+                    // If the current content is too long, we truncate it.
+                    if (textLength > JUploadTextArea.MAX_LOG_WINDOW_LENGTH) {
+                        String content = this.textArea.getText() + nextMessage;
+                        String newContent = content.substring(content.length()
+                                - SIZE_TO_TRUNCATE_TO, content.length());
+                        this.textArea.setText(newContent);
+                        textLength = SIZE_TO_TRUNCATE_TO;
+                    } else {
+                        // The result is not too long
+                        this.textArea.append(nextMessage);
+                        textLength += nextMessage.length();
                     }
-                    // If some text has been added, we may have to truncate the
-                    // text, according to the max allowed size for it.
-                    if (someTextHasBeenAdded) {
-                        newLogContent = sbLogContent.toString();
-                        int len = newLogContent.length();
-                        if (len > JUploadTextArea.MAX_LOG_WINDOW_LENGTH) {
-                            newLogContent = newLogContent.substring(len
-                                    - MAX_LOG_WINDOW_LENGTH);
-                            len = MAX_LOG_WINDOW_LENGTH;
-                        }
-
-                        this.textArea.setText(newLogContent);
-
-                        // The end of the text, is the interesting part of it !
-                        if (len > 0) {
-                            this.textArea.setCaretPosition(len - 1);
-                        }
-
-                        // Let's display the changes to the user.
-                        // this.textArea.repaint();
+                    this.textArea.setCaretPosition(textLength - 1);
+                } catch (InterruptedException e) {
+                    // If we're not running any more, then this 'stop' is not a
+                    // problem any more. We're then just notified we must stop
+                    // the thread.
+                    if (this.isRunning) {
+                        // This should not happen, and we can not put in the
+                        // standard JUpload output, as this thread is
+                        // responsible for it.
+                        e.printStackTrace();
                     }
+                }// try
+            }// while
+        }
 
-                    // Let's wait for a notification for next messages
-                    sleep(DURATION_BETWEEN_TWO_LOOPS);
-
-                }
-            } catch (InterruptedException ie) {
-                this.textArea.uploadPolicy.displayDebug("sleep interrupted",
-                        101);
-            } catch (Exception e) {
-                // This should not happen !
-                e.printStackTrace();
-            }
+        /**
+         * Free any used ressources. Actually close the LogMessageThread thread.
+         */
+        public void unload() {
+            this.isRunning = false;
+            this.interrupt();
         }
     }
 
@@ -158,15 +152,20 @@ public class JUploadTextArea extends JTextArea {
     public JUploadTextArea(int rows, int columns, UploadPolicy uploadPolicy) {
         super(rows, columns);
         this.uploadPolicy = uploadPolicy;
+        this.messages = new LinkedBlockingQueue<String>();
         setBackground(new Color(255, 255, 203));
         setEditable(false);
         setLineWrap(true);
         setWrapStyleWord(true);
 
         // The queue, where messages to display will be posted.
-        this.messages = new ConcurrentLinkedQueue<String>();
-        this.logMessageThread = new LogMessageThread(this.messages, this);
+        this.logMessageThread = new LogMessageThread(this);
+        this.logMessageThread.setName(this.logMessageThread.getClass()
+                .getName());
         this.logMessageThread.start();
+
+        // The unload callback will be registered, once the uploadPolicy has
+        // been built, by DefaultJUploadContext.init(JUploadApplet)
     }
 
     /**
@@ -176,16 +175,24 @@ public class JUploadTextArea extends JTextArea {
      * @param str The string to add, at the end of the JUploadTextArea.
      */
     public final void displayMsg(String str) {
-        this.messages.add(str);
+        try {
+            // messages is a BlockingQueue. So the next line may 'block' the
+            // applet main thread. But, we're optimistic: this should not happen
+            // as we instanciate an unbound LinkedBlockingQueue. We'll be
+            // blocked at Integer.MAX_VALUE, that is ... much after an
+            // OutOfMemory is thrown !
+            this.messages.put(str);
+        } catch (InterruptedException e) {
+            System.out.println("WARNING - [" + this.getClass().getName()
+                    + "] Message lost due to " + e.getClass().getName() + " ("
+                    + str + ")");
+        }
     }
 
     /**
-     * 
-     * @see Object#finalize()
+     * Free any used ressources. Actually close the LogMessageThread thread.
      */
-    @Override
-    protected void finalize() {
-        this.logMessageThread.interrupt();
+    public void unload() {
+        this.logMessageThread.unload();
     }
-
 }

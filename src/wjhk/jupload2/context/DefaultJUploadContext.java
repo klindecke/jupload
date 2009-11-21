@@ -167,6 +167,9 @@ public class DefaultJUploadContext implements JUploadContext {
             // Now we can create the upload policy: the logWindow exists.
             this.uploadPolicy = UploadPolicyFactory.getUploadPolicy(this);
 
+            // We'll stop the LogManagerThread, when we're finished.
+            registerUnload(this.logWindow, "unload");
+            
             // getMainPanel().setLayout(new BorderLayout());
             this.jUploadPanel = new JUploadPanel(this.logWindow,
                     this.uploadPolicy);
@@ -192,8 +195,7 @@ public class DefaultJUploadContext implements JUploadContext {
         this.mimeTypesProperties = new Properties();
         final String mimetypePropertiesFilename = "/conf/mimetypes.properties";
         try {
-            InputStream isProperties = Class.forName(
-                    "wjhk.jupload2.JUploadApplet").getResourceAsStream(
+            InputStream isProperties = this.getClass().getResourceAsStream(
                     mimetypePropertiesFilename);
             this.mimeTypesProperties.load(isProperties);
             isProperties.close();

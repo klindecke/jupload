@@ -527,6 +527,90 @@ public class ImageHelper implements ImageObserver {
         return returnedBufferedImage;
     }
 
+    //TODO Finish getBufferedImage2
+    /**
+     * 
+     * @param highquality
+     * @param sourceBufferedImage
+     * @return
+     * @throws JUploadException
+     *
+     *  This method is a work in progress
+     *
+    BufferedImage getBufferedImage2(boolean highquality,
+            BufferedImage sourceBufferedImage) throws JUploadException {
+        long msGetBufferedImage = System.currentTimeMillis();
+
+        // Scale factor calculation
+        this.uploadPolicy.displayDebug("getBufferedImage: quarter: "
+                + this.quarterRotation, 50);
+
+        // quarterRotation is one of 0, 1, 2, 3 : see addRotation.
+        int maxWidthBeforeRotation, maxHeigthBeforeRotation, widthBeforeRotation, heigthBeforeRotation, widthAfterRotation, heigthAfterRotation;
+        double theta = Math.toRadians(90 * this.quarterRotation);
+        switch (this.quarterRotation) {
+            case 0:
+            case 2:
+                maxWidthBeforeRotation = this.uploadPolicy.getMaxWidth();
+                maxHeigthBeforeRotation = this.uploadPolicy.getMaxHeight();
+                widthBeforeRotation = sourceBufferedImage.getWidth();
+                heigthBeforeRotation = sourceBufferedImage.getHeight();
+                widthAfterRotation = sourceBufferedImage.getWidth();
+                heigthAfterRotation = sourceBufferedImage.getHeight();
+                break;
+            case 1:
+            case 3:
+                maxWidthBeforeRotation = this.uploadPolicy.getMaxHeight();
+                maxHeigthBeforeRotation = this.uploadPolicy.getMaxWidth();
+                widthBeforeRotation = sourceBufferedImage.getHeight();
+                heigthBeforeRotation = sourceBufferedImage.getWidth();
+                widthAfterRotation = sourceBufferedImage.getHeight();
+                heigthAfterRotation = sourceBufferedImage.getWidth();
+                break;
+            default:
+                throw new JUploadException("Invalid quarter rotation: <"
+                        + this.quarterRotation + ">");
+        }
+        double scaleWidthBeforeRotation = widthBeforeRotation
+                / maxWidthBeforeRotation;
+        double scaleHeigthBeforeRotation = heigthBeforeRotation
+                / maxHeigthBeforeRotation;
+        double scale = Math.min(scaleWidthBeforeRotation,
+                scaleHeigthBeforeRotation);
+
+        // First: we scale the picture... if necessary.
+        Image scaledPicture = sourceBufferedImage;
+        if (scale < 1) {
+            int targetWidthBeforeRotation, targetHeigthBeforeRotation;
+            if (scaleWidthBeforeRotation < scaleHeigthBeforeRotation) {
+                // The constraint is on the width.
+                targetWidthBeforeRotation = maxWidthBeforeRotation;
+                targetHeigthBeforeRotation = (int) (heigthBeforeRotation * scale);
+            } else {
+                // The constraint is on the heigth
+                targetHeigthBeforeRotation = maxHeigthBeforeRotation;
+                targetWidthBeforeRotation = (int) (widthBeforeRotation * scale);
+            }
+            int scale_xxx = highquality ? Image.SCALE_SMOOTH : Image.SCALE_FAST;
+            scaledPicture = sourceBufferedImage.getScaledInstance(
+                    targetWidthBeforeRotation, targetHeigthBeforeRotation,
+                    scale_xxx);
+        }
+
+        // Then, rotation of the scaled picture.
+        // TODO finish this new version
+        BufferedImage dest = null;
+        // = new BufferedImage(widthAfterRotation, heigthAfterRotation,
+        // qsdsqddsq)
+
+        // It's finished !
+        this.uploadPolicy.displayDebug("getBufferedImage: was "
+                + (System.currentTimeMillis() - msGetBufferedImage)
+                + " ms long", 50);
+        return dest;
+    }
+    */
+
     /**
      * Implementation of the ImageObserver interface. Used to follow the
      * drawImage progression, and update the applet progress bar.

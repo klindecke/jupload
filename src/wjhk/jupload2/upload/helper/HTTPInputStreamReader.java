@@ -5,8 +5,6 @@ import java.io.PushbackInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.SSLSocket;
-
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.policies.UploadPolicy;
@@ -161,17 +159,6 @@ public class HTTPInputStreamReader {
                 .getInputStream();
 
         try {
-            // If the user requested abort, we are not going to send
-            // anymore, so shutdown the outgoing half of the socket.
-            // This helps the server to speed up with it's response.
-            // FIXME remove this test
-            if (false) {
-                // A try for the EOF error. 
-                if (!(this.httpConnectionHelper.getSocket() instanceof SSLSocket)) {
-                    this.httpConnectionHelper.getSocket().shutdownOutput();
-                }
-            }
-
             // We first read the headers,
             readHeaders(httpDataIn);
 

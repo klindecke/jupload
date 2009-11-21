@@ -1590,7 +1590,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
         return this.juploadContext;
     }
 
-    /** @see UploadPolicy#setCurrentBrowsingDirectory(File) */
+    /** {@inheritDoc} */
     public void setCurrentBrowsingDirectory(File currentBrowsingDirectoryParam) {
         try {
             if (currentBrowsingDirectoryParam.isDirectory()) {
@@ -1606,13 +1606,41 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
-    /** @see UploadPolicy#setCurrentBrowsingDirectory(File) */
-    private void setCurrentBrowsingDirectory(
-            String currentBrowsingDirectoryParam) {
-        if (currentBrowsingDirectoryParam == null) {
-            this.currentBrowsingDirectory = null;
-        } else {
-            setCurrentBrowsingDirectory(new File(currentBrowsingDirectoryParam));
+    /**
+     * @param currentBrowsingDirectoryParam The name of the directory that
+     *            should be the current one.
+     * @see UploadPolicy#setCurrentBrowsingDirectory(String)
+     */
+    public void setCurrentBrowsingDirectory(String currentBrowsingDirectoryParam) {
+        try {
+            if (currentBrowsingDirectoryParam == null) {
+                this.currentBrowsingDirectory = null;
+            } else {
+                // Apparently, Java deosn't manage path beginning by ~. folder
+                // is actually ... ~!
+                // Let's manager this.
+                if (currentBrowsingDirectoryParam.startsWith("~")) {
+                    // Let's keep the part of this path that is after the ~/ or
+                    // ~\
+                    displayWarn("The '~' folder is not properly manager");
+                }
+
+                this.currentBrowsingDirectory = new File(
+                        currentBrowsingDirectoryParam);
+
+                // Let's check that we have a folder.
+                if (this.currentBrowsingDirectory != null
+                        && !this.currentBrowsingDirectory.isDirectory()) {
+                    displayWarn("DefaultUploadPolicy.setCurrentBrowsingDirectory(): <"
+                            + currentBrowsingDirectoryParam
+                            + "> doesn't exist or is not a directory.");
+                    this.currentBrowsingDirectory = null;
+                }
+            }
+        } catch (SecurityException se) {
+            displayWarn(se.getClass().getName()
+                    + " in DefaultUploadPolicy.setCurrentBrowsingDirectory(): "
+                    + currentBrowsingDirectoryParam + " is ignored.");
         }
     }
 

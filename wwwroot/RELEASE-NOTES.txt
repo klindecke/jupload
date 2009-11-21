@@ -3,10 +3,12 @@ v4.5.1 (not released)
 
 - [Major] Compatibility with Java 1.5 is now restored. Make it work on Mac computers. 
 - [Major] bug n°2884603. When using a proxy, the port number of the postURL was ignored.
+- [Major] In FTP mode, uploaded to the root of the available folder (eg: ftp://user:mdp@host/) would throw a NullPointerException.
 - [Minor] httpUploadParameterName and httpUploadParameterType are now fully implemented, and changed a little. Check their definition, in the
 'howto customize' documentation. Also added the httpUploadParameterType oneFile Type.
-- [Major] In FTP mode, uploaded to the root of the available folder (eg: ftp://user:mdp@host/) would throw a NullPointerException.
-
+- [Minor] One thread was still running on, when the navigator would stop the applet. 
+- [Minor] Better management of the debug output. Consume less CPU
+- [Code] UploadPolicy.setCurrentBrowsingDirectory(File) is deprecated. Please new use UploadPolicy#setCurrentBrowsingDirectory(String)
 
 v4.5.0
 - [Medium, Picture mode]

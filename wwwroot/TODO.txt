@@ -3,6 +3,9 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- The '~' folder is not properly managed
+see DefaultUploadPolicy.setCurrentBrowsingDirectory()
+
 - [Minor] Response to bug 2891909 (Picture 1px too small)
 Need rewriting of the picture resizing code
 

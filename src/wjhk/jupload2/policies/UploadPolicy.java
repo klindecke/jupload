@@ -183,9 +183,14 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}</td>
  * <td>This parameter allows to control the starting browsing directory, that
  * is, the directory the is the current one when the file chooser is open.<BR>
- * <U>Note:</U> if the directory doesn't exist, or can not be read, a warning is
- * written on the local log window (visible only in debug mode), and this
- * parameter is ignored.</td>
+ * <U>Notes:</U> <DIR>
+ * <UL>
+ * If the directory doesn't exist, or can not be read, a warning is written on
+ * the local log window (visible only in debug mode), and this parameter is
+ * ignored.
+ * <UL>
+ * This directory may begin with ~/ or ~\, to have a path set relative to the
+ * current user's home.</DIR></td>
  * </tr>
  * <tr>
  * <td>debugLevel</td>
@@ -1694,8 +1699,19 @@ public interface UploadPolicy {
      * @param currentBrowsingDirectoryParam The directory that will be the
      *            current one, the next time the file chooser is opened.
      * @see #getCurrentBrowsingDirectory()
+     * @deprecated
      */
     public void setCurrentBrowsingDirectory(File currentBrowsingDirectoryParam);
+
+    /**
+     * Set the current directory.
+     * 
+     * @param currentBrowsingDirectoryParam The directory that will be the
+     *            current one, the next time the file chooser is opened. This
+     *            directory may begin with ~/ or ~\
+     * @see #getCurrentBrowsingDirectory()
+     */
+    public void setCurrentBrowsingDirectory(String currentBrowsingDirectoryParam);
 
     /**
      * Returns the current browsing directory, that is: the directory that will

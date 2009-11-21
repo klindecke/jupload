@@ -311,7 +311,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
                             this.fileChooser.getCurrentDirectory());
                 // We stop any running task for the JUploadFileView
                 this.uploadPolicy.setCurrentBrowsingDirectory(this.fileChooser
-                        .getCurrentDirectory());
+                        .getCurrentDirectory().getAbsolutePath());
                 this.fileChooser.shutdownNow();
             } catch (Exception ex) {
                 this.uploadPolicy.displayErr(ex);

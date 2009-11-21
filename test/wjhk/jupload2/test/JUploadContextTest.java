@@ -1,7 +1,6 @@
 package wjhk.jupload2.test;
 
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -18,9 +17,6 @@ import wjhk.jupload2.context.JUploadContextExecutable;
  * @author etienne_sf
  */
 public class JUploadContextTest extends JUploadContextExecutable {
-
-    /** Unused SerialVerisonUID */
-    private static final long serialVersionUID = 1L;
 
     /**
      * Root folder for policies configuration files, that are used in JUnit
@@ -68,6 +64,18 @@ public class JUploadContextTest extends JUploadContextExecutable {
                 this.defaultProperties);
 
         // Now, we're ready. Let's initialize the DefaultJUploadContext.
+        this.uploadPolicy = null;
+        init(this.jframe);
+    }
+
+    /**
+     * 
+     * @param jframe
+     * @param properties The properties to use for this test.
+     */
+    public JUploadContextTest(JFrame jframe, Properties properties) {
+        this.defaultProperties = properties;
+        this.daemonProperties = properties;
         this.uploadPolicy = null;
         init(this.jframe);
     }
