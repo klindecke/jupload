@@ -327,9 +327,14 @@ new data about files in the upload to the server..</P>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A></td>
  <td>This parameter allows to control the starting browsing directory, that
  is, the directory the is the current one when the file chooser is open.<BR>
- <U>Note:</U> if the directory doesn't exist, or can not be read, a warning is
- written on the local log window (visible only in debug mode), and this
- parameter is ignored.</td>
+ <U>Notes:</U> <DIR>
+ <UL>
+ If the directory doesn't exist, or can not be read, a warning is written on
+ the local log window (visible only in debug mode), and this parameter is
+ ignored.
+ <UL>
+ This directory may begin with ~/ or ~, to have a path set relative to the
+ current user's home.</DIR></td>
  </tr>
  <tr>
  <td>debugLevel</td>
@@ -420,7 +425,12 @@ new data about files in the upload to the server..</P>
  <i>Since 2.9.2rc4</i></td>
  <td>With this parameter, the name of a HTML form can be specified. If the
  specified form exists in the same document like the applet, all all
- form-variables are added as POST parameters to the applet's POST request.</td>
+ form-variables are added as POST parameters to the applet's POST request.<BR>
+ <B>Note:</B> Whatever value is in the <U>httpUploadParameterType</U> applet
+ parameter, these parameters with the name of the given input in the form.
+ That is: if you have an input text named 'myText', there will be one myText
+ parameter in the HTTP upload request, with the text/plain mime type, and
+ whose value is the content of this field, in the form.</td>
  </tr>
  <tr>
  <td>ftpCreateDirectoryStructure</td>
@@ -470,31 +480,43 @@ new data about files in the upload to the server..</P>
  picture is of the best available quality.</td>
  </tr>
  <tr>
- <td>httpParameterName</td>
+ <td>httpUploadParameterName</td>
  <td>File<br>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A><BR>
  since 4.5.0</td>
  <td>Contains the parameter name, that will be used to send the file in the
  HTTP upload request. The default value (File), associated with the default
- value for httpParameterType (see below), makes all file be uploaded with name
- from File0 to FileN (when there are N+1 file to upload).<BR>
+ value for httpUploadParameterType (see below), makes all file be uploaded
+ with name from File0 to FileN (when there are N+1 file to upload).<BR>
  Put another value, of your server part script need a particular parameter
- name to work properly.</td>
+ name to work properly.<BR>
+ Note: valid characters for this parameter are: first letter (letter or
+ number), next letters (letter, number or underscore)</td>
  </tr>
  <tr>
- <td>httpParameterType</td>
- <td>Iteration<br>
+ <td>httpUploadParameterType</td>
+ <td>iteration<br>
  <br>
  <a href="doc/wjhk/jupload2/policies/DefaultUploadPolicy.html" title="class in wjhk.jupload2.policies"><CODE>DefaultUploadPolicy</CODE></A><BR>
  since 4.5.0</td>
  <td>Allowed values are: <DIR>
- <LI>Iteration: Used to have the attribute property that actually contains the
- file be named File0 to FileN (if you have N+1 uploaded files). This is the
- default behavior. In this case, your server script should look for POST
- properties, named 'File0' to 'FileN'</LI>
- <LI>Array: Used if your server script want to receive one array, that will
- contain all uploaded files.</LI></DIR></td>
+ <LI><B>iteration</B>: Used to have the attribute property that actually
+ contains the file be named File0 to FileN (if you have N+1 uploaded files).
+ This is the default behavior. In this case, your server script should look
+ for POST properties, named 'File0' to 'FileN'</LI>
+ <LI><B>array</B>: Used if your server script want to receive one array, that
+ will contain all uploaded files.</LI>
+ <LI><B>oneFile</B>: Indicates that, in the HTTP upload request, there will be
+ only one file. This value is only valid when nbFilesPerRequest is 1. The
+ parameters in the HTTP upload request are let untransformed. For instance, if
+ httpUploadParameterName is the default value (File), the file content will be
+ loaded under the HTTP parameter 'File' (not File0 or File[]).</LI></DIR><BR>
+ <B>Note:</B> All parameters common to all pictures are sent directly. For
+ instance, if toto is given on the URL, the toto parameter is sent as is (no
+ toto0 for iteration or toto[] for array). Also, if you use the
+ <U>formdata</U> applet parameter, these parameters are sent as is (no 0 or []
+ added to the parameter name).</td>
  </tr>
  <tr>
  <td>keepOriginalFileExtensionForConvertedImages</td>
@@ -719,15 +741,20 @@ new data about files in the upload to the server..</P>
  <u>Note 1:</u> in HTTP, the upload is done in the same user session, as the
  applet uses the cookies from the navigator. This allows right management
  during upload, on the server side.<br>
- <u>Note 2:</u> FTP URL should looks like:
+ <u>Note 2:</u> in FTP, you can't use path that contain spaces. Filename may
+ contain spaces. <u>Note 5:</u> in HTTP, the applet use the current Java
+ parameter to connect to the host. By default, this configuration is to use
+ the navigator configuration. So, if a proxy is configured in the navigator
+ network configuration, the applet should use it automatically.<br>
+ <u>Note 3:</u> FTP URL should looks like:
  ftp://username:password@myhost.com:21/directory<br>
- <u>Note 3:</u> in FTP, you'll have to add the jakarta-commons-oro.jar and
+ <u>Note 4:</u> in FTP, you'll have to add the jakarta-commons-oro.jar and
  jakarta-commons-net.jar jar files in the applet ARCHIVE tag attribute. See
  the 'advanced_js_demo.html page for a sample. You'll have to put the two
  files coming from the JUpload distribution in the same directory as the
  wjhk.jupload.jar. <br>
- <u>Note 4:</u> in FTP, you can't use path that contain spaces. Filename may
- contain spaces.</td>
+ <u>Note 5:</u> in FTP, you can use the user default folder by putting no
+ folder. The URL can be: ftp://user:mdp@host</td>
  </tr>
  <tr>
  <td>readCookieFromNavigator</td>

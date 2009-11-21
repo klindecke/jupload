@@ -70,13 +70,12 @@ public class JUploadTextArea extends JTextArea {
         private JUploadTextArea textArea;
 
         /**
-         * Indicates whether the {@link #LogMessageThread} should go on. Cleared
+         * Indicates whether the {@link LogMessageThread} should go on. Cleared
          * by the {@link #unload()} method.
          */
         boolean isRunning = true;
 
         /**
-         * @param messages the queue, that will contain the messages to display.
          * @param textArea
          */
         LogMessageThread(JUploadTextArea textArea) {

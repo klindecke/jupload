@@ -47,7 +47,7 @@ public interface FileUploadThread {
 
     /**
      * @return The Thread state
-     * @see Thread.State
+     * @see Thread#getState()
      */
     public Thread.State getState();
 
