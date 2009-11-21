@@ -1,5 +1,5 @@
 
-v4.5.1 (not released)
+v4.5.1
 
 - [Major] Compatibility with Java 1.5 is now restored. Make it work on Mac computers. 
 - [Major] bug n°2884603. When using a proxy, the port number of the postURL was ignored.
