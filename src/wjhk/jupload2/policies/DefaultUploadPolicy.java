@@ -347,16 +347,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
      */
     protected boolean debugOk = true;
 
-    /** cookie is the value of the javascript <I>document.cookie</I> property. */
-    protected String cookie = null;
-
-    /**
-     * userAgent is the value of the javascript <I>navigator.userAgent</I>
-     * property. Protected as there is no setter for it, and no other way to
-     * update it.
-     */
-    protected String userAgent = null;
-
     /**
      * Same as {@link #patternSuccess}, but for the error message. If found,
      * then the upload was accepted by the remote HTTP server, but rejected by
