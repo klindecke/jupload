@@ -474,9 +474,6 @@ public class ImageHelper implements ImageObserver {
                 }
             }
 
-            this.uploadPolicy.displayDebug(
-                    "getBufferedImage: Picture is now rescaled", 50);
-
             if (transform.isIdentity()) {
                 returnedBufferedImage = sourceBufferedImage;
             } else {
@@ -527,19 +524,19 @@ public class ImageHelper implements ImageObserver {
         return returnedBufferedImage;
     }
 
-    //TODO Finish getBufferedImage2
     /**
      * 
      * @param highquality
      * @param sourceBufferedImage
      * @return
      * @throws JUploadException
-     *
-     *  This method is a work in progress
-     *
+     * 
+     *             This method is a work in progress
+     */
     BufferedImage getBufferedImage2(boolean highquality,
             BufferedImage sourceBufferedImage) throws JUploadException {
         long msGetBufferedImage = System.currentTimeMillis();
+        BufferedImage dest = null;
 
         // Scale factor calculation
         this.uploadPolicy.displayDebug("getBufferedImage: quarter: "
@@ -595,21 +592,45 @@ public class ImageHelper implements ImageObserver {
             scaledPicture = sourceBufferedImage.getScaledInstance(
                     targetWidthBeforeRotation, targetHeigthBeforeRotation,
                     scale_xxx);
-        }
+        }// if (scale < 1)
 
         // Then, rotation of the scaled picture.
-        // TODO finish this new version
-        BufferedImage dest = null;
-        // = new BufferedImage(widthAfterRotation, heigthAfterRotation,
-        // qsdsqddsq)
+        if (this.quarterRotation != 0) {
+            AffineTransform rotationTransform;
+            switch (this.quarterRotation) {
+                case 0:
+                case 2:
+                    maxWidthBeforeRotation = this.uploadPolicy.getMaxWidth();
+                    maxHeigthBeforeRotation = this.uploadPolicy.getMaxHeight();
+                    widthBeforeRotation = sourceBufferedImage.getWidth();
+                    heigthBeforeRotation = sourceBufferedImage.getHeight();
+                    widthAfterRotation = sourceBufferedImage.getWidth();
+                    heigthAfterRotation = sourceBufferedImage.getHeight();
+                    break;
+                case 1:
+                case 3:
+                    maxWidthBeforeRotation = this.uploadPolicy.getMaxHeight();
+                    maxHeigthBeforeRotation = this.uploadPolicy.getMaxWidth();
+                    widthBeforeRotation = sourceBufferedImage.getHeight();
+                    heigthBeforeRotation = sourceBufferedImage.getWidth();
+                    widthAfterRotation = sourceBufferedImage.getHeight();
+                    heigthAfterRotation = sourceBufferedImage.getWidth();
+                    break;
+                default:
+                    throw new JUploadException("Invalid quarter rotation: <"
+                            + this.quarterRotation + ">");
+            }
+            // TODO finish this new version
+            // dest = new BufferedImage(widthAfterRotation, heigthAfterRotation,
+            // BufferedImage.TYPE_BYTE_INDEXED,sourceBufferedImage.getColorModel())
 
-        // It's finished !
-        this.uploadPolicy.displayDebug("getBufferedImage: was "
-                + (System.currentTimeMillis() - msGetBufferedImage)
-                + " ms long", 50);
+            // It's finished !
+            this.uploadPolicy.displayDebug("getBufferedImage: was "
+                    + (System.currentTimeMillis() - msGetBufferedImage)
+                    + " ms long", 50);
+        }
         return dest;
     }
-    */
 
     /**
      * Implementation of the ImageObserver interface. Used to follow the
