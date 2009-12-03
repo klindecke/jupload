@@ -543,33 +543,7 @@ public class HTTPConnectionHelper extends OutputStream {
      */
     public synchronized HTTPConnectionHelper append(byte[] bytes)
             throws JUploadIOException {
-
-        if (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION) {
-            this.byteArrayEncoder.append(bytes);
-        } else if (this.connectionStatus == STATUS_WRITING_REQUEST) {
-            try {
-                this.outputStream.write(bytes);
-            } catch (IOException e) {
-                throw new JUploadIOException(e.getClass().getName()
-                        + " while writing to httpDataOut", e);
-            }
-        } else {
-            throw new JUploadIOException(
-                    "Wrong status in HTTPConnectionHelper.write() ["
-                            + getStatusLabel() + "]");
-        }
-
-        if (this.uploadPolicy.getDebugLevel() > 100) {
-            this.uploadPolicy
-                    .displayDebug(
-                            "[HTTPConnectionHelper append] ("
-                                    + bytes.length
-                                    + " bytes appended to "
-                                    + (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"
-                                            : " socket") + ")", 70);
-        }
-
-        return this;
+        return this.append(bytes, 0, bytes.length);
     }
 
     /**
@@ -605,7 +579,7 @@ public class HTTPConnectionHelper extends OutputStream {
         if (this.uploadPolicy.getDebugLevel() > 100) {
             this.uploadPolicy
                     .displayDebug(
-                            "[HTTPConnectionHelper append] ("
+                            "[HTTPConnectionHelper append(byte[],int,int)] ("
                                     + len
                                     + " bytes appended to "
                                     + (this.connectionStatus == STATUS_BEFORE_SERVER_CONNECTION ? " current ByteArrayEncoder"

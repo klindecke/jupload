@@ -154,16 +154,19 @@ public class DefaultFileData implements FileData {
     /** {@inheritDoc} */
     public synchronized void beforeUpload() throws JUploadException {
         if (this.preparedForUpload) {
-            throw new IllegalStateException("The file " + getFileName()
+            // Maybe an upload was stopped. Let's log a resume, and resume the
+            // job.
+            this.uploadPolicy.displayWarn("The file " + getFileName()
                     + " is already prepared for upload");
-        }
-        this.preparedForUpload = true;
+        } else {
+            this.preparedForUpload = true;
 
-        // Default : we check that the file is smaller than the maximum upload
-        // size.
-        if (getUploadLength() > this.uploadPolicy.getMaxFileSize()) {
-            throw new JUploadExceptionTooBigFile(getFileName(),
-                    getUploadLength(), this.uploadPolicy);
+            // Default : we check that the file is smaller than the maximum
+            // upload size.
+            if (getUploadLength() > this.uploadPolicy.getMaxFileSize()) {
+                throw new JUploadExceptionTooBigFile(getFileName(),
+                        getUploadLength(), this.uploadPolicy);
+            }
         }
     }
 
@@ -182,6 +185,8 @@ public class DefaultFileData implements FileData {
             throw new IllegalStateException("The file " + getFileName()
                     + " is not prepared for upload");
         }
+        // Nothing to free in DefaultFileData, let's just change the preparation
+        // status.
         this.preparedForUpload = false;
     }
 

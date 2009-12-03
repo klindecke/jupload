@@ -24,6 +24,8 @@ package wjhk.jupload2.upload;
 import java.io.OutputStream;
 import java.util.regex.Pattern;
 
+import com.sun.org.apache.bcel.internal.generic.ISUB;
+
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.exception.JUploadIOException;
@@ -361,7 +363,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
         // Prepare upload, for all files to be uploaded.
         beforeRequest();
 
-        for (int i = 0; i < this.filesToUpload.length; i++) {
+        for (int i = 0; i < this.filesToUpload.length
+                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
             // Total length, for HTTP upload.
             totalContentLength += this.filesToUpload[i].getUploadLength();
             totalContentLength += getAdditionnalBytesForUpload(i);
@@ -526,7 +529,9 @@ public abstract class DefaultFileUploadThread extends Thread implements
         } finally {
             // Let's free any locked resource, if we're not 'stopped' by the
             // user.
-            this.filesToUpload[0].afterUpload();
+            if (this.filesToUpload[0].isPreparedForUpload()) {
+                this.filesToUpload[0].afterUpload();
+            }
         }
 
     }// doChunkedUpload
@@ -548,7 +553,8 @@ public abstract class DefaultFileUploadThread extends Thread implements
         startRequest(totalContentLength, false, 0, true);
 
         // Then, upload each file.
-        for (int i = 0; i < this.filesToUpload.length; i++) {
+        for (int i = 0; i < this.filesToUpload.length
+                && !this.fileUploadManagerThread.isUploadStopped(); i++) {
             // We are about to start a new upload.
             this.fileUploadManagerThread.setUploadStatus(i,
                     FileUploadManagerThread.UPLOAD_STATUS_UPLOADING);
@@ -564,7 +570,11 @@ public abstract class DefaultFileUploadThread extends Thread implements
                         this.filesToUpload[i].getUploadLength());
             } finally {
                 // Let's free any locked resource
-                this.filesToUpload[i].afterUpload();
+                // synchronized (this.filesToUpload[i]) {
+                if (this.filesToUpload[i].isPreparedForUpload()) {
+                    this.filesToUpload[i].afterUpload();
+                }
+                // }
             }
 
             // Let's add any file-specific header.

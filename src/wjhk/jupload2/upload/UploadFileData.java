@@ -227,7 +227,12 @@ public class UploadFileData implements FileData {
                     // occurs only when given a 'high' debugLevel (higher than
                     // what can be set with the applet GUI.
                     if (this.uploadPolicy.getDebugLevel() > 100) {
-                        Thread.sleep(20);
+                        try {
+                            Thread.sleep(20);
+                        } catch (InterruptedException e) {
+                            // Nothing to do. We'll just take a look at the loop
+                            // condition.
+                        }
                     }
                 } catch (IOException ioe) {
                     throw new JUploadIOException(this.getClass().getName()
@@ -237,7 +242,7 @@ public class UploadFileData implements FileData {
                     // NullPointerException. Let's trap all errors here.
                     throw new JUploadException(
                             this.getClass().getName()
-                                    + "finishRequest()  (check the user permission on the server)",
+                                    + ".uploadFile()  (check the user permission on the server)",
                             e);
                 }
             }

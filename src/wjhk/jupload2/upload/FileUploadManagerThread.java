@@ -509,7 +509,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @return true if the current upload has been asked to stop by the user,
      *         false otherwise.
      */
-    private boolean isUploadStopped() {
+    public boolean isUploadStopped() {
         return this.stop;
     }
 

@@ -211,57 +211,59 @@ public class PictureFileData extends DefaultFileData {
         this.uploadPolicy.displayDebug(this.hashCode()
                 + "|Entering PictureFileData.beforeUpload()", 95);
 
-        if (this.preparedForUpload) {
-            throw new IllegalStateException("The file " + getFileName()
-                    + " is already prepared for upload");
-        }
+        if (!this.preparedForUpload) {
+            if (this.uploadLength < 0) {
+                try {
+                    // Picture management is a big work. Let's try to free some
+                    // memory.
+                    freeMemory(
+                            "Picture manabeforeUpload(): before initTransformedPictureFile",
+                            this.uploadPolicy);
 
-        if (this.uploadLength < 0) {
-            try {
-                // Picture management is a big work. Let's try to free some
-                // memory.
-                freeMemory(
-                        "Picture manabeforeUpload(): before initTransformedPictureFile",
-                        this.uploadPolicy);
+                    // Get the transformed picture file, if needed.
+                    initTransformedPictureFile();
 
-                // Get the transformed picture file, if needed.
-                initTransformedPictureFile();
+                    // More debug output, to understand where the applet
+                    // freezes.
+                    this.uploadPolicy
+                            .displayDebug(
+                                    this.getClass().getName()
+                                            + ".beforeUpload(): after call to initTransformedPictureFile()",
+                                    100);
 
-                // More debug output, to understand where the applet freezes.
-                this.uploadPolicy
-                        .displayDebug(
-                                this.getClass().getName()
-                                        + ".beforeUpload(): after call to initTransformedPictureFile()",
-                                100);
+                } catch (OutOfMemoryError e) {
+                    // Oups ! My EOS 20D has too big pictures to handle more
+                    // than
+                    // two pictures in a navigator applet !!!!!
+                    // :-(
+                    //
+                    // We don't transform it. We clean the file, if it has been
+                    // created.
+                    // More debug output, to understand where the applet
+                    // freezes.
+                    this.uploadPolicy.displayDebug(this.getClass().getName()
+                            + ".beforeUpload(): OutOfMemoryError", 30);
+                    deleteTransformedPictureFile();
+                    deleteWorkingCopyPictureFile();
 
-            } catch (OutOfMemoryError e) {
-                // Oups ! My EOS 20D has too big pictures to handle more than
-                // two pictures in a navigator applet !!!!!
-                // :-(
-                //
-                // We don't transform it. We clean the file, if it has been
-                // created.
-                // More debug output, to understand where the applet freezes.
-                this.uploadPolicy.displayDebug(this.getClass().getName()
-                        + ".beforeUpload(): OutOfMemoryError", 30);
-                deleteTransformedPictureFile();
-                deleteWorkingCopyPictureFile();
+                    // Let's try to free some memory.
+                    freeMemory("beforeUpload(): in OutOfMemoryError",
+                            this.uploadPolicy);
 
-                // Let's try to free some memory.
-                freeMemory("beforeUpload(): in OutOfMemoryError",
-                        this.uploadPolicy);
+                    tooBigPicture();
+                }
 
-                tooBigPicture();
-            }
-
-            // If the transformed picture is correctly created, we'll upload it.
-            // Else we upload the original file.
-            synchronized (this) {
-                if (this.transformedPictureFile != null) {
-                    this.uploadLength = this.transformedPictureFile.length();
-                    setMimeTypeByExtension(this.targetPictureFormat);
-                } else {
-                    this.uploadLength = getFile().length();
+                // If the transformed picture is correctly created, we'll upload
+                // it.
+                // Else we upload the original file.
+                synchronized (this) {
+                    if (this.transformedPictureFile != null) {
+                        this.uploadLength = this.transformedPictureFile
+                                .length();
+                        setMimeTypeByExtension(this.targetPictureFormat);
+                    } else {
+                        this.uploadLength = getFile().length();
+                    }
                 }
             }
         }
