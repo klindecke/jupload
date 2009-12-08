@@ -272,9 +272,16 @@ public class JUploadContextExecutable extends DefaultJUploadContext {
 
     /** {@inheritDoc} */
     @Override
-    public void readCookieAndUserAgentFromNavigator(Vector<String> headers) {
+    public void readCookieFromNavigator(Vector<String> headers) {
         throw new UnsupportedOperationException(
-                "Can't use readCookieAndUserAgentFromNavigator(), when using the JUploadDaemon!");
+                "Can't use readCookieFromNavigator(), when using the JUploadDaemon!");
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void readUserAgentFromNavigator(Vector<String> headers) {
+        throw new UnsupportedOperationException(
+                "Can't use readUserAgentFromNavigator(), when using the JUploadDaemon!");
     }
 
     /** {@inheritDoc} */

@@ -272,12 +272,20 @@ public interface JUploadContext {
      */
 
     /**
-     * This method allows to read the navigator cookies and userAgent. These
-     * items will be added as headers, in the given Vector.
+     * This method allows to read the navigator cookies. These items will be
+     * added as headers, in the given Vector.
      * 
      * @param headers The headers, coming from {@link DefaultUploadPolicy}
      */
-    public void readCookieAndUserAgentFromNavigator(Vector<String> headers);
+    public void readCookieFromNavigator(Vector<String> headers);
+
+    /**
+     * This method allows to read the navigator userAgent. It will be added as
+     * headers, in the given Vector.
+     * 
+     * @param headers The headers, coming from {@link DefaultUploadPolicy}
+     */
+    public void readUserAgentFromNavigator(Vector<String> headers);
 
     /**
      * Generates a valid URL, from a String. The generation may add the

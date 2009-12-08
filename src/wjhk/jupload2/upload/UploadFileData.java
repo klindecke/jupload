@@ -199,7 +199,7 @@ public class UploadFileData implements FileData {
         // or leave it unchanged if it is not null.
         getInputStream();
 
-        while (amount > 0) {
+        while (amount > 0 && !this.fileUploadManagerThread.isUploadStopped()) {
             // Are we interrupted ?
             if (Thread.interrupted()) {
                 throw new JUploadInterrupted(getClass().getName()

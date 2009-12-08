@@ -127,24 +127,58 @@ public class JUploadContextApplet extends DefaultJUploadContext {
     }// getParameter(boolean)
 
     /**
-     * Loads cookie and userAgent, and add them to the specific headers for
-     * upload requests. {@inheritDoc}
+     * Loads cookies, and add them to the specific headers for upload requests.
+     * {@inheritDoc}
      */
     @Override
-    public void readCookieAndUserAgentFromNavigator(Vector<String> headers) {
-        // /////////////////////////////////////////////////////////////////////////////
-        // Load session data read from the navigator:
-        // - cookies (according to readCookieFromNavigator)
-        // - User-Agent : useful, as the server will then see a post request
-        // coming from the same navigator.
+    public void readCookieFromNavigator(Vector<String> headers) {
         String cookie = null;
-        String userAgent = null;
 
         try {
-            // Patch given by Stani: corrects the use of the juploadContext for
+            // Patch given by Stani: corrects the use of JUpload for
             // Firefox on Mac.
             cookie = (String) JSObject.getWindow(this.theApplet).eval(
                     "document.cookie");
+        } catch (JSException e) {
+            System.out.println("JSException (" + e.getClass() + ": "
+                    + e.getMessage()
+                    + ") in DefaultUploadPolicy, trying default values.");
+
+            // If we can't have access to the JS objects, we're in development :
+            // Let's put some 'hard value', to test the juploadContext from the
+            // development tool (mine is eclipse).
+
+            // felfert: I need different values so let's make that
+            // configurable...
+            cookie = System.getProperty("debug_cookie");
+
+            System.out
+                    .println("  no navigator found, reading 'debug_cookie' from system properties ("
+                            + cookie + ")");
+            /*
+             * Example of parameter when calling the JVM:
+             * -Ddebug_cookie="Cookie:cpg146_data=
+             * YTo0OntzOjI6IklEIjtzOjMyOiJhZGU3MWIxZmU4OTZjNThhZjQ5N2FiY2ZiNmFlZTUzOCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGl2IjthOjI6e2k6MDtOO2k6MTtzOjQ6IjE0ODgiO319
+             * "
+             */
+        }
+        // The cookies and user-agent will be added to the header sent by the
+        // juploadContext:
+        if (cookie != null)
+            headers.add("Cookie: " + cookie);
+    }
+
+    /**
+     * Loads userAgent, and add it as a header to the specific headers for
+     * upload requests. {@inheritDoc}
+     */
+    @Override
+    public void readUserAgentFromNavigator(Vector<String> headers) {
+        String userAgent = null;
+
+        try {
+            // Patch given by Stani: corrects the use of JUpload for
+            // Firefox on Mac.
             userAgent = (String) JSObject.getWindow(this.theApplet).eval(
                     "navigator.userAgent");
         } catch (JSException e) {
@@ -158,33 +192,18 @@ public class JUploadContextApplet extends DefaultJUploadContext {
 
             // felfert: I need different values so let's make that
             // configurable...
-            cookie = System.getProperty("debug_cookie");
             userAgent = System.getProperty("debug_agent");
-
-            System.out
-                    .println("  no navigator found, reading 'debug_cookie' from system properties ("
-                            + cookie + ")");
             System.out
                     .println("  no navigator found, reading 'debug_agent' from system properties ("
                             + userAgent + ")");
             /*
              * Example of parameter when calling the JVM:
-             * -Ddebug_cookie="Cookie:cpg146_data=
-             * YTo0OntzOjI6IklEIjtzOjMyOiJhZGU3MWIxZmU4OTZjNThhZjQ5N2FiY2ZiNmFlZTUzOCI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO3M6MzoibGl2IjthOjI6e2k6MDtOO2k6MTtzOjQ6IjE0ODgiO319
-             * ;cpg143_data=
-             * YTozOntzOjI6IklEIjtzOjMyOiI4NjhhNmQ4ZmNlY2IwMTc5YTJiNmZlMGY3YWQzNThkNSI7czoyOiJhbSI7aToxO3M6NDoibGFuZyI7czo2OiJmcmVuY2giO30
-             * %3D;
-             * 8387c97d1f683b758a67a0473b586126=5ed998846fec70d6d2f73971b9cbbf0b;
-             * b1d7468cf1b317c97c7c284f6bb14ff8
-             * =587b82a7abb3d2aca134742b1df9acf7" -Ddebug_agent="userAgent:
-             * Mozilla/5.0 (Windows; U; Windows NT 5.0; fr; rv:1.8.1.3)
-             * Gecko/20070309 Firefox/2.0.0.3"
+             * -Ddebug_agent="userAgent: Mozilla/5.0 (Windows; U; Windows NT
+             * 5.0; fr; rv:1.8.1.3) Gecko/20070309 Firefox/2.0.0.3"
              */
         }
-        // The cookies and user-agent will be added to the header sent by the
+        // The user-agent will be added to the header sent by the
         // juploadContext:
-        if (cookie != null)
-            headers.add("Cookie: " + cookie);
         if (userAgent != null)
             headers.add("User-Agent: " + userAgent);
 

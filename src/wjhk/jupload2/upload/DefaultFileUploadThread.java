@@ -24,8 +24,6 @@ package wjhk.jupload2.upload;
 import java.io.OutputStream;
 import java.util.regex.Pattern;
 
-import com.sun.org.apache.bcel.internal.generic.ISUB;
-
 import wjhk.jupload2.exception.JUploadException;
 import wjhk.jupload2.exception.JUploadExceptionUploadFailed;
 import wjhk.jupload2.exception.JUploadIOException;
@@ -566,41 +564,45 @@ public abstract class DefaultFileUploadThread extends Thread implements
                 beforeFile(i);
 
                 // Actual upload of the file:
-                this.filesToUpload[i].uploadFile(getOutputStream(),
-                        this.filesToUpload[i].getUploadLength());
+                if (!this.fileUploadManagerThread.isUploadStopped()) {
+                    this.filesToUpload[i].uploadFile(getOutputStream(),
+                            this.filesToUpload[i].getUploadLength());
+                }
             } finally {
                 // Let's free any locked resource
-                // synchronized (this.filesToUpload[i]) {
                 if (this.filesToUpload[i].isPreparedForUpload()) {
                     this.filesToUpload[i].afterUpload();
                 }
-                // }
             }
 
             // Let's add any file-specific header.
-            afterFile(i);
+            if (!this.fileUploadManagerThread.isUploadStopped()) {
+                afterFile(i);
 
-            // Let's tell our manager that we've done the job!
-            // Ok, maybe the server will refuse it, but we won't say that now!
-            this.fileUploadManagerThread
-                    .anotherFileHasBeenSent(this.filesToUpload[i]);
+                // Let's tell our manager that we've done the job!
+                // Ok, maybe the server will refuse it, but we won't say that
+                // now!
+                this.fileUploadManagerThread
+                        .anotherFileHasBeenSent(this.filesToUpload[i]);
+            }
         }
 
         // We are finished with this one. Let's display it.
-        this.fileUploadManagerThread
-                .setUploadStatus(
-                        this.filesToUpload.length,
-                        FileUploadManagerThread.UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE);
+        if (!this.fileUploadManagerThread.isUploadStopped()) {
+            this.fileUploadManagerThread
+                    .setUploadStatus(
+                            this.filesToUpload.length,
+                            FileUploadManagerThread.UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE);
 
-        // Let's finish the request, and wait for the server Output, if
-        // any (not applicable in FTP)
-        int status = finishRequest();
+            // Let's finish the request, and wait for the server Output, if
+            // any (not applicable in FTP)
+            int status = finishRequest();
 
-        // We now ask to the uploadPolicy, if it was a success.
-        // If not, the isUploadSuccessful should raise an exception.
-        this.uploadPolicy.checkUploadSuccess(status, getResponseMsg(),
-                getResponseBody());
-
+            // We now ask to the uploadPolicy, if it was a success.
+            // If not, the isUploadSuccessful should raise an exception.
+            this.uploadPolicy.checkUploadSuccess(status, getResponseMsg(),
+                    getResponseBody());
+        }
         cleanRequest();
 
     }// doNonChunkedUpload

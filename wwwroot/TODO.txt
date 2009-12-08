@@ -3,10 +3,42 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- Clear the log window would throw a NullPointerException
+
+- Check STOP button
+https://sourceforge.net/projects/jupload/forums/forum/199107/topic/3175188
+Pb with the 'prepared' status of the FileData, when clicking on STOP. 
+Add a specific exception: JUploadFonctionnalUploadStoppedByTheUSer
+
+- Check the samples.PHP files
+
+- Rename wwwroot/pages to wwwroot/samples.java
+
+- In picture mode (Coppermine?)
+Uploading an empty text file (niv1.txt) generates an error.
+Bug n°: 2793404. Solved in 4.6.0. Answer to post.
+
 - maxChunkSize should be set to MAX_INTEGER, when in FTP protocol.
 
 - [Minor] Response to bug 2891909 (Picture 1px too small)
 Need rewriting of the picture resizing code
+See initScale(), and identification of rounding troubles. This code should manage differently widht and height.
+First: repeat the problem.
+Original Picture: 3296x2472
+maxWidth=120
+maxHeight=0
+Resulting Picture: 119x90 (it should be: 120x90)
+
+ImageHelper.java 4.5.0
+198 // With number rounding, it can happen that width or
+size
+199 // became one pixel too big. Let's correct it.
+
+231 // Due to rounded numbers, the resulting targetWidth or
+232 // targetHeight
+233 // may be one pixel too big. Let's check that.
+
+
 
 - [Minor] Replace juploadContext by applet in the DefaultUploadPolicy.java comments.
 
@@ -29,27 +61,8 @@ Answer to https://sourceforge.net/forum/forum.php?thread_id=3346125&forum_id=199
 Answer to:
 http://forum.coppermine-gallery.net/index.php/topic,60184.msg297777.html#new
 
-- build.xml: should take into account the ANT_COPYDOC_START and ANT_COPYDOC_END tags,
-in UploadPolicy.java.
-
-- Check applet behavior against HTTP1/0
-Answer to:
-http://forum.coppermine-gallery.net/index.php/topic,59311.new.html#new
-
-- Remove debug about before getUploadLength.
-
-- PictureFileData.tooBigPicture()
-=> Just write the warning in the debugfile. Should open a messageBox, but this generates a deadlock. 
-(because the JDialogBox.Message tries to lock the result of new AWTTreeLock() ??)
-Should generate a functional exception, that would be displayed without locks?
-
 - Try Cobertura
 (docs in /Java)
-
-- Analyse findbugs report.
-(docs on HTTrack)
-
-- Tests: remove the /tests folder, and the Test classes from the packaged jar file.
 
 - STOP button: problems in chunk upload.
 Add a way to advertise the server, that the upload was stopped.
@@ -63,10 +76,6 @@ See Feature request on sourceforge.
 
 - In picture mode: The file size should be checked after file preparation
 (would not block files of 3M, in my standard coppermine conf)
-
-- In picture mode (Coppermine?)
-Uploading an empty text file (niv1.txt) generates an error.
-Bug n°: 2793404.
 
 - Add a HowToOptimize page
 (allowHttpPersistent, nbFilesPerRequest...)

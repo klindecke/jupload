@@ -86,7 +86,7 @@ public class DefaultJUploadContext implements JUploadContext {
      * JUploadApplet.java file. The revision is added at build time, by the
      * build.xml ant file, packaged with the applet.
      */
-    private static final String RELEASE_VERSION = "4.6.1rc1";
+    private static final String RELEASE_VERSION = "4.6.1rc2";
 
     /**
      * The current upload policy. This class is responsible for the call to the
@@ -169,7 +169,7 @@ public class DefaultJUploadContext implements JUploadContext {
 
             // We'll stop the LogManagerThread, when we're finished.
             registerUnload(this.logWindow, "unload");
-            
+
             // getMainPanel().setLayout(new BorderLayout());
             this.jUploadPanel = new JUploadPanel(this.logWindow,
                     this.uploadPolicy);
@@ -652,9 +652,19 @@ public class DefaultJUploadContext implements JUploadContext {
      * 
      * @param headers
      */
-    public void readCookieAndUserAgentFromNavigator(Vector<String> headers) {
+    public void readCookieFromNavigator(Vector<String> headers) {
         throw new UnsupportedOperationException(
-                "DefaultJUploadContext.setCursor()");
+                "DefaultJUploadContext.readCookieFromNavigator()");
+    }
+
+    /**
+     * Just throws a UnsupportedOperationException exception.
+     * 
+     * @param headers
+     */
+    public void readUserAgentFromNavigator(Vector<String> headers) {
+        throw new UnsupportedOperationException(
+                "DefaultJUploadContext.readUserAgentFromNavigator()");
     }
 
     /**

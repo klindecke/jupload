@@ -738,7 +738,9 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     private synchronized boolean checkIfNextPacketIsReady()
             throws JUploadException {
 
-        if (this.nextPacket != null) {
+        if (isUploadStopped()) {
+            // Nothing to do...
+        } else if (this.nextPacket != null) {
             // Nothing to do: the next packet is already prepared
         } else if (this.nbSentFiles + this.nbFilesBeingUploaded == this.nbPreparedFiles) {
             // No file is ready to sent: Upload is finished or all files are
@@ -886,7 +888,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     public synchronized void currentRequestIsFinished(
             UploadFileData[] currentPacket) throws JUploadException {
         // If no error occurs, we're happy ! (that's a useful comment...)
-        if (this.getUploadException() == null) {
+        if (this.getUploadException() == null && !this.isUploadStopped()) {
             // We should now remove this file from the list of files to upload,
             // to show the user that there is less and less work to do.
             for (int i = 0; i < currentPacket.length; i += 1) {
@@ -916,8 +918,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
     public synchronized UploadFileData[] getNextPacket()
             throws JUploadException {
 
-        // If the upload is finished, we stop here.
-        if (isUploadFinished()) {
+        // If the upload is finished or stopped by the user, we stop here.
+        if (isUploadFinished() || isUploadStopped()) {
             return null;
         }
 
@@ -927,7 +929,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
         }
 
         // If the next packet is ready, let's manage it.
-        if (this.nextPacket == null || isUploadFinished()) {
+        if (this.nextPacket == null) {
             return null;
         } else {
             // If it's the first packet, we noted the current time as the upload
@@ -969,11 +971,6 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             percent = 0;
         } else {
             try {
-                this.uploadPolicy
-                        .displayDebug(
-                                this.getClass().getName()
-                                        + ".updateUploadProgressBar(): before call to this.uploadFileDataArray[this.nbSentFiles].getUploadLength()",
-                                100);
                 percent = (int) (this.nbBytesUploadedForCurrentFile * 100 / this.uploadFileDataArray[this.nbSentFiles]
                         .getUploadLength());
             } catch (JUploadException e) {

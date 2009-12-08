@@ -265,6 +265,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see UploadPolicy#getReadCookieFromNavigator() */
     private boolean readCookieFromNavigator = UploadPolicy.DEFAULT_READ_COOKIE_FROM_NAVIGATOR;
 
+    /** @see UploadPolicy#getReadUserAgentFromNavigator() */
+    private boolean readUserAgentFromNavigator = UploadPolicy.DEFAULT_READ_USER_AGENT_FROM_NAVIGATOR;
+
     /** @see UploadPolicy#getServerProtocol() */
     private String serverProtocol = UploadPolicy.DEFAULT_SERVER_PROTOCOL;
 
@@ -480,6 +483,9 @@ public class DefaultUploadPolicy implements UploadPolicy {
         setReadCookieFromNavigator(juploadContext.getParameter(
                 PROP_READ_COOKIE_FROM_NAVIGATOR,
                 DEFAULT_READ_COOKIE_FROM_NAVIGATOR));
+        setReadUserAgentFromNavigator(juploadContext.getParameter(
+                PROP_READ_USER_AGENT_FROM_NAVIGATOR,
+                DEFAULT_READ_USER_AGENT_FROM_NAVIGATOR));
         setSpecificHeaders(juploadContext.getParameter(PROP_SPECIFIC_HEADERS,
                 DEFAULT_SPECIFIC_HEADERS));
         setStringUploadError(juploadContext.getParameter(
@@ -501,7 +507,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
         // The current context may add any specific headers.
         if (getReadCookieFromNavigator()) {
             this.juploadContext
-                    .readCookieAndUserAgentFromNavigator(this.headers);
+                    .readCookieFromNavigator(this.headers);
+        }
+        if (getReadUserAgentFromNavigator()) {
+            this.juploadContext
+                    .readUserAgentFromNavigator(this.headers);
         }
 
         // Let's touch the server, to test that everything is Ok. Take care,
@@ -1500,6 +1510,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayDebug(PROP_POST_URL + ": " + this.postURL, 30);
         displayDebug(PROP_READ_COOKIE_FROM_NAVIGATOR + ": "
                 + this.readCookieFromNavigator, 30);
+        displayDebug(PROP_READ_USER_AGENT_FROM_NAVIGATOR + ": "
+                + this.readUserAgentFromNavigator, 30);
         displayDebug(PROP_SERVER_PROTOCOL + ": " + getServerProtocol(), 30);
         displayDebug(PROP_SHOW_LOGWINDOW + ": " + getShowLogWindow(), 30);
         displayDebug(PROP_SHOW_STATUSBAR + ": " + this.showStatusbar, 30);
@@ -1943,6 +1955,17 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /** @see wjhk.jupload2.policies.UploadPolicy#getReadCookieFromNavigator() */
     private void setReadCookieFromNavigator(boolean readCookieFromNavigator) {
         this.readCookieFromNavigator = readCookieFromNavigator;
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getReadUserAgentFromNavigator() */
+    public boolean getReadUserAgentFromNavigator() {
+        return this.readUserAgentFromNavigator;
+    }
+
+    /** @see wjhk.jupload2.policies.UploadPolicy#getReadUserAgentFromNavigator() */
+    private void setReadUserAgentFromNavigator(
+            boolean readUserAgentFromNavigator) {
+        this.readUserAgentFromNavigator = readUserAgentFromNavigator;
     }
 
     /** @see wjhk.jupload2.policies.UploadPolicy#getServerProtocol() */

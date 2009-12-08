@@ -190,7 +190,8 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * ignored.
  * <UL>
  * This directory may begin with ~/ or ~\, to have a path set relative to the
- * current user's home.</DIR></td>
+ * current user's home.</DIR>
+ * </td>
  * </tr>
  * <tr>
  * <td>debugLevel</td>
@@ -621,8 +622,18 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <i>Since v2.8.1</i></td>
  * <td>If true (default), the applet read cookies from the navigator, with the
  * javascript document.cookie value. If false, the caller should put the
- * relevant Cookie: header in the specificHeaders applet parameter. This allow
+ * relevant 'Cookie' header in the specificHeaders applet parameter. This allows
  * to override any javascript cookie access restriction.</td>
+ * </tr>
+ * <td>readUserAgentFromNavigator</td>
+ * <td>Since 4.6.1rc2: Boolean<BR>
+ * (true)<br>
+ * <br>
+ * {@link wjhk.jupload2.policies.DefaultUploadPolicy}<br>
+ * </td>
+ * <td>If true (default), the applet read the userAgent from the navigator, with
+ * the javascript document.userAgent value. If false, the caller can put the
+ * relevant userAgent header in the specificHeaders applet parameter.</td>
  * </tr>
  * <tr>
  * <td>realMaxPicHeight</td>
@@ -1197,6 +1208,11 @@ public interface UploadPolicy {
     public final static String PROP_READ_COOKIE_FROM_NAVIGATOR = "readCookieFromNavigator";
 
     /**
+     * Read userAgent from javascript command: document.userAgent (or not)
+     */
+    public final static String PROP_READ_USER_AGENT_FROM_NAVIGATOR = "readUserAgentFromNavigator";
+
+    /**
      * Parameter/Property name for specifying the real (server-side-desired)
      * picture height.
      */
@@ -1460,6 +1476,11 @@ public interface UploadPolicy {
      * Default value for parameter "readCookieFromNavigator".
      */
     public final static boolean DEFAULT_READ_COOKIE_FROM_NAVIGATOR = true;
+
+    /**
+     * Default value for parameter "readUserAgentFromNavigator".
+     */
+    public final static boolean DEFAULT_READ_USER_AGENT_FROM_NAVIGATOR = true;
 
     /**
      * Default value for parameter "realMaxPicWidth".
@@ -1845,6 +1866,13 @@ public interface UploadPolicy {
      *         request.
      */
     public int getNbFilesPerRequest();
+
+    /**
+     * Return the current value of readUserAgentFromNavigator
+     * 
+     * @return Current value of readUserAgentFromNavigator
+     */
+    public boolean getReadUserAgentFromNavigator();
 
     /**
      * Return the current value of readCookieFromNavigator

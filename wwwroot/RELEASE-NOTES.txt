@@ -2,6 +2,7 @@
 v4.6.1 (not released)
 
 - [Minor] browseDirectory applet parameter: The applet now manages path beginning by ~ (current user's home)
+- [Minor] Stop button is now more responsive.
 
 
 v4.6.0
