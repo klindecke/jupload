@@ -33,7 +33,10 @@ PACKAGE CONTENT:
 	  /wwwroot/wjhk.jupload.jar
 	    THE COMPILED APPLET, that can you use directly on your web site. You should sign it with your own certificate.
 	    See the /wwwroot/README.txt file
-	  /wwwroot/pages/
+	  /wwwroot/samples.java/
+	    Some samples for a J2EE server, like tomcat. The parseRequest.jsp show an example of managing uploaded file
+	    in Java.
+	  /wwwroot/samples.PHP/
 	    Some samples for a J2EE server, like tomcat. The parseRequest.jsp show an example of managing uploaded file
 	    in Java.
 
