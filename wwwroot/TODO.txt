@@ -3,12 +3,18 @@ As always, a lot of things can be made better:
 
 TODO list:
 
-- Clear the log window would throw a NullPointerException
-
-- Check STOP button
-https://sourceforge.net/projects/jupload/forums/forum/199107/topic/3175188
-Pb with the 'prepared' status of the FileData, when clicking on STOP. 
-Add a specific exception: JUploadFonctionnalUploadStoppedByTheUSer
+- Some improvement and remarks
+https://sourceforge.net/projects/jupload/forums/forum/199106/topic/3489660
+When the applet is configured to resize images before uploading then sometimes bigger images do not get resized. 
+In such a case a popup message is displayed with the message that the image is too big to convert and will be uploaded as-is.
+I have a few questions about this:
+1) what affects the maximum size that can be resized by the applet? (seems not to be exactly the same on different systems)
+2) is there a way to increase this size?
+3) Is there a way to suppress this message? (if a user has a high res camera and wants to upload alot of photo's, clicking OK 
+every time is annoying)
+4) Is there a way to block uploads based on maximum image size AFTER client side conversion? This so i can block uploads if the 
+images are too big to process server side (memory limits). So what i mean is this: applet (tries to) convert images to maxsize, 
+after this is done, apply the check for maximum dimensions (and if too big do not upload, just like the maximum file size check).
 
 - Check the samples.PHP files
 

@@ -1,16 +1,5 @@
 <?php
 
-/*
- * TODO list:
- * 
- * - Empty $list before new upload (before writing the applet tag ?)
- * - Test the content of the $files array  
- * - Test the formData parameters
- * - Test in chunk mode
- * - Test demo_mode in chunk mode
- */
-
-
 
 /**
  * This class manage upload, with use of the JUpload applet. It's both a sample to show how to use the applet, and 
@@ -24,7 +13,14 @@
  * a change can appear.
  * 
  * Sample:
- * See the index.php samples, in the same folder.
+ * - See the index.php samples, in the same folder.
+ * 
+ * Notes:
+ * - maxChunkSize: this class use a default maxChunkSize of 500K (or less, depending on the script max size). This allows 
+ * upload of FILES OF ANY SIZE on quite all ISP hosting. If it's too big for you (the max upload size of your ISP is less 
+ * than 500K), or if you want no chunk at all, you can, of course, override this default value.
+ * 
+ * 
  * 
  * Parameters:
  * - $appletparams contains a map for applet parameters: key is the applet parameter name. The value is the value to transmit 
@@ -34,12 +30,16 @@
  * 		behavior, but won't consume hard drive space. This mode is used on sourceforge web site.
  * 
  * Output generated for uploaded files:
- * - $files is an array, with the following keys:
- * 		- name: the filename, as it is now stored on the system. 
- * 		- size: the file size
- * 		- path: the absolute path, where the file has been stored.
- * 		- md5sum: the md5sum of the file, if further control is needed.
- * 		- If the formData applet parameter is used: all attributes (key and value) uploaded by the applet, are put here.  
+ * - $files is an array of array. See the defaultAfterUploadManagement() for a sample on howto manage this array.
+ *   This array contains:
+ *     - One entry par file. Each entry is an array, that contains all files properties, stored as $key=>$value. 
+ * 		The available keys are:
+ * 		  - name: the filename, as it is now stored on the system. 
+ * 		  - size: the file size
+ * 		  - path: the absolute path, where the file has been stored.
+ * 		  - md5sum: the md5sum of the file, if further control is needed.
+ * 		  - If the formData applet parameter is used: all attributes (key and value) uploaded by the applet, are put here,
+ * 			repeated for each file.  
  */
  
 class JUpload {
@@ -99,6 +99,7 @@ class JUpload {
         if (isset($classparams['errormail'])) {
             $appletparams['urlToSendErrorTo'] = $_SERVER["PHP_SELF"] . '?errormail';
         }
+        
         // Same for class parameters
         if (!isset($classparams['demo_mode']))
             $classparams['demo_mode'] = false;
@@ -324,7 +325,7 @@ class JUpload {
     }
     
     //
-    private function defaultAfterUploadManagement() {
+    public function defaultAfterUploadManagement() {
         $flist = '[defaultAfterUploadManagement] Nb uploaded files is: ' . sizeof($this->files);
         $flist = $this->classparams['http_flist_start'];
         foreach ($this->files as $f) {
@@ -393,7 +394,7 @@ class JUpload {
         if (count($this->files) > 0) {
 	    	if (isset($this->classparams['callbackAfterUploadManagement'])) {
 	        	$this->logDebug('interceptAfterUpload', 'Before call of ' .$this->classparams['callbackAfterUploadManagement']);
-	    		$strForFListContent = call_user_func($this->classparams['callbackAfterUploadManagement'], $this->files);
+	    		$strForFListContent = call_user_func($this->classparams['callbackAfterUploadManagement'], $this, $this->files);
 	    	} else {
 	    		$strForFListContent = $this->defaultAfterUploadManagement();
 	        }
@@ -478,9 +479,13 @@ class JUpload {
 
 			// In demo mode, no file storing is done. We just delete the newly uploaded file. 
             if ($this->classparams['demo_mode']) {
-                $files_data['size']		= filesize($tmpname);
-                $files_data['fullName']	= 'Demo mode<BR>No file storing'; 
                 if ($jufinal || (!$jupart)) {
+                	if ($jupart) {
+	                	$files_data['size']		= ($jupart-1) * $this->appletparams['maxChunkSize'] + filesize($tmpname);
+                	} else {
+	                	$files_data['size']		= filesize($tmpname);
+                	}
+	                $files_data['fullName']	= 'Demo mode<BR>No file storing'; 
                     array_push($this->files, $files_data);
                 }
                 unlink($tmpname);

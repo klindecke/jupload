@@ -1,6 +1,7 @@
 
 v4.6.1 (not released)
 
+- [Major] Add of the samples.PHP folder, based on the wiki content. It contains a ready to use PHP class, to easily manage the applet and uplaoded files.
 - [Minor] browseDirectory applet parameter: The applet now manages path beginning by ~ (current user's home)
 - [Minor] Stop button is now more responsive.
 
