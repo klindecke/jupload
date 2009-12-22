@@ -68,7 +68,7 @@ class JUpload {
         if (!isset($appletparams['httpUploadParameterType']))
             $appletparams['httpUploadParameterType'] = 'array';
         if (!isset($appletparams['showLogWindow']))
-            $appletparams['showLogWindow'] = ($appletparams['debugLevel'] > 0) ? 'true' : 'false';
+            $appletparams['showLogWindow'] = 'false';
         if (!isset($appletparams['width']))
             $appletparams['width'] = 640;
         if (!isset($appletparams['height']))
