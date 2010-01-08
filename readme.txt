@@ -10,7 +10,7 @@ You'll find in this file a description of the package content.
 
 QUICK START :
 
-The three main entry points are:
+The main entry points are:
 - Compiled applet: /wwwroot/wjhk.jupload.jar
 - full sources :  /src  
 - all translation material: /wwwroot/translation
