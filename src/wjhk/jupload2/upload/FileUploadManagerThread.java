@@ -3,6 +3,7 @@ package wjhk.jupload2.upload;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
@@ -337,9 +338,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             // So we wait for it to finish.
             while (this.fileUploadThread.isAlive()
                     && this.nbSuccessfullyUploadedFiles < this.uploadFileDataArray.length
-                    && !isUploadStopped() // Stopped by the user
-                    && this.getUploadException() == null // An error occurs
-            ) {
+                    && !isUploadStopped()) {
                 try {
                     this.uploadPolicy.displayDebug(
                             "Waiting for fileUploadThread to die", 10);
@@ -350,7 +349,7 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                     this.uploadPolicy
                             .displayWarn("An InterruptedException occured in FileUploadManagerThread.run()");
                 }
-            }
+            }// while
 
             // If any error occurs, the prepared state of the file data may be
             // true. We must free resources.
@@ -423,11 +422,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
 
             this.uploadPolicy.displayDebug(
                     "End of the FileUploadManagerThread", 5);
-        } catch (JUploadException jue) {
-            // Let's have a little information.
+        } catch (Exception e) {
+            // We need a JUploadException.
+            JUploadException jue = (e instanceof JUploadException) ? (JUploadException) e
+                    : new JUploadException(e);
             setUploadException(jue);
-            this.uploadPolicy.displayErr(
-                    "Uncaught exception in FileUploadManagerThread/run()", jue);
 
             // And go back into a 'normal' way.
             stopUpload();
@@ -474,10 +473,17 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             this.uploadException = uploadException;
         }
 
-        this.uploadPolicy.displayErr(uploadException);
+        String msg = this.uploadPolicy.getLocalizedString("errorDuringUpload",
+                uploadException.getMessage());
+
+        int userResponse = this.uploadPolicy.displayErr(msg, uploadException,
+                JOptionPane.YES_NO_OPTION);
         this.preparationProgressBar.setString(uploadException.getMessage());
-        // We stop the upload as soon as an error occurs.
-        this.uploadFinished = true;
+
+        if (userResponse == JOptionPane.NO_OPTION) {
+            // We stop the upload as soon as an error occurs.
+            this.uploadFinished = true;
+        }
     }
 
     /**
@@ -690,23 +696,21 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             try {
                 remaining = (long) ((totalFileBytesToSend - this.nbUploadedBytes) / globalCPS);
                 if (remaining > 3600) {
-                    eta = String.format(this.uploadPolicy
-                            .getString("timefmt_hms"), Long
-                            .valueOf(remaining / 3600), Long
-                            .valueOf((remaining / 60) % 60), Long
-                            .valueOf(remaining % 60));
+                    eta = this.uploadPolicy.getLocalizedString("timefmt_hms",
+                            Long.valueOf(remaining / 3600), Long
+                                    .valueOf((remaining / 60) % 60), Long
+                                    .valueOf(remaining % 60));
                 } else if (remaining > 60) {
-                    eta = String.format(this.uploadPolicy
-                            .getString("timefmt_ms"), Long
-                            .valueOf(remaining / 60), Long
-                            .valueOf(remaining % 60));
+                    eta = this.uploadPolicy.getLocalizedString("timefmt_ms",
+                            Long.valueOf(remaining / 60), Long
+                                    .valueOf(remaining % 60));
                 } else
-                    eta = String.format(this.uploadPolicy
-                            .getString("timefmt_s"), Long.valueOf(remaining));
+                    eta = this.uploadPolicy.getLocalizedString("timefmt_s",
+                            Long.valueOf(remaining));
             } catch (ArithmeticException e1) {
-                eta = this.uploadPolicy.getString("timefmt_unknown");
+                eta = this.uploadPolicy.getLocalizedString("timefmt_unknown");
             }
-            String format = this.uploadPolicy.getString("status_msg");
+            String format = this.uploadPolicy.getLocalizedString("status_msg");
             String status = String
                     .format(format, Integer.valueOf((int) percent),
                             SizeRenderer.formatFileUploadSpeed(uploadSpeed,
@@ -957,12 +961,13 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
      * @throws JUploadException
      */
     private void updateUploadProgressBar() {
-        final String msgInfoUploaded = this.uploadPolicy
-                .getString("infoUploaded");
-        final String msgInfoUploading = this.uploadPolicy
-                .getString("infoUploading");
-        final String msgNbUploadedFiles = this.uploadPolicy
-                .getString("nbUploadedFiles");
+        /*
+         * final String msgInfoUploaded = this.uploadPolicy
+         * .getLocalizedString("infoUploaded"); final String msgInfoUploading =
+         * this.uploadPolicy .getLocalizedString("infoUploading"); final String
+         * msgNbUploadedFiles = this.uploadPolicy
+         * .getLocalizedString("nbUploadedFiles");
+         */
         int percent = 0;
 
         // First, we update the bar itself.
@@ -1000,7 +1005,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
             case UPLOAD_STATUS_UPLOADING:
             case UPLOAD_STATUS_CHUNK_UPLOADED_WAITING_FOR_RESPONSE:
                 // Uploading files %1$s
-                msg = String.format(msgInfoUploading, (this.nbSentFiles + 1));
+                msg = this.uploadPolicy.getLocalizedString("infoUploading",
+                        (this.nbSentFiles + 1));
                 break;
             case UPLOAD_STATUS_FILE_UPLOADED_WAITING_FOR_RESPONSE:
                 // %1$s file(s) uploaded. Waiting for server response ...
@@ -1014,11 +1020,11 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                             + "/"
                             + (this.uploadFileDataArray.length);
                 }
-                msg = String.format(msgInfoUploaded, msg);
+                msg = this.uploadPolicy.getLocalizedString("infoUploaded", msg);
                 break;
             case UPLOAD_STATUS_UPLOADED:
                 // %1$d file(s) uploaded
-                msg = String.format(msgNbUploadedFiles, (this.nbSentFiles));
+                msg = String.format("nbUploadedFiles", (this.nbSentFiles));
                 break;
             default:
                 // Hum, that's strange !
@@ -1055,8 +1061,8 @@ public class FileUploadManagerThread extends Thread implements ActionListener {
                                 + ")", 30);
 
                 // Let's indicate to the user what's running on.
-                this.preparationProgressBar.setString(String.format(
-                        this.uploadPolicy.getString("preparingFile"), Integer
+                this.preparationProgressBar.setString(this.uploadPolicy
+                        .getLocalizedString("preparingFile", Integer
                                 .valueOf(i + 1), Integer
                                 .valueOf(this.uploadFileDataArray.length)));
                 this.preparationProgressBar.repaint();

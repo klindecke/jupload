@@ -299,7 +299,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
             } else {
                 // We now use the JUploadExceptionStopAddingFiles exception, to
                 // allow the user to stop adding files.
-                String msg = String.format(getString("notAPicture"), file
+                String msg = getLocalizedString("notAPicture", file
                         .getName());
 
                 // Alert only once, when several files are not pictures... hum,
@@ -337,14 +337,14 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
         // - On the right, the preview PicturePanel.
 
         // Creation of specific buttons
-        this.rotateLeftButton = new JButton(getString("buttonRotateLeft"));
+        this.rotateLeftButton = new JButton(getLocalizedString("buttonRotateLeft"));
         this.rotateLeftButton.setIcon(new ImageIcon(getClass().getResource(
                 "/images/rotateLeft.gif")));
         this.rotateLeftButton.addActionListener(this);
         this.rotateLeftButton.addMouseListener(jUploadPanel);
         this.rotateLeftButton.setEnabled(false);
 
-        this.rotateRightButton = new JButton(getString("buttonRotateRight"));
+        this.rotateRightButton = new JButton(getLocalizedString("buttonRotateRight"));
         this.rotateRightButton.setIcon(new ImageIcon(getClass().getResource(
                 "/images/rotateRight.gif")));
         this.rotateRightButton.addActionListener(this);

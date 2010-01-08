@@ -2,8 +2,14 @@
 v4.6.1 (not released)
 
 - [Major] Add of the samples.PHP folder, based on the wiki content. It contains a ready to use PHP class, to easily manage the applet and uplaoded files.
+- [Minor] Better exception management during upload
 - [Minor] browseDirectory applet parameter: The applet now manages path beginning by ~ (current user's home)
 - [Minor] Stop button is now more responsive.
+- [Minor] New methods in UploadPolicy: 
+	confirmDialogStr(str, optionTypes), to display confirmation dialog (as JOPtionPane.showConfirmDialog).
+	displayErr(errorText, exception, optionTypes), to log an error and display a confirmation dialog.
+	getString(key) is renamed as getLocalizedString(key)
+	getLocalizedString(key, param1) and getLocalizedString(key, param1, param2) are created, to manage dynamic localized strings.
 
 
 v4.6.0

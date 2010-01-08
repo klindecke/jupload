@@ -125,11 +125,11 @@ class FilePanelDataModel2 extends AbstractTableModel {
         this.uploadPolicy = uploadPolicy;
 
         // Initialization for column name, type and size.
-        this.COL_NAME = uploadPolicy.getString("colName");
-        this.COL_SIZE = uploadPolicy.getString("colSize");
-        this.COL_DIRECTORY = uploadPolicy.getString("colDirectory");
-        this.COL_MODIFIED = uploadPolicy.getString("colModified");
-        this.COL_READABLE = uploadPolicy.getString("colReadable");
+        this.COL_NAME = uploadPolicy.getLocalizedString("colName");
+        this.COL_SIZE = uploadPolicy.getLocalizedString("colSize");
+        this.COL_DIRECTORY = uploadPolicy.getLocalizedString("colDirectory");
+        this.COL_MODIFIED = uploadPolicy.getLocalizedString("colModified");
+        this.COL_READABLE = uploadPolicy.getLocalizedString("colReadable");
 
         this.columnNames = new String[] {
                 this.COL_NAME, this.COL_SIZE, this.COL_DIRECTORY,

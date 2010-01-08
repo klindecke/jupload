@@ -105,15 +105,15 @@ public class SizeRenderer extends DefaultTableCellRenderer {
         double fileUploadSpeed = fileUploadSpeedParam;
         if (fileUploadSpeed >= gB) {
             fileUploadSpeed /= gB;
-            unit = uploadPolicy.getString("speedunit_gb_per_second");
+            unit = uploadPolicy.getLocalizedString("speedunit_gb_per_second");
         } else if (fileUploadSpeed >= mB) {
             fileUploadSpeed /= mB;
-            unit = uploadPolicy.getString("speedunit_mb_per_second");
+            unit = uploadPolicy.getLocalizedString("speedunit_mb_per_second");
         } else if (fileUploadSpeed >= kB) {
             fileUploadSpeed /= kB;
-            unit = uploadPolicy.getString("speedunit_kb_per_second");
+            unit = uploadPolicy.getLocalizedString("speedunit_kb_per_second");
         } else {
-            unit = uploadPolicy.getString("speedunit_b_per_second");
+            unit = uploadPolicy.getLocalizedString("speedunit_b_per_second");
         }
 
         return String.format("%1$,3.2f %2$s", fileUploadSpeed, unit);
@@ -131,12 +131,13 @@ public class SizeRenderer extends DefaultTableCellRenderer {
     public static String formatFileSize(double fileSize,
             UploadPolicy uploadPolicy) {
         final String sizeunit_gigabytes = uploadPolicy
-                .getString("unitGigabytes");
+                .getLocalizedString("unitGigabytes");
         final String sizeunit_megabytes = uploadPolicy
-                .getString("unitMegabytes");
+                .getLocalizedString("unitMegabytes");
         final String sizeunit_kilobytes = uploadPolicy
-                .getString("unitKilobytes");
-        final String sizeunit_bytes = uploadPolicy.getString("unitBytes");
+                .getLocalizedString("unitKilobytes");
+        final String sizeunit_bytes = uploadPolicy
+                .getLocalizedString("unitBytes");
         String unit;
 
         double fileSizeToDisplay = fileSize;

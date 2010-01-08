@@ -49,7 +49,8 @@ public class DateRenderer extends DefaultTableCellRenderer {
      */
     public DateRenderer(UploadPolicy uploadPolicy) {
         super();
-        this.df = new SimpleDateFormat(uploadPolicy.getString("dateformat"));
+        this.df = new SimpleDateFormat(uploadPolicy
+                .getLocalizedString("dateformat"));
     }
 
     /**

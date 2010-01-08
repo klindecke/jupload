@@ -79,7 +79,8 @@ public class PictureDialog extends JDialog implements ActionListener,
                 pictureFileData);
 
         // Creation of the buttonClose button.
-        this.buttonClose = new JButton(uploadPolicy.getString("buttonClose"));
+        this.buttonClose = new JButton(uploadPolicy
+                .getLocalizedString("buttonClose"));
         this.buttonClose.setMaximumSize(new Dimension(100, 100));
         this.buttonClose.addActionListener(this);
 

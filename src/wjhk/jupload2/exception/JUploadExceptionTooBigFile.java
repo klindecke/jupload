@@ -42,7 +42,7 @@ public class JUploadExceptionTooBigFile extends JUploadException {
      */
     public JUploadExceptionTooBigFile(String filename, long uploadLength,
             UploadPolicy uploadPolicy) {
-        super(String.format(uploadPolicy.getString("errFileTooBig"), filename,
+        super(uploadPolicy.getLocalizedString("errFileTooBig", filename,
                 SizeRenderer.formatFileSize(uploadLength, uploadPolicy)));
     }
 }

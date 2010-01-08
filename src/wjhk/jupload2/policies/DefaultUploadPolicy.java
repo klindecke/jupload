@@ -40,6 +40,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.IllegalFormatException;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -506,12 +507,10 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         // The current context may add any specific headers.
         if (getReadCookieFromNavigator()) {
-            this.juploadContext
-                    .readCookieFromNavigator(this.headers);
+            this.juploadContext.readCookieFromNavigator(this.headers);
         }
         if (getReadUserAgentFromNavigator()) {
-            this.juploadContext
-                    .readUserAgentFromNavigator(this.headers);
+            this.juploadContext.readUserAgentFromNavigator(this.headers);
         }
 
         // Let's touch the server, to test that everything is Ok. Take care,
@@ -707,9 +706,16 @@ public class DefaultUploadPolicy implements UploadPolicy {
                 JOptionPane.WARNING_MESSAGE);
     }
 
+    /** @see UploadPolicy#confirmDialogStr(String, int) */
+    public int confirmDialogStr(String str, int optionTypes) {
+        String str2 = str.replaceAll("\\\\n", "\n");
+        return JOptionPane.showConfirmDialog(getContext().getUploadPanel()
+                .getParent(), str2, "Alert", optionTypes);
+    }
+
     /** @see UploadPolicy#alert(String) */
     public void alert(String key) {
-        alertStr(getString(key));
+        alertStr(getLocalizedString(key));
     }
 
     /**
@@ -722,7 +728,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
             throws JUploadExceptionStopAddingFiles {
         if (!fileFilterAccept(file)) {
             String msg = file.getName() + " : "
-                    + getString("errForbiddenExtension");
+                    + getLocalizedString("errForbiddenExtension");
             displayWarn(msg);
             if (JOptionPane.showConfirmDialog(null, msg, "alert",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
@@ -882,15 +888,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
     }
 
     /**
-     * If debug is off, the log window may not be visible. We switch the debug
-     * to on, to be sure that some information will be displayed to the user. <BR>
-     * If debug is -1, the log window remains hidden.
+     * This method just logs an error.
      * 
-     * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
-     *      java.lang.Exception)
+     * @param errorText
+     * @param exception
      */
-    public void displayErr(String errorText, Exception exception) {
-
+    private void logErr(String errorText, Exception exception) {
         if (exception == null) {
             setLastException(new JUploadException("errorText"));
         } else if (exception instanceof JUploadException) {
@@ -907,7 +910,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         String exceptionMsg = null;
         String exceptionClassName = null;
-        String alertMsg = errorText;
         String logMsg = errorText;
 
         // First, we construct the exception class name.
@@ -929,9 +931,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
             } else {
                 exceptionMsg = exception.getMessage();
             }
-            if (errorText == null || errorText.equals("")) {
-                alertMsg = "Unknown error (" + exceptionMsg + ")";
-            }
             logMsg = exceptionMsg + " (" + errorText + ")";
         }
 
@@ -939,17 +938,6 @@ public class DefaultUploadPolicy implements UploadPolicy {
         displayMsg("[ERROR]", exceptionClassName + logMsg);
         // Let's display the stack trace, if relevant.
         displayStackTrace(exception);
-
-        // Display the message to the user.
-        if (getDebugLevel() >= 100) {
-            // Debug has been put on (by the user or by applet
-            // configuration).
-            alertStr(exceptionClassName + logMsg);
-        } else {
-            // Debug level may be set to 1, when an error occurs, even if debug
-            // was not put on by the user.
-            alertStr(alertMsg);
-        }
 
         // Then we copy the debug output to the clipboard, and say it to the
         // current user.
@@ -960,6 +948,75 @@ public class DefaultUploadPolicy implements UploadPolicy {
             alert("messageLogWindowCopiedToClipboard");
         }
 
+    }
+
+    /**
+     * If debug is off, the log window may not be visible. We switch the debug
+     * to on, to be sure that some information will be displayed to the user. <BR>
+     * If debug is -1, the log window remains hidden.
+     * 
+     * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
+     *      java.lang.Exception, int)
+     */
+    public int displayErr(String errorText, Exception exception, int optionTypes) {
+        // Then, we display it to the user.
+        String alertMsg = errorText;
+        // Then, the message body can be completed by the exception message.
+        if (exception != null && (errorText == null || errorText.equals(""))) {
+            // Ok, we have an exception.
+            if (exception.getCause() != null) {
+                alertMsg = exception.getCause().getMessage();
+            } else {
+                alertMsg = exception.getMessage();
+            }
+        }
+
+        // The message displayed depend on the debug level:
+        if (getDebugLevel() >= 100) {
+            alertMsg = exception.getClass().getName() + alertMsg;
+        }
+
+        // Display the message to the user. The kind of alert box depends on the
+        // given options:
+        int buttonClicked = 0;
+        switch (optionTypes) {
+            case -1:
+                // Standard message box.
+                alertStr(alertMsg);
+                buttonClicked = JOptionPane.OK_OPTION;
+                break;
+            case JOptionPane.OK_CANCEL_OPTION:
+            case JOptionPane.YES_NO_CANCEL_OPTION:
+            case JOptionPane.YES_NO_OPTION:
+                buttonClicked = confirmDialogStr(alertMsg, optionTypes);
+                break;
+            default:
+                // This is a problem. Let's display it to the user as a standard
+                // alert box.
+                alertStr(alertMsg);
+                buttonClicked = JOptionPane.OK_OPTION;
+                // Then, we log this new problem.
+                String msg = "Unknown optionType in displayErr(String, Exception, int)";
+                alertStr(msg);
+                logErr(msg, null);
+        }
+
+        // First, we log the error.
+        logErr(errorText, exception);
+
+        return buttonClicked;
+    }
+
+    /**
+     * If debug is off, the log window may not be visible. We switch the debug
+     * to on, to be sure that some information will be displayed to the user. <BR>
+     * If debug is -1, the log window remains hidden.
+     * 
+     * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
+     *      java.lang.Exception)
+     */
+    public void displayErr(String errorText, Exception exception) {
+        displayErr(errorText, exception, -1);
     }
 
     /**
@@ -991,10 +1048,43 @@ public class DefaultUploadPolicy implements UploadPolicy {
         }
     }
 
-    /** @see UploadPolicy#getString(String) */
-    public String getString(String key) {
+    /** @see UploadPolicy#getLocalizedString(String, Object...) */
+    public String getLocalizedString(String key, Object... args) {
         String ret = this.resourceBundle.getString(key);
-        return ret;
+        try {
+            // We have to recreate the correct call to String.format
+            switch (args.length) {
+                case 0:
+                    return String.format(ret);
+                case 1:
+                    return String.format(ret, args[0]);
+                case 2:
+                    return String.format(ret, args[0], args[1]);
+                case 3:
+                    return String.format(ret, args[0], args[1], args[2]);
+                case 4:
+                    return String.format(ret, args[0], args[1], args[2],
+                            args[3]);
+                case 5:
+                    return String.format(ret, args[0], args[1], args[2],
+                            args[3], args[4]);
+                case 6:
+                    return String.format(ret, args[0], args[1], args[2],
+                            args[3], args[4], args[5]);
+                case 7:
+                    return String.format(ret, args[0], args[1], args[2],
+                            args[3], args[4], args[5], args[6]);
+                default:
+                    throw new IllegalArgumentException(
+                            "DefaultUploadPolicy.getLocalizedString accepts up to 7 variable parameters ("
+                                    + args.length
+                                    + " values were given for the 'args' argument");
+            }
+        } catch (IllegalFormatException ife) {
+            displayErr(ife.getClass().getName() + " (" + ife.getMessage()
+                    + ")when managing this string: " + ret);
+            throw ife;
+        }
     }
 
     /**
@@ -1186,10 +1276,12 @@ public class DefaultUploadPolicy implements UploadPolicy {
             } else {
                 displayInfo("Sending debug information to "
                         + getUrlToSendErrorTo());
-                if (JOptionPane.showConfirmDialog(null,
-                        getString("questionSendMailOnError"),
-                        getString("Confirm"), JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+                if (JOptionPane
+                        .showConfirmDialog(null,
+                                getLocalizedString("questionSendMailOnError"),
+                                getLocalizedString("Confirm"),
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                     displayDebug(
                             "[sendDebugInformation] Within response == true",
                             30);
@@ -1357,7 +1449,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
                                 .getResponseMsg(), connectionHelper
                                 .getResponseBody())) {
                             throw new JUploadExceptionUploadFailed(
-                                    getString("errHttpResponse"));
+                                    getLocalizedString("errHttpResponse"));
                         }
 
                         displayInfo("debug information sent correctly");
@@ -1367,8 +1459,8 @@ public class DefaultUploadPolicy implements UploadPolicy {
                                         + this.urlToSendErrorTo, e);
                     } catch (Exception e) {
                         this.debugOk = localDebugOk;
-                        displayErr(getString("errDuringLogManagement") + " ("
-                                + action + ")", e);
+                        displayErr(getLocalizedString("errDuringLogManagement")
+                                + " (" + action + ")", e);
                     } finally {
                         this.debugOk = localDebugOk;
                     }

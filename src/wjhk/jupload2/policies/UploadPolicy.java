@@ -28,6 +28,7 @@ import java.io.File;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
@@ -2156,21 +2157,43 @@ public interface UploadPolicy {
 
     /**
      * log an error message, based on an exception. Will be logged in the log
-     * window, if defined.
+     * window, if defined. <BR>
+     * The dialog box will only contain an Ok button. Same as caling:
+     * displayErr(e, JOptionPane.OK_OPTION);
      * 
      * @param e The exception to report
      */
     public void displayErr(Exception e);
 
     /**
-     * log an error message. Will be logged in the log window, if defined.
+     * log an error message, based on an exception. Will be logged in the log
+     * window, if defined.<BR>
+     * 
+     * @param err The erreur message to be displayed. If null the exception (or
+     *            it's cause if any) message is displayed.
+     * @param e The exception to report
+     * @param optionType One of the valid {@link JOptionPane} option types for
+     *            the
+     *            {@link JOptionPane#showConfirmDialog(java.awt.Component, Object, String, int)}
+     *            method: OK_CANCEL_OPTION, YES_NO_OPTION,
+     *            YES_NO_CANCEL_OPTION... -1 is also accepted, to only have the
+     *            Ok button. OK_OPTION is prohibited, as it has the same value
+     *            as YES_NO_OPTION.
+     * @return The XXX_OPTION, corresponding to the button clicked by the user.
+     */
+    public int displayErr(String err, Exception e, int optionType);
+
+    /**
+     * log an error message. Will be logged in the log window, if defined. <BR>
+     * The dialog box will only contain an Ok button.
      * 
      * @param err The erreur message to be displayed.
      */
     public void displayErr(String err);
 
     /**
-     * log an error message. Will be logged in the log window, if defined.
+     * log an error message. Will be logged in the log window, if defined. <BR>
+     * The dialog box will only contain an Ok button.
      * 
      * @param err The error message to be displayed.
      * @param e An exception. It's stacktrace is logged.
@@ -2300,18 +2323,24 @@ public interface UploadPolicy {
             throws JUploadException;
 
     /**
-     * Retrieve a local property. This allows localization. All strings are
-     * stored in the property files in the wjhk.jupload2.lang package.
+     * Retrieve a lang string, based on the file cointained in the
+     * wjhk.jupload2.lang package. This allows localization.
      * 
-     * @param key The key, whose associated text is to retrieve.
+     * @param key The key, whose associated text is to retrieve. This text must
+     *            respect the constraints of the
+     *            {@link String#format(String, Object...)} method, that is
+     *            called in the
+     *            {@link DefaultUploadPolicy#getLocalizedString(String, Object...)}
+     *            implementation of this method.
+     * @param args The optional parameters, that will replace the placeholders
+     *            in the localized text identified by 'key'.
      * @return The associated text.
-     * @see wjhk.jupload2.policies.DefaultUploadPolicy#DefaultUploadPolicy(JUploadContext)
      */
-    public String getString(String key);
+    public String getLocalizedString(String key, Object... args);
 
     /**
-     * alert displays a MessageBox with a unique 'Ok' button, like the
-     * javascript alert function.
+     * Displays a MessageBox with a unique 'Ok' button, by calling the
+     * {@link JOptionPane#showMessageDialog(java.awt.Component, Object)} method.
      * 
      * @param key The string identifying the text to display, depending on the
      *            current language.
@@ -2320,13 +2349,29 @@ public interface UploadPolicy {
     public void alert(String key);
 
     /**
-     * alert displays a MessageBox with a unique 'Ok' button, like the
-     * javascript alert function.
+     * Displays a MessageBox with a unique 'Ok' button, by calling the
+     * {@link JOptionPane#showMessageDialog(java.awt.Component, Object)} method.
      * 
      * @param str The full String that must be displayed to the user.
      * @see #alert(String)
      */
-    void alertStr(String str);
+    public void alertStr(String str);
+
+    /**
+     * Displays a MessageBox with a unique 'Ok' button, by calling the
+     * {@link JOptionPane#showConfirmDialog(java.awt.Component, Object, String, int)}
+     * method.
+     * 
+     * @param str The full String that must be displayed to the user.
+     * @param optionTypes The options indicating the button to display. Valid
+     *            options are the options valid for the
+     *            {@link JOptionPane#showConfirmDialog(java.awt.Component, Object, String, int)}
+     *            method.
+     * @return The JOptionConstant that indicates the button the user cliecked
+     *         on (for instance OK_OPTION)
+     * @see #alert(String)
+     */
+    public int confirmDialogStr(String str, int optionTypes);
 
     /**
      * Indicates that an error occurs.

@@ -41,6 +41,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import wjhk.jupload2.exception.JUploadException;
+import wjhk.jupload2.exception.JUploadExceptionTooBigFile;
 import wjhk.jupload2.exception.JUploadIOException;
 import wjhk.jupload2.filedata.helper.ImageHelper;
 import wjhk.jupload2.filedata.helper.ImageReaderWriterHelper;
@@ -290,6 +291,11 @@ public class PictureFileData extends DefaultFileData {
      */
     @Override
     public long getUploadLength() throws JUploadException {
+        // Just for debug, to be removed before release.
+        if (false) {
+            throw new JUploadExceptionTooBigFile(getFileName(), -1,
+                    this.uploadPolicy);
+        }
         if (!this.preparedForUpload) {
             throw new IllegalStateException("The file " + getFileName()
                     + " is not prepared for upload");
@@ -641,8 +647,8 @@ public class PictureFileData extends DefaultFileData {
      * When running from eclipse, the memory is freed Ok !
      */
     private void tooBigPicture() {
-        String msg = String.format(
-                this.uploadPolicy.getString("tooBigPicture"), getFileName());
+        String msg = this.uploadPolicy.getLocalizedString("tooBigPicture",
+                getFileName());
         this.uploadPolicy.displayWarn(msg);
         JOptionPane.showMessageDialog(null, msg, "Warning",
                 JOptionPane.WARNING_MESSAGE);

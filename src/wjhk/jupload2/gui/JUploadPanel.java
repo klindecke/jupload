@@ -195,7 +195,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // -------- JButton browse --------
         if (this.browseButton == null) {
             this.browseButton = new JButton(this.uploadPolicy
-                    .getString("buttonBrowse"));
+                    .getLocalizedString("buttonBrowse"));
             this.browseButton.setIcon(new ImageIcon(getClass().getResource(
                     "/images/explorer.gif")));
         }
@@ -204,7 +204,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // -------- JButton remove --------
         if (this.removeButton == null) {
             this.removeButton = new JButton(this.uploadPolicy
-                    .getString("buttonRemoveSelected"));
+                    .getLocalizedString("buttonRemoveSelected"));
             this.removeButton.setIcon(new ImageIcon(getClass().getResource(
                     "/images/recycle.gif")));
         }
@@ -214,7 +214,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // -------- JButton removeAll --------
         if (this.removeAllButton == null) {
             this.removeAllButton = new JButton(this.uploadPolicy
-                    .getString("buttonRemoveAll"));
+                    .getLocalizedString("buttonRemoveAll"));
             this.removeAllButton.setIcon(new ImageIcon(getClass().getResource(
                     "/images/cross.gif")));
         }
@@ -224,7 +224,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // -------- JButton upload --------
         if (null == this.uploadButton) {
             this.uploadButton = new JButton(this.uploadPolicy
-                    .getString("buttonUpload"));
+                    .getLocalizedString("buttonUpload"));
             this.uploadButton.setIcon(new ImageIcon(getClass().getResource(
                     "/images/up.gif")));
         }
@@ -248,7 +248,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
         // -------- JButton stop --------
         if (null == this.stopButton) {
             this.stopButton = new JButton(this.uploadPolicy
-                    .getString("buttonStop"));
+                    .getLocalizedString("buttonStop"));
             this.stopButton.setIcon(new ImageIcon(getClass().getResource(
                     "/images/cross.gif")));
         }

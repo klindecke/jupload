@@ -135,15 +135,15 @@ public class InteractiveTrustManager implements X509TrustManager,
 
     private String getPassword(String storename) {
         JPasswordField pwf = new JPasswordField(16);
-        JLabel l = new JLabel(String.format(this.uploadPolicy
-                .getString("itm_prompt_pass"), storename));
+        JLabel l = new JLabel(this.uploadPolicy.getLocalizedString(
+                "itm_prompt_pass", storename));
         l.setLabelFor(pwf);
         JPanel p = new JPanel(new BorderLayout(10, 0));
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         p.add(l, BorderLayout.LINE_START);
         p.add(pwf, BorderLayout.LINE_END);
-        int res = JOptionPane.showConfirmDialog(null, p, String.format(
-                this.uploadPolicy.getString("itm_title_pass"), storename),
+        int res = JOptionPane.showConfirmDialog(null, p, this.uploadPolicy
+                .getLocalizedString("itm_title_pass", storename),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (res == JOptionPane.OK_OPTION)
             return new String(pwf.getPassword());
@@ -224,7 +224,7 @@ public class InteractiveTrustManager implements X509TrustManager,
                                 .equals(
                                         "Keystore was tampered with, or password was incorrect")) {
                             passwd = getPassword(this.uploadPolicy
-                                    .getString("itm_tstore"));
+                                    .getLocalizedString("itm_tstore"));
                             if (null != passwd)
                                 continue;
                         }
@@ -333,37 +333,48 @@ public class InteractiveTrustManager implements X509TrustManager,
             if (kv.length == 2) {
                 if (kv[0].equals("C"))
                     ret.append("<tr><td>").append(
-                            this.uploadPolicy.getString("itm_cert_C")).append(
-                            "</td><td>").append(kv[1]).append("</td></tr>\n");
+                            this.uploadPolicy.getLocalizedString("itm_cert_C"))
+                            .append("</td><td>").append(kv[1]).append(
+                                    "</td></tr>\n");
                 if (kv[0].equals("CN")) {
                     boolean ok = true;
                     if (null != cn)
                         ok = cn.equals(kv[1]);
-                    ret.append("<tr><td>").append(
-                            this.uploadPolicy.getString("itm_cert_CN")).append(
-                            "</td><td");
+                    ret.append("<tr><td>")
+                            .append(
+                                    this.uploadPolicy
+                                            .getLocalizedString("itm_cert_CN"))
+                            .append("</td><td");
                     ret.append(ok ? ">" : " class=\"err\">").append(kv[1])
                             .append("</td></tr>\n");
                     if (!ok)
-                        reason.add(String.format(this.uploadPolicy
-                                .getString("itm_reason_cnmatch"), cn));
+                        reason.add(this.uploadPolicy.getLocalizedString(
+                                "itm_reason_cnmatch", cn));
                 }
                 if (kv[0].equals("L"))
                     ret.append("<tr><td>").append(
-                            this.uploadPolicy.getString("itm_cert_L")).append(
-                            "</td><td>").append(kv[1]).append("</td></tr>\n");
+                            this.uploadPolicy.getLocalizedString("itm_cert_L"))
+                            .append("</td><td>").append(kv[1]).append(
+                                    "</td></tr>\n");
                 if (kv[0].equals("ST"))
-                    ret.append("<tr><td>").append(
-                            this.uploadPolicy.getString("itm_cert_ST")).append(
-                            "</td><td>").append(kv[1]).append("</td></tr>\n");
+                    ret.append("<tr><td>")
+                            .append(
+                                    this.uploadPolicy
+                                            .getLocalizedString("itm_cert_ST"))
+                            .append("</td><td>").append(kv[1]).append(
+                                    "</td></tr>\n");
                 if (kv[0].equals("O"))
                     ret.append("<tr><td>").append(
-                            this.uploadPolicy.getString("itm_cert_O")).append(
-                            "</td><td>").append(kv[1]).append("</td></tr>\n");
+                            this.uploadPolicy.getLocalizedString("itm_cert_O"))
+                            .append("</td><td>").append(kv[1]).append(
+                                    "</td></tr>\n");
                 if (kv[0].equals("OU"))
-                    ret.append("<tr><td>").append(
-                            this.uploadPolicy.getString("itm_cert_OU")).append(
-                            "</td><td>").append(kv[1]).append("</td></tr>\n");
+                    ret.append("<tr><td>")
+                            .append(
+                                    this.uploadPolicy
+                                            .getLocalizedString("itm_cert_OU"))
+                            .append("</td><td>").append(kv[1]).append(
+                                    "</td></tr>\n");
             }
         }
         return ret.toString();
@@ -374,15 +385,17 @@ public class InteractiveTrustManager implements X509TrustManager,
         boolean expired = false;
         boolean notyet = false;
         Vector<String> reason = new Vector<String>();
-        reason.add(this.uploadPolicy.getString("itm_reason_itrust"));
+        reason.add(this.uploadPolicy.getLocalizedString("itm_reason_itrust"));
         try {
             c.checkValidity();
         } catch (CertificateExpiredException e1) {
             expired = true;
-            reason.add(this.uploadPolicy.getString("itm_reason_expired"));
+            reason.add(this.uploadPolicy
+                    .getLocalizedString("itm_reason_expired"));
         } catch (CertificateNotYetValidException e2) {
             notyet = true;
-            reason.add(this.uploadPolicy.getString("itm_reason_notyet"));
+            reason.add(this.uploadPolicy
+                    .getLocalizedString("itm_reason_notyet"));
         }
 
         StringBuffer msg = new StringBuffer();
@@ -404,33 +417,36 @@ public class InteractiveTrustManager implements X509TrustManager,
         msg.append("</style>\n");
         msg.append("</head><body>");
         msg.append("<h3>").append(
-                this.uploadPolicy.getString("itm_fail_verify")).append("</h3>");
+                this.uploadPolicy.getLocalizedString("itm_fail_verify"))
+                .append("</h3>");
         msg.append("<h4>").append(
-                this.uploadPolicy.getString("itm_cert_details"))
+                this.uploadPolicy.getLocalizedString("itm_cert_details"))
                 .append("</h4>");
         msg.append("<table>");
         msg.append("<tr><th colspan=2>").append(
-                this.uploadPolicy.getString("itm_cert_subject")).append(
-                "</th></tr>");
+                this.uploadPolicy.getLocalizedString("itm_cert_subject"))
+                .append("</th></tr>");
         msg.append(formatDN(c.getSubjectX500Principal().getName(),
                 this.hostname, reason));
         msg.append("<tr><td>").append(
-                this.uploadPolicy.getString("itm_cert_nbefore"))
+                this.uploadPolicy.getLocalizedString("itm_cert_nbefore"))
                 .append("</td>");
         msg.append(notyet ? "<td class=\"err\">" : "<td>").append(
                 c.getNotBefore()).append("</td></tr>\n");
         msg.append("<tr><td>").append(
-                this.uploadPolicy.getString("itm_cert_nafter")).append("</td>");
+                this.uploadPolicy.getLocalizedString("itm_cert_nafter"))
+                .append("</td>");
         msg.append(expired ? "<td class=\"err\">" : "<td>").append(
                 c.getNotAfter()).append("</td></tr>\n");
         msg.append("<tr><td>").append(
-                this.uploadPolicy.getString("itm_cert_serial")).append(
-                "</td><td>");
+                this.uploadPolicy.getLocalizedString("itm_cert_serial"))
+                .append("</td><td>");
         msg.append(c.getSerialNumber());
         msg.append("</td></tr>\n");
-        msg.append("<tr><td>").append(
-                String.format(this.uploadPolicy.getString("itm_cert_fprint"),
-                        "SHA1")).append("</td><td>");
+        msg.append("<tr><td>")
+                .append(
+                        this.uploadPolicy.getLocalizedString("itm_cert_fprint",
+                                "SHA1")).append("</td><td>");
         MessageDigest d;
         StringBuffer fp = new StringBuffer();
         try {
@@ -450,8 +466,8 @@ public class InteractiveTrustManager implements X509TrustManager,
         msg.append(fp).append("</td></tr>\n");
         fp.setLength(0);
         msg.append("<tr><td>").append(
-                String.format(this.uploadPolicy.getString("itm_cert_fprint"),
-                        "MD5")).append("</td><td>");
+                this.uploadPolicy.getLocalizedString("itm_cert_fprint", "MD5"))
+                .append("</td><td>");
         try {
             d = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -469,22 +485,23 @@ public class InteractiveTrustManager implements X509TrustManager,
         msg.append(fp).append("</td></tr>\n");
         msg.append("</table><table>");
         msg.append("<tr><th colspan=2>").append(
-                this.uploadPolicy.getString("itm_cert_issuer")).append(
-                "</th></tr>");
+                this.uploadPolicy.getLocalizedString("itm_cert_issuer"))
+                .append("</th></tr>");
         msg
                 .append(formatDN(c.getIssuerX500Principal().getName(), null,
                         reason));
         msg.append("</table>");
-        msg.append("<p><b>").append(this.uploadPolicy.getString("itm_reasons"))
-                .append("</b><br><ul>");
+        msg.append("<p><b>").append(
+                this.uploadPolicy.getLocalizedString("itm_reasons")).append(
+                "</b><br><ul>");
         Iterator<String> it = reason.iterator();
         while (it.hasNext()) {
             msg.append("<li>" + it.next() + "</li>\n");
         }
         msg.append("</ul></p>");
         msg.append("<p><b>").append(
-                this.uploadPolicy.getString("itm_accept_prompt")).append(
-                "</b></p>");
+                this.uploadPolicy.getLocalizedString("itm_accept_prompt"))
+                .append("</b></p>");
         msg.append("</body></html>");
 
         JPanel p = new JPanel();
@@ -494,12 +511,14 @@ public class InteractiveTrustManager implements X509TrustManager,
         ep.setBackground(p.getBackground());
         p.add(ep, BorderLayout.CENTER);
 
-        String no = this.uploadPolicy.getString("itm_accept_no");
+        String no = this.uploadPolicy.getLocalizedString("itm_accept_no");
         int ans = JOptionPane.showOptionDialog(null, p,
                 "SSL Certificate Alert", JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE, null, new String[] {
-                        this.uploadPolicy.getString("itm_accept_always"),
-                        this.uploadPolicy.getString("itm_accept_now"), no
+                        this.uploadPolicy
+                                .getLocalizedString("itm_accept_always"),
+                        this.uploadPolicy.getLocalizedString("itm_accept_now"),
+                        no
                 }, no);
         switch (ans) {
             case JOptionPane.CANCEL_OPTION:
@@ -533,7 +552,7 @@ public class InteractiveTrustManager implements X509TrustManager,
                                 // New truststore, get a new password.
                                 this.tspasswd = this
                                         .getPassword(this.uploadPolicy
-                                                .getString("itm_new_tstore"));
+                                                .getLocalizedString("itm_new_tstore"));
                                 if (null == this.tspasswd)
                                     this.tspasswd = "changeit";
                             }

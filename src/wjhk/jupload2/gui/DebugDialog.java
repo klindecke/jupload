@@ -80,7 +80,8 @@ public class DebugDialog extends JDialog implements ActionListener {
         this.uploadPolicy = uploadPolicy;
 
         // Creation of the buttonClose button.
-        this.buttonClose = new JButton(uploadPolicy.getString("buttonClose"));
+        this.buttonClose = new JButton(uploadPolicy
+                .getLocalizedString("buttonClose"));
         this.buttonClose.setMaximumSize(new Dimension(100, 100));
         this.buttonClose.addActionListener(this);
 

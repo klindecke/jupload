@@ -3,22 +3,65 @@ As always, a lot of things can be made better:
 
 TODO list:
 
+- Language: add the following header in all generated files:
+#
+# CAUTION: ALL FILES IN THE src/wjhk/jupload/lang PACKAGE ARE __GENERATED__.
+#
+# THEIR CONTENT WILL BE REPLACED, IN THE NEXT EXECUTION OF THE /wwwroot/translation/build_translation.xml 
+#
+#
+
+
+
+- Sample.PHP
+https://sourceforge.net/tracker/?func=detail&atid=490053&aid=2907660&group_id=59144
+Demo done. Response to send to the above forum.
+
+
+During upload, howto prevent one error (or warning) message to be displayed for all pictures (eg: too big picture)
+Principles:
+- The message must always be displayed the first time.
+- Each time the message is displayed, the user may choose :
+	* [Default] Yes: go on with upload. Displays the same message the next time this error occurs (same Exception class).
+	As this picture is not uploaded, it is not removed from the file list.
+	* No:  go on with upload. Errors of the same kind (same Exception class) in the same upload, will be logged, but no
+	message will be displayed to the user. As this picture is not uploaded, it is not removed from the file list.
+	* Cancel: stop the upload here.  
+- What to do next: If there are already uploaded files (TAKE CARE TO MULTI-THREADING HERE, WHAT TO DO WITH FILES THAT 
+	ARE CURRENTLY BEING SENT), the applet should now ask to the user what to do:
+	1) Consider already uploaded files are successfull upload, and validate these (can switch to afterUploadURL, and lost 
+	the non uploaded files).
+	2) Consider already uploaded files are successfull uploaded, and validate these (the afterUploadURL is called in another
+	window, and there will be two windows with the application: one with the applet, containing the non uploaded files,
+	and one with the afterUploadURL for correctly uploaded files
+	3) Send a cancel message to the server, to make it ignore the uploaded files. This can't be managed on applet side,
+	or it will make server implementation always have to manage this. So, this must be managed on server side only.
+	Proposal: wherever the server stores the file data, it attach a 'temporary status' to it (can be in a database, or 
+	by storing the uploaded files in some kind of temporary folders. The uploaded files will be 'validated' (transaction
+	is commited) when the afterUploadURL is called by the applet. The server then knows that the upload is finished, and 
+	can do whatever is needed for the application.
+	4) Wait (the user does nothing). If the user does nothing (he's taking a coffee, because upload is too long...), the
+	server may have some kind of timeout. If so, he must send a specific error message to the applet, when the user
+	decide to choose yes (for instance) one hour latter... 
+
+
+
+
 - Some improvement and remarks
 https://sourceforge.net/projects/jupload/forums/forum/199106/topic/3489660
 When the applet is configured to resize images before uploading then sometimes bigger images do not get resized. 
 In such a case a popup message is displayed with the message that the image is too big to convert and will be uploaded as-is.
 I have a few questions about this:
-1) what affects the maximum size that can be resized by the applet? (seems not to be exactly the same on different systems)
-2) is there a way to increase this size?
 3) Is there a way to suppress this message? (if a user has a high res camera and wants to upload alot of photo's, clicking OK 
 every time is annoying)
 4) Is there a way to block uploads based on maximum image size AFTER client side conversion? This so i can block uploads if the 
 images are too big to process server side (memory limits). So what i mean is this: applet (tries to) convert images to maxsize, 
 after this is done, apply the check for maximum dimensions (and if too big do not upload, just like the maximum file size check).
 
-- Check the samples.PHP files
+- JPEG-EXIF autorotate
+https://sourceforge.net/tracker/?func=detail&atid=490056&aid=2916946&group_id=59144
 
-- Rename wwwroot/pages to wwwroot/samples.java
+ Rename wwwroot/pages to wwwroot/samples.java
 
 - In picture mode (Coppermine?)
 Uploading an empty text file (niv1.txt) generates an error.
@@ -44,7 +87,7 @@ size
 232 // targetHeight
 233 // may be one pixel too big. Let's check that.
 
-
+- Improve log management. Separate all displayXxx method from UploadPolicy to something like LogPolicy.
 
 - [Minor] Replace juploadContext by applet in the DefaultUploadPolicy.java comments.
 

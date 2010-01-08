@@ -149,7 +149,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
             this.connectionHelper.dispose();
         } catch (JUploadIOException e) {
             this.uploadPolicy.displayErr(this.uploadPolicy
-                    .getString("errDuringUpload"), e);
+                    .getLocalizedString("errDuringUpload"), e);
             throw e;
         }
     }
