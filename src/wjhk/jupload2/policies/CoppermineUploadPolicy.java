@@ -69,7 +69,7 @@ import wjhk.jupload2.filedata.PictureFileData;
  * document.JUpload.setProperty('albumId', '');
  * document.form_album.album_name.value = '';
  * document.form_album.album_description.value = ''; } } </script> </XMP>
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -124,7 +124,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * This method only handles the <I>albumId</I> parameter, which is the only
      * applet parameter that is specific to this class. The super.setProperty
      * method is called for other properties.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#setProperty(java.lang.String,
      *      java.lang.String)
      */
@@ -163,7 +163,7 @@ public class CoppermineUploadPolicy extends PictureUploadPolicy {
      * number of files that are to be uploaded, before upload, then call its
      * superclass. This number is then used to display to the user the list of
      * pictures he just uploaded.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#beforeUpload()
      */
     @Override

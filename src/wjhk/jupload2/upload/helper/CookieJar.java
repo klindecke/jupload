@@ -37,7 +37,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * This class implements a container for multiple cookies in a single domain.
- * 
+ *
  * @author felfert
  */
 public class CookieJar {
@@ -94,7 +94,7 @@ public class CookieJar {
         /**
          * Retrieves the hash value of this cookie. Cookies are hashed by name
          * and path.
-         * 
+         *
          * @return The hash value of this cookie.
          */
         public String getKey() {
@@ -106,7 +106,7 @@ public class CookieJar {
 
         /**
          * Returns a single client cookie header element
-         * 
+         *
          * @param path The path of the corresponding request URI
          * @param secure 1, if the current connection is secure (SSL), 0
          *            otherwise
@@ -146,7 +146,7 @@ public class CookieJar {
 
     /**
      * The creator for this class.
-     * 
+     *
      * @param uploadPolicy The current upload policy
      */
     public CookieJar(UploadPolicy uploadPolicy) {
@@ -176,7 +176,7 @@ public class CookieJar {
     /**
      * Sets the domain for this cookie jar. If set, only cookies matching the
      * specified domain are handled.
-     * 
+     *
      * @param domain The domain of this instance
      */
     public void setDomain(String domain) {
@@ -191,7 +191,7 @@ public class CookieJar {
 
     /**
      * Builds a RFC 2109 compliant client cookie header for the specified URL.
-     * 
+     *
      * @param url The URL for which the cookie header is to be used.
      * @return A client cookie header (including the "Cookie: " prefix) or null
      *         if no cookies are to be set.
@@ -222,7 +222,7 @@ public class CookieJar {
      * Parses a "Set-Cookie" header and creates/updates/deletes cookies
      * according to the parsed values. Parsing is done according to the
      * specification in RFC 2109
-     * 
+     *
      * @param s The plain value of the "Set-Cookie" HTTP header. e.g.: without
      *            the "Set-Cookie: " prefix.
      */

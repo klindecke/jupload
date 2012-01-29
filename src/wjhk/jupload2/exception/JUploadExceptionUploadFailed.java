@@ -25,7 +25,7 @@ package wjhk.jupload2.exception;
  * server response to the upload doesn't match the
  * {@link wjhk.jupload2.policies.UploadPolicy#PROP_STRING_UPLOAD_SUCCESS}
  * regular expression.
- * 
+ *
  * @author etienne_sf
  * @author $Revision$
  */
@@ -36,7 +36,7 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 
     /**
      * Constructs a new exception with the specified detail message.
-     * 
+     *
      * @param msg The message for this instance.
      */
     public JUploadExceptionUploadFailed(String msg) {
@@ -45,7 +45,7 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 
     /**
      * Constructs a new exception with the specified cause.
-     * 
+     *
      * @param cause The cause for this instance.
      */
     public JUploadExceptionUploadFailed(Exception cause) {
@@ -54,7 +54,7 @@ public class JUploadExceptionUploadFailed extends JUploadException {
 
     /**
      * Constructs a new exception with the specified detail message and cause.
-     * 
+     *
      * @param msg The message for this instance.
      * @param cause The cause for this instance.
      */

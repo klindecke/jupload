@@ -38,13 +38,13 @@ import wjhk.jupload2.exception.JUploadException;
  * The same behavior can be obtained by specifying no UploadPolicy (or
  * {@link FileByFileUploadPolicy}), and give the nbFilesPerRequest (with a value
  * set to 1) parameter.
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  * @deprecated You can use the applet, without the uploadPolicy applet
  *             parameter, and put the nbFilesPerRequest to 1. It does the
  *             same...
- * 
+ *
  */
 @Deprecated
 public class FileByFileUploadPolicy extends DefaultUploadPolicy {

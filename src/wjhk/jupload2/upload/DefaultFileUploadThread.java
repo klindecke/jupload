@@ -66,7 +66,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * The array that contains the current packet to upload.
-     * 
+     *
      * @see FileUploadManagerThread#getNextPacket()
      */
     UploadFileData[] filesToUpload = null;
@@ -74,7 +74,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * The upload manager. The thread that prepares files, and is responsible to
      * manage the upload process.
-     * 
+     *
      * @see FileUploadManagerThread
      */
     FileUploadManagerThread fileUploadManagerThread = null;
@@ -111,7 +111,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param threadName The name of the thread, that will be displayed in the
      *            debugger and in the logs.
      * @param uploadPolicy The upload policy to be applied.
@@ -137,16 +137,16 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * {@link FileData#beforeUpload()} method for all files to upload, and
      * prepares the progressBar bar (if any), with total number of bytes to
      * upload.
-     * 
+     *
      * final private void beforeUpload() throws JUploadException { for (int i =
      * 0; i < this.filesToUpload.length &&
      * !this.fileUploadManager.isUploadStopped(); i++) {
      * this.filesToUpload[i].beforeUpload(); } }
-     * 
+     *
      * /** This methods upload overhead for the file number indexFile in the
      * filesDataParam given to the constructor. For instance, in HTTP, the
      * upload contains a head and a tail for each files.
-     * 
+     *
      * @param indexFile The index of the file in the filesDataParam array, whose
      *            addtional length is asked.
      * @return The additional number of bytes for this file.
@@ -174,7 +174,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * called to know where the uploaded files should be written. <BR>
      * Note: it's up to the class containing this method to internally manage
      * the connection.
-     * 
+     *
      * @param contentLength The total number of bytes for the files (or the
      *            chunk) to upload in this query.
      * @param bChunkEnabled True if this upload is part of a file (can occurs
@@ -190,7 +190,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * This method is called at the end of each request.
-     * 
+     *
      * @return The response status code from the server (200 == OK)
      * @see #startRequest(long, boolean, int, boolean)
      */
@@ -208,7 +208,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * whose index is given in argument. If the file is splitted in chunks (see
      * the maxChunkSize applet parameter), this method is called before each
      * chunk for this file.
-     * 
+     *
      * @param index The index of the file that will be sent just after
      */
     abstract void beforeFile(int index) throws JUploadException;
@@ -216,7 +216,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * Idem as {@link #beforeFile(int)}, but is called after each file (and each
      * chunks for each file).
-     * 
+     *
      * @param index The index of the file that was just sent.
      */
     abstract void afterFile(int index) throws JUploadException;
@@ -236,7 +236,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * Get the output stream where the files should be written for upload.
-     * 
+     *
      * @return The target output stream for upload.
      */
     abstract OutputStream getOutputStream() throws JUploadException;
@@ -246,7 +246,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * without the http header. This is the functional response from the server
      * application, that has been as the HTTP reply body, for instance: all
      * 'echo' PHP commands. <BR>
-     * 
+     *
      * @return The last application response (HTTP body, in HTTP upload)
      */
     public String getResponseBody() {
@@ -255,7 +255,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * Get the server Output.
-     * 
+     *
      * @return The status message from the first line of the response (e.g. "200
      *         OK").
      */
@@ -265,7 +265,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * Unused Store the String that contains the server response body.
-     * 
+     *
      * @param body The response body that has been read.
      */
     void setResponseBody(String body) {
@@ -274,7 +274,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
 
     /**
      * Add a String that has been read from the server response.
-     * 
+     *
      * @param msg The status message from the first line of the response (e.g.
      *            "200 OK").
      */
@@ -344,7 +344,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * files in the array is more than the maxChunkSize, then
      * nbFilesToUploadParam is one. <LI>The number of elements in filesToUpload
      * is less (or equal) than the nbMaxFilesPerUpload. </DIR>
-     * 
+     *
      * @throws JUploadException
      * @throws JUploadInterrupted Thrown when an interruption of the thread is
      *             detected.
@@ -409,7 +409,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * Execution of an upload, in chunk mode. This method expects that the
      * {@link #filesToUpload} array contains only one line.
-     * 
+     *
      * @throws JUploadException When any error occurs, or when there is more
      *             than one file in {@link #filesToUpload}.
      * @throws JUploadInterrupted Thrown when an interruption of the thread is
@@ -537,7 +537,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * Execution of an upload, in standard mode. This method uploads all files
      * in the {@link #filesToUpload} array.
-     * 
+     *
      * @throws JUploadException When any error occurs, or when there is more
      *             than one file in {@link #filesToUpload}.
      * @throws JUploadInterrupted Thrown when an interruption of the thread is
@@ -619,7 +619,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
     /**
      * Replace single \r and \n by uniform end of line characters (CRLF). This
      * makes it easier, to search for string within the body.
-     * 
+     *
      * @param s The original string
      * @return The string with single \r and \n modified changed to CRLF (\r\n).
      */
@@ -640,7 +640,7 @@ public abstract class DefaultFileUploadThread extends Thread implements
      * Replace \r and \n by correctly displayed end of line characters. Used to
      * display debug output. It also replace any single \r or \n by \r\n, to
      * make it easier, to search for string within the body.
-     * 
+     *
      * @param s The original string
      * @return The string with \r and \n modified, to be correctly displayed.
      */

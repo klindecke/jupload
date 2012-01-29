@@ -39,7 +39,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <BR>
  * For all details on this point, please read the <a
  * href="../../../howto-customization.html">howto-customization.html</a> page.
- * 
+ *
  * @author William JinHua Kwong (largely updated by etienne_sf)
  * @version $Revision$
  */
@@ -77,7 +77,7 @@ public class JUploadApplet extends JApplet {
      * Currently, this can only be used after full initialization. This method
      * only calls the UploadPolicy.setProperty method. <BR>
      * Ex: document.jupload.setProperty(prop, value);
-     * 
+     *
      * @param prop The property name that must be set.
      * @param value The value of this property.
      * @see JUploadContext#setProperty(String, String)
@@ -88,7 +88,7 @@ public class JUploadApplet extends JApplet {
 
     /**
      * Javascript can call this method to start the upload.
-     * 
+     *
      * @return Returns the upload result. See the constants defined in the
      *         {@link JavascriptHandler} javadoc.
      */

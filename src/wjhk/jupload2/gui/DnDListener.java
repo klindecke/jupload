@@ -36,7 +36,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * Our implementation of DND.
- * 
+ *
  * @author William JinHua Kwong
  * @version $Release$
  */
@@ -48,7 +48,7 @@ public class DnDListener implements DropTargetListener {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param uploadPanel The corresponding upload panel.
      * @param uploadPolicy
      */

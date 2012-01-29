@@ -38,7 +38,7 @@ class JUploadTransferHandler extends TransferHandler {
 
     /**
      * The standard constructor.
-     * 
+     *
      * @param uploadPolicy The current uploadPolicy
      * @param uploadPanel The JUploadPanel. Must given here, as this constructor
      *            is called in the JUploadPanel construction. So the

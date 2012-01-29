@@ -44,7 +44,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * This class is the default FileData implementation. It gives the default
  * behaviour, and is used by {@link DefaultUploadPolicy}. It provides standard
  * control on the files choosen for upload.
- * 
+ *
  * @see FileData
  * @author etienne_sf
  */
@@ -57,7 +57,7 @@ public class DefaultFileData implements FileData {
 
     /**
      * Indicates whether the file is prepared for upload or not.
-     * 
+     *
      * @see FileData#isPreparedForUpload()
      */
     boolean preparedForUpload = false;
@@ -109,7 +109,7 @@ public class DefaultFileData implements FileData {
 
     /**
      * Standard constructor
-     * 
+     *
      * @param file The file whose data this instance will give.
      * @param root The directory root, to be able to calculate the result of
      *            {@link #getRelativeDir()}
@@ -282,7 +282,7 @@ public class DefaultFileData implements FileData {
     /**
      * Returns the extension of the given file. To be clear: <I>jpg</I> is the
      * extension for the file named <I>picture.jpg</I>.
-     * 
+     *
      * @param file the file whose the extension is wanted!
      * @return The extension, without the point, for the given file.
      */
@@ -294,7 +294,7 @@ public class DefaultFileData implements FileData {
     /**
      * Return the 'biggest' common ancestror of the given file array. For
      * instance, the root for the files /usr/bin/toto and /usr/titi is /usr.
-     * 
+     *
      * @param fileArray
      * @return The common root for the given files.
      */

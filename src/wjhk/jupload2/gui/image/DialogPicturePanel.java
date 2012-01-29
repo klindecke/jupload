@@ -30,7 +30,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 /**
  * The picture for the PictureDialog. The difference with the PicturePanel, is
  * that a click on it closes the Dialog.
- * 
+ *
  * @author etienne_sf
  */
 public class DialogPicturePanel extends PicturePanel {
@@ -47,7 +47,7 @@ public class DialogPicturePanel extends PicturePanel {
      * @param pictureDialog
      * @param uploadPolicy
      * @param pictureFileData
-     * 
+     *
      */
     public DialogPicturePanel(PictureDialog pictureDialog,
             UploadPolicy uploadPolicy, PictureFileData pictureFileData) {

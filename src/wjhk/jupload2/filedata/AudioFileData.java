@@ -39,7 +39,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * embedded into the jupload jar. It is loaded independantly. <BR>
  * <BR>
  * To be completed
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -48,7 +48,7 @@ public class AudioFileData extends DefaultFileData {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param file The files which data are to be handled by this instance.
      * @param root The root directory, to calculate the relative dir (see
      *            {@link #getRelativeDir()}.

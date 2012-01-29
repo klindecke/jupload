@@ -37,7 +37,7 @@ import wjhk.jupload2.gui.JUploadPanel;
 public interface FilePanel {
     /**
      * Add multiple files to this panel.
-     * 
+     *
      * @param f An array of files to add.
      * @param root The top level of a directory hierarchy to add
      */
@@ -45,14 +45,14 @@ public interface FilePanel {
 
     /**
      * Retrieve all currently stored files.
-     * 
+     *
      * @return an array of files, currently managed by this instance.
      */
     public FileData[] getFiles();
 
     /**
      * Retrieve the number of file entries in the JTable.
-     * 
+     *
      * @return the current number of files, held by this instance.
      */
     public int getFilesLength();
@@ -69,7 +69,7 @@ public interface FilePanel {
 
     /**
      * Remove a specified file entry.
-     * 
+     *
      * @param fileData The file to be removed.
      */
     public void remove(FileData fileData);
@@ -86,7 +86,7 @@ public interface FilePanel {
 
     /**
      * Ask for the file contained below the specific point on the screen.
-     * 
+     *
      * @param point The point
      * @return The return instance of File.
      */
@@ -95,14 +95,14 @@ public interface FilePanel {
     /**
      * Return the component on which drop event can occur. Used by
      * {@link JUploadPanel}, when initializing the DropTarget.
-     * 
+     *
      * @return The drop component target
      */
     public Component getDropComponent();
 
     /**
      * Transfer handler, to manage copy/paste operations.
-     * 
+     *
      * @param newHandler
      * @see JComponent#setTransferHandler(TransferHandler)
      */
@@ -110,7 +110,7 @@ public interface FilePanel {
 
     /**
      * Allows to get standard action map, like paste action.
-     * 
+     *
      * @return Get the current actionMap
      * @see JComponent#getActionMap()
      */

@@ -39,7 +39,7 @@ import wjhk.jupload2.upload.helper.HTTPConnectionHelper;
 
 /**
  * This class implements the file upload via HTTP POST request.
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -69,7 +69,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param uploadPolicy The policy to be applied.
      * @param fileUploadManagerThread
      */
@@ -291,7 +291,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     /**
      * Returns the header for this file, within the http multipart body.
-     * 
+     *
      * @param index Index of the file in the array that contains all files to
      *            upload.
      * @param bound The boundary that separate files in the http multipart post
@@ -356,7 +356,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     /**
      * Construction of the head for each file.
-     * 
+     *
      * @param bound The String boundary between the post data in the HTTP
      *            request.
      * @throws JUploadException
@@ -370,7 +370,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     /**
      * Construction of the tail for each file.
-     * 
+     *
      * @param bound Current boundary, to apply for these tails.
      */
     private final void setAllTail(String bound) throws JUploadException {
@@ -399,7 +399,7 @@ public class FileUploadThreadHTTP extends DefaultFileUploadThread {
 
     /**
      * Converts the parameters in GET form to post form
-     * 
+     *
      * @param url the <code>URL</code> containing the query parameters
      * @return the parameters in a string in the correct form for a POST request
      * @throws JUploadIOException

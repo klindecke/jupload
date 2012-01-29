@@ -1015,7 +1015,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * <BR>
  * <!-- ANT_COPYDOC_END --> <!-- ATTENTION: The previous comment is used by Ant
  * build. DO NOT CHANGE!! -->
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  * @see wjhk.jupload2.policies.DefaultUploadPolicy
@@ -1384,28 +1384,28 @@ public interface UploadPolicy {
 
     /**
      * Default value for applet parameter "fileChooserIconFromFileContent".
-     * 
+     *
      * @see #PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     public final static int DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT = 0;
 
     /**
      * Default value for applet parameter "fileChooserIconSize".
-     * 
+     *
      * @see #PROP_FILE_CHOOSER_ICON_SIZE
      */
     public final static int DEFAULT_FILE_CHOOSER_ICON_SIZE = 20;
 
     /**
      * Default value for applet parameter "fileChooserImagePreview".
-     * 
+     *
      * @see #PROP_FILE_CHOOSER_IMAGE_PREVIEW
      */
     public final static boolean DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW = true;
 
     /**
      * Default value for applet parameter "ftpCreateDirectoryStructure".
-     * 
+     *
      * @see #PROP_FTP_CREATE_DIRECTORY_STRUCTURE
      */
     public final static boolean DEFAULT_FTP_CREATE_DIRECTORY_STRUCTURE = false;
@@ -1520,7 +1520,7 @@ public interface UploadPolicy {
 
     /**
      * Default value for parameter "stringUploadError".
-     * 
+     *
      * @since 2.9.2rc4
      */
     public final static String DEFAULT_STRING_UPLOAD_ERROR = "^ERROR: (.*)$";
@@ -1558,7 +1558,7 @@ public interface UploadPolicy {
 
     /**
      * Default value for parameter "formdata"
-     * 
+     *
      * @since 2.9.2rc4
      */
     public final static String DEFAULT_FORMDATA = null;
@@ -1583,7 +1583,7 @@ public interface UploadPolicy {
      * {@link DefaultUploadPolicy#addComponentsToJUploadPanel(JUploadPanel)}
      * method. If you create an upload policy that overrides the
      * addComponentsToJUploadPanel method, it's up to you to call it.
-     * 
+     *
      * @param browse The default browse button.
      * @param remove The default removeSelected button.
      * @param removeAll The default removeAll button.
@@ -1598,7 +1598,7 @@ public interface UploadPolicy {
      * implementation is defined in
      * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createProgressPanel(JProgressBar, JProgressBar, JButton, JButton, JPanel)}
      * .
-     * 
+     *
      * @param preparationProgressBar The default preparation progress bar.
      * @param uploadProgressBar The default upload progress bar.
      * @param uploadButton The default upload button.
@@ -1615,7 +1615,7 @@ public interface UploadPolicy {
      * implementation is defined in
      * {@link wjhk.jupload2.policies.DefaultUploadPolicy#createStatusBar(JLabel, JPanel)}
      * .
-     * 
+     *
      * @param statusContent The status bar content
      * @param mainPanel The panel that contains all objects.
      * @return the topPanel, that will be displayed on the top of the Applet.
@@ -1625,9 +1625,9 @@ public interface UploadPolicy {
     /**
      * This methods allow the upload policy to override the default disposition
      * of the components on the applet.
-     * 
+     *
      * @param jUploadPanel The main applet panel.
-     * 
+     *
      * @see #createTopPanel(JButton, JButton, JButton, JUploadPanel)
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel);
@@ -1635,7 +1635,7 @@ public interface UploadPolicy {
     /**
      * This methods creates a new FileData instance (or one of its inherited
      * classes), and return it to the caller.
-     * 
+     *
      * @param file The file used to create the FileData instance. This method is
      *            called once for each file selected by the user, even if the
      *            user added several files in one 'shot'.
@@ -1671,7 +1671,7 @@ public interface UploadPolicy {
      * change any applet parameter after the applet initilization, with
      * JavaScript for instance. If the applet parameters given in <i>prop</i> is
      * not managed by this method, a warning is displayed in the log window.
-     * 
+     *
      * @param prop The applet parameter name.
      * @param value The new value for this parameter. If the value is not valid
      *            (for instance <i>aaa</i> for a number), a warning is displayed
@@ -1687,21 +1687,21 @@ public interface UploadPolicy {
 
     /**
      * Retrieves the current value for the afterUploadURL applet parameter.
-     * 
+     *
      * @return The current value for he afterUploadURL applet parameter.
      */
     public String getAfterUploadURL();
 
     /**
      * Retrieves the current value for allowHttpPersistent
-     * 
+     *
      * @return Current value for allowHttpPersistent
      */
     public boolean getAllowHttpPersistent();
 
     /**
      * Retrieves the current value for allowedFileExtensions *
-     * 
+     *
      * @return Current value for allowedFileExtensions
      */
     public String getAllowedFileExtensions();
@@ -1710,14 +1710,14 @@ public interface UploadPolicy {
      * A useful function, that has nothing to do with an upload policy. But it
      * is useful to have it here, as the uploadPolicy is known everywhere in the
      * applet.
-     * 
+     *
      * @return Reference to the current JUpload context.
      */
     public JUploadContext getContext();
 
     /**
      * Set the current directory.
-     * 
+     *
      * @param currentBrowsingDirectoryParam The directory that will be the
      *            current one, the next time the file chooser is opened.
      * @see #getCurrentBrowsingDirectory()
@@ -1727,7 +1727,7 @@ public interface UploadPolicy {
 
     /**
      * Set the current directory.
-     * 
+     *
      * @param currentBrowsingDirectoryParam The directory that will be the
      *            current one, the next time the file chooser is opened. This
      *            directory may begin with ~/ or ~\
@@ -1740,7 +1740,7 @@ public interface UploadPolicy {
      * be current the next time the file chooser is opened. It is initialized
      * with the browsingDirectory applet parameter. Then, it contains the last
      * directory used in the file chooser.
-     * 
+     *
      * @return The directory that will be the current one, the next time the
      *         file chooser is opened.
      */
@@ -1749,7 +1749,7 @@ public interface UploadPolicy {
     /**
      * Returns the currently choosen format for date. It must be compatible with
      * the SimpleDateFormat standard Java class.
-     * 
+     *
      * @return The date format.
      */
     public String getDateFormat();
@@ -1763,7 +1763,7 @@ public interface UploadPolicy {
      * With a 0 value, no debug messages will be displayed. The
      * {@link DefaultUploadPolicy}.addMsgToDebugBufferString method stores all
      * debug output in a BufferString.
-     * 
+     *
      * @param debugLevel The new debugLevel.
      * @see DefaultUploadPolicy#sendDebugInformation(String, Exception)
      */
@@ -1771,7 +1771,7 @@ public interface UploadPolicy {
 
     /**
      * This method returns the current debug level.
-     * 
+     *
      * @return The current debug level
      * @see #setDebugLevel(int)
      */
@@ -1779,7 +1779,7 @@ public interface UploadPolicy {
 
     /**
      * Getter for the fileChooserIconFromFileContent applet parameter.
-     * 
+     *
      * @return Stored value for fileChooserIconFromFileContent
      * @see #PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
@@ -1787,7 +1787,7 @@ public interface UploadPolicy {
 
     /**
      * Getter for the fileChooserIconSize applet parameter.
-     * 
+     *
      * @return Stored value for fileChooserIconSize
      * @see #PROP_FILE_CHOOSER_ICON_SIZE
      */
@@ -1796,7 +1796,7 @@ public interface UploadPolicy {
     /**
      * Returns the encoding that should be used for the filename. This encoding
      * has no impact on the content of the file that will be uploaded.
-     * 
+     *
      * @return The encoding name, like UTF-8 (see the Charset JDK
      *         documentation).
      */
@@ -1805,21 +1805,21 @@ public interface UploadPolicy {
     /**
      * Returns the current value for the ftpCreateDirectoryStructure applet
      * parameter.
-     * 
+     *
      * @return The current value of ftpCreateDirectoryStructure
      */
     public boolean getFtpCreateDirectoryStructure();
 
     /**
      * Returns the current value for the ftpTransfertBinary applet parameter.
-     * 
+     *
      * @return The current value of ftpTransfertBinary
      */
     public boolean getFtpTransfertBinary();
 
     /**
      * Returns the current value for the ftpTransfertPassive applet parameter.
-     * 
+     *
      * @return The current value of ftpTransfertPassive
      */
     public boolean getFtpTransfertPassive();
@@ -1828,7 +1828,7 @@ public interface UploadPolicy {
      * This method sets the current language to take into account. It loads the
      * lang resourceBundle, which will allow the applet to display the texts in
      * the correct language.
-     * 
+     *
      * @param lang The new language to take into account. See the
      *            java.util.Locale(String) constructor for a list of valid
      *            values.
@@ -1838,7 +1838,7 @@ public interface UploadPolicy {
     /**
      * Returns the value of the applet parameter maxChunkSize (see above for a
      * description of all applet parameters)
-     * 
+     *
      * @return the current value of maxChunkSize.
      */
     public long getMaxChunkSize();
@@ -1846,7 +1846,7 @@ public interface UploadPolicy {
     /**
      * Returns the value of the applet parameter maxFileSize (see above for a
      * description of all applet parameters)
-     * 
+     *
      * @return the current value of maxFileSize.
      */
     public long getMaxFileSize();
@@ -1862,7 +1862,7 @@ public interface UploadPolicy {
      * <li>If 5 : files are uploaded 5 files by 5 files. If 12 files are
      * uploaded, 3 HTTP upload are done, containing 5, 5 and 2 files.
      * </UL>
-     * 
+     *
      * @return Returns the maximum number of files, to download in one HTTP
      *         request.
      */
@@ -1870,28 +1870,28 @@ public interface UploadPolicy {
 
     /**
      * Return the current value of readUserAgentFromNavigator
-     * 
+     *
      * @return Current value of readUserAgentFromNavigator
      */
     public boolean getReadUserAgentFromNavigator();
 
     /**
      * Return the current value of readCookieFromNavigator
-     * 
+     *
      * @return Current value of readCookieFromNavigator
      */
     public boolean getReadCookieFromNavigator();
 
     /**
      * Get the target URL for upload.
-     * 
+     *
      * @return Should be valid URL...
      */
     public String getPostURL();
 
     /**
      * The URL can change during the life of our policy ...
-     * 
+     *
      * @param postURL
      * @throws JUploadException
      */
@@ -1899,7 +1899,7 @@ public interface UploadPolicy {
 
     /**
      * Return the target, specified as applet parameter "afterUploadTarget"
-     * 
+     *
      * @return the specified target.
      */
     public String getAfterUploadTarget();
@@ -1912,14 +1912,14 @@ public interface UploadPolicy {
      * one used during the session creation. It is used in the default policy,
      * as it could be used elsewhere. <br>
      * Default is : HTTP/1.1
-     * 
+     *
      * @return The selected server protocol.
      */
     public String getServerProtocol();
 
     /**
      * Retrieves SSL verification mode.
-     * 
+     *
      * @return The current SSL verification mode.
      */
     public int getSslVerifyCert();
@@ -1935,7 +1935,7 @@ public interface UploadPolicy {
      * hide it, as it contains mostly debug information. But it still is the
      * only place where possible errors and warnings are shown.<br>
      * Default is : true
-     * 
+     *
      * @return The current value for the <i>showStatusBar</i> applet parameter.
      */
     public String getShowLogWindow();
@@ -1943,7 +1943,7 @@ public interface UploadPolicy {
     /**
      * Returns the list of specific headers, that will be added to all HTTP
      * request to the server.
-     * 
+     *
      * @return List of specific headers, with a \r\n at the end of each header.
      */
     public String getSpecificHeaders();
@@ -1952,7 +1952,7 @@ public interface UploadPolicy {
      * Get the original name of the file on the disk. This function can encode
      * the filename (see the filenameEncoding parameter). By default, the
      * original filename is returned.
-     * 
+     *
      * @param fileData The file data whose upload file name must be calculated.
      * @param index index of the file in the current request to the server (from
      *            0 to n)
@@ -1971,7 +1971,7 @@ public interface UploadPolicy {
      * If you're using one of the core JUpload {@link UploadPolicy}, the value
      * for this parameter is controled by the applet parameters:
      * targetPictureFormat and keepOriginalFileExtensionForConvertedImages.
-     * 
+     *
      * @param fileData The file data whose upload name must be calculated.
      * @param index index of the file in the current request to the server (from
      *            0 to n)
@@ -1985,7 +1985,7 @@ public interface UploadPolicy {
     /**
      * Returns the current URL where error log must be posted. See <a
      * href="#parameters">Parameters</a>
-     * 
+     *
      * @return the urlToSendErrorTo
      */
     public String getUrlToSendErrorTo();
@@ -2001,7 +2001,7 @@ public interface UploadPolicy {
      * Retrieve the regular expression that will be tested against each line of
      * the server answer. If one line matches this expression, that upload is
      * marked as failed. <br>
-     * 
+     *
      * @return The regular expression that must be run again each line of the
      *         http answer.
      */
@@ -2021,7 +2021,7 @@ public interface UploadPolicy {
      * Else, the upload is marked as unsuccessful, and a
      * JUploadExceptionUploadFailure is thrown.
      * </ol>
-     * 
+     *
      * @return The regular expression that must be run again each line of the
      *         http answer.
      */
@@ -2031,7 +2031,7 @@ public interface UploadPolicy {
      * Retrieve the regular expression that will be tested against each line of
      * the server answer. If one line matches this expression, a warning message
      * is displayed to the user. <br>
-     * 
+     *
      * @return The regular expression that must be run again each line of the
      *         http answer.
      * @see #getStringUploadError()
@@ -2041,21 +2041,21 @@ public interface UploadPolicy {
 
     /**
      * Retrieve the applet's "formdata" parameter.
-     * 
+     *
      * @return The applet's formdata parameter.
      */
     public String getFormdata();
 
     /**
      * Retrieve the applet's "httpUploadParameterName" parameter.
-     * 
+     *
      * @return The applet's httpUploadParameterName parameter.
      */
     public String getHttpUploadParameterName();
 
     /**
      * Retrieve the applet's "httpUploadParameterType" parameter.
-     * 
+     *
      * @return The applet's httpUploadParameterType parameter.
      */
     public String getHttpUploadParameterType();
@@ -2068,7 +2068,7 @@ public interface UploadPolicy {
      * Reaction by the upload policy, once the management of the dropped file(s)
      * is finished, that is: after all the dropped files have been successfully
      * added to the file list.
-     * 
+     *
      * @param dropEvent The event containing the dropped file
      */
     public void afterFileDropped(DropTargetDropEvent dropEvent);
@@ -2080,7 +2080,7 @@ public interface UploadPolicy {
      * allow fine control of the way to select files. For instance, the
      * {@link PictureUploadPolicy} creates a file chooser, and add an accessory
      * to preview pictures.
-     * 
+     *
      * @return Return the specific file choose, according to this upload policy.
      */
     public JUploadFileChooser createFileChooser();
@@ -2092,10 +2092,10 @@ public interface UploadPolicy {
      * fileChooser. Files dropped onto the applet won't trigger this function.<br>
      * In the {@link DefaultUploadPolicy} upload policy, this filter is based on
      * the applet parameter: <i>allowedFileExtensions</i>.
-     * 
+     *
      * @param file Allows the applet to filter files from the file chooser.
      * @return true or false, whether the file is accepted or not.
-     * 
+     *
      * @see JUploadPanel#JUploadPanel(wjhk.jupload2.gui.JUploadTextArea,
      *      UploadPolicy)
      */
@@ -2104,7 +2104,7 @@ public interface UploadPolicy {
     /**
      * Return a description for the FileFilter, according to the current upload
      * policy.
-     * 
+     *
      * @return A description for the current filter
      */
     public String fileFilterGetDescription();
@@ -2113,7 +2113,7 @@ public interface UploadPolicy {
      * Response for the {@link JUploadFileView#getIcon(File)}. Default is
      * implemented in {@link DefaultUploadPolicy#fileViewGetIcon(File)}, by
      * returning null, which displays the default icon.
-     * 
+     *
      * @param file The file from which the icon should represent.
      * @return The resulting icon.
      */
@@ -2122,7 +2122,7 @@ public interface UploadPolicy {
     /**
      * This method changes the current mouse cursor to the wait one. It returns
      * the old one so that, it can be restored, once the work is done.
-     * 
+     *
      * @return The cursor that was active, before changing to the wait one.
      * @see #setCursor(Cursor)
      */
@@ -2132,7 +2132,7 @@ public interface UploadPolicy {
      * Changes the current mouse cursor. This method can be called at the end of
      * a big treatement, to restore the cursor returned by the
      * {@link #setWaitCursor()}.
-     * 
+     *
      * @param cursor The cursor that must be set.
      * @return The cursor that was active before setting the new one. Can be
      *         used to restore its previous state.
@@ -2147,7 +2147,7 @@ public interface UploadPolicy {
      * This method allows the applet to post debug information to the website
      * (see {@link #getUrlToSendErrorTo()}). Then, it is possible to log the
      * error, to send a mail...
-     * 
+     *
      * @param reason A string describing briefly the problem. The mail subject
      *            will be something like: Jupload Error (reason)
      * @param exception The java exception that was raised, or null if no
@@ -2160,7 +2160,7 @@ public interface UploadPolicy {
      * window, if defined. <BR>
      * The dialog box will only contain an Ok button. Same as caling:
      * displayErr(e, JOptionPane.OK_OPTION);
-     * 
+     *
      * @param e The exception to report
      */
     public void displayErr(Exception e);
@@ -2168,7 +2168,7 @@ public interface UploadPolicy {
     /**
      * log an error message, based on an exception. Will be logged in the log
      * window, if defined.<BR>
-     * 
+     *
      * @param err The erreur message to be displayed. If null the exception (or
      *            it's cause if any) message is displayed.
      * @param e The exception to report
@@ -2186,7 +2186,7 @@ public interface UploadPolicy {
     /**
      * log an error message. Will be logged in the log window, if defined. <BR>
      * The dialog box will only contain an Ok button.
-     * 
+     *
      * @param err The erreur message to be displayed.
      */
     public void displayErr(String err);
@@ -2194,7 +2194,7 @@ public interface UploadPolicy {
     /**
      * log an error message. Will be logged in the log window, if defined. <BR>
      * The dialog box will only contain an Ok button.
-     * 
+     *
      * @param err The error message to be displayed.
      * @param e An exception. It's stacktrace is logged.
      */
@@ -2202,21 +2202,21 @@ public interface UploadPolicy {
 
     /**
      * log an info message. Will be logged in the log window, if defined.
-     * 
+     *
      * @param info The information message that will be displayed.
      */
     public void displayInfo(String info);
 
     /**
      * log a warning message. Will be logged in the log window, if defined.
-     * 
+     *
      * @param warn The warning message that will be displayed.
      */
     public void displayWarn(String warn);
 
     /**
      * log a debug message. Will be logged in the log window, if defined.
-     * 
+     *
      * @param debug The message to display.
      * @param minDebugLevel If the current debug level is superior or equals to
      *            minDebugLevel, the message will be displayed. Otherwise, it
@@ -2231,7 +2231,7 @@ public interface UploadPolicy {
      * upload request. This method is called from specific uploadPolicies, which
      * would need headers to be added to all uploads. These headers are used in
      * {@link wjhk.jupload2.policies.DefaultUploadPolicy}.
-     * 
+     *
      * @param header
      * @see #onAppendHeader(ByteArrayEncoder)
      */
@@ -2240,7 +2240,7 @@ public interface UploadPolicy {
     /**
      * Append specific headers for this upload (session cookies, for instance).
      * This method is called while building each upload HTTP request.
-     * 
+     *
      * @param sb The header {@link ByteArrayEncoder} where specific headers
      *            should be appended.
      * @return The {@link ByteArrayEncoder} given in parameters. This is allows
@@ -2257,7 +2257,7 @@ public interface UploadPolicy {
      * This method is called each time a file is selected in the panel files. It
      * allows, for instance, to preview a picture
      * {@link wjhk.jupload2.policies.PictureUploadPolicy}.
-     * 
+     *
      * @param fileData
      */
     public void onFileSelected(FileData fileData);
@@ -2266,7 +2266,7 @@ public interface UploadPolicy {
      * Reaction when the user double click on a file, in the file list. Default
      * is no reaction. In {@link PictureUploadPolicy}, it will open a
      * {@link PictureDialog}.
-     * 
+     *
      * @param fileData
      */
     public void onFileDoubleClicked(FileData fileData);
@@ -2275,7 +2275,7 @@ public interface UploadPolicy {
      * Execute any action, that must be done before upload. For instance,
      * {@link PictureUploadPolicy} disable the rotation buttons during buttons.
      * The {@link DefaultUploadPolicy#beforeUpload()} method just returns true.
-     * 
+     *
      * @return indicate if everything is ready for upload.
      */
     public boolean beforeUpload();
@@ -2292,7 +2292,7 @@ public interface UploadPolicy {
      * So this method is different from the
      * {@link #afterUpload(Exception, String)}, that will be called only once in
      * this case, after the three calls to the checkUploadSuccess method.
-     * 
+     *
      * @param status The numeric response status (e.g. 200)
      * @param msg The status message from the first line of the response (e.g.
      *            "200 OK").
@@ -2314,7 +2314,7 @@ public interface UploadPolicy {
      * button. That is: if the nbFilesPerRequest is 2, and the user selected 5
      * files before clicking on the 'upload' button. Then the afterUpload is
      * called once the 5 files were uploaded to the server.
-     * 
+     *
      * @param e null if success, or the exception indicating the problem.
      * @param serverOutput The full server output, including the HTTP headers.
      * @throws JUploadException
@@ -2325,7 +2325,7 @@ public interface UploadPolicy {
     /**
      * Retrieve a lang string, based on the file cointained in the
      * wjhk.jupload2.lang package. This allows localization.
-     * 
+     *
      * @param key The key, whose associated text is to retrieve. This text must
      *            respect the constraints of the
      *            {@link String#format(String, Object...)} method, that is
@@ -2341,7 +2341,7 @@ public interface UploadPolicy {
     /**
      * Displays a MessageBox with a unique 'Ok' button, by calling the
      * {@link JOptionPane#showMessageDialog(java.awt.Component, Object)} method.
-     * 
+     *
      * @param key The string identifying the text to display, depending on the
      *            current language.
      * @see #alertStr(String)
@@ -2351,7 +2351,7 @@ public interface UploadPolicy {
     /**
      * Displays a MessageBox with a unique 'Ok' button, by calling the
      * {@link JOptionPane#showMessageDialog(java.awt.Component, Object)} method.
-     * 
+     *
      * @param str The full String that must be displayed to the user.
      * @see #alert(String)
      */
@@ -2361,7 +2361,7 @@ public interface UploadPolicy {
      * Displays a MessageBox with a unique 'Ok' button, by calling the
      * {@link JOptionPane#showConfirmDialog(java.awt.Component, Object, String, int)}
      * method.
-     * 
+     *
      * @param str The full String that must be displayed to the user.
      * @param optionTypes The options indicating the button to display. Valid
      *            options are the options valid for the
@@ -2375,7 +2375,7 @@ public interface UploadPolicy {
 
     /**
      * Indicates that an error occurs.
-     * 
+     *
      * @return The last Exception that occurs in the applet. null if no
      *         exception occurs.
      */
@@ -2383,14 +2383,14 @@ public interface UploadPolicy {
 
     /**
      * Retrieve the body of the last server response.
-     * 
+     *
      * @return The string containing the last server response (body);
      */
     public String getLastResponseBody();
 
     /**
      * Retrieve the status/error message of the last server response.
-     * 
+     *
      * @return The string containing either the last server status or (if the
      *         error regex matches, the parsed error message.
      */

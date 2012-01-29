@@ -143,7 +143,7 @@ public class JUploadTextArea extends JTextArea {
     /**
      * Constructs a new empty TextArea with the specified number of rows and
      * columns.
-     * 
+     *
      * @param rows The desired number of text rows (lines).
      * @param columns The desired number of columns.
      * @param uploadPolicy The current uploadPolicy
@@ -170,7 +170,7 @@ public class JUploadTextArea extends JTextArea {
     /**
      * Add a string to the queue of string to be added to the logWindow. This is
      * necessary, to manage the non-thread-safe Swing environment.
-     * 
+     *
      * @param str The string to add, at the end of the JUploadTextArea.
      */
     public final void displayMsg(String str) {

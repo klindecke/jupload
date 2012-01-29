@@ -24,7 +24,7 @@ package wjhk.jupload2.exception;
  * This class should be used for all implementations of FileData or UploadPolicy
  * that want to throw an IO exception, and need to be conform with the interface
  * definition.
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -36,7 +36,7 @@ public class JUploadIOException extends JUploadException {
 
     /**
      * Constructs a new exception with the specified detail message.
-     * 
+     *
      * @param msg The message for this instance.
      */
     public JUploadIOException(String msg) {
@@ -45,7 +45,7 @@ public class JUploadIOException extends JUploadException {
 
     /**
      * Constructs a new exception with the specified cause.
-     * 
+     *
      * @param cause The cause for this instance.
      */
     public JUploadIOException(Exception cause) {
@@ -54,7 +54,7 @@ public class JUploadIOException extends JUploadException {
 
     /**
      * Constructs a new exception with the specified detail message and cause.
-     * 
+     *
      * @param msg The message for this instance.
      * @param cause The cause for this instance.
      */

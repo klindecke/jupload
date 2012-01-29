@@ -115,7 +115,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * @param uploadPolicy
-     * 
+     *
      */
     public FilePanelDataModel2(UploadPolicy uploadPolicy) {
         // Property initialization is done ... for each property. Nothing to do
@@ -148,7 +148,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Does this table contain this file ?
-     * 
+     *
      * @param file : the file that could be contained...
      * @return true if the table contains this file.
      */
@@ -170,7 +170,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Add a file to the panel (at the end of the list)
-     * 
+     *
      * @param file
      * @param root
      * @throws JUploadExceptionStopAddingFiles
@@ -200,7 +200,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Ask for the file contained at specified row number.
-     * 
+     *
      * @param row The row number
      * @return The return instance of File.
      */
@@ -213,7 +213,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Ask for the file contained at specified row number.
-     * 
+     *
      * @param row The row number
      * @return The return instance of File.
      */
@@ -238,7 +238,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Remove a specified row.
-     * 
+     *
      * @param row The row to remove.
      */
     public synchronized void removeRow(int row) {
@@ -250,7 +250,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Removes fileData from the current list. There should be only one.
-     * 
+     *
      * @param fileData
      */
     public synchronized void removeRow(FileData fileData) {
@@ -288,7 +288,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Always return false here : no editable cell.
-     * 
+     *
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
     @Override
@@ -299,7 +299,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Sort the rows, according to one column.
-     * 
+     *
      * @param col The index of the column to sort
      * @param ascending true if ascending, false if descending.
      */
@@ -312,7 +312,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Return true if this column can be sorted.
-     * 
+     *
      * @param col The index of the column which can sortable or not.
      * @return true if the column can be sorted. false otherwise.
      */
@@ -358,7 +358,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * This method doesn't do anything : no changeable values.
-     * 
+     *
      * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
      */
     @Override
@@ -377,7 +377,7 @@ class FilePanelDataModel2 extends AbstractTableModel {
 
     /**
      * Retrieves the default colum size of a column.
-     * 
+     *
      * @param col The index of the column to query.
      * @return the default size of the requested column.
      */

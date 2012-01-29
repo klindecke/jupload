@@ -16,7 +16,7 @@
 WEB SITE: http://jupload.sourceforge.net/
 Version : 2.6.0
 
-This applet comes with source code. I take no responsibility for any damages caused by the usage of this applet. 
+This applet comes with source code. I take no responsibility for any damages caused by the usage of this applet.
 Use it at your own risk!
 
 This applet is 'given' with the GPL licence.
@@ -24,17 +24,17 @@ This applet is 'given' with the GPL licence.
 ~~~~~~~~~~~~~~~~~~~
 1.0	DESCRIPTION
 ~~~~~~~~~~~~~~~~~~~
-Traditional HTML upload forms allow you to select and upload one file at a time. This restriction is unacceptable 
-when it comes to uploading thousands of files within a single folder. 
+Traditional HTML upload forms allow you to select and upload one file at a time. This restriction is unacceptable
+when it comes to uploading thousands of files within a single folder.
 
-Java Multiple File Upload Applet (JUpload) takes care of this limited by allowing users to select and upload a whole 
+Java Multiple File Upload Applet (JUpload) takes care of this limited by allowing users to select and upload a whole
 directory and the files within it with a single click.
 
 Main evolution since V2 :
 - Add of UploadPolicy. This allows developpers to easily configure the way files are uploaded (see below for details)
-- Add of picture management functions. This can easily be done by using the PictureUploadPolicy, or one of its 
+- Add of picture management functions. This can easily be done by using the PictureUploadPolicy, or one of its
 inherited classes, like CoppermineUploadPolicy (which is dedicated to the coppermine online picture gallery.
-- Cookies session are kept: Upload are now done within the current navigator session. Thus, the upload is done within 
+- Cookies session are kept: Upload are now done within the current navigator session. Thus, the upload is done within
 the same user session, if any.
 - Works with SSL.
 - Works with FTP (since 2.9.0).
@@ -42,13 +42,13 @@ the same user session, if any.
 
 UploadPolicies makes it easy to configure these parameters:
 - Target upload URL
-- Number of files that should be uploaded. For instance: all at once (default), one by one (see FileByFileUploadPolicy), 
+- Number of files that should be uploaded. For instance: all at once (default), one by one (see FileByFileUploadPolicy),
 or by packet of limited number of files (see CustomizedNbFilesPerRequestUploadPolicy)
-- Top part of the applet can be modified by writing a new UploadPolicy, using the UploadPolicy.createTopPanel method. 
+- Top part of the applet can be modified by writing a new UploadPolicy, using the UploadPolicy.createTopPanel method.
 The PictureUploadPolicy uses it to add a preview panel and two rotation buttons.
 - And much more ...  Please see the javadoc and the "HowTo customize it" page.
 
- Picture management is added by the PictureUploadPolicy. (see the Demo of the picture applet). This includes the 
+ Picture management is added by the PictureUploadPolicy. (see the Demo of the picture applet). This includes the
  following parameters:
 - Ability to set a maximum width and/or height for pictures,
 - Ability to rotate pictures, by quarters of turn,
@@ -90,9 +90,9 @@ The given samples contains the server scripts described below.
 ~~~~~~~~~~~~~~~~~~~~~~~
 3.0 Self Sign Applet.
 ~~~~~~~~~~~~~~~~~~~~~~~
-  The applet must be signed, to be allowed to access to files on the client side. The best way is to sign the applet 
+  The applet must be signed, to be allowed to access to files on the client side. The best way is to sign the applet
 with a real way.
-  Here is an explanation on how to sign the with a 'test' certificate. You _must_ do that after each modification of 
+  Here is an explanation on how to sign the with a 'test' certificate. You _must_ do that after each modification of
 the jar package.
     - Generate Private/Public key set.
        keytool -genkey -alias "jupload" -validity 3600 -dname "CN=JUpload, OU=Testing/Demo, O=JUpload.SourceForge.net, L=SourceForge, S=SourceForge, C=SG"
@@ -109,7 +109,7 @@ https://sourceforge.net/forum/forum.php?thread_id=2991519&forum_id=199106
 ~~~~~~~~~~~~~~~~~~~~~~
 4.0	Server scripts
 ~~~~~~~~~~~~~~~~~~~~~~
-The applet upload files to the server. Then, the server must handle the uploaded file. Here is an example, in java, 
+The applet upload files to the server. Then, the server must handle the uploaded file. Here is an example, in java,
 of the way to handle the incoming file.
 
 Here's a simple JSP script to store each uploaded file in the 'c:\temp' directory (see /wwwroot/pages/parseRequest.jsp for the last version)
@@ -136,20 +136,20 @@ Here's a simple JSP script to store each uploaded file in the 'c:\temp' director
 	//The code below is directly taken from the jakarta fileupload common classes
 	//All informations, and download, available here : http://jakarta.apache.org/commons/fileupload/
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	// Create a factory for disk-based file items
 	DiskFileItemFactory factory = new DiskFileItemFactory();
-	
+
 	// Set factory constraints
 	factory.setSizeThreshold(ourMaxMemorySize);
 	factory.setRepository(new File(ourTempDirectory));
-	
+
 	// Create a new file upload handler
 	ServletFileUpload upload = new ServletFileUpload(factory);
-	
+
 	// Set overall request size constraint
 	upload.setSizeMax(ourMaxRequestSize);
-	
+
 	// Parse the request
 	List /* FileItem */ items = upload.parseRequest(request);
 	// Process the uploaded items
@@ -158,7 +158,7 @@ Here's a simple JSP script to store each uploaded file in the 'c:\temp' director
     File fout;
 	while (iter.hasNext()) {
 	    fileItem = (FileItem) iter.next();
-	
+
 	    if (fileItem.isFormField()) {
 	        //This should not occur, here.
 	        out.println(" ------------------------------ ");
@@ -176,7 +176,7 @@ Here's a simple JSP script to store each uploaded file in the 'c:\temp' director
 	        fout = new File(ourTempDirectory + (new File(fileItem.getName())).getName());
 	        out.println("File Out: " + fout.toString());
 	        // write the file
-	        fileItem.write(fout);	        
+	        fileItem.write(fout);
 	    }
 	}
   }catch(Exception e){
@@ -186,10 +186,10 @@ Here's a simple JSP script to store each uploaded file in the 'c:\temp' director
 
 
 ---------------------------------------------------------------------
-You can also read the file in php, using the $_FILES array. The uploaded filename is controled in the applet by the 
-UploadPolicy.getUploadFilename method. The default behaviour is to return 'FileN' where N is the number of the 
-uploaded file (for instance 0 to 4 when 5 files are uploaded). The CoppermineUploadPolicy changes that: here, files 
-are uploaded one by one, and the uploaded file name is userpicture. The file is then managed in php by using the 
+You can also read the file in php, using the $_FILES array. The uploaded filename is controled in the applet by the
+UploadPolicy.getUploadFilename method. The default behaviour is to return 'FileN' where N is the number of the
+uploaded file (for instance 0 to 4 when 5 files are uploaded). The CoppermineUploadPolicy changes that: here, files
+are uploaded one by one, and the uploaded file name is userpicture. The file is then managed in php by using the
 $_FILES['userpicture'] array.
 
 See php doc for all details.
@@ -214,5 +214,5 @@ First try to sign the applet. Don't forget to close your navigator, to make sure
  Don't forget to close your navigator, to make sure that your new applet is loaded.
 
  4) Any other problem  ?
- 
+
 Please take a look to the available documentation on http://jupload.sourceforge.net

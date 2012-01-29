@@ -49,11 +49,11 @@ import wjhk.jupload2.policies.UploadPolicy;
  * <br>
  * In order to use it, simply change the postURL argument to the applet to
  * contain the appropriate ftp:// link. The format is:
- * 
+ *
  * <pre>
  *         ftp://username:password@myhost.com:21/directory
  * </pre>
- * 
+ *
  * Where everything but the host is optional. There is another parameter that
  * can be passed to the applet named 'binary' which will set the file transfer
  * mode based on the value. The possible values here are 'true' or 'false'. It
@@ -62,7 +62,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * free to! Also, there is a 'passive' parameter which also has a value of
  * 'true' or 'false' which sets the connection type to either active or passive
  * mode.
- * 
+ *
  * @author Evin Callahan (inheritance from DefaultUploadThread built by
  *         etienne_sf)
  * @author Daystar Computer Services
@@ -135,10 +135,10 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     /**
      * Creates a new instance. Performs the connection to the server based on
      * the matcher created in the main.
-     * 
+     *
      * @param uploadPolicy
      * @param fileUploadManagerThread
-     * 
+     *
      * @throws JUploadException
      * @throws IllegalArgumentException if any error occurs. message is error
      */
@@ -413,7 +413,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     /**
      * Will set the binary/ascii value based on the parameters to the applet.
      * This could be done by file extension too but it is not implemented.
-     * 
+     *
      * @param index The index of the file that we want to upload, in the array
      *            of files to upload.
      * @throws IOException if an error occurs while setting mode data
@@ -437,7 +437,7 @@ public class FileUploadThreadFTP extends DefaultFileUploadThread {
     /**
      * Create all relative sub-directories, so the structure on the server
      * reflects the structure of the uploaded files.
-     * 
+     *
      * @throws JUploadIOException When an error occurs during folder creation
      */
     // A tester

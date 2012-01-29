@@ -39,9 +39,9 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
 /**
  * This class implements the FileData interface, and is responsible to do the
  * actual upload of the files.
- * 
+ *
  * @author etienne_sf
- * 
+ *
  */
 public class UploadFileData implements FileData {
 
@@ -54,7 +54,7 @@ public class UploadFileData implements FileData {
     /**
      * Instance of the fileUploadManagerThread. This allow this class to send
      * feedback to the thread.
-     * 
+     *
      * @see FileUploadManagerThread#nbBytesUploaded(long)
      */
     private FileUploadManagerThread fileUploadManagerThread = null;
@@ -63,7 +63,7 @@ public class UploadFileData implements FileData {
      * inputStream contains the stream that read from the file to upload. This
      * may be a transformed version of the file (for instance, a compressed
      * one).
-     * 
+     *
      * @see FileData#getInputStream()
      */
     private InputStream inputStream = null;
@@ -101,7 +101,7 @@ public class UploadFileData implements FileData {
 
     /**
      * Standard constructor for the UploadFileData class.
-     * 
+     *
      * @param fileDataParam The file data the this instance must transmist.
      * @param fileUploadThreadParam The current instance of
      *            {@link FileUploadThread}
@@ -128,7 +128,7 @@ public class UploadFileData implements FileData {
      * it again (for instance the upload failed, and you want to do a retry),
      * you should not reuse this instance, but, instead, create a new
      * UploadFileData instance.
-     * 
+     *
      * @return Number of bytes still to upload.
      * @see #getInputStream()
      */
@@ -141,7 +141,7 @@ public class UploadFileData implements FileData {
      * <U>Caution:</U> since 3.3.0, this method has been rewrited. The file is
      * now parsed once within this method. This allows proper calculation of the
      * file head and tail, before upload.
-     * 
+     *
      * @return The corresponding MD5 sum.
      */
     String getMD5() throws JUploadException {
@@ -182,7 +182,7 @@ public class UploadFileData implements FileData {
     /**
      * This methods writes the file data (see {@link FileData#getInputStream()}
      * to the given outputStream (the output toward the HTTP server).
-     * 
+     *
      * @param outputStream The stream on which the data is to be written.
      * @param amount The number of bytes to write.
      * @throws JUploadException if an I/O error occurs.
@@ -252,7 +252,7 @@ public class UploadFileData implements FileData {
     /**
      * This method closes the inputstream, and remove the file from the
      * filepanel. Then it calls {@link FileData#afterUpload()}.
-     * 
+     *
      * @see FileData#afterUpload()
      */
     public void afterUpload() {
@@ -356,11 +356,11 @@ public class UploadFileData implements FileData {
     /**
      * Retrieves the file name, that should be used in the server application.
      * Default is to send the original filename.
-     * 
+     *
      * @param index The index of this file in the current request to the server.
      * @return The real file name. Not used in FTP upload.
      * @throws JUploadException Thrown when an error occurs.
-     * 
+     *
      * @see UploadPolicy#getUploadFilename(FileData, int)
      */
     public String getUploadFilename(int index) throws JUploadException {
@@ -372,11 +372,11 @@ public class UploadFileData implements FileData {
      * the technical name used to retrieve the file content. Default is File0,
      * File1... This method just calls the
      * {@link UploadPolicy#getUploadFilename(FileData, int)} method.
-     * 
+     *
      * @param index The index of this file in the current request to the server.
      * @return The technical upload file name. Not used in FTP upload.
      * @throws JUploadException
-     * 
+     *
      * @see UploadPolicy#getUploadName(FileData, int)
      */
     public String getUploadName(int index) throws JUploadException {
@@ -388,7 +388,7 @@ public class UploadFileData implements FileData {
      * {@link FileData} interface, this method may be called after
      * {@link #afterUpload()}, at one condition: that it has been called once
      * before {@link #afterUpload()} is called.
-     * 
+     *
      * @see FileData#getUploadLength()
      */
     public long getUploadLength() throws JUploadException {

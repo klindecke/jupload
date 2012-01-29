@@ -56,7 +56,7 @@ public class SortArrowIcon implements Icon {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param direction The desired direction, either {@link #ASCENDING},
      *            {@link #DESCENDING} or {@link #NONE}
      */

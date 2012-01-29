@@ -38,7 +38,7 @@ import wjhk.jupload2.context.JUploadContext;
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy},
  * {@link wjhk.jupload2.policies.CoppermineUploadPolicy}
  * </UL>
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -48,7 +48,7 @@ public class UploadPolicyFactory {
      * Returns an upload Policy for the given applet and URL. All other
      * parameters for the uploadPolicy are take from avaiable applet parameters
      * (or from system properties, if it is not run as an applet).
-     * 
+     *
      * @param theAppletContext if not null : use this Applet Parameters. If
      *            null, use System properties.
      * @return The newly created UploadPolicy.
@@ -164,7 +164,7 @@ public class UploadPolicyFactory {
     /**
      * Help to log debug information to the user. Use of log4j, one day in the
      * future, would help.
-     * 
+     *
      * @param currentDebugLevel
      */
     private static void logDebug(String msg, int currentDebugLevel) {

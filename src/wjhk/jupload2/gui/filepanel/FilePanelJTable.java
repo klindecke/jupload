@@ -57,7 +57,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param jup The parent upload panel.
      * @param uploadPolicy The policy for retrieval of various settings.
      */
@@ -82,7 +82,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
     /**
      * Set the model. Forces the model to be a FilePanelDataModel2. This method
      * calls the {@link JTable#setModel(javax.swing.table.TableModel)} method.
-     * 
+     *
      * @param filePanelDataModel
      */
     public void setModel(FilePanelDataModel2 filePanelDataModel) {
@@ -92,7 +92,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
 
     /**
      * Retrieve the currently sorted column.
-     * 
+     *
      * @return the index of the currently sorted column.
      */
     public int getSortedColumnIndex() {
@@ -101,7 +101,7 @@ public class FilePanelJTable extends JTable implements MouseListener {
 
     /**
      * Retrieve the current sort order.
-     * 
+     *
      * @return true, if the current sort order is ascending, false otherwise.
      */
     public boolean isSortedColumnAscending() {

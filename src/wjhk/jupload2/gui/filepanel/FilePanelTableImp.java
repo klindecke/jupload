@@ -38,7 +38,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * Implementation of the FilePanel : it creates the
  * {@link wjhk.jupload2.gui.filepanel.FilePanelJTable}, and handles the
  * necessary functionalities.
- * 
+ *
  * @author William JinHua Kwong
  * @version $Revision$
  */
@@ -63,7 +63,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param juploadPanel The upload panel (parent).
      * @param uploadPolicy The upload policy to apply.
      */
@@ -116,7 +116,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
 
     /**
      * This method allows a recursive calls through the file hierarchy.
-     * 
+     *
      * @param filesToUpload
      * @param root
      * @throws JUploadExceptionStopAddingFiles
@@ -139,7 +139,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
 
     /**
      * Adds a single file into the file list.
-     * 
+     *
      * @param filesToUpload
      * @param root
      * @throws JUploadExceptionStopAddingFiles
@@ -193,7 +193,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     /**
      * Removes all occurences of a file from the list. Each file should only
      * appear once here, but nobodody knows !
-     * 
+     *
      * @param fileData The file to remove
      */
     public final void remove(FileData fileData) {
@@ -222,7 +222,7 @@ public class FilePanelTableImp extends JPanel implements FilePanel {
     /**
      * Return the component on which drop event can occur. Used by
      * {@link JUploadPanel}, when initializing the DropTarget.
-     * 
+     *
      * @return Component on which the drop event can occur.
      */
     public Component getDropComponent() {
