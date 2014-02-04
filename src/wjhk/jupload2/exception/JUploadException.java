@@ -24,7 +24,7 @@ package wjhk.jupload2.exception;
 
 /**
  * A new kind of exceptions. Currently : no other specialization than its name.
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -36,7 +36,7 @@ public class JUploadException extends Exception {
 
     /**
      * Creates a new instance with a specified message.
-     * 
+     *
      * @param message The message to be associated with this instance.
      */
     public JUploadException(String message) {
@@ -52,7 +52,7 @@ public class JUploadException extends Exception {
 
     /**
      * Creates a new instance with a specified original exception.
-     * 
+     *
      * @param ex The exception that was originally thrown.
      */
     public JUploadException(Exception ex) {
@@ -68,7 +68,7 @@ public class JUploadException extends Exception {
 
     /**
      * Creates a new instance with a specified message and original exception.
-     * 
+     *
      * @param message The message to be associated with this instance.
      * @param ex The exception that was originally thrown.
      */
@@ -86,7 +86,7 @@ public class JUploadException extends Exception {
     /**
      * Retrieves the human readable location of this exception (Class.method,
      * filename, linenumber)
-     * 
+     *
      * @return The location where this exception was thrown.
      */
     public String getLocation() {
@@ -99,7 +99,7 @@ public class JUploadException extends Exception {
      * or<BR>
      * wjhk.jupload2.exception.JUploadIOException (if there is no cause given to
      * the JUploadException constructor).
-     * 
+     *
      * @return The class name(s) that can be displayed in an error message.
      */
     public String getClassNameAndClause() {

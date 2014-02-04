@@ -50,7 +50,7 @@ import wjhk.jupload2.upload.helper.ByteArrayEncoder;
  * {@link UploadPolicy#createFileData(File, File)} method. This method can be
  * overrided in a new upoad policy, to create an instance of another FileData.
  * See {@link PictureFileData} for an example about FileData customization.
- * 
+ *
  * @author etienne_sf
  */
 
@@ -61,7 +61,7 @@ public interface FileData {
      * instance should then call the
      * {@link ByteArrayEncoder#appendTextProperty(String, String, int)} method to add
      * each file property to the current upload.
-     * 
+     *
      * @param bae The byte encoder, where the properties must be added
      * @param index Index of the file concerned by this value. -1 if this is a
      *            global parameter.
@@ -76,7 +76,7 @@ public interface FileData {
      * Prepare the fileData to upload. For instance, picture data can be resized
      * before upload (see {@link PictureFileData}. This method is called before
      * the upload of this file.
-     * 
+     *
      * @see FileUploadThread
      * @throws JUploadException Encapsulation of the Exception, if any would
      *             occurs.
@@ -87,7 +87,7 @@ public interface FileData {
      * Get size of upload, which may be different from the actual file length.
      * This call is valid only after a call to {@link #beforeUpload()} and
      * before the call to {@link #afterUpload()}.
-     * 
+     *
      * @return The length of upload. In this class, this is the size of the
      *         file, as it isn't transformed for upload. This size may change if
      *         encoding is necessary (needs a new FileData class), or if picture
@@ -112,7 +112,7 @@ public interface FileData {
      * them to the webserver. The caller is responsible for closing this stream.<BR>
      * This method may only be called when {@link #isPreparedForUpload()}
      * returns true.
-     * 
+     *
      * @throws JUploadException Encapsulation of the Exception, if any would
      *             occurs.
      * @throws IllegalStateException When the upload is not prepared (before a
@@ -125,7 +125,7 @@ public interface FileData {
     /**
      * Get the original filename. This is the name of the file, into the local
      * hardrive
-     * 
+     *
      * @return The original filename
      */
     public String getFileName();
@@ -147,14 +147,14 @@ public interface FileData {
 
     /**
      * Get the directory of the file.
-     * 
+     *
      * @return The directory where this file is stored.
      */
     public String getDirectory();
 
     /**
      * This function return the FileData content type.
-     * 
+     *
      * @return The mimeType for the file.
      */
     public String getMimeType();
@@ -162,21 +162,21 @@ public interface FileData {
     /**
      * Indicate if this file can be read. Take care of the File.canRead()
      * methods, that seems to be wrong from time to time.
-     * 
+     *
      * @return indicates whether the file can be read or not.
      */
     public boolean canRead();
 
     /**
      * Standard getter, for the file described by the FileData instance.
-     * 
+     *
      * @return the File instance associated with this row.
      */
     public File getFile();
 
     /**
      * Retrieves the path of this file relative to it's root dir
-     * 
+     *
      * @return This instance's relative path or an empty string if it was not
      *         created using a root parameter.
      */
@@ -186,7 +186,7 @@ public interface FileData {
      * Indicates whether the file can be uploaded or not. This boolean should be
      * set to true in the call to {@link #beforeUpload()}, and the to false in
      * the call to {@link #afterUpload()}.
-     * 
+     *
      * @return True if the file is ready for upload.
      * @throws IllegalStateException When the upload is not prepared (before a
      *             call to {@link #beforeUpload()} or after a call to

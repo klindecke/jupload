@@ -42,7 +42,7 @@ public class ColumnComparator implements Comparator<FileData>, Serializable {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param index The column index of the table data to be compared
      * @param ascending Specifies the sort order.
      */

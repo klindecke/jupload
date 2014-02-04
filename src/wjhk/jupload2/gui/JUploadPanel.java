@@ -57,7 +57,7 @@ import wjhk.jupload2.upload.FileUploadManagerThread;
  * work from within a navigator (an applet) or from a standard java application. <BR>
  * This compatibility is no more maintained, as a lot of code suppose access to
  * navigator parameters. Hope it will be restored...
- * 
+ *
  * @author William JinHua Kwong
  * @version $Revision$
  */
@@ -115,7 +115,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     /**
      * Standard constructor.
-     * 
+     *
      * @param logWindow The log window that should already have been created.
      *            This allows putting text into it, before the effective
      *            creation of the layout.
@@ -471,7 +471,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * This method opens the popup menu, if the mouseEvent is relevant. In this
      * case it returns true. Otherwise, it does nothing and returns false.
-     * 
+     *
      * @param mouseEvent The triggered mouse event.
      * @return true if the popup menu was opened, false otherwise.
      */
@@ -531,7 +531,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * Copy the log window content into the clipboard. Allows easy access to the
      * debug output.
-     * 
+     *
      */
     public void copyLogWindow() {
         this.logWindow.selectAll();
@@ -562,7 +562,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
     /**
      * The component that contains the log window. It is used to display the
      * content of the log window, with the relevant scroll bars.
-     * 
+     *
      * @return the jLogWindowPane
      */
     public JScrollPane getJLogWindowPane() {
@@ -579,7 +579,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
      * use the {@link #getJLogWindowPane()} method instead. The
      * {@link #logWindow} is embbeded in it.
      * </UL>
-     * 
+     *
      * @return the logWindow
      */
     protected JUploadTextArea getLogWindow() {
@@ -637,7 +637,7 @@ public class JUploadPanel extends JPanel implements ActionListener,
 
     /**
      * Standard setter for filePanel.
-     * 
+     *
      * @param filePanel
      */
     public void setFilePanel(FilePanel filePanel) {

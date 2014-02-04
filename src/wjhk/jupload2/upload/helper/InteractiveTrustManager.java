@@ -72,7 +72,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * certificate temporarily or permanently. If mode is CLIENT, then
  * certificate-based client authentication is performed. Finally, there is a
  * mode STRICT, which combines both SERVER and CLIENT modes.
- * 
+ *
  * @author felfert
  */
 public class InteractiveTrustManager implements X509TrustManager,
@@ -172,7 +172,7 @@ public class InteractiveTrustManager implements X509TrustManager,
 
     /**
      * Create a new instance.
-     * 
+     *
      * @param p The UploadPolicy to use for this instance.
      * @param hostname
      * @param passwd An optional password for the truststore.
@@ -278,7 +278,7 @@ public class InteractiveTrustManager implements X509TrustManager,
 
     /**
      * Retrieve key managers.
-     * 
+     *
      * @return The current array of key managers.
      */
     public KeyManager[] getKeyManagers() {
@@ -287,7 +287,7 @@ public class InteractiveTrustManager implements X509TrustManager,
 
     /**
      * Retrieve trust managers.
-     * 
+     *
      * @return The current array of trust managers
      */
     public X509TrustManager[] getTrustManagers() {
@@ -299,7 +299,7 @@ public class InteractiveTrustManager implements X509TrustManager,
     /**
      * As this class is used on the client side only, The implementation of this
      * method does nothing.
-     * 
+     *
      * @see javax.net.ssl.X509TrustManager#checkClientTrusted(java.security.cert.X509Certificate[],
      *      java.lang.String)
      */
@@ -311,7 +311,7 @@ public class InteractiveTrustManager implements X509TrustManager,
      * Format a DN. This method formats a DN (Distinguished Name) string as
      * returned from {@link javax.security.auth.x500.X500Principal#getName()} to
      * HTML table columns.
-     * 
+     *
      * @param dn The DN to format.
      * @param cn An optional CN (Common Name) to match against the CN in the DN.
      *            If this parameter is non null and the CN, encoded in the DN

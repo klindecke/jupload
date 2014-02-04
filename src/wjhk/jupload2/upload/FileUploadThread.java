@@ -34,7 +34,7 @@ public interface FileUploadThread {
      * Get the server response message. In HTTP mode, it's the body part,
      * without the HTTP headers.<BR>
      * Note: was getResponseMsg until release 3.4.1.
-     * 
+     *
      * @return The String that contains the HTTP response message (e.g.
      *         "SUCCESS")
      */
@@ -55,7 +55,7 @@ public interface FileUploadThread {
      * This method is created in this interface, and is implemented by
      * {@link DefaultFileUploadThread}, as this class is a subclass of
      * {@link Thread}.
-     * 
+     *
      * @return true if the thread is currently working.
      * @see java.lang.Thread#isAlive()
      */
@@ -65,7 +65,7 @@ public interface FileUploadThread {
      * This method is created in this interface, and is implemented by
      * {@link DefaultFileUploadThread}, as this class is a subclass of
      * {@link Thread}.
-     * 
+     *
      * @throws InterruptedException
      * @see java.lang.Thread#join()
      */
@@ -75,7 +75,7 @@ public interface FileUploadThread {
      * This method is created in this interface, and is implemented by
      * {@link DefaultFileUploadThread}, as this class is a subclass of
      * {@link Thread}.
-     * 
+     *
      * @param millisec
      * @throws InterruptedException
      * @see java.lang.Thread#join(long)
@@ -86,7 +86,7 @@ public interface FileUploadThread {
      * This method is created in this interface, and is implemented by
      * {@link DefaultFileUploadThread}, as this class is a subclass of
      * {@link Thread}.
-     * 
+     *
      * @see java.lang.Thread#start()
      */
     public void start();
@@ -95,7 +95,7 @@ public interface FileUploadThread {
      * This method is created in this interface, and is implemented by
      * {@link DefaultFileUploadThread}, as this class is a subclass of
      * {@link Thread}.
-     * 
+     *
      * @see java.lang.Thread#interrupt()
      */
     public void interrupt();
@@ -103,7 +103,7 @@ public interface FileUploadThread {
     /**
      * Changes the FileUploadManagerThread. The standard way is to give the
      * FileUploadManagerThread to the constructor.
-     * 
+     *
      * @param fileUploadManagerThread
      * @throws JUploadException
      * @see FileUploadManagerThread

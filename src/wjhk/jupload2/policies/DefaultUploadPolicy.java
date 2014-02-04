@@ -100,7 +100,7 @@ import wjhk.jupload2.upload.helper.InteractiveTrustManager;
  * current user session on the server. So, it allows right management and
  * context during the management of uploaded files, on the server.
  * </UL>
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -144,7 +144,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Indicate whether the log window is shown or not to the user. In all cases
      * it remains in memory, and stores all debug information. This allows a log
      * information, in case of an error occurs.
-     * 
+     *
      * @see #urlToSendErrorTo
      */
     private String showLogWindow = UploadPolicy.DEFAULT_SHOW_LOGWINDOW;
@@ -171,14 +171,14 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Stored value for the fileChooserIconFromFileContent applet property.
-     * 
+     *
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
     private int fileChooserIconFromFileContent = UploadPolicy.DEFAULT_FILE_CHOOSER_ICON_FROM_FILE_CONTENT;
 
     /**
      * Stored value for the fileChooserIconSize applet property.
-     * 
+     *
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
      */
     private int fileChooserIconSize = UploadPolicy.DEFAULT_FILE_CHOOSER_ICON_SIZE;
@@ -218,7 +218,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Contains the last exception that occurs in the applet.
-     * 
+     *
      * @see #displayErr(String, Exception)
      */
     private JUploadException lastException = null;
@@ -233,7 +233,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * This value is logged in the debug file, and in the debug output, for each
      * line. This allows to sort the outputed line correctly.
-     * 
+     *
      * @see #displayMsg(String, String)
      */
     private int messageId = 1;
@@ -293,7 +293,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * administrator. If yes, the full debug information is POSTed to this URL.
      * It's a little development on the server side to send a mail to the
      * webmaster, or just log this error into a log file.
-     * 
+     *
      * @see UploadPolicy#sendDebugInformation(String, Exception)
      */
     private String urlToSendErrorTo = UploadPolicy.DEFAULT_URL_TO_SEND_ERROR_TO;
@@ -322,7 +322,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * This Vector contains headers that will be added for each upload. It may
      * contains specific cookies, for instance.
-     * 
+     *
      * @see #onAppendHeader(ByteArrayEncoder)
      */
     private Vector<String> headers = new Vector<String>();
@@ -340,7 +340,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * The actual file, used for the debug log.
-     * 
+     *
      * @see #debugGenerateFile
      */
     protected File debugFile = null;
@@ -381,7 +381,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * The main constructor : use default values, and the given postURL.
-     * 
+     *
      * @param juploadContext The current juploadContext. As the reference to the
      *            current upload policy exists almost everywhere, this parameter
      *            allows any access to anyone on the juploadContext... including
@@ -553,11 +553,11 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * HTTP header "HTTP(.*)200OK$" is present: the test is currently non
      * blocking, because I can not test all possible HTTP configurations.<BR>
      * <LI>False if the previous conditions are not fullfilled. </DIR>
-     * 
+     *
      * <BR>
      * This method also looks for the stringUploadWarning regular expression.
      * Each time it is matched, the found message is displayed to the user.
-     * 
+     *
      * @param status The HTTP response code
      * @param msg The status message from the first line of the response (e.g.
      *            "200 OK").
@@ -721,7 +721,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * The DefaultUpload accepts all file types: we just return an instance of
      * FileData, without any test.
-     * 
+     *
      * @see UploadPolicy#createFileData(File, File)
      */
     public FileData createFileData(File file, File root)
@@ -752,7 +752,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * {@link wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton, JButton, JUploadPanel)}
      * . IT creates a JPanel, containing the three given JButton. It creates the
      * same panel as the original JUpload.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton,
      *      JButton, JUploadPanel)
      */
@@ -814,7 +814,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * This methods allow the upload policy to override the default disposition
      * of the components on the applet.
-     * 
+     *
      * @see UploadPolicy#addComponentsToJUploadPanel(JUploadPanel)
      */
     public void addComponentsToJUploadPanel(JUploadPanel jUploadPanel) {
@@ -868,7 +868,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Logs a stack trace for the given exception.
-     * 
+     *
      * @param throwable
      */
     private void displayStackTrace(Throwable throwable) {
@@ -889,7 +889,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * This method just logs an error.
-     * 
+     *
      * @param errorText
      * @param exception
      */
@@ -954,7 +954,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * If debug is off, the log window may not be visible. We switch the debug
      * to on, to be sure that some information will be displayed to the user. <BR>
      * If debug is -1, the log window remains hidden.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
      *      java.lang.Exception, int)
      */
@@ -1011,7 +1011,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * If debug is off, the log window may not be visible. We switch the debug
      * to on, to be sure that some information will be displayed to the user. <BR>
      * If debug is -1, the log window remains hidden.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#displayErr(java.lang.String,
      *      java.lang.Exception)
      */
@@ -1097,7 +1097,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * returns the filename and encodes it, if necessary
-     * 
+     *
      * @param filename the original filename
      * @return filename (encoded, if necessary)
      * @throws JUploadException
@@ -1153,7 +1153,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Setter for the {@link #httpUploadParameterName}. This value is used by
      * the {@link #getUploadName(FileData, int)} method, to generate the name of
      * the upload parameter that will contain the uploaded file.
-     * 
+     *
      * @throws JUploadException
      */
     private void setHttpUploadParameterName(String httpUploadParameterName)
@@ -1183,7 +1183,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * the {@link #getUploadName(FileData, int)} method, to generate the name of
      * the upload parameter that will contain the uploaded file. Depending on
      * this value, the parameter will be an iteration or an array.
-     * 
+     *
      * @throws JUploadException
      */
     private void setHttpUploadParameterType(String httpUploadParameterType)
@@ -1474,7 +1474,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * This method manages all applet parameters. It allows javascript to update
      * their value, for instance after the user chooses a value in a list ...
-     * 
+     *
      * @throws JUploadException
      * @see wjhk.jupload2.policies.UploadPolicy#setProperty(java.lang.String,
      *      java.lang.String)
@@ -1534,7 +1534,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * debugLevel. It is called by the {@link #setDebugLevel(int)} method. It
      * should be override by any subclasses, that should display its own
      * parameters, then call <I>super.displayParameterStatus()</I>.
-     * 
+     *
      * @see UploadPolicy#displayParameterStatus()
      */
     public void displayParameterStatus() {
@@ -1636,7 +1636,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Set the {@link #afterUploadURL}
-     * 
+     *
      * @param afterUploadURL The URL to use.
      * @throws JUploadException
      */
@@ -1761,7 +1761,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Set the debug level.
-     * 
+     *
      * @param debugLevel The new debuglevel.
      * @param displayAppletParameterList Flag. If set to true, the applet's
      *            parameters are shown.
@@ -1787,7 +1787,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Getter for fileChooserIconFromFileContent.
-     * 
+     *
      * @return Current value for fileChooserIconFromFileContent
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
@@ -1798,7 +1798,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * Setter for fileChooserIconFromFileContent. Current allowed values are:
      * -1, 0, 1. Default value is 0.
-     * 
+     *
      * @param fileChooserIconFromFileContent Value to be set. If the value is
      *            not allowed (not -1, 0 or 1), the current value is unchangeed.
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
@@ -1810,7 +1810,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Getter for fileChooserIconSize.
-     * 
+     *
      * @return Current value for fileChooserIconSize
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
      */
@@ -1820,7 +1820,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Setter for fileChooserIconSize.
-     * 
+     *
      * @param fileChooserIconSize Value to be set.
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_SIZE
      */
@@ -1856,7 +1856,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
         /*
          * Patch given by Patrick
-         * 
+         *
          * Use of a specific class loader. The standard ResourceBundle checks
          * first for a class that has the name of the resource bundle. Since
          * there is no such class in the jar file, the AppletClassLoader makes a
@@ -2145,7 +2145,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * Vector. These headers are added to the headers list during applet
      * initialization. There is currently no automatic way to remove the headers
      * coming from specificHeaders, after initialization.
-     * 
+     *
      * @param specificHeaders
      */
     protected void setSpecificHeaders(String specificHeaders) {
@@ -2320,7 +2320,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * output (displayed or not by the displayDebug, for instance) can be stored
      * in a file, or sent to the webmaster. This can help to identify and
      * correct problems that can occurs on the various computer configurations.
-     * 
+     *
      * @param msg
      */
     protected synchronized void addMsgToDebugLog(String msg) {
@@ -2361,7 +2361,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * e.g.:<BR>
      * messageId[tab]14:04:30.718[tab]FileUploadManagerThread[tab][DEBUG][tab]
      * Found one reader for jpg extension
-     * 
+     *
      * @param tag The tag ([WARN], [ERROR]...)
      * @param msg The message to format.
      * @return The formatted message.
@@ -2381,7 +2381,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * Displays a message. If the logWindow panel is set, the message is
      * displayed on it. If not, the System.out.println function is used.
-     * 
+     *
      * @param msg The message to display.
      */
     private void displayMsg(String tag, String msg) {
@@ -2401,7 +2401,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Default reaction after a successful drop operation: no action.
-     * 
+     *
      * @see UploadPolicy#afterFileDropped(DropTargetDropEvent)
      */
     public void afterFileDropped(DropTargetDropEvent dropEvent) {
@@ -2411,7 +2411,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
     /**
      * Default implementation for {@link UploadPolicy#createFileChooser()}: just
      * a creation of a {@link JUploadFileChooser}.
-     * 
+     *
      * @see UploadPolicy#createFileChooser()
      */
     public JUploadFileChooser createFileChooser() {
@@ -2423,7 +2423,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
      * {@link JUploadFileFilter#accept(File)} which just calls this method. This
      * method checks that the file extension corresponds to the
      * allowedFileExtensions applet parameter.
-     * 
+     *
      * @see UploadPolicy#fileFilterAccept(File)
      */
     public boolean fileFilterAccept(File file) {
@@ -2459,7 +2459,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Returns null: the default icon is used.
-     * 
+     *
      * @see UploadPolicy#fileViewGetIcon(File)
      */
     public Icon fileViewGetIcon(File file) {
@@ -2473,7 +2473,7 @@ public class DefaultUploadPolicy implements UploadPolicy {
 
     /**
      * Set the last exception.
-     * 
+     *
      * @param exception The last exception that occurs into the applet.
      */
     public void setLastException(JUploadException exception) {

@@ -53,7 +53,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * This class implements the task of connecting to a HTTP(S) url using a proxy.
- * 
+ *
  * @author felfert
  */
 public class HttpConnect {
@@ -69,7 +69,7 @@ public class HttpConnect {
 
     /**
      * Helper function for perforing a proxy CONNECT request.
-     * 
+     *
      * @param proxy The proxy to use.
      * @param host The destination's hostname.
      * @param port The destination's port
@@ -103,7 +103,7 @@ public class HttpConnect {
 
     /**
      * Connects to a given URL.
-     * 
+     *
      * @param url The URL to connect to
      * @param proxy The proxy to be used, may be null if direct connection is
      *            needed
@@ -199,7 +199,7 @@ public class HttpConnect {
 
     /**
      * Connects to a given URL automatically using a proxy.
-     * 
+     *
      * @param url The URL to connect to
      * @return A socket, connected to the specified URL. May be null if an error
      *         occurs.
@@ -228,7 +228,7 @@ public class HttpConnect {
      * Retrieve the protocol to be used for the postURL of the current policy.
      * This method issues a HEAD request to the postURL and then examines the
      * protocol version returned in the response.
-     * 
+     *
      * @return The string, describing the protocol (e.g. "HTTP/1.1")
      * @throws URISyntaxException
      * @throws IOException
@@ -346,7 +346,7 @@ public class HttpConnect {
     /**
      * Reaction of the applet when a 301, 302 et 303 return code is returned.
      * The postURL is changed according to the Location header returned.
-     * 
+     *
      * @param newLocation This new location may contain the
      *            http://host.name.domain part of the URL ... or not
      */
@@ -407,7 +407,7 @@ public class HttpConnect {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param policy The UploadPolicy to be used for logging.
      */
     public HttpConnect(UploadPolicy policy) {

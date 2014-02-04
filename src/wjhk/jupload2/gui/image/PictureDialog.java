@@ -39,7 +39,7 @@ import wjhk.jupload2.policies.UploadPolicy;
 
 /**
  * A maximized modal dialog box, that display the selected picture.
- * 
+ *
  * @author etienne_sf
  */
 public class PictureDialog extends JDialog implements ActionListener,
@@ -58,7 +58,7 @@ public class PictureDialog extends JDialog implements ActionListener,
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param owner The parent frame.
      * @param pictureFileData The picture to manage.
      * @param uploadPolicy The upload policy which applies.

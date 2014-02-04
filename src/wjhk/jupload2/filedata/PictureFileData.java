@@ -63,7 +63,7 @@ import wjhk.jupload2.policies.UploadPolicy;
  * error, despite the System.finalize and System.gc I've put everywhere in the
  * code!
  * </UL>
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -148,7 +148,7 @@ public class PictureFileData extends DefaultFileData {
 
     /**
      * Standard constructor: needs a PictureFileDataPolicy.
-     * 
+     *
      * @param file The files which data are to be handled by this instance.
      * @param root The root directory, to calculate the relative dir (see
      *            {@link #getRelativeDir()}.
@@ -179,7 +179,7 @@ public class PictureFileData extends DefaultFileData {
      * Free any available memory. This method is called very often here, to be
      * sure that we don't use too much memory. But we still run out of memory in
      * some case.
-     * 
+     *
      * @param caller Indicate the method or treatment from which this method is
      *            called.
      * @param uploadPolicy The current upload policy is not available, to this
@@ -285,7 +285,7 @@ public class PictureFileData extends DefaultFileData {
     /**
      * Returns the number of bytes, for this upload. If needed, that is, if
      * uploadlength is unknown, {@link #beforeUpload()} is called.
-     * 
+     *
      * @return The length of upload. In this class, this is ... the size of the
      *         original file, or the transformed file!
      */
@@ -309,7 +309,7 @@ public class PictureFileData extends DefaultFileData {
      * This function assumes that the {@link #getUploadLength()} method has
      * already be called : it is responsible for creating the temporary file (if
      * needed). If not called, the original file will be sent.
-     * 
+     *
      * @return An inputStream
      */
     @Override
@@ -352,7 +352,7 @@ public class PictureFileData extends DefaultFileData {
      * width and height will be less or equal than the given maximum width and
      * height. The scale is maintained. Thus the width or height may be inferior
      * than the given values.
-     * 
+     *
      * @param canvas The canvas on which the picture will be displayed.
      * @param shadow True if the pictureFileData should store this picture.
      *            False if the pictureFileData instance should not store this
@@ -424,7 +424,7 @@ public class PictureFileData extends DefaultFileData {
     /**
      * This function is used to rotate the picture. The current rotation state
      * is kept in the quarterRotation private attribute.
-     * 
+     *
      * @param quarter Number of quarters (90 degrees) the picture should rotate.
      *            1 means rotating of 90 degrees clockwise. Can be negative.
      */
@@ -455,7 +455,7 @@ public class PictureFileData extends DefaultFileData {
 
     /**
      * Indicates if this file is actually a picture or not.
-     * 
+     *
      * @return the isPicture flag.
      */
     public boolean isPicture() {
@@ -559,7 +559,7 @@ public class PictureFileData extends DefaultFileData {
      * calling this method, it will be set. If set before, the existing
      * {@link #transformedPictureFile} is replaced by the newly transformed
      * picture file. It is cleared if an error occured. <BR>
-     * 
+     *
      * @param imageHelper The {@link ImageHelper} that was initialized with
      *            current parameters.
      */
@@ -669,7 +669,7 @@ public class PictureFileData extends DefaultFileData {
     /**
      * If {@link #transformedPictureFile} is null, create a new temporary file,
      * and assign it to {@link #transformedPictureFile}. Otherwise, no action.
-     * 
+     *
      * @throws IOException
      */
     private synchronized void createTransformedTempFile()
@@ -696,9 +696,9 @@ public class PictureFileData extends DefaultFileData {
     /**
      * This method loads the picture width and height of the picture. It's
      * called by the current instance when necessary.
-     * 
+     *
      * @throws JUploadIOException
-     * 
+     *
      * @see #getOriginalHeight()
      * @see #getOriginalWidth()
      */
@@ -735,7 +735,7 @@ public class PictureFileData extends DefaultFileData {
     /**
      * If {@link #workingCopyTempFile} is null, create a new temporary file, and
      * assign it to {@link #transformedPictureFile}. Otherwise, no action.
-     * 
+     *
      * @throws IOException
      */
     private synchronized void createWorkingCopyTempFile() throws IOException {
@@ -778,7 +778,7 @@ public class PictureFileData extends DefaultFileData {
      * workaround for the following JVM bug: once in the navigator, it can't
      * transform picture read from a file whose name contains non-ASCII
      * characters, like French accents.
-     * 
+     *
      * @return The file that contains the original picture, as the source for
      *         picture transformation
      * @throws JUploadIOException
@@ -859,7 +859,7 @@ public class PictureFileData extends DefaultFileData {
      * Returns an ImageIcon for the given file, resized according to the given
      * dimensions. If the original file contains a pictures smaller than these
      * width and height, the picture is returned as is (nor resized).
-     * 
+     *
      * @param pictureFile The file, containing a picture, from which the user
      *            wants to extract a static picture.
      * @param maxWidth The maximum allowed width for the static picture to
@@ -901,7 +901,7 @@ public class PictureFileData extends DefaultFileData {
      * the core Java API. As in the windows world, file extension may be in
      * uppercase, the test is based on the lowercase value for the given file
      * extension.
-     * 
+     *
      * @param file
      * @return true if the file can be opened as a picture, false otherwise.
      */

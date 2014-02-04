@@ -28,7 +28,7 @@ import wjhk.jupload2.exception.JUploadException;
  * These is a now deprecated specialization of
  * {@link wjhk.jupload2.policies.DefaultUploadPolicy}. The DefaultUploadPolicy
  * now reads itself the nbFilesPerRequest applet parameter. <BR>
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  * @see #CustomizedNbFilesPerRequestUploadPolicy(JUploadContext)

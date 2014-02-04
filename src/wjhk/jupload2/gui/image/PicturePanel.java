@@ -99,7 +99,7 @@ public class PicturePanel extends Canvas implements MouseListener,
 
     /**
      * Standard constructor.
-     * 
+     *
      * @param hasToStoreOffscreenPicture
      * @param uploadPolicy The current upload policy
      */
@@ -121,7 +121,7 @@ public class PicturePanel extends Canvas implements MouseListener,
     /**
      * This setter is called by {@link PictureFileData} to set the picture that
      * is to be previewed.
-     * 
+     *
      * @param pictureFileData The FileData for the image to be displayed. Null
      *            if no picture should be displayed.
      * @param button1 A button that will be activated or not, depending of the
@@ -198,7 +198,7 @@ public class PicturePanel extends Canvas implements MouseListener,
 
     /**
      * This function adds a quarter rotation to the current picture.
-     * 
+     *
      * @param quarter Number of quarters (90�) the picture should rotate. 1
      *            means rotating of 90� clockwise (?). Can be negative
      *            (counterclockwise), more than 1...

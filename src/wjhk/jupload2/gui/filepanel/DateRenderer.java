@@ -43,7 +43,7 @@ public class DateRenderer extends DefaultTableCellRenderer {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param uploadPolicy The policy to be used for providing the translated
      *            format string.
      */

@@ -95,7 +95,7 @@ import wjhk.jupload2.gui.image.PicturePanel;
  * NAME="lang" VALUE="fr"> <PARAM NAME="maxPicHeight" VALUE="768"> <PARAM
  * NAME="maxPicWidth" VALUE="1024"> <PARAM NAME="debugLevel" VALUE="0"> Java 1.4
  * or higher plugin required. </APPLET> </XMP>
- * 
+ *
  * @author etienne_sf
  * @version $Revision$
  */
@@ -114,7 +114,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * <BR>
      * Default : false, because the applet, while in the navigator, runs too
      * quickly out of memory.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_STORE_BUFFERED_IMAGE
      */
     private boolean storeBufferedImage;
@@ -122,14 +122,14 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * This parameter can contain a list to convert image formats. <br />
      * see class description of {@link UploadPolicy} for details
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_TARGET_PICTURE_FORMAT
      */
     private String targetPictureFormat;
 
     /**
      * see class description of {@link UploadPolicy} for details
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_KEEP_ORIG_EXTENSION
      */
     private boolean keepOrigExtension;
@@ -142,7 +142,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /**
      * Stored value for the fileChooserIconFromFileContent applet property.
-     * 
+     *
      * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
      */
     private boolean fileChooserImagePreview = UploadPolicy.DEFAULT_FILE_CHOOSER_IMAGE_PREVIEW;
@@ -159,7 +159,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * between widht and height are maintained. Negative if no maximum width (no
      * resizing). <BR>
      * Default: -1.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_MAX_WIDTH
      */
     private int maxWidth = -1;
@@ -170,7 +170,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * between width and height are maintained. Negative if no maximum height
      * (no resizing). <BR>
      * Default: -1.
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#DEFAULT_MAX_HEIGHT
      */
     private int maxHeight = -1;
@@ -178,7 +178,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * Used to control the compression of a jpeg written file, after
      * transforming a picture.
-     * 
+     *
      * @see UploadPolicy#PROP_PICTURE_COMPRESSION_QUALITY
      */
     private float pictureCompressionQuality = UploadPolicy.DEFAULT_PICTURE_COMPRESSION_QUALITY;
@@ -219,7 +219,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * The standard constructor, which transmit most informations to the
      * super.Constructor().
-     * 
+     *
      * @param juploadContext Reference to the current applet. Allows access to
      *            javascript functions.
      * @throws JUploadException
@@ -263,7 +263,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * allows only pictures: if the file is not a picture, this method returns
      * null, thus preventing the file to be added to the list of files to be
      * uploaded.
-     * 
+     *
      * @param file The file selected by the user (called once for each added
      *            file).
      * @return An instance of {@link PictureFileData} or null if file is not a
@@ -325,7 +325,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * <LI>Two rotation buttons, to rotate the currently selected picture.
      * <LI>A Preview area, to view the selected picture
      * </UL>
-     * 
+     *
      * @see wjhk.jupload2.policies.UploadPolicy#createTopPanel(JButton, JButton,
      *      JButton, JUploadPanel)
      */
@@ -388,7 +388,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * This method handles the clicks on the rotation buttons. All other actions
      * are managed by the {@link DefaultUploadPolicy}.
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
@@ -428,7 +428,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * screen preview of the choosen picture.<BR>
      * This method does nothing if the panel has no selected picture, that is
      * when pictureFileData is null.
-     * 
+     *
      * @see UploadPolicy#onFileDoubleClicked(FileData)
      */
     @Override
@@ -465,7 +465,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /**
      * Getter for fileChooserImagePreview.
-     * 
+     *
      * @return Current value for the applet parameter: fileChooserImagePreview
      * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
      */
@@ -476,7 +476,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * Setter for fileChooserIconFromFileContent. Current allowed values are:
      * -1, 0, 1. Default value is 0.
-     * 
+     *
      * @param fileChooserImagePreview new value to store, for the applet
      *            parameter: fileChooserImagePreview.
      * @see UploadPolicy#PROP_FILE_CHOOSER_IMAGE_PREVIEW
@@ -606,7 +606,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /**
      * we expect e.g. "png,bmp:jpg;gif:png;"
-     * 
+     *
      * @param targetPictureFormat the targetPictureFormat to set
      * @throws JUploadException if the conversionList is erroneous
      */
@@ -643,7 +643,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * This method manages the applet parameters that are specific to this
      * class. The super.setProperty method is called for other properties.
-     * 
+     *
      * @param prop The property which value should change
      * @param value The new value for this property. If invalid, the default
      *            value is used.
@@ -713,7 +713,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * Calls the {@link DefaultUploadPolicy#setWaitCursor()} method, then erases
      * the picture panel specific cursor.
-     * 
+     *
      * @see DefaultUploadPolicy#setCursor(Cursor)
      */
     @Override
@@ -726,7 +726,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * Calls the {@link DefaultUploadPolicy#setCursor(Cursor)} method, then set
      * the picture panel specific cursor.
-     * 
+     *
      * @see DefaultUploadPolicy#setCursor(Cursor)
      */
     @Override
@@ -739,7 +739,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
     /**
      * Creates the file chooser, from the default implementation, then add an
      * accessory to preview pictures.
-     * 
+     *
      * @see UploadPolicy#createFileChooser()
      */
     @Override
@@ -758,7 +758,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
      * Note: this method is called in a dedicated thread by the
      * JUploadFileChooser, to avoid to calculate the icon for all pictures, when
      * opening a new folder.
-     * 
+     *
      * @return The calculated ImageIcon, or null if no picture can be extracted.
      * @see UploadPolicy#fileViewGetIcon(File)
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
@@ -795,7 +795,7 @@ public class PictureUploadPolicy extends DefaultUploadPolicy implements
 
     /**
      * Implementation of the ImageObserver interface
-     * 
+     *
      * @param arg0
      * @param arg1
      * @param arg2

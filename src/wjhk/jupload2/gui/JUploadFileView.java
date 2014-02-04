@@ -109,7 +109,7 @@ class IconWorker implements Runnable {
     /**
      * The constructor only stores the file. The background thread will call the
      * loadIcon method.
-     * 
+     *
      * @param file The file whose icon must be loaded/calculated.
      */
     IconWorker(UploadPolicy uploadPolicy, JFileChooser fileChooser,
@@ -122,7 +122,7 @@ class IconWorker implements Runnable {
 
     /**
      * Returns the currently loaded icon for this file.
-     * 
+     *
      * @return The Icon to be displayed for this file.
      */
     Icon getIcon() {
@@ -190,7 +190,7 @@ class IconWorker implements Runnable {
 
 /**
  * This class provides the icon view for the file selector.
- * 
+ *
  * @author etienne_sf
  */
 public class JUploadFileView extends FileView implements
@@ -218,7 +218,7 @@ public class JUploadFileView extends FileView implements
     /**
      * This executor will crate icons from files, one at a time. It is used to
      * create these icon asynchronously.
-     * 
+     *
      * @see #execute(IconWorker)
      */
     ExecutorService executorService = null;
@@ -230,7 +230,7 @@ public class JUploadFileView extends FileView implements
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param uploadPolicy The upload policy to apply.
      * @param fileChooser The desired file chooser to use.
      */
@@ -297,7 +297,7 @@ public class JUploadFileView extends FileView implements
     /**
      * Waiting for JFileChooser events. Currently managed:
      * DIRECTORY_CHANGED_PROPERTY, to stop the to be loaded icons.
-     * 
+     *
      * @param e
      */
     public void propertyChange(PropertyChangeEvent e) {
@@ -326,7 +326,7 @@ public class JUploadFileView extends FileView implements
     /**
      * The fileChooserIconFromFileContent applet parameter defies which icon is
      * to be returned here.
-     * 
+     *
      * @see javax.swing.filechooser.FileView#getIcon(java.io.File)
      * @see UploadPolicy#PROP_FILE_CHOOSER_ICON_FROM_FILE_CONTENT
      */
@@ -384,7 +384,7 @@ public class JUploadFileView extends FileView implements
      * Implementation of ThreadFactory. Creates a thread in the
      * iconWorkerThreadGroup thread group. This thread group has the lower
      * available priority.
-     * 
+     *
      * @param runnable The runnable instance to start.
      * @return The newly created thread
      */
